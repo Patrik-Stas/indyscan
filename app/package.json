@@ -1,0 +1,34 @@
+{
+  "name": "nexttutorial",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon server/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@zeit/next-sass": "^0.1.2",
+    "autoprefixer": "^8.3.0",
+    "babel-plugin-module-resolver": "^3.1.1",
+    "babel-plugin-wrap-in-js": "^1.1.1",
+    "express": "^4.16.3",
+    "indyscan-storage": "file:../indyscan-storage",
+    "isomorphic-unfetch": "^3.0.0",
+    "mongodb": "^3.1.10",
+    "next": "^5.1.0",
+    "node-sass": "^4.8.3",
+    "postcss-easy-import": "^3.0.0",
+    "postcss-loader": "^2.1.4",
+    "raw-loader": "^0.5.1",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
+    "sass-loader": "^7.0.1",
+    "semantic-ui-react": "^0.84.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.9"
+  }
+}
