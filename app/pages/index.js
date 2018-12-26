@@ -4,6 +4,8 @@ import "../scss/style.scss";
 import Navbar from "../components/Navbar";
 import fetch from 'isomorphic-unfetch'
 import TxPreview from "../components/TxPreview";
+import Pagination from  'rc-pagination';
+import {Container} from 'semantic-ui-react';
 
 class Index extends Component {
 
@@ -18,19 +20,22 @@ class Index extends Component {
         return props
     }
 
+    onNextTxPage(foo, bar) {
+
+    }
+
 
     render() {
         return (
-            <section className="page-section">
-                <Head>
-                    <title>Hello World</title>
-                </Head>
-                <Navbar/>
+            <Container>
+                <Head/>
                 <h1>Hyperldeger Indy Scan</h1>
-                <div className="container mx-auto">
+                <Navbar/>
+                <div>
                     {this.props.txs.map(txn => <TxPreview tx={txn}/>)}
                 </div>
-            </section>
+                {/*<Pagination current={2} total={50} onChange={this.onNextTxPage}/>*/}
+            </Container>
         )
     }
 }
