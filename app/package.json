@@ -4,32 +4,50 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon server/index.js"
+    "dev": "nodemon server/index.js",
+    "test": "jest tests",
+    "build": "next build",
+    "start": "NODE_ENV=production node server/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@zeit/next-sass": "^0.1.2",
-    "autoprefixer": "^8.3.0",
-    "babel-plugin-module-resolver": "^3.1.1",
-    "babel-plugin-wrap-in-js": "^1.1.1",
+    "chart.js": "^2.7.3",
+    "date-format": "^2.0.0",
     "express": "^4.16.3",
     "indyscan-storage": "file:../indyscan-storage",
     "isomorphic-unfetch": "^3.0.0",
+    "lodash": "^4.17.11",
     "mongodb": "^3.1.10",
     "next": "^5.1.0",
     "node-sass": "^4.8.3",
-    "postcss-easy-import": "^3.0.0",
-    "postcss-loader": "^2.1.4",
     "raw-loader": "^0.5.1",
     "rc-pagination": "^1.17.5",
     "react": "^16.3.2",
+    "react-chartjs-2": "^2.7.4",
     "react-dom": "^16.3.2",
-    "sass-loader": "^7.0.1",
     "semantic-ui-react": "^0.84.0"
   },
   "devDependencies": {
-    "nodemon": "^1.18.9"
+    "@types/jest": "^23.3.10",
+    "autoprefixer": "^8.3.0",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.6",
+    "babel-loader": "6.2.4",
+    "babel-plugin-module-resolver": "^3.1.1",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-plugin-wrap-in-js": "^1.1.1",
+    "babel-polyfill": "6.26.0",
+    "babel-preset-react": "6.11.1",
+    "jest": "^23.6.0",
+    "jest-cli": "^23.6.0",
+    "nodemon": "^1.18.9",
+    "postcss-easy-import": "^3.0.0",
+    "postcss-loader": "^2.1.4",
+    "sass-loader": "^7.0.1"
   }
 }

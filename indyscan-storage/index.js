@@ -7,7 +7,14 @@ module.exports = async function createStorage(mongodb) {
     const domaintxs = mongodb.collection('txs-domain');
 
     async function getTxRange(skip, limit) {
-        return await domaintxs.find().limit(limit).skip(skip).sort({"txnMetadata.seqNo": -1}).toArray()
+        return await domaintxs.find().limit(limit).skip(skip).sort({"txnMetadata.seqNo": -1}).toArray();
+    }
+
+    async function getAllTimestamps() {
+        const arr = await domaintxs.find({}, { "projection" : {"txnMetadata.txnTime":1}}).toArray();
+        const filtered = arr.filter(t=>!!t.txnMetadata.txnTime).map(t => t.txnMetadata.txnTime * 1000)
+        return filtered
+
     }
 
     async function findMaxTxIdInDb() {
@@ -29,7 +36,8 @@ module.exports = async function createStorage(mongodb) {
     return {
         findMaxTxIdInDb,
         addTx,
-        getTxRange
+        getTxRange,
+        getAllTimestamps
     }
 
 }
