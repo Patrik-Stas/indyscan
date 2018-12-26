@@ -15,10 +15,21 @@ class Navbar extends Component {
           <Link href="/">
             <a title="Our API">Home</a>
           </Link>
-          <Link href="/about">
-            <a title="About Next JS">About Next JS</a>
+          <Link href="/tx-domain">
+            <a title="About Next JS">Domain</a>
           </Link>
-          <mark className="badge">Hello!</mark>
+
+          <Link href="/tx-network">
+              <a title="About Next JS">Network</a>
+          </Link>
+
+            <Link href="/tx-config">
+                <a title="About Next JS">Config</a>
+            </Link>
+
+          <Link href="/about">
+              <a title="About Next JS">About</a>
+          </Link>
         </div>
       </nav>
     );

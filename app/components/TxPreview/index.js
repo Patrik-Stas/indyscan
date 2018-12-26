@@ -16,9 +16,9 @@ class TxPreview extends Component {
                 <Item>
                     <div className="txPreview">
                     <Item.Content>
-                        <Item.Header>{this.props.tx.rootHash}</Item.Header>
+                        <Item.Header>No: {this.props.tx.txnMetadata.seqNo}</Item.Header>
                         <Item.Meta>Type: {this.props.tx.txn.type}</Item.Meta>
-                        <Item.Description>Version: {this.props.tx.ver}</Item.Description>
+                        <Item.Description>TxnId: {this.props.tx.txnMetadata.txnId}</Item.Description>
                     </Item.Content>
                     </div>
                 </Item>
