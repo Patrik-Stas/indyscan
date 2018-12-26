@@ -18,6 +18,7 @@ class TxPreview extends Component {
                     <Item.Content>
                         <Item.Header>No: {this.props.tx.txnMetadata.seqNo}</Item.Header>
                         <Item.Meta>Type: {this.props.tx.txn.type}</Item.Meta>
+                        <Item.Meta>Timestamp: {(new Date(this.props.tx.txnMetadata.txnTime * 1000)).toISOString()}</Item.Meta>
                         <Item.Description>TxnId: {this.props.tx.txnMetadata.txnId}</Item.Description>
                     </Item.Content>
                     </div>
