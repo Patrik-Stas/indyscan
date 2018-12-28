@@ -1,7 +1,7 @@
 const indy = require('indy-sdk');
 const util = require('util');
 
-export default async function createClient(poolName, walletName) {
+module.exports = async function createClient(poolName, walletName) {
 
     console.log(`Connecting to ${poolName }`);
     indy.setProtocolVersion(2);
@@ -24,11 +24,8 @@ export default async function createClient(poolName, walletName) {
     console.log(`Created did/verkey ${JSON.stringify(res)}`)
 
 
-    async function getTx(txid) {
-        const LEDGER_TYPE_POOL = '0';
-        const LEDGER_TYPE_DOMAIN = '1';
-        const LEDGER_TYPE_CONFIG = '2';
-        const getTx = await indy.buildGetTxnRequest(did, LEDGER_TYPE_DOMAIN, txid);
+    async function getTx(txid, ledgerType) {
+        const getTx = await indy.buildGetTxnRequest(did, ledgerType, txid);
         // console.log(`GetTx request:\n ${txid}: ${JSON.stringify(getTx, null, 2)}`)
         const tx = await indy.submitRequest(poolHandle, getTx);
         console.log(`Retrieved tx:\n ${txid}: ${JSON.stringify(tx)}`)
@@ -39,8 +36,7 @@ export default async function createClient(poolName, walletName) {
         }
     }
 
-
     return {
         getTx
     }
-}
+};
