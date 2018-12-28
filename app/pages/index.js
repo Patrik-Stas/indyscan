@@ -22,8 +22,18 @@ class MainPage extends Component {
         return await res.json();
     }
 
-    static async getTimeseries(baseUrl) {
-        let res = await fetch(`${baseUrl}/api/timeseries`);
+    static async getTimeseriesDomain(baseUrl) {
+        let res = await fetch(`${baseUrl}/api/tx-domain/timeseries`);
+        return await res.json();
+    }
+
+    static async getTimeseriesPool(baseUrl) {
+        let res = await fetch(`${baseUrl}/api/tx-pool/timeseries`);
+        return await res.json();
+    }
+
+    static async getTimeseriesConfig(baseUrl) {
+        let res = await fetch(`${baseUrl}/api/tx-config/timeseries`);
         return await res.json();
     }
 
@@ -32,39 +42,44 @@ class MainPage extends Component {
         const baseUrl = this.getBaseUrl(req);
         console.log(`Get initial props is running!`);
         const domainTxs = await this.getLastDomainTx(baseUrl);
-        const timeSeries = await this.getTimeseries(baseUrl);
-        return {txs: domainTxs.txs, timeSeries: timeSeries.histogram}
+        const timeseriesDomain = await this.getTimeseriesDomain(baseUrl);
+        const timeseriesPool = await this.getTimeseriesPool(baseUrl);
+        const timeseriesConfig = await this.getTimeseriesConfig(baseUrl);
+        return {
+            txs: domainTxs.txs,
+            timeseriesDomain: timeseriesDomain.histogram,
+            timeseriesPool : timeseriesPool.histogram,
+            timeseriesConfig : timeseriesConfig .histogram
+        }
     }
 
-    onNextTxPage(foo, bar) {
-
-    }
-
-
-    render() {
-        console.log(this.props.timeSeries)
-        const zippedTimeseries = _.zip.apply(_, this.props.timeSeries);
+    static createChartsDataset(timeSeries, label, borderColor) {
+        const zippedTimeseries = _.zip.apply(_, timeSeries);
         const dates = zippedTimeseries[0].map(t=>format('yyyy.MM.dd', new Date(t)));
         const txCnt = zippedTimeseries[1];
-        const data = {
+        return {
             labels: dates,
-                datasets: [{
+            dataset: {
                 data: txCnt,
-                label: "Domain",
-                borderColor: "#3e95cd",
+                label,
+                borderColor,
                 fill: false
-            }]
+            }
         }
-        // new charts.Chart(document.getElementById("line-chart"), {
-        //     type: 'line',
-        //     ,
-        //     options: {
-        //         title: {
-        //             display: true,
-        //             text: 'World population per region (in millions)'
-        //         }
-        //     }
-        // });
+    }
+
+    render() {
+        const domain = MainPage.createChartsDataset(this.props.timeseriesDomain, "Domain tx count", "#3e95cd");
+        const pool = MainPage.createChartsDataset(this.props.timeseriesPool, "Pool tx count", "#cd4639");
+        const config = MainPage.createChartsDataset(this.props.timeseriesConfig, "Config tx count", "#3dcd34");
+        const data = {
+            labels: domain.labels,
+            datasets: [
+                domain.dataset,
+                pool.dataset,
+                config.dataset,
+            ]
+        };
         return (
             <Container>
                 <Head/>
