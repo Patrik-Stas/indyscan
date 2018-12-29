@@ -1,5 +1,5 @@
 import React from 'react'
-import fetch from "isomorphic-unfetch";
+import './TxChart.scss'
 import {Line} from "react-chartjs-2";
 import _ from 'lodash'
 import format from 'date-format';
@@ -32,7 +32,7 @@ const TxsChart = (props) => {
         ]
     };
     return (
-        <Line data={data}/>
+        <Line id="tx-chart" data={data}/>
     )
 };
 

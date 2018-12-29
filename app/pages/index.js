@@ -8,6 +8,8 @@ import Pagination from 'rc-pagination';
 import {Container} from 'semantic-ui-react';
 import TxsChart from "../components/TxChart/TxChart";
 import {getTimeseriesConfig, getTimeseriesDomain, getTimeseriesPool} from "../api-client";
+import TxList from "../components/TxList/TxList";
+import PageHeader from "../components/PageHeader/PageHeader";
 
 class MainPage extends Component {
 
@@ -20,7 +22,6 @@ class MainPage extends Component {
         return await res.json();
     }
 
-
     static async getInitialProps({req, query}) {
         const baseUrl = this.getBaseUrl(req);
         const domainTxs = await this.getLastDomainTx(baseUrl);
@@ -28,28 +29,23 @@ class MainPage extends Component {
         const timeseriesPool = await getTimeseriesPool(baseUrl);
         const timeseriesConfig = await getTimeseriesConfig(baseUrl);
         return {
+            txs: domainTxs.txs,
             timeseriesDomain: timeseriesDomain.histogram,
             timeseriesPool: timeseriesPool.histogram,
             timeseriesConfig: timeseriesConfig.histogram,
-            txs: domainTxs.txs
         }
     }
 
     render() {
         return (
-            <Container>
-                <Head/>
-                <h1>Hyperldeger Indy Scan</h1>
+            <div>
                 <TxsChart timeseriesDomain={this.props.timeseriesDomain}
                           timeseriesPool={this.props.timeseriesPool}
                           timeseriesConfig={this.props.timeseriesConfig}/>
-                <Navbar/>
-                <div>
-                    {this.props.txs.map(txn => <TxPreview tx={txn}/>)}
-                </div>
+                <TxList txs={this.props.txs}/>
 
                 {/*<Pagination current={2} total={50} onChange={this.onNextTxPage}/>*/}
-            </Container>
+            </div>
         )
     }
 }
