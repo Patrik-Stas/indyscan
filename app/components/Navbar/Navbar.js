@@ -11,6 +11,11 @@ class Navbar extends Component {
         this.state = {activePage:''}
     }
 
+    async componentDidMount() {
+        console.log(`Navbar mounted`);
+        console.log(Router.pathname);
+        console.log(Router.route);
+    }
     //
     // static async getInitialProps({req, query}) {
     //     // const baseUrl = this.getBaseUrl(req);
