@@ -10,6 +10,7 @@ import TxsChart from "../components/TxChart/TxChart";
 import {getTimeseriesConfig, getTimeseriesDomain, getTimeseriesPool} from "../api-client";
 import TxList from "../components/TxList/TxList";
 import PageHeader from "../components/PageHeader/PageHeader";
+import Router from "next/dist/lib/router";
 
 class MainPage extends Component {
 
@@ -22,6 +23,12 @@ class MainPage extends Component {
         return await res.json();
     }
 
+    async componentDidMount() {
+        console.log(`index page mounted`);
+        console.log(Router.pathname);
+        console.log(Router.route);
+    }
+    //
     static async getInitialProps({req, query}) {
         const baseUrl = this.getBaseUrl(req);
         const domainTxs = await this.getLastDomainTx(baseUrl);

@@ -2,9 +2,17 @@ import React, {Component} from 'react'
 import "./PageHeader.scss";
 import Navbar from "../Navbar/Navbar";
 import {Grid} from 'semantic-ui-react';
+import Router from "next/dist/lib/router";
+
 
 class PageHeader extends Component {
 
+    async componentDidMount() {
+        console.log(`Navbar mounted`);
+        console.log(Router.pathname);
+        console.log(Router.route);
+    }
+    //
     render() {
         return (
             <div>
