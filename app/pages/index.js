@@ -11,6 +11,7 @@ import {getTimeseriesConfig, getTimeseriesDomain, getTimeseriesPool} from "../ap
 import TxList from "../components/TxList/TxList";
 import PageHeader from "../components/PageHeader/PageHeader";
 import Router from "next/dist/lib/router";
+import util from 'util';
 
 class MainPage extends Component {
 

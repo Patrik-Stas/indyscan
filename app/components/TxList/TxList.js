@@ -6,7 +6,7 @@ class TxList extends Component {
     render() {
         return (
             <div>
-                {this.props.txs.map(txn => <TxPreview tx={txn}/>)}
+                {this.props.txs.map(txn => <TxPreview key={txn.txnMetadata.seqNo} tx={txn}/>)}
             </div>
         )
     }
