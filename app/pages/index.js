@@ -1,5 +1,5 @@
 import Head from "next/head";
-import {Component} from 'react';
+import React, {Component} from 'react';
 import "../scss/style.scss";
 import Navbar from "../components/Navbar/Navbar";
 import fetch from 'isomorphic-unfetch'
@@ -24,18 +24,14 @@ class MainPage extends Component {
         return await res.json();
     }
 
-    async componentDidMount() {
-        console.log(`index page mounted`);
-        console.log(Router.pathname);
-        console.log(Router.route);
-    }
-    //
     static async getInitialProps({req, query}) {
+        console.log(`index.js: Get initial props.`)
         const baseUrl = this.getBaseUrl(req);
         const domainTxs = await this.getLastDomainTx(baseUrl);
         const timeseriesDomain = await getTimeseriesDomain(baseUrl);
         const timeseriesPool = await getTimeseriesPool(baseUrl);
         const timeseriesConfig = await getTimeseriesConfig(baseUrl);
+        // todo: cache the data...
         return {
             txs: domainTxs.txs,
             timeseriesDomain: timeseriesDomain.histogram,

@@ -10,6 +10,16 @@ function createRouter(storageDomain, storagePool, storageConfig ) {
         res.status(200).send({txs})
     });
 
+    router.get("/tx-config", async (req, res) => {
+        const txs = await storageConfig.getTxRange(0,10);
+        res.status(200).send({txs})
+    });
+
+    router.get("/tx-pool", async (req, res) => {
+        const txs = await storagePool.getTxRange(0,10);
+        res.status(200).send({txs})
+    });
+
     const oneDayInMiliseconds = 1000*60*60*24;
 
     router.get("/tx-domain/timeseries", async (req, res) => {
