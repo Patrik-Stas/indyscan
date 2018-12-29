@@ -7,12 +7,6 @@ import Router from "next/dist/lib/router";
 
 class PageHeader extends Component {
 
-    async componentDidMount() {
-        console.log(`Navbar mounted`);
-        console.log(Router.pathname);
-        console.log(Router.route);
-    }
-    //
     render() {
         return (
             <div>
@@ -22,7 +16,7 @@ class PageHeader extends Component {
                             <h1>Hyperldeger Indy Scan</h1>
                         </Grid.Column>
                         <Grid.Column width={8}>
-                            <Navbar/>
+                            <Navbar currentPath={this.props.currentPath}/>
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
