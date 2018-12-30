@@ -26,9 +26,7 @@ const TxsChart = (props) => {
     const data = {
         labels: domain.labels,
         datasets: [
-            domain.dataset,
-            pool.dataset,
-            config.dataset,
+            domain.dataset
         ]
     };
     return (

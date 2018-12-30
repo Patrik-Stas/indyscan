@@ -3,24 +3,20 @@ import fetch from 'isomorphic-unfetch'
 import TxListCompact from "../components/TxListCompact/TxListCompact";
 import React, {Component} from 'react';
 import queryString from 'query-string';
+import {getTransactions} from '../api-client'
 
-class TxConfig extends Component {
+class Txs extends Component {
 
     static getBaseUrl(req) {
         return req ? `${req.protocol}://${req.get('Host')}` : '';
     }
 
-    static async getLastConfigTx(baseUrl, fromRecentTx, toRecentTx) {
-        const query = queryString.stringify({fromRecentTx, toRecentTx});
-        console.log(`Fetching config txs from ${fromRecentTx} to ${toRecentTx}`)
-        let res = await fetch(`${baseUrl}/api/tx-config?${query}`);
-        return await res.json();
-    }
 
     static async getInitialProps({req, query}) {
-        console.log(`tx-config.js: Get initial props.`);
+        console.log(`tx-config.js: Get initial props. query= ${JSON.stringify(query)}`);
+        const {network, txType} = query;
         const baseUrl = this.getBaseUrl(req);
-        const domainTxs = await this.getLastConfigTx(baseUrl, 0, 20);
+        const domainTxs = await getTransactions(baseUrl, network, txType, 0, 20);
         return {
             txs: domainTxs.txs,
         }
@@ -35,4 +31,4 @@ class TxConfig extends Component {
     }
 }
 
-export default TxConfig;
+export default Txs;

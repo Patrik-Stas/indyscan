@@ -16,6 +16,9 @@ class PageHeader extends Component {
                             <h1>Hyperldeger Indy Scan</h1>
                         </Grid.Column>
                         <Grid.Column width={8}>
+                            <h3>Select network</h3>
+                        </Grid.Column>
+                        <Grid.Column width={8}>
                             <Navbar currentPath={this.props.currentPath}/>
                         </Grid.Column>
                     </Grid.Row>
