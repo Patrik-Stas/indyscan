@@ -1,8 +1,6 @@
 import React, {Component} from "react";
 import "./TxListItem.scss";
-import {Grid, GridColumn, GridRow} from 'semantic-ui-react';
-import Link from "next/link";
-import { Table } from 'semantic-ui-react'
+import {Table} from 'semantic-ui-react';
 import {Item} from "semantic-ui-react/dist/commonjs/views/Item/Item";
 
 class TxListItem extends Component {

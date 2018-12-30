@@ -1,8 +1,6 @@
 import React, {Component} from "react";
 import "./TxPreview.scss";
-import {Card} from 'semantic-ui-react'
-import Link from "next/link";
-import {Image, Item} from 'semantic-ui-react'
+import {Item} from 'semantic-ui-react'
 
 class TxPreview extends Component {
     constructor(props) {

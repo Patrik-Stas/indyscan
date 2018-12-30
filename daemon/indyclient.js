@@ -1,5 +1,4 @@
 const indy = require('indy-sdk');
-const util = require('util');
 
 module.exports = async function createClient(poolName, walletName) {
 
