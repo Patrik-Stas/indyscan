@@ -13,12 +13,12 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 
 
-async function startServer(storageDomain, storagePool, storageConfig) {
+async function startServer(storageManager) {
     app
         .prepare()
         .then(() => {
             const server = express();
-            const apiRouter = createRouter(storageDomain, storagePool, storageConfig);
+            const apiRouter = createRouter(storageManager);
 
             server.use("/api", apiRouter);
 
@@ -38,9 +38,9 @@ async function startServer(storageDomain, storagePool, storageConfig) {
 }
 
 async function run() {
-    storage.init(url, dbName, async (storageDomain, storagePool, storageConfig, err) => {
+    storage.init(url, [dbName], async (storageManager, err) => {
         assert.equal(null, err);
-        startServer(storageDomain, storagePool, storageConfig)
+        startServer(storageManager)
     }) ;
 }
 
