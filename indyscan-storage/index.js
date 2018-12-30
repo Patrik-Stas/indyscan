@@ -16,6 +16,7 @@ function createIndyStorageManager() {
     let txCollections = {};
 
     async function registerDatabase(mongoDbClient, dbname) {
+        console.log(`Registering database ${dbname}`);
         const mongodb = mongoDbClient.db(dbname);
         const storageDomain = await createTxCollection(mongodb, collectionNameDomain);
         const storagePool = await createTxCollection(mongodb, collectionNamePool);

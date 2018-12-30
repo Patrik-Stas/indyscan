@@ -2,6 +2,8 @@ const assert = require('assert');
 
 module.exports = async function createTxCollection(mongodb, collectionName) {
 
+    console.log(`Creating tx collection ${collectionName}`);
+
     const collection = mongodb.collection(collectionName);
 
     async function getTxRange(skip, limit) {
