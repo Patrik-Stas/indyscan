@@ -1,4 +1,3 @@
-const assert = require('assert');
 const MongoClient = require('mongodb').MongoClient;
 const createTxCollection = require('./tx-collection');
 const txTypes = require('./tx-types');
@@ -68,4 +67,4 @@ module.exports.init = async function init(mongoUrl, indyNetworks, callback) {
     });
 };
 
-module.exports.txTypes = txTypes
+module.exports.txTypes = txTypes;

@@ -1,7 +1,6 @@
 import {Component} from 'react';
 import TxListItem from "../TxListItem/TxListItem";
-import {Grid, GridColumn, GridRow} from 'semantic-ui-react';
-import { Table } from 'semantic-ui-react'
+import {Table} from 'semantic-ui-react';
 
 class TxListCompact extends Component {
 

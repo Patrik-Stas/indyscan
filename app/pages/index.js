@@ -1,17 +1,9 @@
-import Head from "next/head";
 import React, {Component} from 'react';
 import "../scss/style.scss";
-import Navbar from "../components/Navbar/Navbar";
 import fetch from 'isomorphic-unfetch'
-import TxPreview from "../components/TxPreview/TxPreview";
-import Pagination from 'rc-pagination';
-import {Container} from 'semantic-ui-react';
 import TxsChart from "../components/TxChart/TxChart";
 import {getTimeseriesConfig, getTimeseriesDomain, getTimeseriesPool} from "../api-client";
 import TxList from "../components/TxList/TxList";
-import PageHeader from "../components/PageHeader/PageHeader";
-import Router from "next/dist/lib/router";
-import util from 'util';
 
 class MainPage extends Component {
 
