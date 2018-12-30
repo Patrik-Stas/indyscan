@@ -1,10 +1,10 @@
 const createHistogram = require("../../services/timeseries");
 const queryString  = require('query-string');
 const url = require('url');
-
 const express = require("express");
+const indyStorage = require('indyscan-storage')
 
-function createRouter(storageDomain, storagePool, storageConfig ) {
+function createRouter(storageManager) {
     const router = express.Router();
 
     router.get("/tx-domain", async (req, res) => {
@@ -17,7 +17,9 @@ function createRouter(storageDomain, storagePool, storageConfig ) {
         console.log(`${JSON.stringify(parts)}`);
         const fromRecentTx = parseInt(parts.query.fromRecentTx);
         const toRecentTx = parseInt(parts.query.toRecentTx);
-        const network = parseInt(parts.query.network);
+        const network = parseInt(parts.query.network) || 'SOVRIN_MAINNET';
+        const txType = indyStorage.txTypes.config;
+
         console.log(`GET ${req.url}`);
         console.log(`Requesting transactions from ${fromRecentTx} to ${toRecentTx}.`)
         if (!(fromRecentTx>=0 && toRecentTx>=0 && toRecentTx-fromRecentTx<150 && toRecentTx-fromRecentTx>0)) {
@@ -25,7 +27,7 @@ function createRouter(storageDomain, storagePool, storageConfig ) {
             res.status(400).send({message:"i don't like your query string"});
             return
         }
-        const txs = await storageConfig.getTxRange(fromRecentTx, toRecentTx);
+        const txs = await storageManager.getTxCollection(network, txType).getTxRange(fromRecentTx, toRecentTx);
         res.status(200).send({txs})
     });
 
