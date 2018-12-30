@@ -28,28 +28,20 @@ class Navbar extends Component {
     render() {
         return (
             <nav>
-                {/*<Menu pointing>*/}
-                    {/*<Menu.Item as="a" href="/" name='home' />*/}
-                    {/*<Menu.Item as="a" href="/tx-domain" name='domain' />*/}
-                    {/*<Menu.Item as="a" href="/tx-pool" name='pool'/>*/}
-                    {/*<Menu.Item as="a" href="/tx-config" name='config'/>*/}
-                {/*</Menu>*/}
-
                 <Link href="/">
                     <a title="Our API">Home</a>
                 </Link>
-                <Link href="/tx-domain">
+                <Link href={`/txs?network=SOVRIN_MAINNET&txType=domain`} as={`/txs/SOVRIN_MAINNET/domain`}>
                     <a title="About Next JS">Domain</a>
                 </Link>
 
-                <Link href="/tx-pool">
+                <Link href={`/txs?network=SOVRIN_MAINNET&txType=pool`} as={`/txs/SOVRIN_MAINNET/pool`}>
                     <a title="About Next JS">Pool</a>
                 </Link>
 
-                <Link href="/tx-config">
+                <Link href={`/txs?network=SOVRIN_MAINNET&txType=config`} as={`/txs/SOVRIN_MAINNET/config`}>
                     <a title="About Next JS">Config</a>
                 </Link>
-
             </nav>
         );
     }

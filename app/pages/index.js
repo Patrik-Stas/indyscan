@@ -2,48 +2,19 @@ import React, {Component} from 'react';
 import "../scss/style.scss";
 import fetch from 'isomorphic-unfetch'
 import TxsChart from "../components/TxChart/TxChart";
-import {getTimeseriesConfig, getTimeseriesDomain, getTimeseriesPool} from "../api-client";
+import {getTimeseriesConfig, getTxTimeseries, getTimeseriesPool} from "../api-client";
 import TxList from "../components/TxList/TxList";
+import {getTransactions} from '../api-client'
 
-class MainPage extends Component {
-
-    static getBaseUrl(req) {
-        return req ? `${req.protocol}://${req.get('Host')}` : '';
-    }
-
-    static async getLastDomainTx(baseUrl) {
-        let res = await fetch(`${baseUrl}/api/tx-domain`);
-        return await res.json();
-    }
-
-    static async getInitialProps({req, query}) {
-        console.log(`index.js: Get initial props.`)
-        const baseUrl = this.getBaseUrl(req);
-        const domainTxs = await this.getLastDomainTx(baseUrl);
-        const timeseriesDomain = await getTimeseriesDomain(baseUrl);
-        const timeseriesPool = await getTimeseriesPool(baseUrl);
-        const timeseriesConfig = await getTimeseriesConfig(baseUrl);
-        // todo: cache the data...
-        return {
-            txs: domainTxs.txs,
-            timeseriesDomain: timeseriesDomain.histogram,
-            timeseriesPool: timeseriesPool.histogram,
-            timeseriesConfig: timeseriesConfig.histogram,
-        }
-    }
+class IndexPage extends Component {
 
     render() {
         return (
             <div>
-                <TxsChart timeseriesDomain={this.props.timeseriesDomain}
-                          timeseriesPool={this.props.timeseriesPool}
-                          timeseriesConfig={this.props.timeseriesConfig}/>
-                <TxList txs={this.props.txs}/>
-
-                {/*<Pagination current={2} total={50} onChange={this.onNextTxPage}/>*/}
+                Homepage
             </div>
         )
     }
 }
 
-export default MainPage;
+export default IndexPage;
