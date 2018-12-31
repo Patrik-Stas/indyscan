@@ -20,10 +20,10 @@ const indyNetworks = [SOVRIN_MAINNET, SOVRIN_TESTNET];
 async function run() {
     storage.init(url, indyNetworks, async (storageManager, err) => {
         assert.equal(null, err);
-        console.log(`Storage initialized. Storage url: ${url}. Indy networks ${JSON.stringify(indyNetworks)}`)
+        console.log(`Storage initialized. Storage url: ${url}. Indy networks ${JSON.stringify(indyNetworks)}`);
         for (let i=0; i<indyNetworks.length; i++) {
             const NETWORK = indyNetworks[i];
-            console.log(`Getting ready indy client for Indy network: ${NETWORK}`)
+            console.log(`Getting ready indy client for Indy network: ${NETWORK}`);
             const indyClient = await createIndyClient(NETWORK, `sovrinscan-${NETWORK}`);
             const txCollectionDomain = storageManager.getTxCollection(NETWORK, storage.txTypes.domain);
             const txCollectionPool   = storageManager.getTxCollection(NETWORK, storage.txTypes.pool);
@@ -33,10 +33,10 @@ async function run() {
             assert.equal(true, !!txCollectionConfig);
             console.log(`Tx collections for network ${NETWORK} ready. Scanning starts in few seconds.`);
             setTimeout(()=> {
-                scanLedger(indyClient, txCollectionDomain, NETWORK, LEDGER_TYPE_DOMAIN, 'DOMAIN', 1, 15);
-                scanLedger(indyClient, txCollectionPool, NETWORK, LEDGER_TYPE_POOL, 'POOL', 1, 600);
-                scanLedger(indyClient, txCollectionConfig, NETWORK, LEDGER_TYPE_CONFIG, 'CONFIG', 1, 600);
-            }, 10*1000)
+                scanLedger(indyClient, txCollectionDomain, NETWORK, LEDGER_TYPE_DOMAIN, 'DOMAIN', 0.3, 15);
+                scanLedger(indyClient, txCollectionPool, NETWORK, LEDGER_TYPE_POOL, 'POOL', 0.3, 600);
+                scanLedger(indyClient, txCollectionConfig, NETWORK, LEDGER_TYPE_CONFIG, 'CONFIG', 0.3, 600);
+            }, 4*1000)
         }
     }) ;
 }

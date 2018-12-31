@@ -9,6 +9,11 @@
   "dependencies": {
     "mongodb": "^3.1.10"
   },
+  "devDependencies": {
+    "jest": "^23.6.0",
+    "jest-cli": "^23.6.0",
+    "@types/jest": "^23.3.10"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"
