@@ -21,11 +21,14 @@ class PageHeader extends Component {
         return (
             <Grid id="page-header">
                 <Grid.Row>
-                    <h1>Hyperldeger Indy Scan</h1>
+                    <h1>IndyScan</h1>
+                </Grid.Row>
+                <Grid.Row style={{marginTop:"-2em"}}>
+                    <h5>Hyperledger Indy transaction explorer</h5>
                 </Grid.Row>
                 <Grid.Row>
-                    <Grid.Column width={8}>
-                        <Grid id="header-left">
+                    <Grid.Column floated="left"  width={8}>
+                        <Grid>
                             <Grid.Row>
                                 <Menu>
                                     <Menu.Item active={network === "SOVRIN_MAINNET"}
@@ -41,9 +44,9 @@ class PageHeader extends Component {
                             </Grid.Row>
                         </Grid>
                     </Grid.Column>
-                    <Grid.Column>
-                        <Grid id="header-right">
-                            <Grid.Row>
+                    <Grid.Column floated="right" width={4}>
+                        <Grid>
+                            <Grid.Row >
                                     <Navbar currentPath={this.props.currentPath} page={this.props.page} network={this.props.network}/>
                             </Grid.Row>
                         </Grid>

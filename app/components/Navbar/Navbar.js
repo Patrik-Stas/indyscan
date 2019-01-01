@@ -11,7 +11,6 @@ class Navbar extends Component {
     }
 
     homePage(indyNetwork) {
-        console.log(`Go to homepage for network ${indyNetwork}`);
         return () => Router.push(`/home?network=${indyNetwork}`, `/home/${indyNetwork}`);
     }
 
@@ -21,8 +20,6 @@ class Navbar extends Component {
 
     render() {
         const {network, page} = this.props;
-        console.log(`navbar page = ${page}`);
-        console.log(`[Navbar.js] render() props= ${JSON.stringify(this.props)}`);
         return (
             <Menu>
                 <Menu.Item onClick={this.homePage(network)} active={page==="home"}>

@@ -10,8 +10,15 @@ module.exports = async function createTxCollection(mongodb, collectionName) {
 
     const collection = mongodb.collection(collectionName);
 
+    async function getTxCount() {
+        return await collection.estimatedDocumentCount()
+    }
+
     async function getTxRange(skip, limit) {
-        return await collection.find().limit(limit).skip(skip).sort({"txnMetadata.seqNo": -1}).toArray();
+        console.log(`${skip}, ${limit}`)
+        const txs = await collection.find().skip(skip).limit(limit).sort({"txnMetadata.seqNo": -1}).toArray();
+        console.log(`${txs.length}`)
+        return txs;
     }
 
     async function getAllTimestamps() {
@@ -23,7 +30,6 @@ module.exports = async function createTxCollection(mongodb, collectionName) {
     async function findMaxTxIdInDb() {
         const qres = await collection.aggregate([{$group: {_id: null, maxTx: {$max: "$txnMetadata.seqNo"}}}]).toArray()
         const {maxTx} = (qres.length > 0) ? qres[0] : {maxTx: 0}
-        // console.log(`Max found transaction was ${util.inspect(maxTx)}`)
         return maxTx
     }
 
@@ -47,6 +53,7 @@ module.exports = async function createTxCollection(mongodb, collectionName) {
         findMaxTxIdInDb,
         addTx,
         getTxRange,
-        getAllTimestamps
+        getAllTimestamps,
+        getTxCount
     }
 }

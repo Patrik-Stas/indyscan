@@ -1,12 +1,9 @@
 import React, {Component} from 'react';
 import "../scss/style.scss";
-import fetch from 'isomorphic-unfetch'
 import TxsChart from "../components/TxChart/TxChart";
-import {getTxTimeseries} from "../api-client";
+import {getTransactions, getTxTimeseries} from "../api-client";
 import TxList from "../components/TxList/TxList";
-import {getTransactions} from '../api-client'
 import PageHeader from "../components/PageHeader/PageHeader";
-import {Container as SemanticContainer} from "semantic-ui-react";
 
 class HomePage extends Component {
 
@@ -15,7 +12,6 @@ class HomePage extends Component {
     }
 
     static async getInitialProps({req, query}) {
-        console.log(`[index.js] beginning of getInitialProps()`);
         const baseUrl = this.getBaseUrl(req);
         const {network} = query;
         const domainTxs = await getTransactions(baseUrl, network, 'domain', 0, 10);
@@ -23,7 +19,6 @@ class HomePage extends Component {
         const timeseriesPool = await getTxTimeseries(baseUrl, network, 'pool');
         const timeseriesConfig = await getTxTimeseries(baseUrl, network, 'config');
         // todo: cache the data...
-        console.log(`[index.js] end of getInitialProps()`);
         return {
             network,
             txs: domainTxs.txs,
@@ -42,8 +37,6 @@ class HomePage extends Component {
                           timeseriesPool={this.props.timeseriesPool}
                           timeseriesConfig={this.props.timeseriesConfig}/>
                 <TxList txs={this.props.txs}/>
-
-                {/*<Pagination current={2} total={50} onChange={this.onNextTxPage}/>*/}
             </div>
         )
     }
