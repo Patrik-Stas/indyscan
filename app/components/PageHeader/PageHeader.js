@@ -10,8 +10,7 @@ class PageHeader extends Component {
 
     switchNetwork(network) {
         return () => {
-            console.log(`Switch network to: ${network}`);
-            Router.push(`/home/${network}`);
+            Router.push(`/home?network=${network}`, `/home/${network}`);
         }
     }
 

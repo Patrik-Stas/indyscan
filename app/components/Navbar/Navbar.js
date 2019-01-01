@@ -1,8 +1,7 @@
 import React, {Component} from "react";
 import "./Navbar.scss";
-import {Input, Menu, Segment} from 'semantic-ui-react'
+import {Menu} from 'semantic-ui-react'
 import Router from 'next/router'
-import Link from "next/link";
 
 class Navbar extends Component {
     constructor(props) {
