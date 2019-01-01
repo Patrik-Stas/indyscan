@@ -2,37 +2,31 @@ import React from 'react'
 import App, { Container } from 'next/app'
 import {Container as SemanticContainer} from "semantic-ui-react";
 import PageHeader from "../components/PageHeader/PageHeader";
-import {Head} from "next/dist/server/document";
-import Router from "next/dist/lib/router";
 import util from 'util';
+
 export default class MyApp extends App {
     static async getInitialProps({ Component, router, ctx }) {
-        console.log(router.asPath);
-        let pageProps = {}
+        // console.log(`[_app.js] beginning of getInitialProps()...\n... ctx= ${util.inspect(ctx)} .... \n ... router= ${util.inspect(router)} `);
+        console.log(`[_app.js] beginning of getInitialProps()`);
+        // console.log(`MyApp. router.asPath = ${router.asPath}`);
+        let pageProps = {};
 
         if (Component.getInitialProps) {
             pageProps = await Component.getInitialProps(ctx)
         }
-
-        return { pageProps, currentPath: router.asPath }
-    }
-
-
-    async componentDidMount() {
-        console.log(`App mounted`);
-        // console.log(Router.pathname);
-        // console.log(Router.route);
+        // console.log(`[_app.js] end of getInitialProps() : query= ${JSON.stringify(router.query)} pageProps=${JSON.stringify(pageProps)}`);
+        // console.log(`[_app.js] end of getInitialProps() : query= ${JSON.stringify(router.query)} pageProps=${JSON.stringify(pageProps)}`);
+        return { pageProps, currentPath: router.asPath}
     }
 
 
     render () {
-        const { Component, pageProps, currentPath } = this.props
+        const { Component, pageProps, currentPath, query } = this.props;
         return (
             <Container>
                 <title>HL Indy Tx Explorer</title>
                 <SemanticContainer>
-                    <PageHeader currentPath={currentPath}/>
-                    <Component {...pageProps}/>
+                    <Component {...pageProps} currentPath={currentPath}/>
                 </SemanticContainer>
             </Container>
         )

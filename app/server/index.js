@@ -29,13 +29,13 @@ async function startServer(storageManager) {
 
             server.get('/home/:network', (req, res) => {
                 const mergedQuery = Object.assign({}, req.query, req.params);
-                console.log(`/home/:network\nmerged query: ${JSON.stringify(mergedQuery)}`);
+                console.log(`Custom express routing handler: /home/:network\nmerged query: ${JSON.stringify(mergedQuery)}`);
                 return app.render(req, res, '/home', mergedQuery);
             });
 
             server.get('/txs/:network/:txType', (req, res) => {
                 const mergedQuery = Object.assign({}, req.query, req.params);
-                console.log(`/txs/:network/:type\nmerged query: ${JSON.stringify(mergedQuery)}`);
+                console.log(`Custom express routing handler: /txs/:network/:type\nmerged query: ${JSON.stringify(mergedQuery)}`);
                 return app.render(req, res, '/txs', mergedQuery);
             });
 

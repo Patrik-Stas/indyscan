@@ -15,8 +15,8 @@ function createRouter(storageManager) {
         const network = parts.query.network;
         const txType = parts.query.txType;
 
-        console.log(`GET ${req.url}`);
-        console.log(`Query parameters: ${JSON.stringify(parts)}`);
+        console.log(`API GET ${req.url}`);
+        // console.log(`Query parameters: ${JSON.stringify(parts)}`);
         if (!(fromRecentTx>=0 && toRecentTx>=0 && toRecentTx-fromRecentTx<150 && toRecentTx-fromRecentTx>0)) {
             console.log(`Query string failed validation checks.`);
             res.status(400).send({message:"i don't like your query string"});
@@ -32,8 +32,8 @@ function createRouter(storageManager) {
         const parts = url.parse(req.url, true);
         const network = parts.query.network;
         const txType = parts.query.txType;
-        console.log(`GET  ${req.url}`);
-        console.log(`Query parameters: ${JSON.stringify(parts)}`);
+        console.log(`API GET  ${req.url}`);
+        // console.log(`Query parameters: ${JSON.stringify(parts)}`);
         const timestamps = await  storageManager.getTxCollection(network, txType).getAllTimestamps();
         const histogram = await createHistogram(timestamps, oneDayInMiliseconds);
         res.status(200).send({histogram})
