@@ -19,11 +19,6 @@ class Navbar extends Component {
         return () => Router.push(`/txs?network=${indyNetwork}&txType=${txType}`, `/txs/${indyNetwork}/${txType}`);
     }
 
-    // href={`/home?network=${indyNetwork}`
-    //href={`/txs?network=${indyNetwork}&txType=domain`} as={`/txs/${indyNetwork}/domain`}
-    //href={`/txs?network=${indyNetwork}&txType=pool`} as={`/txs/${indyNetwork}/pool`}>
-    //href={`/txs?network=${indyNetwork}&txType=config`} as={`/txs/${indyNetwork}/config`}>
-
     render() {
         const {network, page} = this.props;
         console.log(`navbar page = ${page}`);
@@ -48,28 +43,3 @@ class Navbar extends Component {
 }
 
 export default Navbar;
-
-{/*<Link href={`/home?network=${indyNetwork}`}>*/
-}
-{/*<a title="Our API">Home</a>*/
-}
-{/*</Link>*/
-}
-{/*<Link href={`/txs?network=${indyNetwork}&txType=domain`} as={`/txs/${indyNetwork}/domain`}>*/
-}
-{/*<a title="About Next JS">Domain</a>*/
-}
-{/*</Link>*/
-}
-{/*<Link href={`/txs?network=${indyNetwork}&txType=pool`} as={`/txs/${indyNetwork}/pool`}>*/
-}
-{/*<a title="About Next JS">Pool</a>*/
-}
-{/*</Link>*/
-}
-{/*<Link href={`/txs?network=${indyNetwork}&txType=config`} as={`/txs/${indyNetwork}/config`}>*/
-}
-{/*<a title="About Next JS">Config</a>*/
-}
-{/*</Link>*/
-}
