@@ -5,6 +5,8 @@ import TxsChart from "../components/TxChart/TxChart";
 import {getTxTimeseries} from "../api-client";
 import TxList from "../components/TxList/TxList";
 import {getTransactions} from '../api-client'
+import PageHeader from "../components/PageHeader/PageHeader";
+import {Container as SemanticContainer} from "semantic-ui-react";
 
 class HomePage extends Component {
 
@@ -13,15 +15,17 @@ class HomePage extends Component {
     }
 
     static async getInitialProps({req, query}) {
+        console.log(`[index.js] beginning of getInitialProps()`);
         const baseUrl = this.getBaseUrl(req);
         const {network} = query;
-        console.log(`home.js getInitialProps, network: ${network}`);
         const domainTxs = await getTransactions(baseUrl, network, 'domain', 0, 10);
         const timeseriesDomain = await getTxTimeseries(baseUrl, network, 'domain');
         const timeseriesPool = await getTxTimeseries(baseUrl, network, 'pool');
         const timeseriesConfig = await getTxTimeseries(baseUrl, network, 'config');
         // todo: cache the data...
+        console.log(`[index.js] end of getInitialProps()`);
         return {
+            network,
             txs: domainTxs.txs,
             timeseriesDomain: timeseriesDomain.histogram,
             timeseriesPool: timeseriesPool.histogram,
@@ -30,8 +34,10 @@ class HomePage extends Component {
     }
 
     render() {
+        const {network} = this.props;
         return (
             <div>
+                <PageHeader currentPath={this.props.currentPath} page="home" network={network || "SOVRIN_MAINNET"}/>
                 <TxsChart timeseriesDomain={this.props.timeseriesDomain}
                           timeseriesPool={this.props.timeseriesPool}
                           timeseriesConfig={this.props.timeseriesConfig}/>
