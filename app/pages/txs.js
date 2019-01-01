@@ -1,38 +1,61 @@
 import "../scss/style.scss";
-import fetch from 'isomorphic-unfetch'
 import TxListCompact from "../components/TxListCompact/TxListCompact";
 import React, {Component} from 'react';
-import queryString from 'query-string';
-import {getTransactions} from '../api-client'
+import {getTransactions, getTxCount} from '../api-client'
 import PageHeader from "../components/PageHeader/PageHeader";
+import {Grid, Pagination} from "semantic-ui-react";
+import util from 'util'
+import Router from "next/dist/lib/router";
+
+const pageSize = 20;
 
 class Txs extends Component {
+
 
     static getBaseUrl(req) {
         return req ? `${req.protocol}://${req.get('Host')}` : '';
     }
 
+    handleClick(e, data) {
+        const {activePage} = data;
+        const {baseUrl, network, txType} = this.props;
+        Router.push(`${baseUrl}/txs?network=${network}&txType=${txType}&fromRecentTx=${(activePage-1)*pageSize}&toRecentTx=${activePage*pageSize}`, `/txs/${network}/${txType}`);
+    }
 
     static async getInitialProps({req, query}) {
-        console.log(`[txs.js] getInitialProps(): query= ${JSON.stringify(query)}`);
-        const {network, txType} = query;
+        const {network, txType, fromRecentTx, toRecentTx} = query;
         const baseUrl = this.getBaseUrl(req);
-        const domainTxs = await getTransactions(baseUrl, network, txType, 0, 20);
+        const domainTxs = await getTransactions(baseUrl, network, txType, fromRecentTx || 0, toRecentTx || pageSize);
+        const txCount = await getTxCount(baseUrl, network, txType);
         return {
             txs: domainTxs.txs,
             network,
-            txType
+            txType,
+            baseUrl,
+            txCount
         }
     }
 
     render() {
-        console.log(`[txs.js] render()`);
-        const {currentPath, txType, network} = this.props;
+        const {currentPath, txType, network, txCount} = this.props;
+        const pageCount = Math.ceil(txCount / pageSize);
         return (
-            <div>
-                <PageHeader currentPath={currentPath} page={txType || "home"} network={network || "SOVRIN_MAINNET"}/>
-                <TxListCompact txs={this.props.txs}/>
-            </div>
+            <Grid>
+                <Grid.Row>
+                    <Grid.Column>
+                        <PageHeader currentPath={currentPath} page={txType || "home"}
+                                    network={network || "SOVRIN_MAINNET"}/>
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row>
+                    <Grid.Column>
+                        <TxListCompact txs={this.props.txs}/>
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row centered>
+                    <Pagination defaultActivePage={1} totalPages={pageCount} onPageChange={(e, data) => this.handleClick(e, data)}/>
+                </Grid.Row>
+            </Grid>
         )
     }
 }
