@@ -14,8 +14,12 @@ module.exports = async function createTxCollection(mongodb, collectionName) {
         return await collection.estimatedDocumentCount()
     }
 
+    async function getTxBySeqNo(seqNo) {
+        return await collection.findOne({"txnMetadata.seqNo": seqNo});
+    }
+
     async function getTxRange(skip, limit) {
-        console.log(`${skip}, ${limit}`)
+        console.log(`${skip}, ${limit}`);
         const txs = await collection.find().skip(skip).limit(limit).sort({"txnMetadata.seqNo": -1}).toArray();
         console.log(`${txs.length}`)
         return txs;
@@ -54,6 +58,7 @@ module.exports = async function createTxCollection(mongodb, collectionName) {
         addTx,
         getTxRange,
         getAllTimestamps,
-        getTxCount
+        getTxCount,
+        getTxBySeqNo
     }
 }

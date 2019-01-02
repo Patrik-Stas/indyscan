@@ -14,7 +14,7 @@ class TxListItem extends Component {
     }
 
     render() {
-        console.log(`TxLiistItem = ${JSON.stringify(this.props)} `);
+        console.log(`TxListItem = ${JSON.stringify(this.props)} `);
         const {type, timestamp, txnId} = this.props;
         const {seqNo, network, txType} = this.props;
         const {baseUrl} = this.props;

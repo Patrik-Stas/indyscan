@@ -1,11 +1,8 @@
 import "../scss/style.scss";
-import TxListCompact from "../components/TxListCompact/TxListCompact";
 import React, {Component} from 'react';
-import {getTransactions, getTxCount} from '../api-client'
+import {getTx} from '../api-client'
 import PageHeader from "../components/PageHeader/PageHeader";
-import {Grid, Pagination} from "semantic-ui-react";
-import util from 'util'
-import Router from "next/dist/lib/router";
+import {Grid, Container} from "semantic-ui-react";
 
 const pageSize = 20;
 
@@ -17,20 +14,19 @@ class Tx extends Component {
     }
 
     static async getInitialProps({req, query}) {
-        const {network, txType, txSeqno} = query;
+        const {network, txType, seqNo} = query;
         const baseUrl = this.getBaseUrl(req);
-        const txDetail = {a:"asd"};
+        const txDetail = await getTx(baseUrl, network, txType, seqNo);
         return {
+            txDetail,
             network,
             txType,
-            txSeqno,
-            txDetail,
-            baseUrl,
+            seqNo,
         }
     }
 
     render() {
-        const {network, txType, txSeqno} = this.props;
+        const {txDetail, network, txType, seqNo} = this.props;
         return (
             <Grid>
                 <Grid.Row>
@@ -40,7 +36,11 @@ class Tx extends Component {
                 </Grid.Row>
                 <Grid.Row>
                     <Grid.Column>
-                        {JSON.stringify(this.props.txDetail)}
+                        <Container textAlign='justified'>
+                            <code style={{whiteSpace:"pre-wrap"}}>
+                                {JSON.stringify(txDetail, null, 2)}
+                            </code>
+                        </Container>
                     </Grid.Column>
                 </Grid.Row>
             </Grid>

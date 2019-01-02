@@ -13,6 +13,12 @@ export async function getTransactions(baseUrl, network, txType, fromRecentTx, to
     return await res.json();
 }
 
+export async function getTx(baseUrl, network, txType, seqNo) {
+    const query = queryString.stringify({seqNo, network, txType});
+    let res = await fetch(`${baseUrl}/api/tx?${query}`);
+    return await res.json();
+}
+
 export async function getTxCount(baseUrl, network, txType) {
     const query = queryString.stringify({network, txType});
     let res = await fetch(`${baseUrl}/api/txs/count?${query}`);

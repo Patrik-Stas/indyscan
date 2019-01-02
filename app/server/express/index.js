@@ -36,6 +36,18 @@ function createRouter(storageManager) {
         res.status(200).send({txs})
     });
 
+    router.get("/tx", async (req, res) => {
+        const parts = url.parse(req.url, true);
+        const seqNo = parseInt(parts.query.seqNo);
+        const network = parts.query.network;
+        const txType = parts.query.txType;
+
+        console.log(`API GET ${req.url}`);
+        const tx = await storageManager.getTxCollection(network, txType).getTxBySeqNo(seqNo);
+        console.log(JSON.stringify(tx))
+        res.status(200).send(tx)
+    });
+
     const oneDayInMiliseconds = 1000*60*60*24;
 
     router.get("/txs-timeseries", async (req, res) => {
