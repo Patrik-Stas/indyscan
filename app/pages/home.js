@@ -32,7 +32,7 @@ class HomePage extends Component {
         const {network} = this.props;
         return (
             <div>
-                <PageHeader currentPath={this.props.currentPath} page="home" network={network || "SOVRIN_MAINNET"}/>
+                <PageHeader page="home" network={network || "SOVRIN_MAINNET"}/>
                 <TxsChart timeseriesDomain={this.props.timeseriesDomain}
                           timeseriesPool={this.props.timeseriesPool}
                           timeseriesConfig={this.props.timeseriesConfig}/>

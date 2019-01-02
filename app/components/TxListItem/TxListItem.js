@@ -2,23 +2,28 @@ import React, {Component} from "react";
 import "./TxListItem.scss";
 import {Table} from 'semantic-ui-react';
 import {Item} from "semantic-ui-react/dist/commonjs/views/Item/Item";
+import Router from "next/dist/lib/router";
 
 class TxListItem extends Component {
-    constructor(props) {
-        super(props);
-        this.props = props;
+
+    static goToTx(baseUrl, network, txType, seqNo) {
+        return () => Router.push(
+            `${baseUrl}/tx?network=${network}&txType=${txType}&seqNo=${seqNo}`,
+            `/tx/${network}/${txType}/${seqNo}`
+        );
     }
 
     render() {
-        const timestamp = !!(this.props.tx.txnMetadata.txnTime)
-            ?  new Date(this.props.tx.txnMetadata.txnTime * 1000).toISOString()
-            : "unknown";
+        console.log(`TxLiistItem = ${JSON.stringify(this.props)} `);
+        const {type, timestamp, txnId} = this.props;
+        const {seqNo, network, txType} = this.props;
+        const {baseUrl} = this.props;
         return (
-            <Table.Row className="txListItem">
-                    <Table.Cell>{this.props.tx.txnMetadata.seqNo}</Table.Cell>
-                    <Table.Cell>{this.props.tx.txn.type}</Table.Cell>
+            <Table.Row className="txListItem" onClick={TxListItem.goToTx(baseUrl, network, txType, seqNo)}>
+                    <Table.Cell>{seqNo}</Table.Cell>
+                    <Table.Cell>{type}</Table.Cell>
                     <Table.Cell>{timestamp}</Table.Cell>
-                    <Table.Cell>{this.props.tx.txnMetadata.txnId}</Table.Cell>
+                    <Table.Cell>{txnId}</Table.Cell>
             </Table.Row>
         );
     }

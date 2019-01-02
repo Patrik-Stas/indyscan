@@ -39,6 +39,12 @@ async function startServer(storageManager) {
                 return app.render(req, res, '/txs', mergedQuery);
             });
 
+            server.get('/tx/:network/:txType/:seqNo', (req, res) => {
+                const mergedQuery = Object.assign({}, req.query, req.params);
+                console.log(`Custom express routing handler: /txs/:network/:type\nmerged query: ${JSON.stringify(mergedQuery)}`);
+                return app.render(req, res, '/tx', mergedQuery);
+            });
+
             server.get("*", (req, res) => {
                 return handle(req, res);
             });

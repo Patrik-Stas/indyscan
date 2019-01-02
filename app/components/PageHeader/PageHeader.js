@@ -16,7 +16,6 @@ class PageHeader extends Component {
 
     render() {
         const {network} = this.props;
-        console.log(`[PageHeader.js] render() props= ${JSON.stringify(this.props)}`);
         return (
             <Grid id="page-header">
                 <Grid.Row>
@@ -46,7 +45,7 @@ class PageHeader extends Component {
                     <Grid.Column floated="right" width={4}>
                         <Grid>
                             <Grid.Row >
-                                    <Navbar currentPath={this.props.currentPath} page={this.props.page} network={this.props.network}/>
+                                    <Navbar page={this.props.page} network={this.props.network}/>
                             </Grid.Row>
                         </Grid>
                     </Grid.Column>
