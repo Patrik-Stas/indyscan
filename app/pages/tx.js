@@ -9,36 +9,28 @@ import Router from "next/dist/lib/router";
 
 const pageSize = 20;
 
-class Txs extends Component {
+class Tx extends Component {
 
 
     static getBaseUrl(req) {
         return req ? `${req.protocol}://${req.get('Host')}` : '';
     }
 
-    handleClick(e, data) {
-        const {activePage} = data;
-        const {baseUrl, network, txType} = this.props;
-        Router.push(`${baseUrl}/txs?network=${network}&txType=${txType}&fromRecentTx=${(activePage-1)*pageSize}&toRecentTx=${activePage*pageSize}`, `/txs/${network}/${txType}`);
-    }
-
     static async getInitialProps({req, query}) {
-        const {network, txType, fromRecentTx, toRecentTx} = query;
+        const {network, txType, txSeqno} = query;
         const baseUrl = this.getBaseUrl(req);
-        const domainTxs = await getTransactions(baseUrl, network, txType, fromRecentTx || 0, toRecentTx || pageSize);
-        const txCount = await getTxCount(baseUrl, network, txType);
+        const txDetail = {a:"asd"};
         return {
-            txs: domainTxs.txs,
             network,
             txType,
+            txSeqno,
+            txDetail,
             baseUrl,
-            txCount
         }
     }
 
     render() {
-        const {txType, network, txCount} = this.props;
-        const pageCount = Math.ceil(txCount / pageSize);
+        const {network, txType, txSeqno} = this.props;
         return (
             <Grid>
                 <Grid.Row>
@@ -48,15 +40,12 @@ class Txs extends Component {
                 </Grid.Row>
                 <Grid.Row>
                     <Grid.Column>
-                        <TxListCompact baseUrl={this.props.baseUrl} network={this.props.network} txType={this.props.txType} txs={this.props.txs}/>
+                        {JSON.stringify(this.props.txDetail)}
                     </Grid.Column>
-                </Grid.Row>
-                <Grid.Row centered>
-                    <Pagination defaultActivePage={1} totalPages={pageCount} onPageChange={(e, data) => this.handleClick(e, data)}/>
                 </Grid.Row>
             </Grid>
         )
     }
 }
 
-export default Txs;
+export default Tx;

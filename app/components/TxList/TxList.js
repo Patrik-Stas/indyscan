@@ -1,12 +1,19 @@
 import {Component} from 'react';
 import TxPreview from "../TxPreview/TxPreview";
+import {extractTxInformation} from "../../txtools";
 
 class TxList extends Component {
 
     render() {
+        const {txs} = this.props;
         return (
             <div>
-                {this.props.txs.map(txn => <TxPreview key={txn.txnMetadata.seqNo} tx={txn}/>)}
+                {txs.map(tx => {
+                    const txInfo = extractTxInformation(tx);
+                    return (
+                        <TxPreview key={tx.seqNo} {...txInfo}/>
+                    )
+                })}
             </div>
         )
     }

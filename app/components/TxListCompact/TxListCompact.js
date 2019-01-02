@@ -1,6 +1,7 @@
 import {Component} from 'react';
 import TxListItem from "../TxListItem/TxListItem";
 import {Table} from 'semantic-ui-react';
+import {extractTxInformation} from "../../txtools";
 
 class TxListCompact extends Component {
 
@@ -17,8 +18,12 @@ class TxListCompact extends Component {
                 </Table.Header>
                 <Table.Body>
                 {this.props.txs.map((txn) => {
+                    const txInfo = extractTxInformation(txn);
                     return (
-                        <TxListItem key={txn.txnMetadata.seqNo} tx={txn}/>
+                        <TxListItem baseUrl={this.props.baseUrl}
+                                    network={this.props.network}
+                                    txType={this.props.txType}
+                                    key={txn.seqNo} {...txInfo}/>
                     )
                 })}
                 </Table.Body>
