@@ -3,6 +3,7 @@ import "./TxListItem.scss";
 import {Table} from 'semantic-ui-react';
 import {Item} from "semantic-ui-react/dist/commonjs/views/Item/Item";
 import Router from "next/dist/lib/router";
+import {txCodeToTxType} from "../../data/tx-types";
 
 class TxListItem extends Component {
 
@@ -15,13 +16,13 @@ class TxListItem extends Component {
 
     render() {
         console.log(`TxListItem = ${JSON.stringify(this.props)} `);
-        const {type, timestamp, txnId} = this.props;
-        const {seqNo, network, txType} = this.props;
+        const {seqNo, type, timestamp, txnId} = this.props.txInfo;
+        const {network, txType} = this.props;
         const {baseUrl} = this.props;
         return (
             <Table.Row className="txListItem" onClick={TxListItem.goToTx(baseUrl, network, txType, seqNo)}>
                     <Table.Cell>{seqNo}</Table.Cell>
-                    <Table.Cell>{type}</Table.Cell>
+                    <Table.Cell>{txCodeToTxType(type)}</Table.Cell>
                     <Table.Cell>{timestamp}</Table.Cell>
                     <Table.Cell>{txnId}</Table.Cell>
             </Table.Row>

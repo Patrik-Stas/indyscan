@@ -5,5 +5,5 @@ export function extractTxInformation(tx) {
     const timestamp = !!(txnTime)
         ? new Date(txnTime * 1000).toISOString()
         : "unknown";
-    return {txnId, txnTime, seqNo, timestamp}
+    return {txnId, txnTime, seqNo, timestamp, type}
 }

@@ -2,8 +2,9 @@ import React, {Component} from 'react';
 import "../scss/style.scss";
 import TxsChart from "../components/TxChart/TxChart";
 import {getTransactions, getTxTimeseries} from "../api-client";
-import TxList from "../components/TxList/TxList";
+import {Grid} from 'semantic-ui-react';
 import PageHeader from "../components/PageHeader/PageHeader";
+import TxList from "../components/TxList/TxList";
 
 class HomePage extends Component {
 
@@ -31,13 +32,40 @@ class HomePage extends Component {
     render() {
         const {network} = this.props;
         return (
-            <div>
-                <PageHeader page="home" network={network || "SOVRIN_MAINNET"}/>
-                <TxsChart timeseriesDomain={this.props.timeseriesDomain}
-                          timeseriesPool={this.props.timeseriesPool}
-                          timeseriesConfig={this.props.timeseriesConfig}/>
-                <TxList txs={this.props.txs}/>
-            </div>
+            <Grid>
+                <Grid.Row style={{backgroundColor: "white"}}>
+                    <Grid.Column width={16}>
+                        <PageHeader page="home" network={network || "SOVRIN_MAINNET"}/>
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row>
+                    <Grid.Column width={10}>
+                        <Grid>
+                            <Grid.Row>
+                                <h2>Transaction trends</h2>
+                            </Grid.Row>
+                            <Grid.Row>
+                                <Grid.Column>
+                                    <TxsChart timeseriesDomain={this.props.timeseriesDomain}
+                                              timeseriesPool={this.props.timeseriesPool}
+                                              timeseriesConfig={this.props.timeseriesConfig}/>
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
+                    </Grid.Column>
+                    <Grid.Column width={6}>
+                        <Grid.Row>
+                            <h2>Last domain transactions</h2>
+                        </Grid.Row>
+                        <Grid.Row>
+                            <Grid.Column>
+                                <TxList txs={this.props.txs}/>
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid.Column>
+
+                </Grid.Row>
+            </Grid>
         )
     }
 }

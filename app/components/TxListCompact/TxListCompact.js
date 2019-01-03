@@ -2,12 +2,13 @@ import {Component} from 'react';
 import TxListItem from "../TxListItem/TxListItem";
 import {Table} from 'semantic-ui-react';
 import {extractTxInformation} from "../../txtools";
+import {txCodeToTxType} from "../../data/tx-types";
 
 class TxListCompact extends Component {
 
     render() {
         return (
-            <Table striped>
+            <Table striped celled selectable>
                 <Table.Header>
                     <Table.Row>
                         <Table.HeaderCell>TxNo</Table.HeaderCell>
@@ -23,7 +24,7 @@ class TxListCompact extends Component {
                         <TxListItem baseUrl={this.props.baseUrl}
                                     network={this.props.network}
                                     txType={this.props.txType}
-                                    key={txn.seqNo} {...txInfo}/>
+                                    key={txn.seqNo} txInfo={txInfo}/>
                     )
                 })}
                 </Table.Body>
