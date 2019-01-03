@@ -9,13 +9,13 @@ class TxPreview extends Component {
         return (
             <Item>
                 <Item.Image size='tiny'>
-                    <h1>{seqNo}</h1>
+                    <h1>{seqNo}<h4>domain tx</h4></h1>
                 </Item.Image>
                 {/*<Item.Image size='tiny' src='https://react.semantic-ui.com/images/wireframe/image.png' />*/}
                 <Item.Content>
                     <Item.Header>{txCodeToTxType(type)}</Item.Header>
                     <Item.Meta>{timestamp}</Item.Meta>
-                    <Item.Description>{`${txnId.substring(0,15)} ...`}</Item.Description>
+                    <Item.Description>{`${txnId.substring(0,28)} ...`}</Item.Description>
                 </Item.Content>
             </Item>
 

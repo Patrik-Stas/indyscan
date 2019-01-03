@@ -15,7 +15,7 @@ class HomePage extends Component {
     static async getInitialProps({req, query}) {
         const baseUrl = this.getBaseUrl(req);
         const {network} = query;
-        const domainTxs = await getTransactions(baseUrl, network, 'domain', 0, 10);
+        const domainTxs = await getTransactions(baseUrl, network, 'domain', 0, 13);
         const timeseriesDomain = await getTxTimeseries(baseUrl, network, 'domain');
         const timeseriesPool = await getTxTimeseries(baseUrl, network, 'pool');
         const timeseriesConfig = await getTxTimeseries(baseUrl, network, 'config');
@@ -39,11 +39,8 @@ class HomePage extends Component {
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row>
-                    <Grid.Column width={9}>
+                    <Grid.Column width={10} floated='left'>
                         <Grid>
-                            <Grid.Row>
-                                <h2>Transaction trends</h2>
-                            </Grid.Row>
                             <Grid.Row>
                                 <Grid.Column>
                                     <TxsChart timeseriesDomain={this.props.timeseriesDomain}
@@ -53,14 +50,12 @@ class HomePage extends Component {
                             </Grid.Row>
                         </Grid>
                     </Grid.Column>
-                    <Grid.Column width={1}>
-                    </Grid.Column>
-                    <Grid.Column width={6}>
-                        <Grid.Row>
+                    <Grid.Column width={6} floated='right' verticalAlign='left' style={{paddingLeft:"7em"}}>
+                        <Grid.Row centered verticalAlign='right'>
                             <h2>Last domain transactions</h2>
                         </Grid.Row>
-                        <Grid.Row>
-                            <Grid.Column>
+                        <Grid.Row centered style={{marginTop:"2em"}}>
+                            <Grid.Column verticalAlign='right'>
                                 <TxPreviewList txs={this.props.txs}/>
                             </Grid.Column>
                         </Grid.Row>
