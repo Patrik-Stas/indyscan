@@ -1,22 +1,24 @@
 import React, {Component} from "react";
 import "./TxPreview.scss";
-import {Item} from 'semantic-ui-react'
+import {Item, Icon} from 'semantic-ui-react'
+import {txCodeToTxType} from "../../data/tx-types";
 
 class TxPreview extends Component {
     render() {
+        const {seqNo, type, timestamp, txnId} = this.props.txInfo;
         return (
-            <Item.Group>
-                <Item>
-                    <div className="txPreview">
-                    <Item.Content>
-                        <Item.Header>No: {this.props.seqNo}</Item.Header>
-                        <Item.Meta>Type: {this.props.type}</Item.Meta>
-                        <Item.Meta>Timestamp: {(new Date(this.props.txnTime * 1000)).toISOString()}</Item.Meta>
-                        <Item.Description>TxnId: {this.props.txnId}</Item.Description>
-                    </Item.Content>
-                    </div>
-                </Item>
-            </Item.Group>
+            <Item>
+                <Item.Image size='tiny'>
+                    <h1>{seqNo}</h1>
+                </Item.Image>
+                {/*<Item.Image size='tiny' src='https://react.semantic-ui.com/images/wireframe/image.png' />*/}
+                <Item.Content>
+                    <Item.Header>{txCodeToTxType(type)}</Item.Header>
+                    <Item.Meta>{timestamp}</Item.Meta>
+                    <Item.Description>{`${txnId.substring(0,15)} ...`}</Item.Description>
+                </Item.Content>
+            </Item>
+
         );
     }
 }

@@ -3,6 +3,7 @@ import TxListItem from "../TxListItem/TxListItem";
 import {Table} from 'semantic-ui-react';
 import {extractTxInformation} from "../../txtools";
 import {txCodeToTxType} from "../../data/tx-types";
+import React from "react";
 
 class TxListCompact extends Component {
 

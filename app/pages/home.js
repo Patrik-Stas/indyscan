@@ -4,7 +4,7 @@ import TxsChart from "../components/TxChart/TxChart";
 import {getTransactions, getTxTimeseries} from "../api-client";
 import {Grid} from 'semantic-ui-react';
 import PageHeader from "../components/PageHeader/PageHeader";
-import TxList from "../components/TxList/TxList";
+import TxPreviewList from "../components/TxPreviewList/TxPreviewList";
 
 class HomePage extends Component {
 
@@ -39,7 +39,7 @@ class HomePage extends Component {
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row>
-                    <Grid.Column width={10}>
+                    <Grid.Column width={9}>
                         <Grid>
                             <Grid.Row>
                                 <h2>Transaction trends</h2>
@@ -53,13 +53,15 @@ class HomePage extends Component {
                             </Grid.Row>
                         </Grid>
                     </Grid.Column>
+                    <Grid.Column width={1}>
+                    </Grid.Column>
                     <Grid.Column width={6}>
                         <Grid.Row>
                             <h2>Last domain transactions</h2>
                         </Grid.Row>
                         <Grid.Row>
                             <Grid.Column>
-                                <TxList txs={this.props.txs}/>
+                                <TxPreviewList txs={this.props.txs}/>
                             </Grid.Column>
                         </Grid.Row>
                     </Grid.Column>

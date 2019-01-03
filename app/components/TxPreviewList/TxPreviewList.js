@@ -1,22 +1,25 @@
 import {Component} from 'react';
 import TxPreview from "../TxPreview/TxPreview";
 import {extractTxInformation} from "../../txtools";
+import {Item, Divider} from "semantic-ui-react";
+import React from "react";
 
-class TxList extends Component {
+class TxPreviewList extends Component {
 
     render() {
         const {txs} = this.props;
         return (
-            <div>
+
+            <Item.Group>
                 {txs.map(tx => {
                     const txInfo = extractTxInformation(tx);
                     return (
-                        <TxPreview key={tx.seqNo} {...txInfo}/>
+                            <TxPreview key={tx.seqNo} txInfo={txInfo}/>
                     )
                 })}
-            </div>
+            </Item.Group>
         )
     }
 }
 
-export default TxList;
+export default TxPreviewList;
