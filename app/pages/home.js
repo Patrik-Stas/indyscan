@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import "../scss/style.scss";
 import TxsChart from "../components/TxChart/TxChart";
 import {getTransactions, getTxTimeseries} from "../api-client";
-import {Grid} from 'semantic-ui-react';
+import {Divider, Grid} from 'semantic-ui-react';
 import PageHeader from "../components/PageHeader/PageHeader";
 import TxPreviewList from "../components/TxPreviewList/TxPreviewList";
 
@@ -33,11 +33,13 @@ class HomePage extends Component {
         const {network} = this.props;
         return (
             <Grid>
-                <Grid.Row style={{backgroundColor: "white"}}>
+                <Grid.Row style={{backgroundColor: "white", marginBottom:"-1em"}}>
                     <Grid.Column width={16}>
                         <PageHeader page="home" network={network || "SOVRIN_MAINNET"}/>
                     </Grid.Column>
                 </Grid.Row>
+                {/*<Divider style={{paddingTop:"-2em"}}/>*/}
+                <Divider/>
                 <Grid.Row>
                     <Grid.Column width={10} floated='left'>
                         <Grid>
