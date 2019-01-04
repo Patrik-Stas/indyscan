@@ -22,10 +22,10 @@ class Navbar extends Component {
         const {network, page} = this.props;
         return (
             <div>
-                <MenuLink href={`/home?network=${network}`} as={`/home/${network}`}>Home</MenuLink >
-                <MenuLink  href={`/txs?network=${network}&txType=domain`} as={`/txs/${network}/domain`}>Domain</MenuLink >
-                <MenuLink  href={`/txs?network=${network}&txType=pool`} as={`/txs/${network}/pool`}>Pool</MenuLink >
-                <MenuLink  href={`/txs?network=${network}&txType=config`} as={`/txs/${network}/config`}>Config</MenuLink >
+                <MenuLink active={page==="home"} href={`/home?network=${network}`} as={`/home/${network}`}>Home</MenuLink >
+                <MenuLink active={page==="domain"} href={`/txs?network=${network}&txType=domain`} as={`/txs/${network}/domain`}>Domain</MenuLink >
+                <MenuLink active={page==="pool"} href={`/txs?network=${network}&txType=pool`} as={`/txs/${network}/pool`}>Pool</MenuLink >
+                <MenuLink active={page==="config"} href={`/txs?network=${network}&txType=config`} as={`/txs/${network}/config`}>Config</MenuLink >
             </div>
         );
     }

@@ -39,7 +39,6 @@ class HomePage extends Component {
                     </Grid.Column>
                 </Grid.Row>
                 {/*<Divider style={{paddingTop:"-2em"}}/>*/}
-                <Divider/>
                 <Grid.Row>
                     <Grid.Column width={10} floated='left'>
                         <Grid>
