@@ -9,9 +9,10 @@ class MenuLink extends Component {
     }
 
     render() {
-        const {href, as} = this.props;
+        const {href, as, active} = this.props;
+        let fontSize = (!!active) ? "1.5em" : "0.9em";
         return (
-            <Link href={href} as={as}><a className="menulink" style={{marginRight:'2em', fontSize:"1.4em"}}>{this.props.children}</a></Link>
+            <Link href={href} as={as}><a className="menulink" style={{marginRight:'2em', fontSize:fontSize}}>{this.props.children}</a></Link>
         );
     }
 }
