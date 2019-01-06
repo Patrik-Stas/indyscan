@@ -53,6 +53,9 @@ class Txs extends Component {
                         <PageHeader page={txType || "home"} network={network || "SOVRIN_MAINNET"}/>
                     </Grid.Column>
                 </Grid.Row>
+                <Grid.Row centered>
+                    <Pagination defaultActivePage={page} totalPages={pageCount} onPageChange={(e, data) => this.handleClick(e, data)}/>
+                </Grid.Row>
                 <Grid.Row>
                     <Grid.Column>
                         <TxListCompact baseUrl={this.props.baseUrl} network={this.props.network} txType={this.props.txType} txs={this.props.txs}/>
