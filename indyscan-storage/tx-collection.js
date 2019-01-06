@@ -9,6 +9,7 @@ module.exports = async function createTxCollection(mongodb, collectionName) {
     console.log(`Creating tx collection ${collectionName}`);
 
     const collection = mongodb.collection(collectionName);
+    await collection.createIndex({"txnMetadata.seqNo": 1});
 
     async function getTxCount() {
         return await collection.estimatedDocumentCount()
