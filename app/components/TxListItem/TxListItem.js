@@ -1,30 +1,25 @@
 import React, {Component} from "react";
 import "./TxListItem.scss";
 import {Table} from 'semantic-ui-react';
-import {Item} from "semantic-ui-react/dist/commonjs/views/Item/Item";
-import Router from "next/dist/lib/router";
+import Link from 'next/link'
 import {txCodeToTxType} from "../../data/tx-types";
 
 class TxListItem extends Component {
 
-    static goToTx(baseUrl, network, txType, seqNo) {
-        return () => Router.push(
-            `${baseUrl}/tx?network=${network}&txType=${txType}&seqNo=${seqNo}`,
-            `/tx/${network}/${txType}/${seqNo}`
-        );
-    }
 
     render() {
         console.log(`TxListItem = ${JSON.stringify(this.props)} `);
         const {seqNo, type, timestamp, txnId} = this.props.txInfo;
         const {network, txType} = this.props;
         const {baseUrl} = this.props;
+        const href=`${baseUrl}/tx?network=${network}&txType=${txType}&seqNo=${seqNo}`;
+        const as=`/tx/${network}/${txType}/${seqNo}`;
         return (
-            <Table.Row className="txListItem" onClick={TxListItem.goToTx(baseUrl, network, txType, seqNo)}>
+            <Table.Row className="txListItem">
                     <Table.Cell>{seqNo}</Table.Cell>
                     <Table.Cell>{txCodeToTxType(type)}</Table.Cell>
                     <Table.Cell>{timestamp}</Table.Cell>
-                    <Table.Cell>{txnId}</Table.Cell>
+                    <Table.Cell><Link href={href} as={as}><a>{txnId}</a></Link></Table.Cell>
             </Table.Row>
         );
     }
