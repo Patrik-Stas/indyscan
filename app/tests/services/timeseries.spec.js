@@ -15,7 +15,7 @@ describe('API claim issuance scenario', async () => {
 
         expect(histogram[2][0]).toBe(7);
         expect(histogram[2][1]).toBe(1);
-    })
+    });
 
     it('should work with small bucketsize', async () => {
         const timestamps = [1,3]
@@ -28,20 +28,20 @@ describe('API claim issuance scenario', async () => {
 
         expect(histogram[2][0]).toBe(3);
         expect(histogram[2][1]).toBe(1);
-    })
+    });
 
     it('should handle small dataset', async () => {
         const timestamps = [1]
         const histogram = await createHistogram(timestamps, 3);
         expect(histogram[0][0]).toBe(1);
         expect(histogram[0][1]).toBe(1);
-    })
+    });
 
     it('should not fail on big dataset', async () => {
         const intervalSec = 60*60*24;
         const histogram = await createHistogram(timestamps, intervalSec);
         console.log(histogram)
-    })
+    });
 
 
 
