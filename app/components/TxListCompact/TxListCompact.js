@@ -15,7 +15,8 @@ class TxListCompact extends Component {
                         <Table.HeaderCell>TxNo</Table.HeaderCell>
                         <Table.HeaderCell>Type</Table.HeaderCell>
                         <Table.HeaderCell>Timestamp</Table.HeaderCell>
-                        <Table.HeaderCell>ID</Table.HeaderCell>
+                        <Table.HeaderCell>TxID</Table.HeaderCell>
+                        <Table.HeaderCell>RootHash</Table.HeaderCell>
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>

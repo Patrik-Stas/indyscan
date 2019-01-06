@@ -14,14 +14,14 @@ class HomePage extends Component {
 
     static async getInitialProps({req, query}) {
         const baseUrl = this.getBaseUrl(req);
-        const {network} = query;
+        const {network, txType} = query;
         const domainTxs = await getTransactions(baseUrl, network, 'domain', 0, 13);
         const timeseriesDomain = await getTxTimeseries(baseUrl, network, 'domain');
         const timeseriesPool = await getTxTimeseries(baseUrl, network, 'pool');
         const timeseriesConfig = await getTxTimeseries(baseUrl, network, 'config');
         // todo: cache the data...
         return {
-            network,
+            network, txType,
             txs: domainTxs.txs,
             timeseriesDomain: timeseriesDomain.histogram,
             timeseriesPool: timeseriesPool.histogram,
@@ -35,7 +35,7 @@ class HomePage extends Component {
             <Grid>
                 <Grid.Row style={{backgroundColor: "white", marginBottom:"-1em"}}>
                     <Grid.Column width={16}>
-                        <PageHeader page="home" network={network || "SOVRIN_MAINNET"}/>
+                        <PageHeader page="home" network={network}/>
                     </Grid.Column>
                 </Grid.Row>
                 {/*<Divider style={{paddingTop:"-2em"}}/>*/}
