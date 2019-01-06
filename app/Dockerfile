@@ -1,10 +1,11 @@
 FROM node:8.12.0
 
-COPY package.json /app/
+COPY app/package.json /app/
+COPY indyscan-storage /indyscan-storage
 WORKDIR /app/
 RUN npm install
 
-COPY . /app/
+COPY app /app/
 
 RUN npm run build
 
