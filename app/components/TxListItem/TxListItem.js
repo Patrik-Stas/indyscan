@@ -2,7 +2,8 @@ import React, {Component} from "react";
 import "./TxListItem.scss";
 import {Table} from 'semantic-ui-react';
 import Link from 'next/link'
-import {txCodeToTxType} from "../../data/tx-types";
+import ReactTooltip from 'react-tooltip'
+import {txCodeToTxType, txCodeToTxDescription} from "../../data/tx-types";
 
 class TxListItem extends Component {
 
@@ -17,7 +18,10 @@ class TxListItem extends Component {
         return (
             <Table.Row className="txListItem" style={{fontSize:"0.8em", height:"100%"}}>
                 <Table.Cell><Link href={href} as={as}><a>{seqNo}</a></Link></Table.Cell>
-                <Table.Cell>{txCodeToTxType(type)}</Table.Cell>
+                <Table.Cell>
+                    <ReactTooltip />
+                    <p data-tip={txCodeToTxDescription(type)}>{txCodeToTxType(type)}</p>
+                </Table.Cell>
                 <Table.Cell>{timestamp}</Table.Cell>
                 <Table.Cell>{txnId ? `${txnId.substring(0,50)} ...` : ""}</Table.Cell>
                 <Table.Cell>{rootHash}</Table.Cell>
