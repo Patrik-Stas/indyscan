@@ -8,7 +8,8 @@ const SOVRIN_MAINNET = 'SOVRIN_MAINNET';
 const SOVRIN_TESTNET = 'SOVRIN_TESTNET';
 
 // Connection URL
-const url = 'mongodb://localhost:27017';
+
+const url = process.env.URL_MONGO || 'mongodb://localhost:27017';
 
 const LEDGER_TYPE_POOL = '0';
 const LEDGER_TYPE_DOMAIN = '1';
