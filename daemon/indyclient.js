@@ -1,10 +1,40 @@
 const indy = require('indy-sdk');
+const writeFile = require('write');
+const homeDir = require('os').homedir();
+const indyDir = `${homeDir}/.indy_client`;
+const fs = require('fs');
 
-module.exports = async function createClient(poolName, walletName) {
+function getGenesisTxPathForPool(poolName) {
+    return `${indyDir}/pool/${poolName}/${poolName}.txn`
+}
 
-    console.log(`Connecting to ${poolName }`);
+async function createGenesisTxnFile(filename, txs) {
+    await writeFile(filename, txs.map(t=>JSON.stringify(t)).join('\n'));
+    console.log(`Pool genesis file ${filename} withh ${txs.length} transactions was created.`);
+}
+
+
+module.exports = async function createClient(poolName, walletName, genesisTxs) {
     indy.setProtocolVersion(2);
-    const poolHandle = await indy.openPoolLedger(poolName, null);
+
+    const genesisTxFilePath = getGenesisTxPathForPool(poolName);
+    console.log(`Looking for genesis file ${genesisTxFilePath}`);
+    const exists = await fs.existsSync(genesisTxFilePath);
+    console.log(`Does it yet exists? ${exists}`)
+    if (!exists) {
+        console.log(`Genesis file '${genesisTxFilePath}' does not yet exist. Going to create!`);
+        await createGenesisTxnFile(genesisTxFilePath, genesisTxs)
+        try {
+            await indy.createPoolLedgerConfig(poolName, {
+                'genesis_txn': genesisTxFilePath
+            });
+        } catch (e) {
+            console.log(e)
+            console.log(e.stack)
+        }
+    }
+    console.log(`Connecting to ${poolName}`);
+    const poolHandle = await indy.openPoolLedger(poolName);
     console.log('Connected.');
 
     console.log("Assuring local wallet.");

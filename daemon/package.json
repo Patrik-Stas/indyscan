@@ -12,10 +12,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "indy-sdk": "^1.7.0-rc-46",
+    "indy-sdk": "1.6.7",
     "indyscan-storage": "file:../indyscan-storage",
     "sleep-promise": "^8.0.1",
-    "util": "^0.11.1"
+    "util": "^0.11.1",
+    "write": "^1.0.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

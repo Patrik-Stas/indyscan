@@ -3,13 +3,15 @@ const sleep = require('sleep-promise');
 
 const createIndyClient = require('./indyclient');
 const storage = require ('indyscan-storage');
+const GENESIS = require('./genesis')
 
 const SOVRIN_MAINNET = 'SOVRIN_MAINNET';
 const SOVRIN_TESTNET = 'SOVRIN_TESTNET';
 
 // Connection URL
 
-const url = process.env.URL_MONGO || 'mongodb://localhost:27017';
+const url = process.env.URL_MONGO || 'mongodb://localhost:27017'; 
+
 
 const LEDGER_TYPE_POOL = '0';
 const LEDGER_TYPE_DOMAIN = '1';
@@ -23,9 +25,14 @@ async function run() {
         assert.equal(null, err);
         console.log(`Storage initialized. Storage url: ${url}. Indy networks ${JSON.stringify(indyNetworks)}`);
         for (let i=0; i<indyNetworks.length; i++) {
-            const NETWORK = indyNetworks[i];
+            const NETWORK=indyNetworks[i];
+            if (NETWORK!==SOVRIN_MAINNET && NETWORK!== SOVRIN_TESTNET) {
+                console.log(`Unsupported network ${NETWORK}`);
+                return -1;
+            }
+            const GENESIS_TXS = NETWORK===SOVRIN_MAINNET ? GENESIS.SOVRIN_MAINNET : GENESIS.SOVRIN_TESTNET;
             console.log(`Getting ready indy client for Indy network: ${NETWORK}`);
-            const indyClient = await createIndyClient(NETWORK, `sovrinscan-${NETWORK}`);
+            const indyClient = await createIndyClient(NETWORK, `sovrinscan-${NETWORK}`, GENESIS_TXS);
             const txCollectionDomain = storageManager.getTxCollection(NETWORK, storage.txTypes.domain);
             const txCollectionPool   = storageManager.getTxCollection(NETWORK, storage.txTypes.pool);
             const txCollectionConfig = storageManager.getTxCollection(NETWORK, storage.txTypes.config);

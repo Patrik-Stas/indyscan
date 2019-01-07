@@ -5,7 +5,7 @@ const createRouter = require("./express/index.js");
 const storage = require ('indyscan-storage');
 
 const indyNetworks = ['SOVRIN_MAINNET', 'SOVRIN_TESTNET'];
-const url = 'mongodb://localhost:27017';
+const url = process.env.URL_MONGO || 'mongodb://localhost:27017';
 
 const PORT = process.env.PORT || 3000;
 const dev = process.env.NODE_ENV !== "production";
