@@ -1,15 +1,25 @@
 version: '3.5'
 
 services:
-  nginx:
-    image: blacklabelops/nginx
+  mongo:
+    container_name: mongo
+    image: mongo:3.4.18
     networks:
     - indyscan-net
     volumes:
-    - ./nginx.conf:/etc/nginx/nginx.conf
+    -  ~/data-indyscan:/data/db
     ports:
-    - '80:80'
-    - '443:443'
+    - 27017
+#
+#  nginx:
+#    image: blacklabelops/nginx
+#    networks:
+#    - indyscan-net
+#    volumes:
+#    - ./nginx.conf:/etc/nginx/nginx.conf
+#    ports:
+#    - '80:80'
+#    - '443:443'
 
 networks:
   indyscan-net:
