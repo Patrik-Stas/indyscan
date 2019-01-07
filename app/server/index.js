@@ -5,7 +5,8 @@ const createRouter = require("./express/index.js");
 const storage = require ('indyscan-storage');
 
 const indyNetworks = ['SOVRIN_MAINNET', 'SOVRIN_TESTNET'];
-const url = process.env.URL_MONGO || 'mongodb://localhost:27017';
+const mongoUrl = process.env.URL_MONGO || 'mongodb://localhost:27017';
+console.log(`Connecting to Mongo URL: ${mongoUrl}`)
 
 const PORT = process.env.PORT || 3000;
 const dev = process.env.NODE_ENV !== "production";
@@ -61,7 +62,7 @@ async function startServer(storageManager) {
 }
 
 async function run() {
-    storage.init(url, indyNetworks, async (storageManager, err) => {
+    storage.init(mongoUrl, indyNetworks, async (storageManager, err) => {
         assert.equal(null, err);
         startServer(storageManager)
     }) ;
