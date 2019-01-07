@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-INDY_VERSION="v1.6.6"
+INDY_VERSION="v1.6.7"
 
 FULL_TAG="pstas/libindy:$INDY_VERSION"
 
