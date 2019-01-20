@@ -38,7 +38,6 @@ class HomePage extends Component {
                         <PageHeader page="home" network={network}/>
                     </Grid.Column>
                 </Grid.Row>
-                {/*<Divider style={{paddingTop:"-2em"}}/>*/}
                 <Grid.Row>
                     <Grid.Column width={10} floated='left'>
                         <Grid>

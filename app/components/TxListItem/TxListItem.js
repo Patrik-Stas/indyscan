@@ -4,6 +4,7 @@ import {Table} from 'semantic-ui-react';
 import Link from 'next/link'
 import ReactTooltip from 'react-tooltip'
 import {txCodeToTxType, txCodeToTxDescription} from "../../data/tx-types";
+import {getTxLinkData} from '../../routing'
 
 class TxListItem extends Component {
 
@@ -13,8 +14,7 @@ class TxListItem extends Component {
         const {seqNo, type, timestamp, txnId, rootHash} = this.props.txInfo;
         const {network, txType} = this.props;
         const {baseUrl} = this.props;
-        const href=`${baseUrl}/tx?network=${network}&txType=${txType}&seqNo=${seqNo}`;
-        const as=`/tx/${network}/${txType}/${seqNo}`;
+        const {href, as} = getTxLinkData(baseUrl, network, txType, seqNo);
         return (
             <Table.Row className="txListItem" style={{fontSize:"0.8em", height:"100%"}}>
                 <Table.Cell><Link href={href} as={as}><a>{seqNo}</a></Link></Table.Cell>

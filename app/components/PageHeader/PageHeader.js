@@ -18,6 +18,7 @@ class PageHeader extends Component {
     //<span style={{color:"#1F5289"}}> // indy color
     render() {
         const {network} = this.props;
+        console.log(`Page header; network = ${network}`);
         return (
             <div>
                 <Grid id="page-header">
