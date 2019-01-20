@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./build-and-push.sh "indyscan-daemon"
+./build-and-push.sh "indyscan-daemon" "./daemon/Dockerfile"
