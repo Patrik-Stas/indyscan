@@ -10,7 +10,7 @@ const SOVRIN_TESTNET = 'SOVRIN_TESTNET';
 
 // Connection URL
 
-const url = process.env.URL_MONGO || 'mongodb://localhost:27017'; 
+const url = process.env.URL_MONGO || 'mongodb://localhost:27017';
 
 
 const LEDGER_TYPE_POOL = '0';
@@ -23,7 +23,7 @@ const indyNetworks = [SOVRIN_MAINNET, SOVRIN_TESTNET];
 async function run() {
     storage.init(url, indyNetworks, async (storageManager, err) => {
         assert.equal(null, err);
-        console.log(`Storage initialized. Storage url: ${url}. Indy networks ${JSON.stringify(indyNetworks)}`);
+        console.log(`Storage initialized. Storage url : ${url}. Indy networks ${JSON.stringify(indyNetworks)}`);
         for (let i=0; i<indyNetworks.length; i++) {
             const NETWORK=indyNetworks[i];
             if (NETWORK!==SOVRIN_MAINNET && NETWORK!== SOVRIN_TESTNET) {

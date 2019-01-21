@@ -53,12 +53,8 @@ class Tx extends Component {
         document.removeEventListener("keydown", this.handleArrowKeys.bind(this), false);
     }
 
-    const
-
     render() {
-
         const palette = top100()[7];
-
         const mytheme = {
             main: `line-height:1.3;color:${palette[0]};background:white;overflow:auto;border-style:solid;border-color:${palette[1]};border-width:1px;padding:4em`,
             key: `color:${palette[1]};`,
@@ -102,6 +98,3 @@ class Tx extends Component {
 }
 
 export default Tx;
-
-                            {/*<code style={{whiteSpace:"pre-wrap"}}>*/}
-            ///{JSON.stringify(txDetail, null, 2)}

@@ -4,7 +4,7 @@ APP_NAME="$1"
 DOCKERFILE="$2"
 
 TIME=`date -u +%Y%m%dT%H%M%SZ`
-REPO="pstas/indyscan"
+REPO="pstas/$APP_NAME"
 TAG1="$REPO:latest"
 TAG2="$REPO:$TIME"
 
