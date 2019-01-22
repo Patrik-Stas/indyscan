@@ -9,8 +9,12 @@ COPY indyscan-storage /home/indyscan/indyscan-storage
 RUN chown -R indyscan:indyscan /home/indyscan
 USER indyscan
 
+WORKDIR /home/indyscan/indyscan-storage
+RUN npm install
+
 WORKDIR /home/indyscan/daemon
 RUN npm install
+
 
 LABEL org.label-schema.schema-version="1.0"
 LABEL org.label-schema.name="indyscan-daemon"

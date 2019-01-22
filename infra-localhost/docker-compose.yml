@@ -3,25 +3,13 @@ version: '3.5'
 services:
   mongo:
     image: mongo:3.4.18
-    container_name: mongo
+    container_name: indyscan-mongo
     networks:
     - indynet
     volumes:
-    -  /dockervolumes/indydb:/data/db
+    -  indyscandb:/data/db
     ports:
     - 27017:27017
-
-  nginx:
-    image: blacklabelops/nginx
-    container_name: nginx
-    networks:
-    - indynet
-    volumes:
-    - ./nginx.conf:/etc/nginx/nginx.conf
-    - letsencrypt_certs:/etc/letsencrypt/
-    ports:
-    - '80:80'
-    - '443:443'
 
   indyscan:
     image: pstas/indyscan:latest
@@ -29,13 +17,11 @@ services:
     networks:
     - indynet
     depends_on:
-    - nginx
     - mongo
     environment:
     - URL_MONGO=mongodb://mongo.indynet:27017
     ports:
     - '3000:3000'
-
 
   indyscan-daemon:
     image: pstas/indyscan-daemon:latest
@@ -43,17 +29,13 @@ services:
     networks:
     - indynet
     depends_on:
-    - nginx
     - mongo
     environment:
     - URL_MONGO=mongodb://mongo.indynet:27017
-    ports:
-    - '3000:3000'
-
 
 volumes:
-  letsencrypt_certs:
-    external: true
+  indyscandb:
+    external: false
 
 networks:
   indynet:
