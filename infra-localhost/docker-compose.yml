@@ -1,6 +1,7 @@
 version: '3.5'
 
 services:
+
   mongo:
     image: mongo:3.4.18
     container_name: indyscan-mongo
@@ -26,15 +27,20 @@ services:
   indyscan-daemon:
     image: pstas/indyscan-daemon:latest
     container_name: indyscan-daemon
+    volumes:
+      - ~/.indy_client/pool:~/.indy_client/pool
     networks:
     - indynet
     depends_on:
     - mongo
     environment:
     - URL_MONGO=mongodb://mongo.indynet:27017
+    - INDY_NETWORKS=SOVRIN_MAINNET,SOVRIN_TESTNET
 
 volumes:
   indyscandb:
+    external: false
+  indypools:
     external: false
 
 networks:

@@ -43,9 +43,9 @@ class HomePage extends Component {
                         <Grid>
                             <Grid.Row>
                                 <Grid.Column>
-                                    <TxsChart timeseriesDomain={this.props.timeseriesDomain}
-                                              timeseriesPool={this.props.timeseriesPool}
-                                              timeseriesConfig={this.props.timeseriesConfig}/>
+                                    <TxsChart label="Domain tx count" color="#3e95cd" type="domain" timeseries={this.props.timeseriesDomain}/>
+                                    <TxsChart label="Pool tx count" color="#cd4639" type="pool" timeseries={this.props.timeseriesPool}/>
+                                    <TxsChart label="Config tx count" color="#3dcd34" type="config" timeseries={this.props.timeseriesConfig}/>
                                 </Grid.Column>
                             </Grid.Row>
                         </Grid>

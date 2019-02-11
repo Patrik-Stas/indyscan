@@ -6,6 +6,7 @@ import Router from "next/dist/lib/router";
 import {Menu} from 'semantic-ui-react'
 import MenuLink from "../MenuLink/MenuLink";
 
+const networks = require('../../server/networks');
 
 class PageHeader extends Component {
 
@@ -15,7 +16,28 @@ class PageHeader extends Component {
         }
     }
 
-    //<span style={{color:"#1F5289"}}> // indy color
+    renderNetworks(networks, activeNetwork) {
+        let networkMenuLinks = []
+        console.log(`Networks = ${networks}`)
+        for (let i = 0; i < networks.length; i++) {
+            const network = networks[i];
+            networkMenuLinks.push(
+                <Grid.Column floated="left" width={2}>
+                    <Grid>
+                        <Grid.Row>
+                            <MenuLink active={network === activeNetwork}
+                                      href={`/home?network=${network}`}
+                                      as={`/home/${network}`}>
+                                {network}
+                            </MenuLink>
+                        </Grid.Row>
+                    </Grid>
+                </Grid.Column>
+            )
+        }
+        return networkMenuLinks;
+    }
+
     render() {
         const {network} = this.props;
         console.log(`Page header; network = ${network}`);
@@ -29,30 +51,9 @@ class PageHeader extends Component {
                         <h5>Hyperledger Indy transaction explorer</h5>
                     </Grid.Row>
                     <Grid.Row>
-                        <Grid.Column floated="left" width={8}>
-                            <Grid>
-                                <Grid.Row>
-                                    <MenuLink active={network === "SOVRIN_MAINNET"}
-                                              href={`/home?network=SOVRIN_MAINNET`}
-                                              as={`/home/SOVRIN_MAINNET`}>
-                                        MainNet
-                                    </MenuLink>
-                                    <MenuLink active={network === "SOVRIN_TESTNET"}
-                                              href={`/home?network=SOVRIN_TESTNET`}
-                                              as={`/home/SOVRIN_TESTNET`}>
-                                        TestNet
-                                    </MenuLink>
-                                </Grid.Row>
-                            </Grid>
-                        </Grid.Column>
-                        <Grid.Column floated="right" width={5}>
-                            <Grid>
-                                <Grid.Row>
-                                    <Navbar page={this.props.page} network={this.props.network}/>
-                                </Grid.Row>
-                            </Grid>
-                        </Grid.Column>
+                        {this.renderNetworks(networks.getIndyNetworks(), network)}
                     </Grid.Row>
+
                 </Grid>
                 <Divider/>
             </div>

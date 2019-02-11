@@ -9,6 +9,7 @@ import Link from "next/link";
 import {getTxLinkData} from "../routing";
 import Router from "next/dist/lib/router";
 const pageSize = 20;
+const networks = require('../server/networks');
 
 class Tx extends Component {
 
@@ -71,7 +72,7 @@ class Tx extends Component {
             <Grid>
                 <Grid.Row>
                     <Grid.Column>
-                        <PageHeader page={txType || "home"} network={network || "SOVRIN_MAINNET"}/>
+                        <PageHeader page={txType || "home"} network={network || networks.getDefaultNetwork()}/>
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row>

@@ -6,6 +6,7 @@ import PageHeader from "../components/PageHeader/PageHeader";
 import {Grid, Pagination} from "semantic-ui-react";
 import util from 'util'
 import Router from "next/dist/lib/router";
+const networks = require('../server/networks');
 
 class Txs extends Component {
 
@@ -50,7 +51,7 @@ class Txs extends Component {
             <Grid>
                 <Grid.Row>
                     <Grid.Column>
-                        <PageHeader page={txType || "home"} network={network || "SOVRIN_MAINNET"}/>
+                        <PageHeader page={txType || "home"} network={network || networks.getDefaultNetwork()}/>
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row centered>

@@ -19,34 +19,17 @@ function createChartsDataset(timeSeries, label, borderColor) {
     }
 }
 
-const TxsChart = (props) => {
-    const domain = createChartsDataset(props.timeseriesDomain, "Domain tx count", "#3e95cd");
-    const pool = createChartsDataset(props.timeseriesPool, "Pool tx count", "#cd4639");
-    const config = createChartsDataset(props.timeseriesConfig, "Config tx count", "#3dcd34");
-    const dataDomain = {
-        labels: domain.labels,
-        datasets: [
-            domain.dataset
-        ]
-    };
-    const dataPool = {
-        labels: pool.labels,
-        datasets: [
-            pool.dataset
-        ]
-    };
-    const dataConfig = {
-        labels: config.labels,
-        datasets: [
-            config.dataset
-        ]
+const TxsChart = ({timeseries, label, type, color}) => {
+    if (timeseries.length===0) {
+        return <div/>
+    }
+    const {labels, dataset} = createChartsDataset(timeseries, label, color);
+    const plotData = {
+        labels: labels,
+        datasets: [dataset]
     };
     return (
-        <div>
-            <Line id="tx-chart" data={dataDomain}/>
-            <Line id="tx-chart" data={dataPool}/>
-            <Line id="tx-chart" data={dataConfig}/>
-        </div>
+        <Line id={`${type}-txchart`} data={plotData}/>
     )
 };
 
