@@ -3,6 +3,7 @@ const queryString  = require('query-string');
 const url = require('url');
 const express = require("express");
 const indyStorage = require('indyscan-storage');
+const {getIndyNetworks, getDefaultNetwork} = require('../networks');
 
 function createRouter(storageManager) {
     const router = express.Router();
@@ -34,6 +35,13 @@ function createRouter(storageManager) {
         }
         const txs = await storageManager.getTxCollection(network, txType).getTxRange(fromRecentTx, toRecentTx-fromRecentTx);
         res.status(200).send({txs})
+    });
+
+    router.get('/networks', async (req, res) => {
+        console.log(`HIT /networks`);
+        const networks = getIndyNetworks();
+        const defaultNetwork = getDefaultNetwork();
+        res.status(200).send({networks, defaultNetwork})
     });
 
     router.get("/tx", async (req, res) => {

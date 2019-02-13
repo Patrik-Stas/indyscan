@@ -4,10 +4,10 @@ const sleep = require('sleep-promise');
 
 const createIndyClient = require('./indyclient');
 const storage = require ('indyscan-storage');
-const GENESIS = require('./genesis-data');
 
 const url = process.env.URL_MONGO || 'mongodb://localhost:27017';
-const INDY_NETWORKS = process.env.INDY_NETWORKS || 'SOVRIN_TESTNET';
+const INDY_NETWORKS = process.env.INDY_NETWORKS;
+console.log(`INDYSCAN DAEMON: Indy networks pass via env variable: ${INDY_NETWORKS}`);
 
 
 const LEDGER_TYPE_POOL = '0';

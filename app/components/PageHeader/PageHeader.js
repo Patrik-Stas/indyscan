@@ -5,15 +5,16 @@ import {Divider, Grid} from 'semantic-ui-react';
 import Router from "next/dist/lib/router";
 import {Menu} from 'semantic-ui-react'
 import MenuLink from "../MenuLink/MenuLink";
-
-const networks = require('../../server/networks');
+import {getNetworks} from '../../api-client';
 
 class PageHeader extends Component {
 
-    switchNetwork(network) {
-        return () => {
-            Router.push(`/home?network=${network}`, `/home/${network}`);
-        }
+
+    constructor(props) {
+        super();
+        this.state = {
+            networks: null
+        };
     }
 
     renderNetworks(networks, activeNetwork) {
@@ -38,6 +39,13 @@ class PageHeader extends Component {
         return networkMenuLinks;
     }
 
+
+    async componentDidMount() {
+        const networks = await getNetworks(this.props.baseUrl);
+        console.log(`Page header loaded available indy networks: ${JSON.stringify(networks)}`);
+        this.setState({networks})
+    }
+
     render() {
         const {network} = this.props;
         console.log(`Page header; network = ${network}`);
@@ -51,7 +59,7 @@ class PageHeader extends Component {
                         <h5>Hyperledger Indy transaction explorer</h5>
                     </Grid.Row>
                     <Grid.Row>
-                        {this.renderNetworks(networks.getIndyNetworks(), network)}
+                        {this.renderNetworks(this.state.networks || [network], network)}
                     </Grid.Row>
 
                 </Grid>

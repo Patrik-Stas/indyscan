@@ -24,3 +24,14 @@ export async function getTxCount(baseUrl, network, txType) {
     let res = await fetch(`${baseUrl}/api/txs/count?${query}`);
     return (await res.json()).txCount;
 }
+
+export async function getNetworks(baseUrl) {
+    let res = await fetch(`${baseUrl}/api/networks`);
+    return (await res.json()).networks;
+}
+
+export async function getDefaultNetwork(baseUrl) {
+    let res = await fetch(`${baseUrl}/networks`);
+    return (await res.json()).defaultNetwork;
+
+}

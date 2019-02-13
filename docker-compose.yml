@@ -13,7 +13,8 @@ services:
     - 27017:27017
 
   indyscan:
-    image: pstas/indyscan:latest
+    read_only: true
+    image: indyscan:latest-local
     container_name: indyscan-webapp
     networks:
     - indynet
@@ -21,21 +22,23 @@ services:
     - mongo
     environment:
     - URL_MONGO=mongodb://mongo.indynet:27017
+    - INDY_NETWORKS=${INDY_NETWORKS}
     ports:
     - '3000:3000'
 
   indyscan-daemon:
-    image: pstas/indyscan-daemon:latest
+    read_only: true
+    image: indyscan-daemon:latest-local
     container_name: indyscan-daemon
     volumes:
-      - ~/.indy_client/pool:~/.indy_client/pool
+      - ${HOME}/.indy_client:/home/indyscan/.indy_client
     networks:
     - indynet
     depends_on:
     - mongo
     environment:
     - URL_MONGO=mongodb://mongo.indynet:27017
-    - INDY_NETWORKS=SOVRIN_MAINNET,SOVRIN_TESTNET
+    - INDY_NETWORKS=${INDY_NETWORKS}
 
 volumes:
   indyscandb:

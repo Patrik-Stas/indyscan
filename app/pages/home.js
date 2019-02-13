@@ -26,16 +26,17 @@ class HomePage extends Component {
             timeseriesDomain: timeseriesDomain.histogram,
             timeseriesPool: timeseriesPool.histogram,
             timeseriesConfig: timeseriesConfig.histogram,
+            baseUrl
         }
     }
 
     render() {
-        const {network} = this.props;
+        const {network, baseUrl} = this.props;
         return (
             <Grid>
                 <Grid.Row style={{backgroundColor: "white", marginBottom:"-1em"}}>
                     <Grid.Column width={16}>
-                        <PageHeader page="home" network={network}/>
+                        <PageHeader page="home" network={network} baseUrl={baseUrl}/>
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row>

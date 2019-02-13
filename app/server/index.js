@@ -3,14 +3,13 @@ const next = require("next");
 const assert = require('assert');
 const createRouter = require("./express/index.js");
 const storage = require ('indyscan-storage');
-const networks = require('./networks');
+const {getIndyNetworks, getDefaultNetwork} = require('./networks');
 
-
-console.log(`Running indyscan webapp against following mongo databases: ${JSON.stringify(networks.getIndyNetworks())}`);
-console.log(`Default database is ${networks.getDefaultNetwork()}`);
+console.log(`Running indyscan webapp against following mongo databases: ${JSON.stringify(getIndyNetworks())}`);
+console.log(`Default database is ${getDefaultNetwork()}`);
 
 const mongoUrl = process.env.URL_MONGO || 'mongodb://localhost:27017';
-console.log(`Connecting to Mongo URL: ${mongoUrl}`)
+console.log(`Connecting to Mongo URL: ${mongoUrl}`);
 
 const PORT = process.env.PORT || 3000;
 const dev = process.env.NODE_ENV !== "production";
@@ -28,7 +27,7 @@ async function startServer(storageManager) {
 
             server.get('/', (req, res) => {
                 console.log(`ROOT URL: /`);
-                res.redirect(`/home/${networks.getDefaultNetwork()}`);
+                res.redirect(`/home/${getDefaultNetwork()}`);
             });
 
             server.get('/home/:network', (req, res) => {
@@ -65,7 +64,7 @@ async function startServer(storageManager) {
 }
 
 async function run() {
-    storage.init(mongoUrl, networks.getIndyNetworks(), async (storageManager, err) => {
+    storage.init(mongoUrl, getIndyNetworks(), async (storageManager, err) => {
         assert.equal(null, err);
         startServer(storageManager)
     }) ;
