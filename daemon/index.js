@@ -23,7 +23,14 @@ async function run() {
         console.log(`Storage initialized. Storage url : ${url}. Indy networks ${JSON.stringify(indyNetworks)}`);
         for (let i=0; i<indyNetworks.length; i++) {
             const NETWORK = indyNetworks[i];
-            const indyClient = await createIndyClient(NETWORK, `sovrinscan-${NETWORK}`);
+            let indyClient;
+            try {
+                indyClient = await createIndyClient(NETWORK, `sovrinscan-${NETWORK}`);
+            } catch (err) {
+                console.error(`Something when wrong creating indy client for network '${NETWORK}'. Details:`);
+                console.error(err);
+                console.error(err.stack);
+            }
             const txCollectionDomain = storageManager.getTxCollection(NETWORK, storage.txTypes.domain);
             const txCollectionPool   = storageManager.getTxCollection(NETWORK, storage.txTypes.pool);
             const txCollectionConfig = storageManager.getTxCollection(NETWORK, storage.txTypes.config);

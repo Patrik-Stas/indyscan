@@ -2,18 +2,15 @@ import React, {Component} from 'react';
 import "../scss/style.scss";
 import TxsChart from "../components/TxChart/TxChart";
 import {getTransactions, getTxTimeseries} from "../api-client";
-import {Divider, Grid} from 'semantic-ui-react';
+import {getBaseUrl} from '../routing'
+import {Grid} from 'semantic-ui-react';
 import PageHeader from "../components/PageHeader/PageHeader";
 import TxPreviewList from "../components/TxPreviewList/TxPreviewList";
 
 class HomePage extends Component {
 
-    static getBaseUrl(req) {
-        return req ? `${req.protocol}://${req.get('Host')}` : '';
-    }
-
     static async getInitialProps({req, query}) {
-        const baseUrl = this.getBaseUrl(req);
+        const baseUrl = getBaseUrl(req);
         const {network, txType} = query;
         const domainTxs = await getTransactions(baseUrl, network, 'domain', 0, 13);
         const timeseriesDomain = await getTxTimeseries(baseUrl, network, 'domain');

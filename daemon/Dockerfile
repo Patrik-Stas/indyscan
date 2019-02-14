@@ -22,4 +22,5 @@ LABEL org.label-schema.description="NodeJS app to look foro new transactions and
 LABEL org.label-schema.vcs-url="https://github.com/Patrik-Stas/indyscan"
 
 ENV LD_LIBRARY_PATH "/libindy/debug/"
+RUN mkdir -p /home/indyscan/.indy_client/wallet
 CMD npm run start

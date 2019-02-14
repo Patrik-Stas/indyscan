@@ -33,6 +33,7 @@ services:
     - mongo
     environment:
     - URL_MONGO=mongodb://mongo.indynet:27017
+    - INDY_NETWORKS=${INDY_NETWORKS}
     ports:
     - '3000:3000'
 
@@ -40,6 +41,8 @@ services:
   indyscan-daemon:
     image: pstas/indyscan-daemon:latest
     container_name: indyscan-daemon
+    volumes:
+    - ${HOME}/.indy_client/pool:/home/indyscan/.indy_client/pool
     networks:
     - indynet
     depends_on:
@@ -47,8 +50,7 @@ services:
     - mongo
     environment:
     - URL_MONGO=mongodb://mongo.indynet:27017
-    ports:
-    - '3000:3000'
+    - INDY_NETWORKS=${INDY_NETWORKS}
 
 
 volumes:

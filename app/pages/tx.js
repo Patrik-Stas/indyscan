@@ -8,18 +8,14 @@ import top100 from "../components/palettes";
 import Link from "next/link";
 import {getTxLinkData} from "../routing";
 import Router from "next/dist/lib/router";
+import {getBaseUrl} from '../routing'
 const pageSize = 20;
 
 class Tx extends Component {
 
-
-    static getBaseUrl(req) {
-        return req ? `${req.protocol}://${req.get('Host')}` : '';
-    }
-
     static async getInitialProps({req, query}) {
         const {network, txType, seqNo} = query;
-        const baseUrl = this.getBaseUrl(req);
+        const baseUrl = getBaseUrl(req);
         const txDetail = await getTx(baseUrl, network, txType, seqNo);
         return {
             baseUrl,

@@ -4,16 +4,10 @@ import React, {Component} from 'react';
 import {getTransactions, getTxCount} from '../api-client'
 import PageHeader from "../components/PageHeader/PageHeader";
 import {Grid, Pagination} from "semantic-ui-react";
-import util from 'util'
 import Router from "next/dist/lib/router";
-import {getDefaultNetwork} from "../api-client";
+import {getBaseUrl} from '../routing'
 
 class Txs extends Component {
-
-
-    static getBaseUrl(req) {
-        return req ? `${req.protocol}://${req.get('Host')}` : '';
-    }
 
     handleClick(e, data) {
         const {activePage} = data;
@@ -30,7 +24,7 @@ class Txs extends Component {
         const pageSize = (!!query.pageSize) ? query.pageSize : 50
         const fromRecentTx = (page-1) * pageSize;
         const toRecentTx = page * pageSize;
-        const baseUrl = this.getBaseUrl(req);
+        const baseUrl = getBaseUrl(req);
         const domainTxs = await getTransactions(baseUrl, network, txType, fromRecentTx || 0, toRecentTx || pageSize);
         const txCount = await getTxCount(baseUrl, network, txType);
         console.log(`Txs page loaded baseurl = ${baseUrl}`);

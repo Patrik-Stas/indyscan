@@ -12,17 +12,19 @@ module.exports = async function createClient(poolName, walletName) {
     const config = JSON.stringify({id: walletName, storage_type: "default"});
     const credentials = JSON.stringify({key : "ke®y"});
     try {
-        const wallet = await indy.createWallet(config, credentials);
-        console.log("New wallet created.")
+        await indy.createWallet(config, credentials);
+        console.log(`New wallet '${walletName}' created.`)
     } catch (err) {
-        console.log("Wallet probably already exists, will proceed.")
+        console.warn(err);
+        console.warn(err.stack);
+        console.warn("Wallet probably already exists, will proceed.");
     }
     const wh = await indy.openWallet(config, credentials);
+    console.log(`Wallet '${walletName}' has been opened.`);
     const res = await indy.createAndStoreMyDid(wh, {});
     const did = res[0];
     const vkey = res[1];
-    console.log(`Created did/verkey ${JSON.stringify(res)}`);
-
+    console.log(`Created new did/verkey ${JSON.stringify(res)}`);
 
     async function getTx(txid, ledgerType) {
         const getTx = await indy.buildGetTxnRequest(did, ledgerType, txid);
