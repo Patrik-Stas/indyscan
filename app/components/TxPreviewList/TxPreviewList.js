@@ -14,7 +14,7 @@ class TxPreviewList extends Component {
                 {txs.map(tx => {
                     const txInfo = extractTxInformation(tx);
                     return (
-                            <TxPreview key={tx.seqNo} txInfo={txInfo}/>
+                            <TxPreview key={`preview-${txInfo.seqNo}`} txInfo={txInfo}/>
                     )
                 })}
             </Item.Group>

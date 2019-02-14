@@ -7,11 +7,12 @@ REPO_OWNER="$3"
 TIME=`date -u +%Y%m%dT%H%M%SZ`
 if [ -z "$REPO_OWNER" ]; then
     REPO="$APP_NAME";
+    TAG1="$REPO:latest-local"
 else
     REPO="$REPO_OWNER/$APP_NAME"
+    TAG1="$REPO:latest"
 fi;
 
-TAG1="$REPO:latest-local"
 TAG2="$REPO:$TIME"
 
 echo -e "Will build app: $APP_NAME from Dockerfile $DOCKERFILE as:\n$TAG1\n$TAG2\n"

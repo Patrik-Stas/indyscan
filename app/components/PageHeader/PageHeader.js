@@ -23,7 +23,7 @@ class PageHeader extends Component {
         for (let i = 0; i < networks.length; i++) {
             const network = networks[i];
             networkMenuLinks.push(
-                <Grid.Column floated="left" width={2}>
+                <Grid.Column key={network} floated="left" width={2}>
                     <Grid>
                         <Grid.Row>
                             <MenuLink active={network === activeNetwork}
@@ -60,6 +60,13 @@ class PageHeader extends Component {
                     </Grid.Row>
                     <Grid.Row>
                         {this.renderNetworks(this.state.networks || [network], network)}
+                        <Grid.Column floated="right" width={5}>
+                            <Grid>
+                                <Grid.Row>
+                                    <Navbar page={this.props.page} network={this.props.network}/>
+                                </Grid.Row>
+                            </Grid>
+                        </Grid.Column>
                     </Grid.Row>
 
                 </Grid>

@@ -33,6 +33,7 @@ class Txs extends Component {
         const baseUrl = this.getBaseUrl(req);
         const domainTxs = await getTransactions(baseUrl, network, txType, fromRecentTx || 0, toRecentTx || pageSize);
         const txCount = await getTxCount(baseUrl, network, txType);
+        console.log(`Txs page loaded baseurl = ${baseUrl}`);
         return {
             txs: domainTxs.txs,
             network,
@@ -45,7 +46,7 @@ class Txs extends Component {
     }
 
     render() {
-        const {txType, network, txCount, page, pageSize} = this.props;
+        const {txType, network, txCount, page, baseUrl, pageSize} = this.props;
         const pageCount = Math.ceil(txCount / pageSize);
         return (
             <Grid>

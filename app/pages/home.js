@@ -51,12 +51,12 @@ class HomePage extends Component {
                             </Grid.Row>
                         </Grid>
                     </Grid.Column>
-                    <Grid.Column width={6} floated='right' verticalAlign='left' style={{paddingLeft:"7em"}}>
-                        <Grid.Row centered verticalAlign='right'>
+                    <Grid.Column width={6} floated='right' style={{paddingLeft:"7em"}}>
+                        <Grid.Row centered>
                             <h2>Last domain transactions</h2>
                         </Grid.Row>
                         <Grid.Row centered style={{marginTop:"2em"}}>
-                            <Grid.Column verticalAlign='right'>
+                            <Grid.Column>
                                 <TxPreviewList txs={this.props.txs}/>
                             </Grid.Column>
                         </Grid.Row>

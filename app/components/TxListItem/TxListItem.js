@@ -8,9 +8,7 @@ import {getTxLinkData} from '../../routing'
 
 class TxListItem extends Component {
 
-
     render() {
-        console.log(`TxListItem = ${JSON.stringify(this.props)} `);
         const {seqNo, type, timestamp, txnId, rootHash} = this.props.txInfo;
         const {network, txType} = this.props;
         const {baseUrl} = this.props;
@@ -29,7 +27,4 @@ class TxListItem extends Component {
         );
     }
 }
-// {/*<Table.Cell>{( (this.props.tx.txnMetadata.txnTime) ?*/}
-//     {/*"" : new Date(this.props.tx.txnMetadata.txnTime * 1000)).toISOString()*/}
-
 export default TxListItem;

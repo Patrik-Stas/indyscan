@@ -12,7 +12,11 @@ export default class MyDocument extends Document {
                 <link rel="stylesheet"
                       href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.css">
                 </link>
-                <link rel="stylesheet" href="/_next/static/style.css"/>
+                <meta property="og:title" content="Indy Transaction Explorer" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://indyscan.io" />
+                <meta property="og:image" content="http://indyscan.io/static/indy.png" />
+                <meta property="og:description" content="Explore content of Sovrin Indy blockchains" />
             </Head>
             <body>
             <a href="https://github.com/Patrik-Stas/indyscan" className="github-corner"
