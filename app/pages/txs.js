@@ -5,7 +5,8 @@ import {getTransactions, getTxCount} from '../api-client'
 import PageHeader from "../components/PageHeader/PageHeader";
 import {Grid, Pagination} from "semantic-ui-react";
 import Router from "next/dist/lib/router";
-import {getBaseUrl} from '../routing'
+import {getBaseUrl} from '../routing';
+import Footer from '../components/Footer/Footer';
 
 class Txs extends Component {
 
@@ -59,6 +60,11 @@ class Txs extends Component {
                 </Grid.Row>
                 <Grid.Row centered>
                     <Pagination defaultActivePage={page} totalPages={pageCount} onPageChange={(e, data) => this.handleClick(e, data)}/>
+                </Grid.Row>
+                <Grid.Row>
+                    <Grid.Column>
+                        <Footer/>
+                    </Grid.Column>
                 </Grid.Row>
             </Grid>
         )

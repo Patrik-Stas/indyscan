@@ -8,7 +8,8 @@ import top100 from "../components/palettes";
 import Link from "next/link";
 import {getTxLinkData} from "../routing";
 import Router from "next/dist/lib/router";
-import {getBaseUrl} from '../routing'
+import {getBaseUrl} from '../routing';
+import Footer from '../components/Footer/Footer';
 const pageSize = 20;
 
 class Tx extends Component {
@@ -86,6 +87,11 @@ class Tx extends Component {
                         <Container textAlign='justified'>
                             {<JSONPretty theme={mytheme} data={JSON.stringify(txDetail)}/> }
                         </Container>
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row>
+                    <Grid.Column>
+                        <Footer/>
                     </Grid.Column>
                 </Grid.Row>
             </Grid>

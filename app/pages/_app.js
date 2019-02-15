@@ -1,6 +1,7 @@
 import React from 'react'
 import App, {Container} from 'next/app'
 import {Container as SemanticContainer} from "semantic-ui-react";
+import {Divider, Grid} from 'semantic-ui-react'
 
 export default class MyApp extends App {
     static async getInitialProps({Component, router, ctx}) {

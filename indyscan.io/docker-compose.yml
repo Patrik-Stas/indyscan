@@ -19,6 +19,7 @@ services:
     volumes:
     - ./nginx.conf:/etc/nginx/nginx.conf
     - letsencrypt_certs:/etc/letsencrypt/
+    - ./brave-rewards-verification.txt:/var/www/indyscan.io/.well-known/brave-rewards-verification.txt
     ports:
     - '80:80'
     - '443:443'

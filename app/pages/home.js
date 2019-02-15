@@ -6,6 +6,7 @@ import {getBaseUrl} from '../routing'
 import {Grid} from 'semantic-ui-react';
 import PageHeader from "../components/PageHeader/PageHeader";
 import TxPreviewList from "../components/TxPreviewList/TxPreviewList";
+import Footer from '../components/Footer/Footer';
 
 class HomePage extends Component {
 
@@ -59,6 +60,11 @@ class HomePage extends Component {
                         </Grid.Row>
                     </Grid.Column>
 
+                </Grid.Row>
+                <Grid.Row>
+                    <Grid.Column>
+                        <Footer/>
+                    </Grid.Column>
                 </Grid.Row>
             </Grid>
         )
