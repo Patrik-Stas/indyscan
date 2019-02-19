@@ -30,6 +30,11 @@ async function startServer(storageManager) {
                 res.redirect(`/home/${getDefaultNetwork()}`);
             });
 
+            server.get('/home', (req, res) => {
+                console.log(`ROOT URL: /`);
+                res.redirect(`/home/${getDefaultNetwork()}`);
+            });
+
             server.get('/home/:network', (req, res) => {
                 const mergedQuery = Object.assign({}, req.query, req.params);
                 console.log(`Custom express routing handler: /home/:network\nmerged query: ${JSON.stringify(mergedQuery)}`);

@@ -7,14 +7,13 @@ import React from "react";
 class TxPreviewList extends Component {
 
     render() {
-        const {txs} = this.props;
+        const {txs, network} = this.props;
         return (
-
             <Item.Group>
                 {txs.map(tx => {
                     const txInfo = extractTxInformation(tx);
                     return (
-                            <TxPreview key={`preview-${txInfo.seqNo}`} txInfo={txInfo}/>
+                            <TxPreview key={`preview-${txInfo.seqNo}`}  network={network} txInfo={txInfo} txType="domain"/>
                     )
                 })}
             </Item.Group>

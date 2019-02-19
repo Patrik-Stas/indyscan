@@ -19,6 +19,7 @@ services:
     volumes:
     - ./nginx.conf:/etc/nginx/nginx.conf
     - letsencrypt_certs:/etc/letsencrypt/
+    - /var/log/nginx/:/var/log/nginx/
     - ./brave-rewards-verification.txt:/var/www/indyscan.io/.well-known/brave-rewards-verification.txt
     ports:
     - '80:80'
@@ -35,8 +36,6 @@ services:
     environment:
     - URL_MONGO=mongodb://mongo.indynet:27017
     - INDY_NETWORKS=${INDY_NETWORKS}
-    ports:
-    - '3000:3000'
 
 
   indyscan-daemon:

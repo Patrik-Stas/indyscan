@@ -42,9 +42,9 @@ class HomePage extends Component {
                         <Grid>
                             <Grid.Row>
                                 <Grid.Column>
-                                    <TxsChart label="Domain tx count" color="#3e95cd" type="domain" timeseries={this.props.timeseriesDomain}/>
-                                    <TxsChart label="Pool tx count" color="#cd4639" type="pool" timeseries={this.props.timeseriesPool}/>
-                                    <TxsChart label="Config tx count" color="#3dcd34" type="config" timeseries={this.props.timeseriesConfig}/>
+                                    <TxsChart label="Domain tx count" color="darkcyan" type="domain" timeseries={this.props.timeseriesDomain}/>
+                                    <TxsChart label="Pool tx count" color="mediumaquamarine" type="pool" timeseries={this.props.timeseriesPool}/>
+                                    <TxsChart label="Config tx count" color="dodgerblue" type="config" timeseries={this.props.timeseriesConfig}/>
                                 </Grid.Column>
                             </Grid.Row>
                         </Grid>
@@ -55,7 +55,7 @@ class HomePage extends Component {
                         </Grid.Row>
                         <Grid.Row centered style={{marginTop:"2em"}}>
                             <Grid.Column>
-                                <TxPreviewList txs={this.props.txs}/>
+                                <TxPreviewList txs={this.props.txs} network={network}/>
                             </Grid.Column>
                         </Grid.Row>
                     </Grid.Column>

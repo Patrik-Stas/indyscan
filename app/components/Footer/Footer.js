@@ -9,12 +9,14 @@ class Footer extends Component {
                 <Divider/>
                 <Grid>
                     <Grid.Row>
-                        <Grid.Column width={8} floated='right' textAlign='center' style={{fontSize: '1rem'}}>
-                            <p>Support this project by downloading and using privacy preserving web-browser Brave</p>
-                        </Grid.Column>
-                        <Grid.Column width={8} floated='left' textAlign='center'>
-                            <a href="https://brave.com/ind682"><img style={{height: '2.5rem'}}
+                        <Grid.Column width={5} floated='left' textAlign='center'>
+                            <a href="https://brave.com/ind682"><img style={{height: '3rem'}}
                                                                     src='/static/brave-bat-partnership.png'/></a>
+                        </Grid.Column>
+                        <Grid.Column width={11} floated='left' textAlign='left' style={{fontSize: '1rem'}}>
+                            <span>Support internet, your privacy and this project by </span><a href="https://brave.com/ind682">being Brave</a>.
+                            <p/>
+                                <a href="https://www.linkedin.com/pulse/better-browser-internet-patrik-sta%C5%A1/">What's Brave?</a>
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
