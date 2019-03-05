@@ -1,4 +1,4 @@
-FROM pstas/libindy:v1.6.7
+FROM pstas/libindy:v1.6.6
 
 USER root
 RUN groupadd -g 1001 indyscan && \
@@ -7,6 +7,11 @@ RUN groupadd -g 1001 indyscan && \
 COPY daemon /home/indyscan/daemon
 COPY indyscan-storage /home/indyscan/indyscan-storage
 RUN chown -R indyscan:indyscan /home/indyscan
+RUN apt-get update
+RUN apt-get install -y curl software-properties-common
+RUN curl -sL https://deb.nodesource.com/setup_11.x | bash -
+RUN apt-get install -y nodejs
+
 USER indyscan
 
 WORKDIR /home/indyscan/indyscan-storage
