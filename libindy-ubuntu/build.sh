@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-INDY_VERSION="v1.6.7"
+INDY_VERSION="v1.6.6"
 
 FULL_TAG="libindy:$INDY_VERSION"
 
