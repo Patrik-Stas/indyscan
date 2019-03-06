@@ -39,9 +39,9 @@ async function run() {
             assert.equal(true, !!txCollectionConfig);
             console.log(`Tx collections for network ${NETWORK} ready. Scanning starts in few seconds.`);
             setTimeout(()=> {
-                scanLedger(indyClient, txCollectionDomain, NETWORK, LEDGER_TYPE_DOMAIN, 'DOMAIN', 0.3, 15);
-                scanLedger(indyClient, txCollectionPool, NETWORK, LEDGER_TYPE_POOL, 'POOL', 0.3, 600);
-                scanLedger(indyClient, txCollectionConfig, NETWORK, LEDGER_TYPE_CONFIG, 'CONFIG', 0.3, 600);
+                scanLedger(indyClient, txCollectionDomain, NETWORK, LEDGER_TYPE_DOMAIN, 'DOMAIN', 0.5, 15);
+                scanLedger(indyClient, txCollectionPool, NETWORK, LEDGER_TYPE_POOL, 'POOL', 0.5, 600);
+                scanLedger(indyClient, txCollectionConfig, NETWORK, LEDGER_TYPE_CONFIG, 'CONFIG', 0.5, 600);
             }, 4*1000)
         }
     });

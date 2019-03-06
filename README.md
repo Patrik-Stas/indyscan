@@ -19,7 +19,7 @@ genesis files are supplied, it should work!
 # How difficult to run?
 Very easy! Everything is dockerized! 
 1. Build images locally
-`./build-local.sh`.
+`./build-all.sh`.
 2. Find names of your pools
 `ls -l ~/.indy_client/pool`
 In my case, I've already got some pools there and the command prints
@@ -34,7 +34,7 @@ drwxr-xr-x  4 prague  staff  128 Feb 13 21:54 SOVRIN_TESTNET
 3. Profit.
 
 # Scanning
-By default, the scanners fetches new transaction every 300ms. If none is available, it waits for few second or minutes. 
+By default, the scanners fetches new transaction every 0.5sec. If none is available, it waits for few second or minutes. 
 I am already running instance fo this at https://indyscan.io so be nice and let's not spam the network too much!
 
 # Coming next
@@ -80,7 +80,7 @@ So for example, given content of my `~/.indy_client/pool` shown in example above
 INDY_NETWORKS="SOVRIN_MAINNET,SOVRIN_TESTNET" npm run start
 ```
 If everything falls in place, daemon will open connections to pools listed in `INDY_NETWORKS` environment variable based on their configuration inside `~/.indy_client/pool` directory and start polling transactions from the 1st until the last.
-By default it fetches 3tx/per sec/per pool and slows down polling frequency once it discovers there's no more transactions left. Each transaction is saved to mongodb. 
+By default it fetches 2tx/per sec/per pool and slows down polling frequency once it discovers there's no more transactions left. Each transaction is saved to mongodb. 
 
 # Webapp
 Webapp reads tx data from mongo and presents it. You have to pass in the `INDY_NETWORKS` the same way like in case of the `daemon` so it knows which pools it should display. The first pool name specified in `INDY_NETWORKS` will be displayed on homepage

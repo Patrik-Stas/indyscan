@@ -1,4 +1,4 @@
-FROM pstas/libindy:v1.6.7
+FROM ubuntu-libindy:v1.7.0
 
 USER root
 RUN groupadd -g 1001 indyscan && \
