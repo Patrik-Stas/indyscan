@@ -27,6 +27,7 @@ module.exports = async function createClient(poolName, walletName) {
     console.log(`Created new did/verkey ${JSON.stringify(res)}`);
 
     async function getTx(txid, ledgerType) {
+
         const getTx = await indy.buildGetTxnRequest(did, ledgerType, txid);
         // console.log(`GetTx request:\n ${txid}: ${JSON.stringify(getTx, null, 2)}`)
         const tx = await indy.submitRequest(poolHandle, getTx);
@@ -37,6 +38,7 @@ module.exports = async function createClient(poolName, walletName) {
             throw Error(`We have issues receiving reply from the network.`)
         }
     }
+
 
     return {
         getTx

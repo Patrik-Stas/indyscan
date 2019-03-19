@@ -10,7 +10,7 @@ services:
     volumes:
     -  indyscandb:/data/db
     ports:
-    - 27017:27017
+    - 27999:27017
 
   indyscan:
     image: indyscan:latest-local
@@ -22,21 +22,22 @@ services:
     environment:
     - URL_MONGO=mongodb://mongo.indynet:27017
     - INDY_NETWORKS=${INDY_NETWORKS}
+    - WEBAPP_PORT=5050
     ports:
-    - '3000:3000'
+    - '5050:5050'
 
   indyscan-daemon:
     image: indyscan-daemon:latest-local
     container_name: indyscan-daemon
     volumes:
       - ${HOME}/.indy_client/pool:/home/indyscan/.indy_client/pool
-    networks:
-    - indynet
+    network_mode: host
     depends_on:
     - mongo
     environment:
-    - URL_MONGO=mongodb://mongo.indynet:27017
+    - URL_MONGO=mongodb://localhost:27999
     - INDY_NETWORKS=${INDY_NETWORKS}
+    - SCAN_MODE=${SCAN_MODE}
 
 volumes:
   indyscandb:
