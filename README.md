@@ -30,7 +30,7 @@ drwxr-xr-x  4 prague  staff  128 Feb 13 21:54 SOVRIN_TESTNET
 ```
 2. Specify names of pools you want to scan (pool names separated by commas) 
 `INDY_NETWORKS="SOVRIN_MAINNET,SOVRIN_TESTNET" docker-compose up`.
-3. Go to http://localhost:3000
+3. Go to http://localhost:5050
 3. Profit.
 
 # Scanning
