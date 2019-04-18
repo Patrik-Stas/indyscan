@@ -10,6 +10,7 @@ import {getTxLinkData} from "../routing";
 import Router from "next/dist/lib/router";
 import {getBaseUrl} from '../routing';
 import Footer from '../components/Footer/Footer';
+import toCanonicalJson from 'canonical-json'
 const pageSize = 20;
 
 class Tx extends Component {
@@ -85,7 +86,7 @@ class Tx extends Component {
                 <Grid.Row>
                     <Grid.Column>
                         <Container textAlign='justified'>
-                            {<JSONPretty theme={mytheme} data={JSON.stringify(txDetail)}/> }
+                            {<JSONPretty theme={mytheme} data={toCanonicalJson(txDetail)}/> }
                         </Container>
                     </Grid.Column>
                 </Grid.Row>

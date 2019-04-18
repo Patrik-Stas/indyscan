@@ -16,8 +16,8 @@ const LEDGER_TYPE_CONFIG = '2';
 
 const indyNetworks = INDY_NETWORKS.split(',');
 const scanModes = {
-  "SLOW": {normalScanPeriodSec: 3, checkScanPeriodSec: 30},
-  "MEDIUM": {normalScanPeriodSec: 2, checkScanPeriodSec: 15},
+  "SLOW": {normalScanPeriodSec: 12, checkScanPeriodSec: 30},
+  "MEDIUM": {normalScanPeriodSec: 6, checkScanPeriodSec: 15},
   "FAST": {normalScanPeriodSec: 1, checkScanPeriodSec: 1},
   "TURBO": {normalScanPeriodSec: 0.3, checkScanPeriodSec: 1},
   "FRENZY": {normalScanPeriodSec: 0.1, checkScanPeriodSec: 1},
