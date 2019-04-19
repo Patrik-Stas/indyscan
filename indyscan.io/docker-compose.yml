@@ -25,8 +25,8 @@ services:
     - '80:80'
     - '443:443'
 
-  indyscan:
-    image: pstas/indyscan:latest
+  indyscan-webapp:
+    image: pstas/indyscan-webapp:latest
     container_name: indyscan-webapp
     networks:
     - indynet

@@ -13,7 +13,7 @@ services:
     - 27999:27017
 
   indyscan:
-    image: indyscan:latest-local
+    image: indyscan-webapp:latest
     container_name: indyscan-webapp
     networks:
     - indynet
@@ -27,7 +27,7 @@ services:
     - '5050:5050'
 
   indyscan-daemon:
-    image: indyscan-daemon:latest-local
+    image: indyscan-daemon:latest
     container_name: indyscan-daemon
     volumes:
       - ${HOME}/.indy_client/pool:/home/indyscan/.indy_client/pool
