@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { runScript } = require('./script-comon')
-const apiclient = require('../index')
+const apiclient = require('../src/index')
 
 const optionDefinitions = [
   {
@@ -57,7 +57,7 @@ const usage = [
 async function run (options) {
   console.log('JSON.stringify(options)')
   console.log(JSON.stringify(options))
-  const {url, network, ledger, bound1, bound2} = options
+  const { url, network, ledger, bound1, bound2 } = options
   const txs = await apiclient.getTransactions(url, network, ledger, bound1, bound2)
   console.log(JSON.stringify(txs, null, 2))
 }

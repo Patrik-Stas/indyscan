@@ -2,6 +2,8 @@ FROM node:8.12.0
 
 COPY app/package.json /app/
 COPY indyscan-storage /indyscan-storage
+COPY indyscan-api /indyscan-api
+
 WORKDIR /app/
 RUN npm install
 

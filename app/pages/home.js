@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import "../scss/style.scss";
 import TxsChart from "../components/TxChart/TxChart";
-import {getTransactions, getTxTimeseries} from "../api-client";
+import {getTransactions, getTxTimeseries} from "indyscan-api";
 import {getBaseUrl} from '../routing'
 import {Grid} from 'semantic-ui-react';
 import PageHeader from "../components/PageHeader/PageHeader";

@@ -1,8 +1,3 @@
-const createHistogram = require('../../services/timeseries')
-const queryString = require('query-string')
-const url = require('url')
-const express = require('express')
-const indyStorage = require('indyscan-storage')
 const { getIndyNetworks, getDefaultNetwork } = require('../networks')
 
 function initNetworksApi (router) {

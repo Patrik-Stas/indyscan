@@ -1,12 +1,7 @@
 const createHistogram = require('../../services/timeseries')
-const queryString = require('query-string')
 const url = require('url')
-const express = require('express')
-const indyStorage = require('indyscan-storage')
-const { getIndyNetworks, getDefaultNetwork } = require('../networks')
 
 function initTxsApi (router, storageManager) {
-
   router.get('/txs', async (req, res) => {
     const parts = url.parse(req.url, true)
     const fromRecentTx = parseInt(parts.query.fromRecentTx)
@@ -16,7 +11,7 @@ function initTxsApi (router, storageManager) {
 
     if (!(fromRecentTx >= 0 && toRecentTx >= 0 && toRecentTx - fromRecentTx < 150 && toRecentTx - fromRecentTx > 0)) {
       console.log(`Query string failed validation checks.`)
-      res.status(400).send({ message: "i don't like your query string" })
+      res.status(400).send({ message: 'i don\'t like your query string' })
       return
     }
     const txs = await storageManager.getTxCollection(network, txType).getTxRange(fromRecentTx, toRecentTx - fromRecentTx)

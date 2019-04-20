@@ -25,3 +25,4 @@ module.exports.runScript = async function runScript (optionDefinitions, usageDef
   }
   await runFunction(options)
 }
+

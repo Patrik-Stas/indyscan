@@ -1,6 +1,6 @@
 import "../scss/style.scss";
 import React, {Component} from 'react';
-import {getTx} from '../api-client'
+import {getTx} from 'indyscan-api'
 import PageHeader from "../components/PageHeader/PageHeader";
 import {Grid, Container} from "semantic-ui-react";
 import JSONPretty from 'react-json-pretty';
