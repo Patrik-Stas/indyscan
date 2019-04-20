@@ -1,7 +1,7 @@
-export function getTxLinkData(baseUrl, network, txType, seqNo) {
-    const href = `${baseUrl}/tx?network=${network}&txType=${txType}&seqNo=${seqNo}`;
-    const as = `/tx/${network}/${txType}/${seqNo}`;
-    return {href, as}
+export function getTxLinkData (baseUrl, network, txType, seqNo) {
+  const href = `${baseUrl}/tx?network=${network}&txType=${txType}&seqNo=${seqNo}`
+  const as = `/tx/${network}/${txType}/${seqNo}`
+  return { href, as }
 }
 
 /*
@@ -11,10 +11,10 @@ in HTTP. This fact then propagates typically via NEXT.js's getInitialProps back 
 make calls like http://indyscan.io/api/foobar (http), which won't work, because the user
 is actually at https://indyscan.io (https)
  */
-function getProtocol(req) {
-    return (req && req.headers['host'] === 'indyscan.io') ? 'https' : req.protocol;
+function getProtocol (req) {
+  return (req && req.headers['host'] === 'indyscan.io') ? 'https' : req.protocol
 }
 
-export function getBaseUrl(req) {
-    return req ? `${getProtocol(req)}://${req.get('Host')}` : '';
+export function getBaseUrl (req) {
+  return req ? `${getProtocol(req)}://${req.get('Host')}` : ''
 }

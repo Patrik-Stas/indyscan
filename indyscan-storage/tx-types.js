@@ -1,5 +1,5 @@
 module.exports = {
-    domain: 'domain',
-    config: 'config',
-    pool: 'pool'
-};
+  domain: 'domain',
+  config: 'config',
+  pool: 'pool'
+}
