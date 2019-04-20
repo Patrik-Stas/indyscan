@@ -91,6 +91,12 @@ npm install
 INDY_NETWORKS="SOVRIN_MAINNET,SOVRIN_TESTNET" npm run dev
 ```
 
+# Dev
+
+## Tips
+- If you are using WebStorm IDE, don't open the whole repository as project. If you do
+so, WebStorm won't find StandardJS and WebStorm built-in linting won't work! Open in IDE
+only the given project you want to work on (webapp/daemon/storage).
 
 
 ## Structure

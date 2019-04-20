@@ -3,8 +3,7 @@
     "es2015"
   ],
   "plugins": [
-    ["transform-class-properties", { "spec": true }],
-    //    ["@babel/plugin-transform-spread"]
+    ["transform-class-properties", { "spec": true }]
   ]
 
 }

@@ -5,7 +5,7 @@ import {Divider, Grid} from 'semantic-ui-react';
 import Router from "next/dist/lib/router";
 import {Menu} from 'semantic-ui-react'
 import MenuLink from "../MenuLink/MenuLink";
-import {getNetworks} from '../../api-client';
+const {getNetworks} = require('../../api-client');
 
 class PageHeader extends Component {
 

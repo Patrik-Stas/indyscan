@@ -6,15 +6,6 @@ const indyStorage = require('indyscan-storage')
 const { getIndyNetworks, getDefaultNetwork } = require('../networks')
 
 function initTxsApi (router, storageManager) {
-  router.get('/txs/count', async (req, res) => {
-    const parts = url.parse(req.url, true)
-    const network = parts.query.network
-    const txType = parts.query.txType
-
-    console.log(`API GET ${req.url}`)
-    const txCount = await storageManager.getTxCollection(network, txType).getTxCount()
-    res.status(200).send({ txCount })
-  })
 
   router.get('/txs', async (req, res) => {
     const parts = url.parse(req.url, true)
@@ -23,8 +14,6 @@ function initTxsApi (router, storageManager) {
     const network = parts.query.network
     const txType = parts.query.txType
 
-    console.log(`API GET ${req.url}`)
-    // console.log(`Query parameters: ${JSON.stringify(parts)}`);
     if (!(fromRecentTx >= 0 && toRecentTx >= 0 && toRecentTx - fromRecentTx < 150 && toRecentTx - fromRecentTx > 0)) {
       console.log(`Query string failed validation checks.`)
       res.status(400).send({ message: "i don't like your query string" })
@@ -56,6 +45,16 @@ function initTxsApi (router, storageManager) {
     const timestamps = await storageManager.getTxCollection(network, txType).getAllTimestamps()
     const histogram = await createHistogram(timestamps, oneDayInMiliseconds)
     res.status(200).send({ histogram })
+  })
+
+  router.get('/txs/count', async (req, res) => {
+    const parts = url.parse(req.url, true)
+    const network = parts.query.network
+    const txType = parts.query.txType
+
+    console.log(`API GET ${req.url}`)
+    const txCount = await storageManager.getTxCollection(network, txType).getTxCount()
+    res.status(200).send({ txCount })
   })
 
   return router
