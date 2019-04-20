@@ -101,9 +101,10 @@ only the given project you want to work on (webapp/daemon/storage).
 
 ## Structure
 ```
-- app                 - nextjs web app
-- daemon              - process looking for new transactions
+- indyscan-webapp     - nextjs web app
+- indyscan-daemon     - process looking for new transactions
 - indyscan-storage    - shared library for app and daemon
+- indyscan-client     - library for making api calls to indyscan
 - infra               - indyscan.io deployment files
 - libindy-docker      - dockerfile to build image with libindy
 - libindy-node-docker - dockerfile with node and libindy

@@ -4,7 +4,7 @@ USER root
 RUN groupadd -g 1001 indyscan && \
     useradd -r -u 1001 -g indyscan indyscan
 
-COPY daemon /home/indyscan/daemon
+COPY indyscan-daemon /home/indyscan/indyscan-daemon
 COPY indyscan-storage /home/indyscan/indyscan-storage
 RUN chown -R indyscan:indyscan /home/indyscan
 USER indyscan
@@ -12,7 +12,7 @@ USER indyscan
 WORKDIR /home/indyscan/indyscan-storage
 RUN npm install
 
-WORKDIR /home/indyscan/daemon
+WORKDIR /home/indyscan/indyscan-daemon
 RUN npm install
 
 
