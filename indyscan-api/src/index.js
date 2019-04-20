@@ -7,7 +7,7 @@ async function getTxTimeseries (baseUrl, network, txType) {
   return res.json()
 }
 
-async function getTransactions (baseUrl, network, txType, fromRecentTx, toRecentTx) {
+async function getTxs (baseUrl, network, txType, fromRecentTx, toRecentTx) {
   const query = queryString.stringify({ fromRecentTx, toRecentTx, network, txType })
   let res = await fetch(`${baseUrl}/api/txs?${query}`)
   return res.json()
@@ -36,7 +36,7 @@ async function getDefaultNetwork (baseUrl) {
 }
 
 module.exports.getTxTimeseries = getTxTimeseries
-module.exports.getTransactions = getTransactions
+module.exports.getTransactions = getTxs
 module.exports.getTx = getTx
 module.exports.getTxCount = getTxCount
 module.exports.getNetworks = getNetworks
