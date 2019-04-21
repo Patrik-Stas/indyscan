@@ -1,12 +1,9 @@
-const assert = require('assert')
 const keyTransform = require('./transform-keys')
 const dotTransformer = keyTransform.createReplacementFunction('.', 'U+FF0E')
 const removeDotsFromKeys = keyTransform.recursiveJSONKeyTransform(dotTransformer)
 
-module.exports = async function createTxCollection (mongodb, collectionName) {
-  console.log(`Creating tx collection ${collectionName}`)
-
-  const collection = mongodb.collection(collectionName)
+async function createLedgerStore (mongoDatabase, collectionName) {
+  let collection = await mongoDatabase.collection(collectionName)
   await collection.createIndex({ 'txnMetadata.seqNo': 1 })
 
   async function getTxCount () {
@@ -17,10 +14,8 @@ module.exports = async function createTxCollection (mongodb, collectionName) {
     return collection.findOne({ 'txnMetadata.seqNo': seqNo })
   }
 
-  async function getTxRange (skip, limit) {
-    console.log(`${skip}, ${limit}`)
-    const txs = await collection.find().skip(skip).limit(limit).sort({ 'txnMetadata.seqNo': -1 }).toArray()
-    console.log(`${txs.length}`)
+  async function getTxRange (skip, limit, filter = {}) {
+    const txs = await collection.find(filter).skip(skip).limit(limit).sort({ 'txnMetadata.seqNo': -1 }).toArray()
     return txs
   }
 
@@ -61,3 +56,5 @@ module.exports = async function createTxCollection (mongodb, collectionName) {
     getTxBySeqNo
   }
 }
+
+module.exports.createLedgerStore = createLedgerStore

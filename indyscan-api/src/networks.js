@@ -1,12 +1,14 @@
-async function getTxCount (baseUrl, network, txType) {
-  const query = queryString.stringify({ network, txType })
-  let res = await fetch(`${baseUrl}/api/txs/stats/count?${query}`)
-  return (await res.json()).txCount
+const fetch = require('isomorphic-unfetch')
+
+async function getNetworks (baseUrl) {
+  let res = await fetch(`${baseUrl}/api/networks`)
+  return (await res.json()).networks
 }
 
-async function getTxTimeseries (baseUrl, network, txType) {
-  const query = queryString.stringify({ network, txType })
-  let res = await fetch(`${baseUrl}/api/txs/stats/series?${query}`)
-  return res.json()
+async function getDefaultNetwork (baseUrl) {
+  let res = await fetch(`${baseUrl}/networks`)
+  return (await res.json()).defaultNetwork
 }
 
+module.exports.getNetworks = getNetworks
+module.exports.getDefaultNetwork = getDefaultNetwork

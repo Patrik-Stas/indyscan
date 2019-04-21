@@ -1,17 +1,18 @@
-// const util = require('./genesis-util')
-const assert = require('assert')
-const sleep = require('sleep-promise')
+const { createLedgerStorageManager } = require('indyscan-storage')
 
 const createIndyClient = require('./indyclient')
+const sleep = require('sleep-promise')
 const storage = require('indyscan-storage')
 
-const url = process.env.URL_MONGO || 'mongodb://localhost:27017'
+const URL_MONGO = process.env.URL_MONGO || 'mongodb://localhost:27017'
 const INDY_NETWORKS = process.env.INDY_NETWORKS
-console.log(`INDYSCAN DAEMON: Indy networks pass via env variable: ${INDY_NETWORKS}`)
+let ledgerManager
 
-const LEDGER_TYPE_POOL = '0'
-const LEDGER_TYPE_DOMAIN = '1'
-const LEDGER_TYPE_CONFIG = '2'
+const LEDGER_NAME_TO_CODE = {
+  'POOL': '0',
+  'DOMAIN': '1',
+  'CONFIG': '2'
+}
 
 const indyNetworks = INDY_NETWORKS.split(',')
 const scanModes = {
@@ -25,51 +26,57 @@ const scanModes = {
 const SCAN_MODE = process.env.SCAN_MODE || 'MEDIUM'
 
 async function run () {
-  storage.init(url, indyNetworks, async (storageManager, err) => {
-    assert.equal(null, err)
-    console.log(`Storage initialized. Storage url : ${url}. Indy networks ${JSON.stringify(indyNetworks)}`)
-    for (let i = 0; i < indyNetworks.length; i++) {
-      const NETWORK = indyNetworks[i]
-      let indyClient
-      try {
-        indyClient = await createIndyClient(NETWORK, `sovrinscan-${NETWORK}`)
-      } catch (err) {
-        console.error(`Something when wrong creating indy client for network '${NETWORK}'. Details:`)
-        console.error(err)
-        console.error(err.stack)
-      }
-      const txCollectionDomain = storageManager.getTxCollection(NETWORK, storage.txTypes.domain)
-      const txCollectionPool = storageManager.getTxCollection(NETWORK, storage.txTypes.pool)
-      const txCollectionConfig = storageManager.getTxCollection(NETWORK, storage.txTypes.config)
-      assert.strictEqual(true, !!txCollectionDomain)
-      assert.strictEqual(true, !!txCollectionPool)
-      assert.strictEqual(true, !!txCollectionConfig)
-      console.log(`Tx collections for network ${NETWORK} ready. Scanning starts in few seconds.`)
-      const normalScanPeriodSec = scanModes[SCAN_MODE].normalScanPeriodSec
-      const checkScanPeriodSec = scanModes[SCAN_MODE].checkScanPeriodSec
-      console.log(`Scan mode = ${SCAN_MODE}. Normal period=${normalScanPeriodSec}, check period = ${checkScanPeriodSec}`)
-      setTimeout(() => {
-        scanLedger(indyClient, txCollectionDomain, NETWORK, LEDGER_TYPE_DOMAIN, 'DOMAIN', normalScanPeriodSec, checkScanPeriodSec)
-        scanLedger(indyClient, txCollectionPool, NETWORK, LEDGER_TYPE_POOL, 'POOL', normalScanPeriodSec, checkScanPeriodSec)
-        scanLedger(indyClient, txCollectionConfig, NETWORK, LEDGER_TYPE_CONFIG, 'CONFIG', normalScanPeriodSec, checkScanPeriodSec)
-      }, 4 * 1000)
-    }
-  })
+  ledgerManager = await createLedgerStorageManager(URL_MONGO)
+  for (const indyNetwork of indyNetworks) {
+    await scanNetwork(indyNetwork)
+  }
 }
 
-async function scanLedger (indyClient, txCollection, networkName, ledgerType, ledgerName, regularTimeoutSec, noNewTimeoutSec) {
+async function scanNetwork (networkName) {
+  console.log(`Initiating network scan for network '${networkName}'.`)
+  try {
+    ledgerManager.addIndyNetwork(networkName)
+    const indyClient = await createIndyClient(networkName, `sovrinscan-${networkName}`)
+    const txCollectionDomain = ledgerManager.getLedger(networkName, storage.txTypes.domain)
+    const txCollectionPool = ledgerManager.getLedger(networkName, storage.txTypes.pool)
+    const txCollectionConfig = ledgerManager.getLedger(networkName, storage.txTypes.config)
+    console.log(`Tx collections for network ${networkName} ready. Scanning starts in few seconds.`)
+    const normalScanPeriodSec = scanModes[SCAN_MODE].normalScanPeriodSec
+    const checkScanPeriodSec = scanModes[SCAN_MODE].checkScanPeriodSec
+    console.log(`Scan mode = ${SCAN_MODE}. Normal period=${normalScanPeriodSec}, check period = ${checkScanPeriodSec}`)
+    setTimeout(() => {
+      scanLedger(indyClient, txCollectionDomain, networkName, 'DOMAIN', normalScanPeriodSec, checkScanPeriodSec)
+      scanLedger(indyClient, txCollectionPool, networkName, 'POOL', normalScanPeriodSec, checkScanPeriodSec)
+      scanLedger(indyClient, txCollectionConfig, networkName, 'CONFIG', normalScanPeriodSec, checkScanPeriodSec)
+    }, 4 * 1000)
+  } catch (err) {
+    console.error(`Something when wrong creating indy client for network '${networkName}'. Details:`)
+    console.error(err)
+    console.error(err.stack)
+  }
+}
+
+async function scanLedger (indyClient, txCollection, networkName, ledgerName, regularTimeoutSec, noNewTimeoutSec) {
+  const ledgerCode = LEDGER_NAME_TO_CODE[ledgerName]
   let txid = (await txCollection.findMaxTxIdInDb()) + 1
+  const logPrefix = `[LedgerScan][${networkName}][${ledgerName}]`
   while (true) {
-    const logPrefix = `[LedgerScan][${networkName}][${ledgerName}]`
-    console.log(`${logPrefix} Checking ${txid}th transaction.`)
-    const tx = await indyClient.getTx(txid, ledgerType)
-    if (tx) {
-      console.log(`${logPrefix} Retrieved '${txid}'th tx:\n${txid}:\n${JSON.stringify(tx)}`)
-      await txCollection.addTx(tx)
-      await sleep(regularTimeoutSec * 1000)
-      txid++
-    } else {
-      console.log(`${logPrefix} Seems '${txid}'th tx does not yet exist.`)
+    try {
+      console.log(`${logPrefix} Checking ${txid}th transaction.`)
+      const tx = await indyClient.getTx(txid, ledgerCode)
+      if (tx) {
+        console.log(`${logPrefix} Retrieved '${txid}'th tx:\n${txid}:\n${JSON.stringify(tx)}`)
+        await txCollection.addTx(tx)
+        await sleep(regularTimeoutSec * 1000)
+        txid++
+      } else {
+        console.log(`${logPrefix} Seems '${txid}'th tx does not yet exist.`)
+        await sleep(noNewTimeoutSec * 1000)
+      }
+    } catch (error) {
+      console.log(`${logPrefix} An error occurred:`)
+      console.error(error)
+      console.error(error.stack)
       await sleep(noNewTimeoutSec * 1000)
     }
   }
