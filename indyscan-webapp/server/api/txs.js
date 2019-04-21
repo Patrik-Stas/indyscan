@@ -8,14 +8,15 @@ function initTxsApi (router, ledgerStorageManager) {
     const toRecentTx = parseInt(parts.query.toRecentTx)
     const network = parts.query.network
     const ledger = parts.query.ledger
-    // const filter = parts.query.filter
+    const filter = (parts.query.filter) ? JSON.parse(parts.query.filter) : {}
+    console.log(`Will log GET /txs by filter: ${JSON.stringify(filter)}`)
 
     if (!(fromRecentTx >= 0 && toRecentTx >= 0 && toRecentTx - fromRecentTx < 150 && toRecentTx - fromRecentTx > 0)) {
       console.log(`Query string failed validation checks.`)
       res.status(400).send({ message: 'i don\'t like your query string' })
       return
     }
-    const txs = await ledgerStorageManager.getLedger(network, ledger).getTxRange(fromRecentTx, toRecentTx - fromRecentTx)
+    const txs = await ledgerStorageManager.getLedger(network, ledger).getTxRange(fromRecentTx, toRecentTx - fromRecentTx, filter)
     res.status(200).send({ txs })
   })
 

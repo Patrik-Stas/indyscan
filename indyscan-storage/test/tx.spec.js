@@ -39,12 +39,27 @@ describe('basic storage test', () => {
 
   it('objects from tx range should be transactions', async () => {
     const txs = await ledgerManager.getLedger(INDY_NETWORK, 'domain').getTxRange(0, 10)
-    const tx = txs[0]
-    expect(tx.rootHash).toBeDefined()
-    expect(tx.auditPath).toBeDefined()
-    expect(tx.txnMetadata).toBeDefined()
-    expect(tx.txn).toBeDefined()
-    expect(tx.txn.type).toBeDefined()
-    expect(tx.txn.metadata).toBeDefined()
+    for (const tx of txs) {
+      expect(tx.rootHash).toBeDefined()
+      expect(tx.auditPath).toBeDefined()
+      expect(tx.txnMetadata).toBeDefined()
+      expect(tx.txn).toBeDefined()
+      expect(tx.txn.type).toBeDefined()
+      expect(tx.txn.metadata).toBeDefined()
+    }
+  })
+
+  it('should get transactions of only certain type', async () => {
+    const txs = await ledgerManager.getLedger(INDY_NETWORK, 'domain').getTxRange(0, 10, { 'txn.type': '102' })
+    for (const tx of txs) {
+      expect(tx.rootHash).toBeDefined()
+      expect(tx.auditPath).toBeDefined()
+      expect(tx.txnMetadata).toBeDefined()
+      expect(tx.txn).toBeDefined()
+      expect(tx.txn.type).toBeDefined()
+      expect(tx.txn.type).toBe('102')
+      expect(tx.txn.metadata).toBeDefined()
+    }
   })
 })
+

@@ -15,11 +15,44 @@ const txTypes = {
   111: { name: 'POOL_CONFIG', description: 'Command to change Pool\'s configuration' }
 }
 
-export function txCodeToTxType (txCode) {
+const ledgerTxTypes = {
+  'domain': ['NODE', 'NYM', 'ATTRIB', 'SCHEMA', 'CLAIM_DEF'],
+  'pool': ['POOL_UPGRADE', 'NODE_UPGRADE'],
+  'config': ['POOL_CONFIG']
+}
+
+const NAME_TO_CODE = {
+  'NODE': 0,
+  'NYM': 1,
+  'ATTRIB': 100,
+  'SCHEMA': 101,
+  'CLAIM_DEF': 102,
+  'POOL_UPGRADE': 109,
+  'NODE_UPGRADE': 110,
+  'POOL_CONFIG': 111
+}
+
+function txNameToTxCode (txName) {
+  return NAME_TO_CODE[txName]
+}
+
+function getDomainTxTypes () {
+  return ledgerTxTypes.domain
+}
+
+function getPoolTxTypes () {
+  return ledgerTxTypes.pool
+}
+
+function getConfigTxTypes () {
+  return ledgerTxTypes.config
+}
+
+function txCodeToTxType (txCode) {
   return txTypes[txCode]['name']
 }
 
-export function txCodeToTxDescription (txCode) {
+function txCodeToTxDescription (txCode) {
   return txTypes[txCode]['description']
 }
 
@@ -36,7 +69,7 @@ function genFieldChangeString (fieldObj) {
   return changes
 }
 
-export function describeTransaction (tx) {
+function describeTransaction (tx) {
   const code = tx.txn.type
   const typeCode = txCodeToTxType(code)
   switch (typeCode) {
@@ -69,3 +102,12 @@ export function describeTransaction (tx) {
     case 'POOL_CONFIG':
   }
 }
+
+module.exports.txNameToTxCode = txNameToTxCode
+module.exports.txCodeToTxType = txCodeToTxType
+module.exports.txCodeToTxDescription = txCodeToTxDescription
+module.exports.genFieldChangeString = genFieldChangeString
+module.exports.describeTransaction = describeTransaction
+module.exports.getDomainTxTypes = getDomainTxTypes
+module.exports.getPoolTxTypes = getPoolTxTypes
+module.exports.getConfigTxTypes = getConfigTxTypes
