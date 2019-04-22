@@ -6,11 +6,10 @@ RUN groupadd -g 1001 indyscan && \
 
 COPY indyscan-daemon /home/indyscan/indyscan-daemon
 COPY indyscan-storage /home/indyscan/indyscan-storage
+COPY indyscan-txtype /indyscan-txtype
+
 RUN chown -R indyscan:indyscan /home/indyscan
 USER indyscan
-
-WORKDIR /home/indyscan/indyscan-storage
-RUN npm install
 
 WORKDIR /home/indyscan/indyscan-daemon
 RUN npm install

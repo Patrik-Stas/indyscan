@@ -32,12 +32,12 @@ class Tx extends Component {
   handleArrowKeys (event) {
     const {baseUrl, network, txType, seqNo} = this.props
     switch (event.key) {
-      case 'ArrowLeft': {
+      case 'ArrowRight': {
         const {href, as} = getTxLinkData(baseUrl, network, txType, parseInt(seqNo) - 1)
         Router.push(href, as)
         break
       }
-      case 'ArrowRight': {
+      case 'ArrowLeft': {
         const {href, as} = getTxLinkData(baseUrl, network, txType, parseInt(seqNo) + 1)
         Router.push(href, as)
         break
@@ -76,13 +76,14 @@ class Tx extends Component {
         </GridRow>
         <GridRow>
           <GridColumn width={3} textAlign='center'>
-            <Link href={hrefPrev} as={asPrev}><a className="menulink">Next tx</a></Link>
+            <Link href={hrefNext
+            } as={asNext}><a className="menulink">Next tx</a></Link>
           </GridColumn>
           <GridColumn width={10} textAlign='center'>
             <h4>{`${seqNo}th ${txType} transaction`}</h4>
           </GridColumn>
           <GridColumn width={3} textAlign='center'>
-            <Link href={hrefNext} as={asNext}><a className="menulink">Prev tx</a></Link>
+            <Link href={hrefPrev} as={asPrev}><a className="menulink">Prev tx</a></Link>
           </GridColumn>
         </GridRow>
         <GridRow>

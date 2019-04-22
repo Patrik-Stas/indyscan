@@ -37,6 +37,13 @@ const optionDefinitions = [
     alias: 'l',
     type: String,
     description: 'Ledger domain/pool/config'
+  },
+  {
+    name: 'filter',
+    alias: 'f',
+    type: String,
+    description: 'Filter tx types',
+    defaultValue: '[]'
   }
 ]
 
@@ -57,8 +64,10 @@ const usage = [
 async function run (options) {
   console.log('JSON.stringify(options)')
   console.log(JSON.stringify(options))
-  const { url, network, ledger, bound1, bound2 } = options
-  const txs = await apiclient.getTransactions(url, network, ledger, bound1, bound2)
+  const { url, network, ledger, bound1, bound2, filter } = options
+  console.log(`filter .... ${filter}`)
+  const filterTxs = JSON.parse(filter)
+  const txs = await apiclient.getTransactions(url, network, ledger, bound1, bound2, filterTxs)
   console.log(JSON.stringify(txs, null, 2))
 }
 

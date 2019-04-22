@@ -6,8 +6,11 @@ async function createLedgerStore (mongoDatabase, collectionName) {
   let collection = await mongoDatabase.collection(collectionName)
   await collection.createIndex({ 'txnMetadata.seqNo': 1 })
 
-  async function getTxCount () {
-    return collection.estimatedDocumentCount()
+  async function getTxCount (filter = {}) {
+    if (Object.keys(filter) === 0) {
+      return collection.estimatedDocumentCount()
+    }
+    return collection.find(filter).count()
   }
 
   async function getTxBySeqNo (seqNo) {

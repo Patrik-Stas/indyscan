@@ -1,38 +1,45 @@
-import {Component} from 'react';
-import TxListItem from "../TxListItem/TxListItem";
-import {Table} from 'semantic-ui-react';
-import {extractTxInformation} from "../../txtools";
-import {txCodeToTxType} from "../../data/tx-types";
-import React from "react";
+import { Component } from 'react'
+import TxListItem from '../TxListItem/TxListItem'
+import { Table, TableBody, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react'
+import { extractTxInformation } from '../../txtools'
+import React from 'react'
+import { describeTransaction } from 'indyscan-txtype'
 
 class TxListCompact extends Component {
 
-    render() {
-        return (
-            <Table striped celled selectable>
-                <Table.Header>
-                    <Table.Row>
-                        <Table.HeaderCell>TxNo</Table.HeaderCell>
-                        <Table.HeaderCell>Type</Table.HeaderCell>
-                        <Table.HeaderCell>Timestamp</Table.HeaderCell>
-                        <Table.HeaderCell>TxID</Table.HeaderCell>
-                        <Table.HeaderCell>RootHash</Table.HeaderCell>
-                    </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                {this.props.txs.map((txn) => {
-                    const txInfo = extractTxInformation(txn);
-                    return (
-                        <TxListItem baseUrl={this.props.baseUrl}
-                                    network={this.props.network}
-                                    txType={this.props.txType}
-                                    key={txn.seqNo} txInfo={txInfo}/>
-                    )
-                })}
-                </Table.Body>
-            </Table>
-        )
-    }
+  render () {
+    console.log(`render tx list compact ::::`)
+    console.log(JSON.stringify(this.props.txType))
+
+    return (
+      <Table striped celled selectable>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell>TxNo</TableHeaderCell>
+            <TableHeaderCell>Type</TableHeaderCell>
+            <TableHeaderCell>Timestamp</TableHeaderCell>
+            <TableHeaderCell>TxID</TableHeaderCell>
+            <TableHeaderCell>RootHash</TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {this.props.txs.map((txn) => {
+            const txInfo = extractTxInformation(txn)
+            const description = describeTransaction(txn)
+            return (
+              <TxListItem baseUrl={this.props.baseUrl}
+                          network={this.props.network}
+                          ledger={this.props.txType}
+                          key={txn.seqNo}
+                          txInfo={txInfo}
+                          description={description}
+              />
+            )
+          })}
+        </TableBody>
+      </Table>
+    )
+  }
 }
 
-export default TxListCompact;
+export default TxListCompact

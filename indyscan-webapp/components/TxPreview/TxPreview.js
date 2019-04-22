@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import "./TxPreview.scss";
 import {Table, Item, Grid} from 'semantic-ui-react'
-import {txCodeToTxType} from "../../data/tx-types";
+import {txTypeToTxName} from "indyscan-txtype";
 import Link from "next/link";
 
 class TxPreview extends Component {
@@ -16,7 +16,7 @@ class TxPreview extends Component {
                        <Link href={href} as={as}><a><span style={{fontSize: "2.5em"}}>{seqNo}</span></a></Link>
                     </Item.Image>
                     <Item.Content>
-                        <Item.Header>{txCodeToTxType(type)}</Item.Header>
+                        <Item.Header>{txTypeToTxName(type)}</Item.Header>
                         <Item.Meta>{timestamp}</Item.Meta>
                         <Item.Description>{`${rootHash.substring(0, 28)}`}</Item.Description>
                     </Item.Content>

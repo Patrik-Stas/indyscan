@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest test/tx.spec.js",
+    "test": "jest test",
     "import-mongo": "npm run import-config && npm run import-domain && npm run import-pool",
     "import-config": "mongoimport --db IS_STOR_TEST --collection txs-config data/config.txs",
     "import-domain": "mongoimport --db IS_STOR_TEST --collection txs-domain data/domain.txs",
@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@types/jest": "^24.0.11",
-    "mongodb": "^3.1.10"
+    "mongodb": "^3.1.10",
+    "indyscan-txtype": "file:../indyscan-txtype"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
