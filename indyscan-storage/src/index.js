@@ -1,5 +1,5 @@
 const { createLedgerStorageManager } = require('./network-storage')
+const { buildFilterByTxNames } = require('./filter-builder')
 const txTypes = require('./tx-types')
 
-module.exports.createLedgerStorageManager = createLedgerStorageManager
-module.exports.txTypes = txTypes
+module.exports = { buildFilterByTxNames, createLedgerStorageManager, txTypes }

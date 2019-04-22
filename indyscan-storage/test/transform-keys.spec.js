@@ -1,4 +1,4 @@
-const keyTransform = require('../transform-keys')
+const keyTransform = require('../src/transform-keys')
 
 it('it should replace dots in object keys', async () => {
   const obj = { 'test.dot': 123 }

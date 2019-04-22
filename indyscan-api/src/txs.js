@@ -1,8 +1,8 @@
 const fetch = require('isomorphic-unfetch')
 const queryString = require('query-string')
 
-async function getTxs (baseUrl, network, ledger, fromRecentTx, toRecentTx, filter = {}) {
-  const query = queryString.stringify({ fromRecentTx, toRecentTx, network, ledger, filter: JSON.stringify(filter) })
+async function getTxs (baseUrl, network, ledger, fromRecentTx, toRecentTx, filterTxNames = []) {
+  const query = queryString.stringify({ fromRecentTx, toRecentTx, network, ledger, filterTxNames: JSON.stringify(filterTxNames) })
   let res = await fetch(`${baseUrl}/api/txs?${query}`)
   return res.json()
 }

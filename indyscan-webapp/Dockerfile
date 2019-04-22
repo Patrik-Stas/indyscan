@@ -3,6 +3,7 @@ FROM node:8.12.0
 COPY indyscan-webapp/package.json /indyscan-webapp/
 COPY indyscan-storage /indyscan-storage
 COPY indyscan-api /indyscan-api
+COPY indyscan-txtype /indyscan-txtype
 
 WORKDIR /indyscan-webapp/
 RUN npm install
