@@ -1,6 +1,6 @@
-export function getTxLinkData (baseUrl, network, txType, seqNo) {
-  const href = `${baseUrl}/tx?network=${network}&txType=${txType}&seqNo=${seqNo}`
-  const as = `/tx/${network}/${txType}/${seqNo}`
+export function getTxLinkData (baseUrl, network, ledger, seqNo) {
+  const href = `${baseUrl}/tx?network=${network}&ledger=${ledger}&seqNo=${seqNo}`
+  const as = `/tx/${network}/${ledger}/${seqNo}`
   return { href, as }
 }
 

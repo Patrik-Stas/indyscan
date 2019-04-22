@@ -9,7 +9,7 @@ class TxListCompact extends Component {
 
   render () {
     console.log(`render tx list compact ::::`)
-    console.log(JSON.stringify(this.props.txType))
+    console.log(JSON.stringify(this.props.ledger))
 
     return (
       <Table striped celled selectable>
@@ -29,7 +29,7 @@ class TxListCompact extends Component {
             return (
               <TxListItem baseUrl={this.props.baseUrl}
                           network={this.props.network}
-                          ledger={this.props.txType}
+                          ledger={this.props.ledger}
                           key={txn.seqNo}
                           txInfo={txInfo}
                           description={description}

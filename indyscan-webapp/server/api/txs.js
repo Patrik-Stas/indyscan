@@ -41,7 +41,7 @@ function initTxsApi (router, ledgerStorageManager) {
     console.log(`API GET  ${req.url}`)
     const parts = url.parse(req.url, true)
     const network = parts.query.network
-    const ledger = parts.query.txType
+    const ledger = parts.query.ledger
     const timestamps = await ledgerStorageManager.getLedger(network, ledger).getAllTimestamps()
     const histogram = await createHistogram(timestamps, oneDayInMiliseconds)
     res.status(200).send({ histogram })
@@ -51,7 +51,7 @@ function initTxsApi (router, ledgerStorageManager) {
     console.log(`API GET ${req.url}`)
     const parts = url.parse(req.url, true)
     const network = parts.query.network
-    const ledger = parts.query.txType
+    const ledger = parts.query.ledger
     const filterTxNames = (parts.query.filterTxNames) ? JSON.parse(parts.query.filterTxNames) : []
     const txFilter = buildFilterByTxNames(filterTxNames)
     const txCount = await ledgerStorageManager.getLedger(network, ledger).getTxCount(txFilter)

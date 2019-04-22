@@ -12,14 +12,14 @@ class HomePage extends Component {
 
   static async getInitialProps ({req, query}) {
     const baseUrl = getBaseUrl(req)
-    const {network, txType} = query
+    const {network} = query
     const domainTxs = await getTransactions(baseUrl, network, 'domain', 0, 13)
     const timeseriesDomain = await getTxTimeseries(baseUrl, network, 'domain')
     const timeseriesPool = await getTxTimeseries(baseUrl, network, 'pool')
     const timeseriesConfig = await getTxTimeseries(baseUrl, network, 'config')
     // todo: cache the data...
     return {
-      network, txType,
+      network,
       txs: domainTxs.txs,
       timeseriesDomain: timeseriesDomain.histogram,
       timeseriesPool: timeseriesPool.histogram,

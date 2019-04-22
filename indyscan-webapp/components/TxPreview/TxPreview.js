@@ -7,9 +7,9 @@ import Link from "next/link";
 class TxPreview extends Component {
     render() {
         const {seqNo, type, timestamp, txnId, rootHash} = this.props.txInfo;
-        const {baseUrl, network, txType} = this.props;
-        const href = `${baseUrl}/tx?network=${network}&txType=${txType}&seqNo=${seqNo}`;
-        const as = `/tx/${network}/${txType}/${seqNo}`;
+        const {baseUrl, network, ledger} = this.props;
+        const href = `${baseUrl}/tx?network=${network}&ledger=${ledger}&seqNo=${seqNo}`;
+        const as = `/tx/${network}/${ledger}/${seqNo}`;
         return (
                 <Item style={{marginBottom: "2em"}}>
                     <Item.Image size='tiny'>

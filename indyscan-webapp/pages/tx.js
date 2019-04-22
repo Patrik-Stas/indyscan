@@ -17,28 +17,28 @@ const pageSize = 20
 class Tx extends Component {
 
   static async getInitialProps ({req, query}) {
-    const {network, txType, seqNo} = query
+    const {network, ledger, seqNo} = query
     const baseUrl = getBaseUrl(req)
-    const txDetail = await getTx(baseUrl, network, txType, seqNo)
+    const txDetail = await getTx(baseUrl, network, ledger, seqNo)
     return {
       baseUrl,
       txDetail,
       network,
-      txType,
+      ledger,
       seqNo,
     }
   }
 
   handleArrowKeys (event) {
-    const {baseUrl, network, txType, seqNo} = this.props
+    const {baseUrl, network, ledger, seqNo} = this.props
     switch (event.key) {
       case 'ArrowRight': {
-        const {href, as} = getTxLinkData(baseUrl, network, txType, parseInt(seqNo) - 1)
+        const {href, as} = getTxLinkData(baseUrl, network, ledger, parseInt(seqNo) - 1)
         Router.push(href, as)
         break
       }
       case 'ArrowLeft': {
-        const {href, as} = getTxLinkData(baseUrl, network, txType, parseInt(seqNo) + 1)
+        const {href, as} = getTxLinkData(baseUrl, network, ledger, parseInt(seqNo) + 1)
         Router.push(href, as)
         break
       }
@@ -64,14 +64,14 @@ class Tx extends Component {
       boolean: `color:${palette[4]};`,
     }
 
-    const {baseUrl, txDetail, network, txType, seqNo} = this.props
-    const {href: hrefPrev, as: asPrev} = getTxLinkData(baseUrl, network, txType, parseInt(seqNo) - 1)
-    const {href: hrefNext, as: asNext} = getTxLinkData(baseUrl, network, txType, parseInt(seqNo) + 1)
+    const {baseUrl, txDetail, network, ledger, seqNo} = this.props
+    const {href: hrefPrev, as: asPrev} = getTxLinkData(baseUrl, network, ledger, parseInt(seqNo) - 1)
+    const {href: hrefNext, as: asNext} = getTxLinkData(baseUrl, network, ledger, parseInt(seqNo) + 1)
     return (
       <Grid>
         <GridRow>
           <GridColumn>
-            <PageHeader page={txType || 'home'} network={network} baseUrl={baseUrl}/>
+            <PageHeader page={ledger || 'home'} network={network} baseUrl={baseUrl}/>
           </GridColumn>
         </GridRow>
         <GridRow>
@@ -80,7 +80,7 @@ class Tx extends Component {
             } as={asNext}><a className="menulink">Next tx</a></Link>
           </GridColumn>
           <GridColumn width={10} textAlign='center'>
-            <h4>{`${seqNo}th ${txType} transaction`}</h4>
+            <h4>{`${seqNo}th ${ledger} transaction`}</h4>
           </GridColumn>
           <GridColumn width={3} textAlign='center'>
             <Link href={hrefPrev} as={asPrev}><a className="menulink">Prev tx</a></Link>

@@ -13,7 +13,7 @@ class TxPreviewList extends Component {
                 {txs.map(tx => {
                     const txInfo = extractTxInformation(tx);
                     return (
-                            <TxPreview key={`preview-${txInfo.seqNo}`}  network={network} txInfo={txInfo} txType="domain"/>
+                            <TxPreview key={`preview-${txInfo.seqNo}`}  network={network} txInfo={txInfo} ledger="domain"/>
                     )
                 })}
             </Item.Group>

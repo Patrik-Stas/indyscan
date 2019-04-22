@@ -50,15 +50,15 @@ async function startServer () {
         return app.render(req, res, '/home', mergedQuery)
       })
 
-      server.get('/txs/:network/:txType', (req, res) => {
+      server.get('/txs/:network/:ledger', (req, res) => {
         const mergedQuery = Object.assign({}, req.query, req.params)
-        console.log(`Custom express routing handler: /txs/:network/:type\nmerged query: ${JSON.stringify(mergedQuery)}`)
+        console.log(`Custom express routing handler: /txs/:network/:ledger\nmerged query: ${JSON.stringify(mergedQuery)}`)
         return app.render(req, res, '/txs', mergedQuery)
       })
 
-      server.get('/tx/:network/:txType/:seqNo', (req, res) => {
+      server.get('/tx/:network/:ledger/:seqNo', (req, res) => {
         const mergedQuery = Object.assign({}, req.query, req.params)
-        console.log(`Custom express routing handler: /txs/:network/:type\nmerged query: ${JSON.stringify(mergedQuery)}`)
+        console.log(`Custom express routing handler: /txs/:network/:ledger\nmerged query: ${JSON.stringify(mergedQuery)}`)
         return app.render(req, res, '/tx', mergedQuery)
       })
 
