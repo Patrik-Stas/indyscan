@@ -2,7 +2,13 @@ function assignBucket (min, bucketSize, value) {
   return Math.floor((value - min) / bucketSize)
 }
 
-module.exports = function createHistogram (values, bucketSize) {
+function createHistogram (values, bucketSize) {
+  const min = values[0]
+  const max = values[values.length - 1]
+  createHistogramInTimeInterval(values, bucketSize, min, max)
+}
+
+function createHistogramInTimeInterval (values, bucketSize, from, to) {
   const min = values[0]
   const max = values[values.length - 1]
   const maxBucket = assignBucket(min, bucketSize, max)
@@ -20,3 +26,6 @@ module.exports = function createHistogram (values, bucketSize) {
   }
   return histogram
 }
+
+module.exports.createHistogram = createHistogram
+module.exports.createHistogramInTimeInterval = createHistogramInTimeInterval

@@ -1,4 +1,3 @@
-const createHistogram = require('../../services/timeseries')
 const url = require('url')
 const { buildFilterByTxNames } = require('indyscan-storage')
 
@@ -58,8 +57,7 @@ function initTxsApi (router, ledgerStorageManager, networkManager) {
     } catch (err) {
       return res.status(404).send({ message: `Couldn't resolve network you are referencing (${queryNetworkRef})` })
     }
-    const timestamps = await ledgerStorageManager.getLedger(networkDbName, ledger).getAllTimestamps()
-    const histogram = await createHistogram(timestamps, oneDayInMiliseconds)
+    const histogram = await ledgerStorageManager.getLedger(network, ledger).getHistogram(oneDayInMiliseconds)
     res.status(200).send({ histogram })
   })
 

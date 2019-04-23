@@ -1,4 +1,5 @@
 const keyTransform = require('./transform-keys')
+const { createHistogram } = require('./histogram')
 const dotTransformer = keyTransform.createReplacementFunction('.', 'U+FF0E')
 const removeDotsFromKeys = keyTransform.recursiveJSONKeyTransform(dotTransformer)
 
@@ -28,6 +29,16 @@ async function createLedgerStore (mongoDatabase, collectionName) {
     return filtered
   }
 
+  async function getHistogram (bucketTimeSize, since = null) {
+    if (since) {
+      const timestamps = await getAllTimestamps()
+    } else {
+      const timestamps = await getAllTimestamps()
+      const histogram = await createHistogram(timestamps, bucketTimeSize)
+      return histogram
+    }
+  }
+
   async function findMaxTxIdInDb () {
     const qres = await collection.aggregate([{ $group: { _id: null, maxTx: { $max: '$txnMetadata.seqNo' } } }]).toArray()
     const { maxTx } = (qres.length > 0) ? qres[0] : { maxTx: 0 }
@@ -54,9 +65,10 @@ async function createLedgerStore (mongoDatabase, collectionName) {
     findMaxTxIdInDb,
     addTx,
     getTxRange,
-    getAllTimestamps,
     getTxCount,
-    getTxBySeqNo
+    getTxBySeqNo,
+    getAllTimestamps,
+    getHistogram
   }
 }
 

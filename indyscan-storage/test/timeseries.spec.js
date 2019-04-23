@@ -1,9 +1,9 @@
 import 'jest'
-import { createHistogram } from '../../services/timeseries'
+import { createHistogram, createHistogramInTimeInterval } from '../src/histogram'
 import 'assert'
 import { timestamps } from './data-timestamps'
 
-describe('API claim issuance scenario', async () => {
+describe('API claim issuance scenario', () => {
   it('should create histogram', async () => {
     const timestamps = [1, 1, 1, 2, 2, 3, 3, 8, 10]
     const histogram = await createHistogram(timestamps, 3)
@@ -40,6 +40,22 @@ describe('API claim issuance scenario', async () => {
   it('should not fail on big dataset', async () => {
     const intervalSec = 60 * 60 * 24
     const histogram = await createHistogram(timestamps, intervalSec)
+    console.log(histogram)
+  })
+
+  it('should not fail on big dataset', async () => {
+    const dailySec = 60 * 60 * 24
+    const startTime = 1286705410 // 10/10/2010 @ 10:10am (UTC)
+    const timestamps = [
+      startTime,
+      startTime + dailySec * 1,
+      startTime + dailySec * 2,
+      startTime + dailySec * 3,
+      startTime + dailySec * 4,
+      startTime + dailySec * 5
+    ]
+    const endTime = timestamps[timestamps.length - 1]
+    const histogram = await createHistogramInTimeInterval(timestamps, dailySec, startTime, endTime)
     console.log(histogram)
   })
 })

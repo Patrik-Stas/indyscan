@@ -1,6 +1,7 @@
 const fetch = require('isomorphic-unfetch')
 const queryString = require('query-string')
 
+
 async function getTxCount (baseUrl, network, ledger, filterTxNames = []) {
   const query = queryString.stringify({ network, ledger, filterTxNames: JSON.stringify(filterTxNames) })
   let res = await fetch(`${baseUrl}/api/txs/stats/count?${query}`)
