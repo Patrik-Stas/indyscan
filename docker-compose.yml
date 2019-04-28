@@ -21,6 +21,7 @@ services:
     - mongo
     environment:
     - URL_MONGO=mongodb://mongo.indynet:27017
+    - INDY_NETWORKS_V2=${INDY_NETWORKS_V2}
     - INDY_NETWORKS=${INDY_NETWORKS}
     - WEBAPP_PORT=5050
     ports:

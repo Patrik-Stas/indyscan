@@ -7,10 +7,10 @@ const { createLedgerStorageManager } = require('indyscan-storage')
 const { loadV1Config, loadV2Config } = require('./config')
 
 function loadConfig () {
-  if (process.env.INDY_NETWORKS) {
-    return loadV1Config(process.env.INDY_NETWORKS)
-  } else if (process.env.INDY_NETWORKS_V2) {
+  if (process.env.INDY_NETWORKS_V2) {
     return loadV2Config(process.env.INDY_NETWORKS_V2)
+  } else if (process.env.INDY_NETWORKS) {
+    return loadV1Config(process.env.INDY_NETWORKS)
   } else {
     throw Error(`Found no indy network configuration. Use INDY_NETWORKS and INDY_NETWORKS_V2 env variables to supply.`)
   }
