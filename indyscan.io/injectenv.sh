@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
 # Run this:
 # eval `./injectenv.sh`
-echo "export INDY_NETWORKS_V2='[{\"id\":\"sovmain\",\"db\":\"SOVRIN_MAINNET\",\"display\":\"MAINNET\",\"aliases\":[\"SOVRIN_MAINNET\"]},{\"id\":\"sovstaging\",\"db\":\"SOVRIN_TESTNET\",\"display\":\"STAGINGNET\",\"aliases\":[\"SOVRIN_TESTNET\"]},{\"id\":\"sovbuilder\",\"db\":\"SOVRIN_BUILDERNET\",\"display\":\"BUILDERNET\"}]'"
+RELATIVE_CONFIG_PATH="$(dirname "$0")/webapp-config.json"
+CONFIG_WITH_NEWLINES=`cat $RELATIVE_CONFIG_PATH`
+CONFIG_NO_NEWLINES=`echo $CONFIG_WITH_NEWLINES`
+echo "export INDY_NETWORKS_V2='$CONFIG_NO_NEWLINES'"

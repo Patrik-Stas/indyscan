@@ -1,4 +1,5 @@
 const getNetworks = require('./networks').getNetworks
+const getNetwork  = require('./networks').getNetwork
 const getDefaultNetwork = require('./networks').getDefaultNetwork
 const getTxTimeseries = require('./txs-stats').getTxTimeseries
 const getTxCount = require('./txs-stats').getTxCount
@@ -11,3 +12,4 @@ module.exports.getTxTimeseries = getTxTimeseries
 module.exports.getTxCount = getTxCount
 module.exports.getTransactions = getTransactions
 module.exports.getTx = getTx
+module.exports.getNetwork  = getNetwork

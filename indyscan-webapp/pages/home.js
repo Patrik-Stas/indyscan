@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import '../scss/style.scss'
 import TxsChart from '../components/TxChart/TxChart'
-import { getTransactions, getTxTimeseries } from 'indyscan-api'
+import { getTransactions, getTxTimeseries, getNetwork } from 'indyscan-api'
 import { getBaseUrl } from '../routing'
 import { Grid, GridColumn, GridRow } from 'semantic-ui-react'
 import PageHeader from '../components/PageHeader/PageHeader'
@@ -13,12 +13,16 @@ class HomePage extends Component {
   static async getInitialProps ({req, query}) {
     const baseUrl = getBaseUrl(req)
     const {network} = query
+    const networkDetails = await getNetwork(baseUrl, network)
+    console.log(`Get initial props for home ... network = ${network}`)
+    console.log(`Get initial props for home ... network details = ${JSON.stringify(networkDetails)}`)
     const domainTxs = await getTransactions(baseUrl, network, 'domain', 0, 13)
     const timeseriesDomain = await getTxTimeseries(baseUrl, network, 'domain')
     const timeseriesPool = await getTxTimeseries(baseUrl, network, 'pool')
     const timeseriesConfig = await getTxTimeseries(baseUrl, network, 'config')
     // todo: cache the data...
     return {
+      networkDetails,
       network,
       txs: domainTxs.txs,
       timeseriesDomain: timeseriesDomain.histogram,
@@ -29,13 +33,23 @@ class HomePage extends Component {
   }
 
   render () {
-    const {network, baseUrl} = this.props
+    const {network, networkDetails, baseUrl} = this.props
+    console.log('JSON.stringify(networkDetails)')
+    console.log(JSON.stringify(networkDetails))
     return (
       <Grid>
         <GridRow style={{backgroundColor: 'white', marginBottom: '-1em'}}>
           <GridColumn width={16}>
             <PageHeader page="home" network={network} baseUrl={baseUrl}/>
           </GridColumn>
+        </GridRow>
+        <GridRow>
+          <p>
+          {
+            (networkDetails.description) &&
+            <h3>{networkDetails.description}</h3>
+          }
+          </p>
         </GridRow>
         <GridRow>
           <GridColumn width={10} floated='left'>

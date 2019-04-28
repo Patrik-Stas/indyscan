@@ -35,6 +35,11 @@ function createNetworkManager (networkConfigs) {
     return networkConfigs.map(network => network.db)
   }
 
+  function getNetworkId (reference) {
+    const network = resolveNetwork(reference)
+    return network.id
+  }
+
   function getDbName (reference) {
     const network = resolveNetwork(reference)
     return network.db
@@ -48,8 +53,8 @@ function createNetworkManager (networkConfigs) {
     return networkConfigs[0].id
   }
 
-  function getIdsWithDisplayNames () {
-    return networkConfigs.map(config => { return { id: config.id, display: config.display } })
+  function getNetworkDetails () {
+    return networkConfigs.map(config => { return { id: config.id, display: config.display, description: config.description } })
   }
 
   return {
@@ -57,7 +62,8 @@ function createNetworkManager (networkConfigs) {
     getDbName,
     getNetworkIds,
     getDefaultNetworkId,
-    getIdsWithDisplayNames
+    getNetworkDetails,
+    getNetworkId
   }
 }
 

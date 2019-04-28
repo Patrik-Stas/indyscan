@@ -30,6 +30,7 @@ const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
 
+
 async function startServer () {
   const ledgerStorageManager = await createLedgerStorageManager(URL_MONGO)
   for (const network of networkManager.getNetworkDbs()) {

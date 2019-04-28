@@ -33,7 +33,7 @@ describe('network config manager', () => {
 
   it('should return correct network ids', async () => {
     const networkManager = createNetworkManager(networkConfig)
-    const networks = networkManager.getIdsWithDisplayNames()
+    const networks = networkManager.getNetworkDetails()
     expect(networks.length).toBe(3)
     expect(networks[0].id).toBe('sovrin-main-net')
     expect(networks[0].display).toBe('SOVRIN MAIN NET')
