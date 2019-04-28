@@ -6,7 +6,7 @@ RUN groupadd -g 1001 indyscan && \
 
 COPY indyscan-daemon /home/indyscan/indyscan-daemon
 COPY indyscan-storage /home/indyscan/indyscan-storage
-COPY indyscan-txtype /indyscan-txtype
+COPY indyscan-txtype /home/indyscan/indyscan-txtype
 
 RUN chown -R indyscan:indyscan /home/indyscan
 USER indyscan

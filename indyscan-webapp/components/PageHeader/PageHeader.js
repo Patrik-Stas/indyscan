@@ -20,13 +20,13 @@ class PageHeader extends Component {
     for (let i = 0; i < networks.length; i++) {
       const network = networks[i]
       networkMenuLinks.push(
-        <GridColumn key={network} floated="left" width={2}>
+        <GridColumn key={network.id} floated="left" width={3}>
           <Grid>
             <Grid.Row>
-              <MenuLink active={network === activeNetwork}
-                        href={`/home?network=${network}`}
-                        as={`/home/${network}`}>
-                {network}
+              <MenuLink active={network.id === activeNetwork}
+                        href={`/home?network=${network.id}`}
+                        as={`/home/${network.id}`}>
+                {network.display}
               </MenuLink>
             </Grid.Row>
           </Grid>

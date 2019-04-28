@@ -1,10 +1,8 @@
-const { getIndyNetworks, getDefaultNetwork } = require('../networks')
-
-function initNetworksApi (router) {
+function initNetworksApi (router, networkManager) {
   router.get('/networks', async (req, res) => {
     console.log(`HIT /networks`)
-    const networks = getIndyNetworks()
-    const defaultNetwork = getDefaultNetwork()
+    const networks = networkManager.getIdsWithDisplayNames()
+    const defaultNetwork = networkManager.getDefaultNetworkId()
     res.status(200).send({ networks, defaultNetwork })
   })
 }

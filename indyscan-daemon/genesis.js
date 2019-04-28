@@ -2,9 +2,6 @@ const genesis = require('./genesis-data')
 const util = require('./genesis-util')
 const fs = require('fs')
 const indy = require('indy-sdk')
-// function generateLocalhostGenesis(txs) {
-//
-// }
 
 async function generateGenesisFile (txs, name) {
   const genesisTxFilePath = util.getGenesisTxPathForPool(name)
@@ -25,3 +22,4 @@ async function generateGenesisFile (txs, name) {
 
 generateGenesisFile(genesis.SOVRIN_TESTNET, 'SOVRIN_TESTNET')
 generateGenesisFile(genesis.SOVRIN_MAINNET, 'SOVRIN_MAINNET')
+generateGenesisFile(genesis.SOVRIN_BUILDERNET, 'SOVRIN_BUILDERNET')

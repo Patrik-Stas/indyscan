@@ -12,13 +12,14 @@ module.exports.TX_DETAILS = {
     description: 'Command to upgrade the Pool (sent by Trustee). It upgrades the specified Nodes (either all nodes in the Pool, or some specific ones).    '
   },
   110: {name: 'NODE_UPGRADE', description: 'Indicates state of upgrading an Indy node to different version.'},
-  111: {name: 'POOL_CONFIG', description: 'Command to change Pool\'s configuration'}
+  111: {name: 'POOL_CONFIG', description: 'Command to change Pool\'s configuration'},
+  20000: {name: 'UNKNOWN_FEES_TX', description: 'TODO: Find out what this is.' }
 }
 
 module.exports.LEDGER_TX_NAMES = {
   'domain': ['NYM', 'ATTRIB', 'SCHEMA', 'CLAIM_DEF'],
   'pool': ['NODE'],
-  'config': ['NODE_UPGRADE', 'POOL_UPGRADE', 'POOL_CONFIG']
+  'config': ['NODE_UPGRADE', 'POOL_UPGRADE', 'POOL_CONFIG', 'UNKNOWN_FEES_TX']
 }
 
 module.exports.TYPE_TO_NAME = {
@@ -30,6 +31,7 @@ module.exports.TYPE_TO_NAME = {
   '109': 'POOL_UPGRADE',
   '110': 'NODE_UPGRADE',
   '111': 'POOL_CONFIG',
+  '20000': 'UNKNOWN_FEES_TX',
 }
 
 module.exports.NAME_TO_TYPE = {
@@ -40,5 +42,6 @@ module.exports.NAME_TO_TYPE = {
   'CLAIM_DEF': 102,
   'POOL_UPGRADE': 109,
   'NODE_UPGRADE': 110,
-  'POOL_CONFIG': 111
+  'POOL_CONFIG': 111,
+  'UNKNOWN_FEES_TX': '20000'
 }
