@@ -1,3 +1,4 @@
+const { jitterize } = require('./util')
 const { createLedgerStorageManager } = require('indyscan-storage')
 
 const createIndyClient = require('./indyclient')
@@ -16,11 +17,12 @@ const LEDGER_NAME_TO_CODE = {
 
 const indyNetworks = INDY_NETWORKS.split(',')
 const scanModes = {
-  'SLOW': { normalScanPeriodSec: 12, checkScanPeriodSec: 30 },
-  'MEDIUM': { normalScanPeriodSec: 6, checkScanPeriodSec: 15 },
-  'FAST': { normalScanPeriodSec: 1, checkScanPeriodSec: 1 },
-  'TURBO': { normalScanPeriodSec: 0.3, checkScanPeriodSec: 1 },
-  'FRENZY': { normalScanPeriodSec: 0.1, checkScanPeriodSec: 1 }
+  'SLOW': { secTimeoutOnFailure: 20, secTimeoutIfNewTxFound: 12, secTimeoutIfNoNewTxFound: 30, jitterRatio: 0.1 },
+  'MEDIUM': { secTimeoutOnFailure: 20, secTimeoutIfNewTxFound: 6, secTimeoutIfNoNewTxFound: 15, jitterRatio: 0.1 },
+  'INDYSCAN.IO': { secTimeoutOnFailure: 30, secTimeoutIfNewTxFound: 3, secTimeoutIfNoNewTxFound: 6, jitterRatio: 0.15 },
+  'FAST': { secTimeoutOnFailure: 20, secTimeoutIfNewTxFound: 1, secTimeoutIfNoNewTxFound: 1, jitterRatio: 0.1 },
+  'TURBO': { secTimeoutOnFailure: 20, secTimeoutIfNewTxFound: 0.3, secTimeoutIfNoNewTxFound: 1, jitterRatio: 0.1 },
+  'FRENZY': { secTimeoutOnFailure: 20, secTimeoutIfNewTxFound: 0.1, secTimeoutIfNoNewTxFound: 1, jitterRatio: 0.1 }
 }
 
 const SCAN_MODE = process.env.SCAN_MODE || 'MEDIUM'
@@ -40,15 +42,18 @@ async function scanNetwork (networkName) {
     const txCollectionDomain = ledgerManager.getLedger(networkName, storage.txTypes.domain)
     const txCollectionPool = ledgerManager.getLedger(networkName, storage.txTypes.pool)
     const txCollectionConfig = ledgerManager.getLedger(networkName, storage.txTypes.config)
-    console.log(`Tx collections for network ${networkName} ready. Scanning starts in few seconds.`)
-    const normalScanPeriodSec = scanModes[SCAN_MODE].normalScanPeriodSec
-    const checkScanPeriodSec = scanModes[SCAN_MODE].checkScanPeriodSec
-    console.log(`Scan mode = ${SCAN_MODE}. Normal period=${normalScanPeriodSec}, check period = ${checkScanPeriodSec}`)
+    const { secTimeoutIfNewTxFound, secTimeoutIfNoNewTxFound, secTimeoutOnFailure, jitterRatio } = scanModes[SCAN_MODE]
+    console.log(`[${networkName}] Scan mode = ${SCAN_MODE}. Scanning starts soon.
+      New-Tx-Found-Timeout=${secTimeoutIfNewTxFound}, 
+      No-New-Tx-Found-Timeout=${secTimeoutIfNoNewTxFound}
+      Failure-Timeout=${secTimeoutOnFailure} 
+      jitterRatio=${jitterRatio}`
+    )
     setTimeout(() => {
-      scanLedger(indyClient, txCollectionDomain, networkName, 'DOMAIN', normalScanPeriodSec, checkScanPeriodSec)
-      scanLedger(indyClient, txCollectionPool, networkName, 'POOL', normalScanPeriodSec, checkScanPeriodSec)
-      scanLedger(indyClient, txCollectionConfig, networkName, 'CONFIG', normalScanPeriodSec, checkScanPeriodSec)
-    }, 4 * 1000)
+      scanLedger(indyClient, txCollectionDomain, networkName, 'DOMAIN', secTimeoutIfNewTxFound, secTimeoutIfNoNewTxFound, secTimeoutOnFailure, jitterRatio)
+      scanLedger(indyClient, txCollectionPool, networkName, 'POOL', secTimeoutIfNewTxFound, secTimeoutIfNoNewTxFound, secTimeoutOnFailure, jitterRatio)
+      scanLedger(indyClient, txCollectionConfig, networkName, 'CONFIG', secTimeoutIfNewTxFound, secTimeoutIfNoNewTxFound, secTimeoutOnFailure, jitterRatio)
+    }, 6 * 1000)
   } catch (err) {
     console.error(`Something when wrong creating indy client for network '${networkName}'. Details:`)
     console.error(err)
@@ -56,7 +61,13 @@ async function scanNetwork (networkName) {
   }
 }
 
-async function scanLedger (indyClient, txCollection, networkName, ledgerName, regularTimeoutSec, noNewTimeoutSec) {
+async function sleepWithJitter (logPrefix, seconds, jitterRatio) {
+  const timeoutMs = jitterize(seconds * 1000, jitterRatio)
+  console.debug(`${logPrefix} Sleep for ${timeoutMs}ms.`)
+  await sleep(timeoutMs)
+}
+
+async function scanLedger (indyClient, txCollection, networkName, ledgerName, regularTimeoutSec, noNewTimeoutSec, failureTimeoutSec, jitterRatio) {
   const ledgerCode = LEDGER_NAME_TO_CODE[ledgerName]
   let txid = (await txCollection.findMaxTxIdInDb()) + 1
   const logPrefix = `[LedgerScan][${networkName}][${ledgerName}]`
@@ -67,17 +78,17 @@ async function scanLedger (indyClient, txCollection, networkName, ledgerName, re
       if (tx) {
         console.log(`${logPrefix} Retrieved '${txid}'th tx:\n${txid}:\n${JSON.stringify(tx)}`)
         await txCollection.addTx(tx)
-        await sleep(regularTimeoutSec * 1000)
+        await sleepWithJitter(logPrefix, regularTimeoutSec, jitterRatio)
         txid++
       } else {
         console.log(`${logPrefix} Seems '${txid}'th tx does not yet exist.`)
-        await sleep(noNewTimeoutSec * 1000)
+        await sleepWithJitter(logPrefix, noNewTimeoutSec, jitterRatio)
       }
     } catch (error) {
       console.log(`${logPrefix} An error occurred:`)
       console.error(error)
       console.error(error.stack)
-      await sleep(noNewTimeoutSec * 1000)
+      await sleepWithJitter(logPrefix, failureTimeoutSec, jitterRatio)
     }
   }
 }
