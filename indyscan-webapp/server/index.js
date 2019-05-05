@@ -6,6 +6,7 @@ const initApiNetworks = require('./api/networks.js')
 const { createLedgerStorageManager } = require('indyscan-storage')
 const { loadV1Config, loadV2Config } = require('./config')
 const logger = require('./logging/logger-main')
+const url = require('url')
 
 function loadConfig () {
   if (process.env.INDY_NETWORKS_V2) {
@@ -49,7 +50,8 @@ async function startServer () {
       server.use('/api/*', function (req, res, next) {
         logger.debug(`----> Request: [${req.method}] ${req.originalUrl}`)
         logger.debug(`----> Query: ${JSON.stringify(req.query)}`)
-        logger.debug(`----> Params: ${JSON.stringify(req.params)}`)
+        const parts = url.parse(req.url, true)
+        logger.info(`Url query parts: ${JSON.stringify(parts.query)}`)
         next()
       })
 
