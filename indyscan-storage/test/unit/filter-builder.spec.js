@@ -1,4 +1,5 @@
-import { buildFilterByTxNames } from '../src/index'
+/* eslint-env jest */
+import { buildFilterByTxNames } from '../csrc/index'
 
 describe('basic storage test', () => {
   it('should build transaction filter by txType correctly', async () => {

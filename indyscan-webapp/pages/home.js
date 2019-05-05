@@ -17,17 +17,18 @@ class HomePage extends Component {
     console.log(`Get initial props for home ... network = ${network}`)
     console.log(`Get initial props for home ... network details = ${JSON.stringify(networkDetails)}`)
     const domainTxs = await getTransactions(baseUrl, network, 'domain', 0, 13)
-    const timeseriesDomain = await getTxTimeseries(baseUrl, network, 'domain')
-    const timeseriesPool = await getTxTimeseries(baseUrl, network, 'pool')
-    const timeseriesConfig = await getTxTimeseries(baseUrl, network, 'config')
+  // ).map(m=>m[0]*1000)
+    const timeseriesDomain = (await getTxTimeseries(baseUrl, network, 'domain')).map(m=>[m[0]*1000, m[1]])
+    const timeseriesPool = (await getTxTimeseries(baseUrl, network, 'pool')).map(m=>[m[0]*1000, m[1]])
+    const timeseriesConfig = (await getTxTimeseries(baseUrl, network, 'config')).map(m=>[m[0]*1000, m[1]])
     // todo: cache the data...
     return {
       networkDetails,
       network,
       txs: domainTxs.txs,
-      timeseriesDomain: timeseriesDomain.histogram,
-      timeseriesPool: timeseriesPool.histogram,
-      timeseriesConfig: timeseriesConfig.histogram,
+      timeseriesDomain,
+      timeseriesPool,
+      timeseriesConfig,
       baseUrl
     }
   }

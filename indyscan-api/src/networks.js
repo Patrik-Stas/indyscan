@@ -5,9 +5,9 @@ async function getNetworks (baseUrl) {
   return (await res.json()).networks
 }
 
-async function getNetwork (baseUrl, networkId) {
-  let res = await fetch(`${baseUrl}/api/networks/${networkId}`)
-  return (await res.json())
+async function getNetwork (baseUrl, networkRef) {
+  let res = await fetch(`${baseUrl}/api/networks/${networkRef}`)
+  return res.json()
 }
 
 async function getDefaultNetwork (baseUrl) {
