@@ -3,12 +3,13 @@ const queryString = require('query-string')
 
 async function getTxCount (baseUrl, network, ledger, filterTxNames = []) {
   const query = queryString.stringify({ filterTxNames: JSON.stringify(filterTxNames) })
-  let res = await fetch(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs/count${query}`)
+  let res = await fetch(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs/stats/count?${query}`)
   return (await res.json()).txCount
 }
 
-async function getTxTimeseries (baseUrl, network, ledger) {
-  let res = await fetch(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs/series`)
+async function getTxTimeseries (baseUrl, network, ledger, intervalSec = null, since = null, until = null) {
+  const query = queryString.stringify({ intervalSec, since, until })
+  let res = await fetch(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs/stats/series?${query}`)
   return res.json()
 }
 

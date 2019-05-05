@@ -18,9 +18,14 @@ class HomePage extends Component {
     console.log(`Get initial props for home ... network details = ${JSON.stringify(networkDetails)}`)
     const domainTxs = await getTransactions(baseUrl, network, 'domain', 0, 13)
   // ).map(m=>m[0]*1000)
-    const timeseriesDomain = (await getTxTimeseries(baseUrl, network, 'domain')).map(m=>[m[0]*1000, m[1]])
-    const timeseriesPool = (await getTxTimeseries(baseUrl, network, 'pool')).map(m=>[m[0]*1000, m[1]])
-    const timeseriesConfig = (await getTxTimeseries(baseUrl, network, 'config')).map(m=>[m[0]*1000, m[1]])
+    const utimeNow = Math.floor(new Date() / 1000)
+    const secsInDay = 3600*24
+    const dayAgo = (utimeNow - secsInDay*7)
+    console.log(`Day ago ${dayAgo}`)
+    console.log(`Now ${utimeNow}`)
+    const timeseriesDomain = (await getTxTimeseries(baseUrl, network, 'domain', 3600, dayAgo, utimeNow)).map(m=>[m[0]*1000, m[1]])
+    const timeseriesPool = (await getTxTimeseries(baseUrl, network, 'pool', 3600, dayAgo, utimeNow)).map(m=>[m[0]*1000, m[1]])
+    const timeseriesConfig = (await getTxTimeseries(baseUrl, network, 'config', 3600, dayAgo, utimeNow)).map(m=>[m[0]*1000, m[1]])
     // todo: cache the data...
     return {
       networkDetails,

@@ -2,7 +2,7 @@
 import 'jest'
 import { createHistogram, createHistogramInRange } from '../../src/histogram'
 import 'assert'
-import { timestamps } from './../data-timestamps'
+import { timestamps } from './../resource/data-timestamps'
 
 describe('API claim issuance scenario', () => {
   it('should create histogram', async () => {
