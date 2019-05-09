@@ -5,6 +5,8 @@ const initApiTxs = require('./api/txs.js')
 const initApiNetworks = require('./api/networks.js')
 const { createLedgerStorageManager } = require('indyscan-storage')
 const { loadV1Config, loadV2Config } = require('./config')
+const logger = require('./logging/logger-main')
+const url = require('url')
 
 function loadConfig () {
   if (process.env.INDY_NETWORKS_V2) {
@@ -19,22 +21,21 @@ function loadConfig () {
 const networkConfig = loadConfig()
 const networkManager = createNetworkManager(networkConfig)
 
-console.log(`Running indyscan webapp against following mongo databases: ${JSON.stringify(networkManager.getNetworkDbs())}`)
-console.log(`Default network is id='${networkManager.getDefaultNetworkId()}'`)
+logger.info(`Running indyscan webapp against following mongo databases: ${JSON.stringify(networkManager.getNetworkDbs())}`)
+logger.info(`Default network is id='${networkManager.getDefaultNetworkId()}'`)
 
 const URL_MONGO = process.env.URL_MONGO || 'mongodb://localhost:27017'
-console.log(`Connecting to Mongo URL: ${URL_MONGO}`)
+logger.info(`Connecting to Mongo URL: ${URL_MONGO}`)
 
 const PORT = process.env.WEBAPP_PORT || 3000
 const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
 
-
 async function startServer () {
   const ledgerStorageManager = await createLedgerStorageManager(URL_MONGO)
   for (const network of networkManager.getNetworkDbs()) {
-    console.log(`Adding network '${network}' to ledger storage manager.`)
+    logger.debug(`Adding network '${network}' to ledger storage manager.`)
     await ledgerStorageManager.addIndyNetwork(network)
   }
 
@@ -46,33 +47,41 @@ async function startServer () {
       initApiTxs(apiRouter, ledgerStorageManager, networkManager)
       initApiNetworks(apiRouter, networkManager)
 
+      server.use('/api/*', function (req, res, next) {
+        logger.debug(`----> Request: [${req.method}] ${req.originalUrl}`)
+        logger.debug(`----> Query: ${JSON.stringify(req.query)}`)
+        const parts = url.parse(req.url, true)
+        logger.info(`Url query parts: ${JSON.stringify(parts.query)}`)
+        next()
+      })
+
       server.use('/api', apiRouter)
 
       server.get('/', (req, res) => {
-        console.log(`ROOT URL: /`)
+        logger.debug(`ROOT URL: /`)
         res.redirect(`/home/${networkManager.getDefaultNetworkId()}`)
       })
 
       server.get('/home', (req, res) => {
-        console.log(`ROOT URL: /`)
+        logger.debug(`ROOT URL: /`)
         res.redirect(`/home/${networkManager.getDefaultNetworkId()}`)
       })
 
       server.get('/home/:network', (req, res) => {
         const mergedQuery = Object.assign({}, req.query, req.params)
-        console.log(`Custom express routing handler: /home/:network\nmerged query: ${JSON.stringify(mergedQuery)}`)
+        logger.debug(`Custom express routing handler: /home/:network\nmerged query: ${JSON.stringify(mergedQuery)}`)
         return app.render(req, res, '/home', mergedQuery)
       })
 
       server.get('/txs/:network/:ledger', (req, res) => {
         const mergedQuery = Object.assign({}, req.query, req.params)
-        console.log(`Custom express routing handler: /txs/:network/:ledger\nmerged query: ${JSON.stringify(mergedQuery)}`)
+        logger.debug(`Custom express routing handler: /txs/:network/:ledger\nmerged query: ${JSON.stringify(mergedQuery)}`)
         return app.render(req, res, '/txs', mergedQuery)
       })
 
       server.get('/tx/:network/:ledger/:seqNo', (req, res) => {
         const mergedQuery = Object.assign({}, req.query, req.params)
-        console.log(`Custom express routing handler: /txs/:network/:ledger\nmerged query: ${JSON.stringify(mergedQuery)}`)
+        logger.debug(`Custom express routing handler: /txs/:network/:ledger\nmerged query: ${JSON.stringify(mergedQuery)}`)
         return app.render(req, res, '/tx', mergedQuery)
       })
 
@@ -82,11 +91,11 @@ async function startServer () {
 
       server.listen(PORT, err => {
         if (err) throw err
-        console.log(`> Ready on ${PORT}`)
+        logger.info(`> Ready on ${PORT}`)
       })
     })
     .catch(ex => {
-      console.error(ex.stack)
+      logger.error(ex.stack)
       process.exit(1)
     })
 }

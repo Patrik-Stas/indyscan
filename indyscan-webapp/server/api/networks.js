@@ -1,13 +1,11 @@
 function initNetworksApi (router, networkManager) {
   router.get('/networks', async (req, res) => {
-    console.log(`GET /networks`)
     const networks = networkManager.getNetworkDetails()
     const defaultNetwork = networkManager.getDefaultNetworkId()
     res.status(200).send({ networks, defaultNetwork })
   })
 
   router.get('/networks/:id', async (req, res) => {
-    console.log(`GET /networks/:id`)
     console.log(JSON.stringify(req.params))
     const id = req.params.id
     const network = networkManager.getNetworkDetails().find(n => n.id === id)

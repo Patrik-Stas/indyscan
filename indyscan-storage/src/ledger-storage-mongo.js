@@ -1,6 +1,12 @@
+const { txsQuery } = require('./query-builder')
+
 const keyTransform = require('./transform-keys')
 const dotTransformer = keyTransform.createReplacementFunction('.', 'U+FF0E')
 const removeDotsFromKeys = keyTransform.recursiveJSONKeyTransform(dotTransformer)
+
+const projectAvailableTimestamps = (txs) => {
+  return txs.filter(t => !!t.txnMetadata && !!t.txnMetadata.txnTime).map(t => t.txnMetadata.txnTime)
+}
 
 async function createLedgerStore (mongoDatabase, collectionName) {
   let collection = await mongoDatabase.collection(collectionName)
@@ -17,15 +23,34 @@ async function createLedgerStore (mongoDatabase, collectionName) {
     return collection.findOne({ 'txnMetadata.seqNo': seqNo })
   }
 
-  async function getTxRange (skip, limit, filter = {}) {
-    const txs = await collection.find(filter).skip(skip).limit(limit).sort({ 'txnMetadata.seqNo': -1 }).toArray()
-    return txs
+  /*
+  Returns array of unix-time timestamps (seconds granularity) of (by default all) transactions which contain timestamp.
+  Non-timestamped transactions are skipped.
+  By default are transactions sorted from latest (index 0) to the oldest (last index of result array)
+   */
+  async function getOldestTimestamp () {
+    const txs = await getTxsTimestamps(0, 1, { 'txnMetadata.txnTime': { $exists: true } }, { 'txnMetadata.seqNo': 1 })
+    if (txs.length === 0) {
+      return null
+    }
+    return txs[0]
   }
 
-  async function getAllTimestamps () {
-    const arr = await collection.find({}, { 'projection': { 'txnMetadata.txnTime': 1 } }).toArray()
-    const filtered = arr.filter(t => !!t.txnMetadata.txnTime).map(t => t.txnMetadata.txnTime * 1000)
-    return filtered
+  async function getTxsTimestamps (skip = null, limit = null, filter = null, sort = { 'txnMetadata.seqNo': -1 }, projection = null) {
+    return getTxs(skip, limit, filter, sort, projection, projectAvailableTimestamps)
+  }
+
+  async function getTxsByQuery (txsQuery) {
+    return txsQuery.executeAgainst(collection)
+  }
+
+  /*
+  Returns array of (by default all) transactions.
+  By default are transactions sorted from latest (index 0) to the oldest (last index of result array)
+   */
+  async function getTxs (skip = null, limit = null, filter = null, sort = { 'txnMetadata.seqNo': -1 }, projection = null, transform = null) {
+    const q = txsQuery().setLimit(limit).setSkip(skip).setFilter(filter).setSort(sort).setProjection(projection).setTransform(transform)
+    return getTxsByQuery(q)
   }
 
   async function findMaxTxIdInDb () {
@@ -53,8 +78,10 @@ async function createLedgerStore (mongoDatabase, collectionName) {
   return {
     findMaxTxIdInDb,
     addTx,
-    getTxRange,
-    getAllTimestamps,
+    getOldestTimestamp,
+    getTxsTimestamps,
+    getTxs,
+    getTxsByQuery,
     getTxCount,
     getTxBySeqNo
   }

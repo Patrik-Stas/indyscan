@@ -35,13 +35,13 @@ module.exports.TYPE_TO_NAME = {
 }
 
 module.exports.NAME_TO_TYPE = {
-  'NODE': 0,
-  'NYM': 1,
-  'ATTRIB': 100,
-  'SCHEMA': 101,
-  'CLAIM_DEF': 102,
-  'POOL_UPGRADE': 109,
-  'NODE_UPGRADE': 110,
-  'POOL_CONFIG': 111,
+  'NODE': '0',
+  'NYM': '1',
+  'ATTRIB': '100',
+  'SCHEMA': '101',
+  'CLAIM_DEF': '102',
+  'POOL_UPGRADE': '109',
+  'NODE_UPGRADE': '110',
+  'POOL_CONFIG': '111',
   'UNKNOWN_FEES_TX': '20000'
 }

@@ -10,7 +10,6 @@ class MenuLink extends Component {
 
     render() {
         const {href, as, active} = this.props;
-        // let fontSize = (!!active) ? "1.5em" : "0.9em";
         let fontSize = "1.3em";
         let color= (!!active) ? "darkcyan" : "black"
         return (

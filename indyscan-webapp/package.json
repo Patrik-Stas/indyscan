@@ -34,7 +34,8 @@
     "react-dom": "^16.3.2",
     "react-json-pretty": "^2.0.0",
     "react-tooltip": "^3.9.2",
-    "semantic-ui-react": "^0.84.0"
+    "semantic-ui-react": "^0.84.0",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "@types/jest": "^23.3.10",
