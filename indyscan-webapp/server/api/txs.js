@@ -45,18 +45,55 @@ function initTxsApi (router, ledgerStorageManager, networkManager) {
     return res.status(400).send()
   })
 
+  function calculateBucketSizeSec (sinceUtimeSec, untilUtimeSec) {
+    const rangeSizeSec = Math.abs(untilUtimeSec - sinceUtimeSec)
+    return Math.max(rangeSizeSec / 120, 1800)
+  }
+
   router.get('/networks/:networkRef/ledgers/:ledger/txs/stats/series', async (req, res) => {
     const { ledger } = req.params
     const parts = url.parse(req.url, true)
-    const secsInDay = 3600 * 24
-    logger.info(JSON.stringify(parts.query))
-    let intervalSec = (!parts.query.intervalSec)
-      ? (secsInDay * 7)
-      : Math.max(parseInt(parts.query.intervalSec), 30)
     const networkDbName = getNetworkDbName(req, res)
     const timestampsSec = await ledgerStorageManager.getLedger(networkDbName, ledger).getTxsTimestamps()
-    const since = parseInt(parts.query.since) || await getOldestTransactions(ledgerStorageManager, networkDbName)
-    const until = parseInt(parts.query.until) || Math.floor(new Date() / 1000)
+    let since
+    if (parts.query.since) {
+      if (parts.query.since === 'Infinity' || parts.query.since === '-Infinity') {
+        since = await getOldestTransactions(ledgerStorageManager, networkDbName)
+        logger.debug(`The oldest transaction is =${since}`)
+      } else {
+        try {
+          since = parseInt(parts.query.since)
+        } catch (err) {
+          return res.status(400).send({ message: "The 'since' query parameter is not valid integer." })
+        }
+      }
+    } else {
+      since = await getOldestTransactions(ledgerStorageManager, networkDbName)
+    }
+    let until
+    if (parts.query.until) {
+      try {
+        until = parseInt(parts.query.until)
+      } catch (err) {
+        return res.status(400).send({ message: "The 'since' query parameter is not valid integer." })
+      }
+    } else {
+      until = Math.floor(new Date() / 1000)
+    }
+    logger.info(`Will use: since=${since} until=${until}`)
+    let intervalSec
+    const minIntervalSizeSec = 1800
+    if (!parts.query.intervalSec || parts.query.intervalSec === 'auto') {
+      intervalSec = calculateBucketSizeSec(since, until)
+    } else {
+      try {
+        intervalSec = parseInt(parts.query.intervalSec)
+        intervalSec = (intervalSec < minIntervalSizeSec) ? intervalSec : minIntervalSizeSec
+      } catch (err) {
+        return res.status(400).send({ message: "The 'intervalSec' query parameter is not valid integer." })
+      }
+    }
+    console.log(`Will calcualte series data for length of ${(until-since) / (3600 * 24)} days`)
     const histogramData = await histogram.createHistogramInRange(timestampsSec, intervalSec, since, until)
     res.status(200).send(histogramData)
   })
