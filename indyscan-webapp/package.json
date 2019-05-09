@@ -44,7 +44,7 @@
     "command-line-usage": "^5.0.5",
     "jest": "^23.6.0",
     "jest-cli": "^23.6.0",
-    "nodemon": "^1.18.9",
+    "nodemon": "^1.19.0",
     "postcss-easy-import": "^3.0.0",
     "postcss-loader": "^2.1.4",
     "sass-loader": "^7.0.1",
