@@ -1,4 +1,0 @@
-This is a Brave Rewards publisher verification file.
-
-Domain: indyscan.io
-Token: bb532f7ea74bfcd9098a7cc085a181810e5f4e797a8136c064b9aa5309b8a846
