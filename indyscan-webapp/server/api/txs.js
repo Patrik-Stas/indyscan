@@ -93,7 +93,10 @@ function initTxsApi (router, ledgerStorageManager, networkManager) {
         return res.status(400).send({ message: "The 'intervalSec' query parameter is not valid integer." })
       }
     }
-    console.log(`Will calcualte series data for length of ${(until-since) / (3600 * 24)} days`)
+    logger.debug(`Will calculate series data for length of `)
+    logger.debug(`Creating histogram (bucket = ${intervalSec}secs / ${intervalSec/3600}hrs). 
+      Input value count: '${timestampsSec.length}'. Time-series range: 
+      Utime since-until: ${since}-${until}, which is ${(until-since) / (3600 * 24)}' days.`)
     const histogramData = await histogram.createHistogramInRange(timestampsSec, intervalSec, since, until)
     res.status(200).send(histogramData)
   })

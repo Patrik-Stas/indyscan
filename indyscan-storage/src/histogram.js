@@ -15,8 +15,6 @@ function createHistogramWithUpperBound (values, bucketSize, max) {
 // floor(0.5) = 0, floor(2.2)=2, need 0,1,2 buckets
 // need this: <floor(min), floor(max)> + 1 buckets
 function createHistogramInInterval (values, bucketSize, bound1, bound2) {
-  console.log(`Creating histogram from ${values.length} values`)
-  console.log(`Creating histogram with bucketSize=${bucketSize}. B1=${bound1}, B2=${bound2}`)
   const minBucketSize = 0.000001
   if (Math.abs(bucketSize) < minBucketSize) {
     throw Error(`Bucket size must be bigger than ${minBucketSize}`)
@@ -26,7 +24,6 @@ function createHistogramInInterval (values, bucketSize, bound1, bound2) {
   const minBucketIdx = Math.floor(min / bucketSize)
   const maxBucketIdx = Math.floor(max / bucketSize)
   const bucketCnt = (maxBucketIdx - minBucketIdx) + 1
-  console.log(`Creating histogram, calculated number of buckets = ${bucketCnt}`)
   let histogram = []
   histogram.length = bucketCnt
   for (let i = 0; i < bucketCnt; i++) { // initialize buckets to 0

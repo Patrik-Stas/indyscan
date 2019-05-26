@@ -6,7 +6,6 @@ function initNetworksApi (router, networkManager) {
   })
 
   router.get('/networks/:id', async (req, res) => {
-    console.log(JSON.stringify(req.params))
     const id = req.params.id
     const network = networkManager.getNetworkDetails().find(n => n.id === id)
     if (network) {
