@@ -46,6 +46,11 @@ resource "null_resource" "indypool-provision" {
       "docker exec indypool cat /var/lib/indy/sandbox/pool_transactions_genesis > ~/genesis.txn"
     ]
   }
+}
+
+
+resource "null_resource" "provision-genesis-locally" {
+  depends_on = ["null_resource.indypool-provision"]
 
   provisioner "local-exec" {
     command = "rm ${path.module}/tmp/genesis.txn || :"
@@ -53,5 +58,9 @@ resource "null_resource" "indypool-provision" {
 
   provisioner "local-exec" {
     command = "scp -o \"StrictHostKeyChecking no\" -i ${var.private-key-path} ubuntu@${aws_instance.indypool.public_ip}:~/genesis.txn ${path.module}/tmp/genesis.txn"
+  }
+
+  provisioner "local-exec" {
+    command = "export PROVISION_POOL_DIR=\"$HOME\"/.indy_client/pool/${var.local-pool-name}; mkdir -p \"$PROVISION_POOL_DIR\" || :; cp ${path.module}/tmp/genesis.txn \"$PROVISION_POOL_DIR\"/${var.local-pool-name}.txn || :;"
   }
 }
