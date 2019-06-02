@@ -12,54 +12,19 @@ List and view transactions on Hyperledger Indy blockchain! Look at pretty graphs
 The daemon is periodically looking for new transactions. When new transaction is found, it's
 stored in MongoDB. The WebApp queries MongoDB and displays the data.
 
-# Which networks?
-The scanner and webapp can be easily configured to run against arbitrary Indy pool. As far as valid Indy pool 
-genesis files are supplied, it should work!
+# How to browse your Indy Network
+Easy, everything it dockerized. You can either:
+- Spin up both Indy pool and associated IndyScan in [cloud](./awstf) within few minutes.
+- Run IndyScan [locally](./on-localhost.md) against arbitrary Indy network. 
 
-# How difficult to run?
-Very easy! Everything is dockerized! 
-1. Build images locally
-`./build-all.sh`.
-2. Find names of your pools
-`ls -l ~/.indy_client/pool`
-In my case, I've already got some pools there and the command prints
-```
-drwxr-xr-x  4 prague  staff  128 Feb 13 14:55 PRIVATE_POOL_127.0.0.1
-drwxr-xr-x  4 prague  staff  128 Feb 13 22:06 SOVRIN_MAINNET
-drwxr-xr-x  4 prague  staff  128 Feb 13 21:54 SOVRIN_TESTNET
-```
-2. Specify names of pools you want to scan (pool names separated by commas) 
-`INDY_NETWORKS="SOVRIN_MAINNET,SOVRIN_TESTNET" docker-compose up`.
-3. Go to http://localhost:5050
-3. Profit.
+# DEV
+If you want to run Indyscan **for development and contribute code**, here's how to set up your native environment. So far only tested on Mac OS.
 
-# Scanning
-By default, the scanners fetches new transaction every 0.5sec. If none is available, it waits for few second or minutes. 
-I am already running instance fo this at https://indyscan.io so be nice and let's not spam the network too much!
-
-# Coming next
-- Transaction filter
-- Transaction description
-- Prettier graphs with overlays
-- Dynamic graphs: based on your timerange selection and transaction filter
-- ... and probably much more 
-
-# Dev
 ### Mongo
 Startup your mongoDb instance. You can use Docker, and in such a case I recommend mount its data directory somewhere on your host, so you don't loose previously scanned transactions if you kill your mongo container.
 `docker run --name local-indyscan-mongo -p 27017:27017 -v ~/indyscan/mainnet:/data/db -d mongo:3.4.18`
 
-## Daemon
-If you want to develop Webapp part of project, there's no point running Daemon locally. You'll be better of just starting it as docker container. 
-
-### Run Daemon in docker container
-```
-build-daemon.sh
-```
-TODO: Add instructions how to start container and make sure it can talk to mongo container.
-
-### Run Daemon locally
-This is only handy if you want to develop code of daemon and you want to get fast feedback loop for your modifications.
+### Indyscan daemon
 First ou need to make sure you've have compiled libindy for your system. Follow instructions on https://github.com/hyperledger/indy-sdk to do this.
 Startup transaction scanner daemon. In the `daemon` directory, run
 ```
@@ -91,23 +56,18 @@ npm install
 INDY_NETWORKS="SOVRIN_MAINNET,SOVRIN_TESTNET" npm run dev
 ```
 
-# Dev
-
-## Tips
-- If you are using WebStorm IDE, don't open the whole repository as project. If you do
-so, WebStorm won't find StandardJS and WebStorm built-in linting won't work! Open in IDE
-only the given project you want to work on (webapp/daemon/storage).
-
 
 ## Structure
 ```
-- indyscan-webapp     - nextjs web app
-- indyscan-daemon     - process looking for new transactions
-- indyscan-storage    - shared library for app and daemon
-- indyscan-client     - library for making api calls to indyscan
-- infra               - indyscan.io deployment files
-- libindy-docker      - dockerfile to build image with libindy
-- libindy-node-docker - dockerfile with node and libindy
+- awstf/               - terraform to create Indy-pool + Indyscan in AWS
+- indyscan-api/        - http client to call indyscan api
+- indyscan-webapp/     - nextjs web app
+- indyscan-daemon/     - process looking for a new transactions
+- indyscan-storage/    - shared library for app and daemon
+- indyscan-txtype/     - shared library contaning information about indy tx types
+- ubuntu-libindy/      - base docker image for daemon docker image
+- build-all.sh         - script to build all the code into docker images
+- docker-compose.yml   - for running indyscan locally in containers
 ```
 
 

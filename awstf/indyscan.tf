@@ -50,7 +50,7 @@ resource "aws_security_group_rule" "indyscan-webapp" {
 
 resource "aws_instance" "indyscan" {
   ami = "ami-08692d171e3cf02d6" // Ubuntu Server 16.04 LTS (HVM), SSD Volume Type
-  instance_type = "t2.medium"
+  instance_type = "t2.small"
   key_name = "${var.keypair-name}"
   availability_zone = "${var.availability-zone}"
 
@@ -123,4 +123,22 @@ resource "null_resource" "indyscan-provision-containers" {
       "docker-compose up -d"
     ]
   }
+}
+
+
+resource "null_resource" "print-info" {
+
+  triggers {
+    key = "${uuid()}"
+  }
+
+  depends_on = [
+    "null_resource.indyscan-provision-containers",
+    "null_resource.indyscan-provision-genesis-file",
+    "null_resource.provision-genesis-locally"]
+
+  provisioner "local-exec" {
+    command = "./print-info.sh ${var.local-pool-name} http://${aws_instance.indyscan.public_ip}:5050"
+  }
+
 }

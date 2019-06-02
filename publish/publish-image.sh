@@ -90,8 +90,8 @@ function help () {
 [[ "${__usage+x}" ]] || read -r -d '' __usage <<-'EOF' || true # exits non-zero when EOF encountered
   -s --src     [arg]      Source indyscan to be pushed. Default="latest"
   -t --target  [arg]      Source indyscan to be pushed. Default="latest"
+  -d --dry-run            Run dry-run.
   -v                      Enable verbose mode, print script as it is executed
-  -d --debug              Enables debug mode
   -h --help               This page
   -n --no-color           Disable color output
   -1 --one                Do just one thing
@@ -286,14 +286,6 @@ __b3bp_err_report() {
 ### Command-line argument switches (like -d for debugmode, -h for showing helppage)
 ##############################################################################
 
-# debug mode
-if [[ "${arg_d:?}" = "1" ]]; then
-  set -o xtrace
-  LOG_LEVEL="7"
-  # Enable error backtracing
-  trap '__b3bp_err_report "${FUNCNAME:-.}" ${LINENO}' ERR
-fi
-
 # verbose mode
 if [[ "${arg_v:?}" = "1" ]]; then
   set -o verbose
@@ -328,7 +320,9 @@ validateImageExists "$SOURCE_IMAGE_APP"
 validateImageExists "$SOURCE_IMAGE_DAEMON"
 
 TARGET_TAG="$arg_t"
-pushImageAs "$SOURCE_IMAGE_APP" "pstas/indyscan-webapp:$TARGET_TAG"
-pushImageAs "$SOURCE_IMAGE_APP" "pstas/indyscan-webapp:latest"
-pushImageAs "$SOURCE_IMAGE_DAEMON" "pstas/indyscan-daemon:$TARGET_TAG"
-pushImageAs "$SOURCE_IMAGE_DAEMON" "pstas/indyscan-daemon:latest"
+DRY_RUN="$arg_d"
+
+pushImageAs "$SOURCE_IMAGE_APP" "pstas/indyscan-webapp:$TARGET_TAG" "$DRY_RUN"
+pushImageAs "$SOURCE_IMAGE_APP" "pstas/indyscan-webapp:latest" "$DRY_RUN"
+pushImageAs "$SOURCE_IMAGE_DAEMON" "pstas/indyscan-daemon:$TARGET_TAG" "$DRY_RUN"
+pushImageAs "$SOURCE_IMAGE_DAEMON" "pstas/indyscan-daemon:latest" "$DRY_RUN"

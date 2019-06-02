@@ -1,7 +1,7 @@
 resource "aws_instance" "indypool" {
   ami = "ami-08692d171e3cf02d6"
   // Ubuntu Server 16.04 LTS (HVM), SSD Volume Type
-  instance_type = "t2.medium"
+  instance_type = "t2.small"
   key_name = "${var.keypair-name}"
   availability_zone = "${var.availability-zone}"
 

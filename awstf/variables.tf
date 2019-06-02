@@ -18,6 +18,6 @@ variable "private-key-path" {
 }
 
 variable "local-pool-name" {
-  default = "awsindyscan"
+  default = "scanned-awspool"
 }
 
