@@ -26,7 +26,7 @@ resource "aws_instance" "indypool" {
 }
 
 
-resource "null_resource" "indypool-provision-pool" {
+resource "null_resource" "indypool-provision" {
 
   connection {
     type = "ssh"
@@ -40,12 +40,18 @@ resource "null_resource" "indypool-provision-pool" {
       "set -e",
       "curl https://raw.githubusercontent.com/hyperledger/indy-sdk/v1.8.3/ci/indy-pool.dockerfile > indy-pool.dockerfile",
       "docker build --build-arg pool_ip=${aws_instance.indypool.public_ip} -f indy-pool.dockerfile -t indy_pool .",
+      "docker kill $(docker ps -q) || :",
+      "docker rm $(docker ps -a -q) || :",
       "docker run --network host -itd --name indypool indy_pool",
-      "docker exec indypool cat /var/lib/indy/sandbox/pool_transactions_genesis > genesis.txn"
+      "docker exec indypool cat /var/lib/indy/sandbox/pool_transactions_genesis > ~/genesis.txn"
     ]
   }
 
   provisioner "local-exec" {
-    command = "scp -o \"StrictHostKeyChecking no\" -i ${var.private-key-path} ${path.module}/tmp/genesis.txn ubuntu@${aws_instance.indypool.public_ip}:~/genesis.txn"
+    command = "rm ${path.module}/tmp/genesis.txn || :"
+  }
+
+  provisioner "local-exec" {
+    command = "scp -o \"StrictHostKeyChecking no\" -i ${var.private-key-path} ubuntu@${aws_instance.indypool.public_ip}:~/genesis.txn ${path.module}/tmp/genesis.txn"
   }
 }

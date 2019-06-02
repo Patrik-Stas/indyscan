@@ -84,6 +84,8 @@ resource "aws_instance" "indyscan" {
 }
 
 resource "null_resource" "indyscan-provision-genesis-file" {
+
+  depends_on = ["null_resource.indypool-provision"]
   connection {
     host = "${aws_instance.indyscan.public_ip}"
     type = "ssh"
@@ -117,7 +119,7 @@ resource "null_resource" "indyscan-provision-containers" {
       "cd \"$HOME/scripts-indyscan\"",
       "export INDY_NETWORKS=AWS_POOL",
       "export SCAN_MODE=FAST",
-      "docker-compose down || :",
+      "docker-compose down",
       "docker-compose up -d"
     ]
   }
