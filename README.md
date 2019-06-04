@@ -7,24 +7,43 @@ List and view transactions on Hyperledger Indy blockchain! Look at pretty graphs
 
 ![Indyscan](/docs/indyscan.png)
 
-
 # How it works
 The daemon is periodically looking for new transactions. When new transaction is found, it's
 stored in MongoDB. The WebApp queries MongoDB and displays the data.
 
-# How to browse your Indy Network
-Easy, everything it dockerized. You can either:
-- Spin up both Indy pool and associated IndyScan in [cloud](./awstf) within few minutes.
-- Run IndyScan [locally](./on-localhost.md) against arbitrary Indy network. 
+# Getting started
+Out of the box you have 2 main options:
+1. **Spin up Indy network with associated IndyScan explorer in [cloud](./awstf) within few minutes.**
+  
+  This can help you get start writing code as soon as possible. Almost zero effort setup. 
+
+
+2.  **Run IndyScan [locally](./on-localhost.md) against arbitrary Indy network.** 
+
+  This might be the most useful in case you want to browse Indy pool running on your local machine,
+  or your private Indy network deployed elsewhere. Browser for public Sovrin Indy networks is deployed [here](https://indyscan.io).  
 
 # DEV
-If you want to run Indyscan **for development and contribute code**, here's how to set up your native environment. So far only tested on Mac OS.
+Following is for those who want to contribute or tweak the code. Here's how to set up your native environment. So far only tested on Mac OS.
 
-### Mongo
+## Structure
+```
+- awstf/               - terraform to create Indy-pool + Indyscan in AWS
+- indyscan-api/        - http client to call indyscan api
+- indyscan-webapp/     - nextjs web app
+- indyscan-daemon/     - process looking for a new transactions
+- indyscan-storage/    - shared library for app and daemon
+- indyscan-txtype/     - shared library contaning information about indy tx types
+- ubuntu-libindy/      - base docker image for daemon docker image
+- build-all.sh         - script to build all the code into docker images
+- docker-compose.yml   - for running indyscan locally in containers
+```
+
+## Mongo
 Startup your mongoDb instance. You can use Docker, and in such a case I recommend mount its data directory somewhere on your host, so you don't loose previously scanned transactions if you kill your mongo container.
 `docker run --name local-indyscan-mongo -p 27017:27017 -v ~/indyscan/mainnet:/data/db -d mongo:3.4.18`
 
-### Indyscan daemon
+## Indyscan daemon
 First ou need to make sure you've have compiled libindy for your system. Follow instructions on https://github.com/hyperledger/indy-sdk to do this.
 Startup transaction scanner daemon. In the `daemon` directory, run
 ```
@@ -47,7 +66,7 @@ INDY_NETWORKS="SOVRIN_MAINNET,SOVRIN_TESTNET" npm run start
 If everything falls in place, daemon will open connections to pools listed in `INDY_NETWORKS` environment variable based on their configuration inside `~/.indy_client/pool` directory and start polling transactions from the 1st until the last.
 By default it fetches 2tx/per sec/per pool and slows down polling frequency once it discovers there's no more transactions left. Each transaction is saved to mongodb. 
 
-# Webapp
+## Webapp
 Webapp reads tx data from mongo and presents it. You have to pass in the `INDY_NETWORKS` the same way like in case of the `daemon` so it knows which pools it should display. The first pool name specified in `INDY_NETWORKS` will be displayed on homepage
 by default.
 ```
@@ -55,26 +74,3 @@ cd app;
 npm install
 INDY_NETWORKS="SOVRIN_MAINNET,SOVRIN_TESTNET" npm run dev
 ```
-
-
-## Structure
-```
-- awstf/               - terraform to create Indy-pool + Indyscan in AWS
-- indyscan-api/        - http client to call indyscan api
-- indyscan-webapp/     - nextjs web app
-- indyscan-daemon/     - process looking for a new transactions
-- indyscan-storage/    - shared library for app and daemon
-- indyscan-txtype/     - shared library contaning information about indy tx types
-- ubuntu-libindy/      - base docker image for daemon docker image
-- build-all.sh         - script to build all the code into docker images
-- docker-compose.yml   - for running indyscan locally in containers
-```
-
-
-
------------
-
-[## Released under GNU GPL V3 License](LICENSE.MD)
-
------------
-
