@@ -1,9 +1,13 @@
 resource "aws_instance" "indypool" {
   ami = "ami-08692d171e3cf02d6"
   // Ubuntu Server 16.04 LTS (HVM), SSD Volume Type
-  instance_type = "t2.small"
+  instance_type = "t2.micro"
   key_name = "${var.keypair-name}"
   availability_zone = "${var.availability-zone}"
+
+  tags {
+    Name = "indyscan-indypool"
+  }
 
   connection {
     type = "ssh"
@@ -18,9 +22,10 @@ resource "aws_instance" "indypool" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -x",
       "chmod +x $HOME/scripts-docker/*.sh",
       "$HOME/scripts-docker/setup.sh",
-      "rm -r \"$HOME/scripts-docker\"",
+      "rm -r \"$HOME/scripts-docker\""
     ]
   }
 }
