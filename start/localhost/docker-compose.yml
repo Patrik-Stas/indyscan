@@ -1,0 +1,53 @@
+version: '3.5'
+
+services:
+
+  indyscan-indypool:
+    image: localhost/indypool:indyscan
+    container_name: indyscan-indypool
+    ports:
+      - 9701-9708:9701-9708
+
+  mongo:
+    image: mongo:3.4.18
+    container_name: indyscan-mongo
+    networks:
+    - indynet
+    ports:
+    - 27999:27017
+
+  indyscan-daemon:
+    image: indyscan-daemon:latest
+    container_name: indyscan-daemon
+    volumes:
+      - ${HOME}/.indy_client/pool/${TARGET_POOL}:/home/indyscan/.indy_client/pool/${TARGET_POOL}
+    network_mode: host
+    depends_on:
+    - mongo
+    environment:
+    - URL_MONGO=mongodb://localhost:27999
+    - INDY_NETWORKS=${TARGET_POOL}
+    - SCAN_MODE=FAST
+
+  indyscan:
+    image: indyscan-webapp:latest
+    container_name: indyscan-webapp
+    networks:
+      - indynet
+    depends_on:
+      - mongo
+    environment:
+      - URL_MONGO=mongodb://mongo.indynet:27017
+      - INDY_NETWORKS=${TARGET_POOL}
+      - WEBAPP_PORT=5050
+    ports:
+      - '5050:5050'
+
+volumes:
+  indypooldir:
+    external: false
+
+networks:
+  indynet:
+    name: indynet
+    driver: bridge

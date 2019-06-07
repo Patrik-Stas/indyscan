@@ -2,10 +2,6 @@
 You can run indyscan locally against an arbitrary Indy network. Whether it's Indy pool running in docker
 on your localhost, your private Indy network running in cloud or public networks such as Sovrin.
 
-# Start Indy pool locally
-If you want to run IndyScan against local Indy pool, you should follow [instructions](https://github.com/hyperledger/indy-sdk#1-starting-the-test-pool-on-localhost) on how to
-startup one in docker.
-
 # Test network connectivity
 Before you try to run Indyscan, you should verify that you are able to connect to Indy network you wish to 
 browse in your Indyscan instance. Basically, all input information you need in order to connect to 

@@ -12,13 +12,18 @@ The daemon is periodically looking for new transactions. When new transaction is
 stored in MongoDB. The WebApp queries MongoDB and displays the data.
 
 # Getting started
-Out of the box you have 2 main options:
-1. **Spin up Indy network with associated IndyScan explorer in [cloud](./awstf) within few minutes.**
+You have 3 main options:
+
+1.  **IndyPool + IndyScan [locally](start/localhost)**
+
+  The easiest way to get started with Indy. Spins up Indy network locally with IndyScan explorer
+    already connected out of the box. 
+
+2. **IndyPool + IndyScan in [cloud](./start/aws)**
   
-  This can help you get start writing code as soon as possible. Almost zero effort setup. 
-
-
-2.  **Run IndyScan [locally](./on-localhost.md) against arbitrary Indy network.** 
+  Good for development or sharing private browseable ledger with your coworkers.
+  
+3.  **IndyScan [locally](start/generic) + any Indy Network**
 
   This might be the most useful in case you want to browse Indy pool running on your local machine,
   or your private Indy network deployed elsewhere. Browser for public Sovrin Indy networks is deployed [here](https://indyscan.io).  
@@ -28,7 +33,7 @@ Following is for those who want to contribute or tweak the code. Here's how to s
 
 ## Structure
 ```
-- awstf/               - terraform to create Indy-pool + Indyscan in AWS
+- start/               - automation to startup IndyScan (and optionally IndyPool)
 - indyscan-api/        - http client to call indyscan api
 - indyscan-webapp/     - nextjs web app
 - indyscan-daemon/     - process looking for a new transactions

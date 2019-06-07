@@ -57,7 +57,7 @@ resource "aws_instance" "indyscan" {
   vpc_security_group_ids = [
     "${aws_security_group.indyscan.id}",
   ]
-  
+
   tags {
     Name = "indyscan-services"
   }

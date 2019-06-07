@@ -43,8 +43,6 @@ services:
 volumes:
   indyscandb:
     external: false
-  indypools:
-    external: false
 
 networks:
   indynet:

@@ -13,7 +13,7 @@ services:
     - 27017:27017
 
   indyscan:
-    image: pstas/indyscan-webapp:latest
+    image: pstas/indyscan-webapp:v1.0.0
     container_name: indyscan-webapp
     networks:
     - indynet
@@ -27,7 +27,7 @@ services:
     - '5050:5050'
 
   indyscan-daemon:
-    image: pstas/indyscan-daemon:latest
+    image: pstas/indyscan-daemon:v1.0.0
     container_name: indyscan-daemon
     volumes:
       - ${HOME}/.indy_client/pool:/home/indyscan/.indy_client/pool
