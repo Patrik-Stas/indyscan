@@ -51,7 +51,6 @@ __base="$(basename "${__file}" .sh)"
 
 # Define the environment variables (and their defaults) that this script depends on
 LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
-NO_COLOR="${NO_COLOR:-}"    # true = disable color. otherwise autodetected
 
 
 ### Functions
@@ -88,12 +87,10 @@ function help () {
 
 # shellcheck disable=SC2015
 [[ "${__usage+x}" ]] || read -r -d '' __usage <<-'EOF' || true # exits non-zero when EOF encountered
-  -v --version     [arg]  Tag of IndySDK repo which is used to get doker pool definition file. Default="v1.8.3"
-  -a --address     [arg]  Address/hostname where on which is pool suppose to be available. Default="127.0.0.1"
-  -r --image-repo  [arg]  Repository of docker image to be built.
-  -t --image-tag   [arg]  Tag of the docker image to be built.
+  -v --version     [arg] Tag of IndySDK repo which is used to get doker pool definition file.
+  -a --address     [arg] Address/hostname where on which is pool suppose to be available.
+  -n --name        [arg] Name of the IndyPool.
   -h --help               This page
-  -n --no-color           Disable color output
 EOF
 
 # shellcheck disable=SC2015
@@ -286,11 +283,6 @@ __b3bp_err_report() {
 ##############################################################################
 
 
-# no color mode
-if [[ "${arg_n:?}" = "1" ]]; then
-  NO_COLOR="true"
-fi
-
 # help mode
 if [[ "${arg_h:?}" = "1" ]]; then
   # Help exists with code 1
@@ -306,17 +298,19 @@ fi
 
 POOL_ADDRESS="$arg_a"
 DOCKER_POOL_VERSION="$arg_v"
-IMAGE_REPOSITORY="$arg_r"
-IMAGE_TAG="$arg_t"
+POOL_NAME="$arg_n"
+TARGET_IMAGE_REPO="indypool-$DOCKER_POOL_VERSION"
+TARGET_IMAGE_TAG="$$POOL_ADDRESS"
 
-mkdir -p "$__dir/tmp"
-DOCKERFILE_PATH="$__dir/tmp"/indy-pool-"$DOCKER_POOL_VERSION".dockerfile
+"$__dir"/build-indypool.sh --address "$POOL_ADDRESS" --version "$DOCKER_POOL_VERSION" --image-repo "$TARGET_IMAGE_REPO" --image-tag "$TARGET_IMAGE_TAG"
 
-info "Going to build IndyPool docker image from dockerfile contained at IndySdk at version $DOCKER_POOL_VERSION"
-info "The pool will have genesis for address: $POOL_ADDRESS"
+#export TARGET_POOL="indyscan-pool"
+LOCAL_POOL_DIR="${HOME}"/.indy_client/pool/"${POOL_NAME}"
+mkdir -p "${LOCAL_POOL_DIR}"
+POOL_FILE="${LOCAL_POOL_DIR}/${POOL_NAME}".txn
+info "Generating genesis for indy-pool '$POOL_NAME' on localhost into file '$POOL_FILE'"
+docker run localhost/indypool:indyscan cat "/var/lib/indy/sandbox/pool_transactions_genesis" > "$POOL_FILE"
 
-curl https://raw.githubusercontent.com/hyperledger/indy-sdk/"$DOCKER_POOL_VERSION"/ci/indy-pool.dockerfile > "$DOCKERFILE_PATH"
-docker build --build-arg pool_ip="$POOL_ADDRESS" -f "$DOCKERFILE_PATH" -t "$IMAGE_REPOSITORY:$IMAGE_TAG" . > /dev/null
-
-info "The image built:"
-docker image ls | grep "$IMAGE_REPOSITORY" | grep "$IMAGE_TAG"
+INDYPOOL_IMAGE="$TARGET_IMAGE_REPO:$TARGET_IMAGE_TAG"
+echo "Going to turn up IndyPool container $POOL_NAME out of image $INDYPOOL_IMAGE."
+POOL_NAME="$POOL_NAME" INDYPOOL_IMAGE="$INDYPOOL_IMAGE" docker-compose -f "$__dir"/compose/indypool.yml up

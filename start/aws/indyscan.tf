@@ -1,62 +1,8 @@
-
-variable "indyscan_webapp_cidr" {
-  description = "Indyscan CIDR"
-  default = "0.0.0.0/0"
-}
-
-resource "aws_security_group" "indyscan" {
-  name = "indyscan-tf"
-  description = "Access to indyscan-webapp"
-}
-
-resource "aws_security_group_rule" "indyscan-outbound" {
-  type = "egress"
-  from_port = 0
-  to_port = 0
-  protocol = "-1"
-  cidr_blocks = [
-    "0.0.0.0/0"
-  ]
-  ipv6_cidr_blocks = [
-    "::/0"
-  ]
-  security_group_id = "${aws_security_group.indyscan.id}"
-}
-
-resource "aws_security_group_rule" "indyscan-ssh" {
-  type = "ingress"
-  from_port = 22
-  to_port = 22
-  protocol = "tcp"
-  cidr_blocks = [
-    "0.0.0.0/0"
-  ]
-  ipv6_cidr_blocks = [
-    "::/0"
-  ]
-  security_group_id = "${aws_security_group.indyscan.id}"
-}
-
-resource "aws_security_group_rule" "indyscan-webapp" {
-  type = "ingress"
-  from_port = 5050
-  to_port = 5050
-  protocol = "tcp"
-  cidr_blocks = [
-    "${var.indyscan_webapp_cidr}"
-  ]
-  security_group_id = "${aws_security_group.indyscan.id}"
-}
-
 resource "aws_instance" "indyscan" {
   ami = "ami-08692d171e3cf02d6" // Ubuntu Server 16.04 LTS (HVM), SSD Volume Type
   instance_type = "t2.micro"
   key_name = "${var.keypair-name}"
   availability_zone = "${var.availability-zone}"
-
-  vpc_security_group_ids = [
-    "${aws_security_group.indyscan.id}",
-  ]
 
   tags {
     Name = "indyscan-services"
@@ -87,6 +33,47 @@ resource "aws_instance" "indyscan" {
     ]
   }
 }
+
+
+resource "null_resource" "provision-indypool" {
+
+  connection {
+    type = "ssh"
+    host = "${aws_instance.indyscan.public_ip}"
+    user = "ubuntu"
+    private_key = "${file(var.private-key-path)}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "set -e",
+      "curl https://raw.githubusercontent.com/hyperledger/indy-sdk/v1.8.3/ci/indy-pool.dockerfile > indy-pool.dockerfile",
+      "docker build --build-arg pool_ip=${aws_instance.indyscan.public_ip} -f indy-pool.dockerfile -t indy_pool .",
+      "docker kill $(docker ps -q) || :",
+      "docker rm $(docker ps -a -q) || :",
+      "docker run --network host -itd --name indypool indy_pool",
+      "docker exec indypool cat /var/lib/indy/sandbox/pool_transactions_genesis > ~/genesis.txn"
+    ]
+  }
+}
+
+
+resource "null_resource" "provision-genesis-locally" {
+  depends_on = ["null_resource.indypool-provision"]
+
+  provisioner "local-exec" {
+    command = "rm ${path.module}/tmp/genesis.txn || :"
+  }
+
+  provisioner "local-exec" {
+    command = "scp -o \"StrictHostKeyChecking no\" -i ${var.private-key-path} ubuntu@${aws_instance.indyscan.public_ip}:~/genesis.txn ${path.module}/tmp/genesis.txn"
+  }
+
+  provisioner "local-exec" {
+    command = "export PROVISION_POOL_DIR=\"$HOME\"/.indy_client/pool/${var.local-pool-name}; mkdir -p \"$PROVISION_POOL_DIR\" || :; cp ${path.module}/tmp/genesis.txn \"$PROVISION_POOL_DIR\"/${var.local-pool-name}.txn || :;"
+  }
+}
+
 
 resource "null_resource" "indyscan-provision-genesis-file" {
 
@@ -129,6 +116,8 @@ resource "null_resource" "indyscan-provision-containers" {
     ]
   }
 }
+
+
 
 
 resource "null_resource" "print-info" {

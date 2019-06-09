@@ -20,13 +20,13 @@ services:
     image: indyscan-daemon:latest
     container_name: indyscan-daemon
     volumes:
-      - ${HOME}/.indy_client/pool/${TARGET_POOL}:/home/indyscan/.indy_client/pool/${TARGET_POOL}
+      - ${MOUNTED_POOL_DIR}:/home/indyscan/.indy_client
     network_mode: host
     depends_on:
     - mongo
     environment:
     - URL_MONGO=mongodb://localhost:27999
-    - INDY_NETWORKS=${TARGET_POOL}
+    - INDY_NETWORKS=${SCAN_POOL_NAME}
     - SCAN_MODE=FAST
 
   indyscan:
@@ -38,14 +38,10 @@ services:
       - mongo
     environment:
       - URL_MONGO=mongodb://mongo.indynet:27017
-      - INDY_NETWORKS=${TARGET_POOL}
+      - INDY_NETWORKS=${SCAN_POOL_NAME}
       - WEBAPP_PORT=5050
     ports:
       - '5050:5050'
-
-volumes:
-  indypooldir:
-    external: false
 
 networks:
   indynet:

@@ -88,6 +88,8 @@ function help () {
 
 # shellcheck disable=SC2015
 [[ "${__usage+x}" ]] || read -r -d '' __usage <<-'EOF' || true # exits non-zero when EOF encountered
+  -v --version     [arg]  Tag of IndySDK repo which is used to get doker pool definition file.
+  -a --address     [arg]  Address/hostname where on which is pool suppose to be available.
   -h --help               This page
   -n --no-color           Disable color output
 EOF
@@ -300,15 +302,17 @@ fi
 [[ "${LOG_LEVEL:-}" ]] || emergency "Cannot continue without LOG_LEVEL. "
 
 
+POOL_ADDRESS="$arg_a"
+DOCKER_POOL_VERSION="$arg_v"
 
-"$__dir"/build-indypool.sh --address "127.0.0.1" --version "v1.8.3" --image-repo "localhost/indypool" --image-tag "indyscan"
-echo "directory path = $__dir"
+"$__dir"/build-indypool.sh --address "$POOL_ADDRESS" --version "$DOCKER_POOL_VERSION" --image-repo "indypool-$DOCKER_POOL_VERSION" --image-tag "$POOL_ADDRESS"
 
-export TARGET_POOL="indyscan-indypool"
-POOL_DIR="${HOME}"/.indy_client/pool/"${TARGET_POOL}"
-mkdir -p "${POOL_DIR}"
-POOL_FILE="${POOL_DIR}/${TARGET_POOL}".txn
+#export TARGET_POOL="indyscan-pool"
+#SOURCE_POOL_DIR="${HOME}"/.indy_client/pool/"${TARGET_POOL}"
+#mkdir -p "${POOL_DIR}"
+#POOL_FILE="${POOL_DIR}/${TARGET_POOL}".txn
+info "Starting dockere image with indy pool"
 docker run localhost/indypool:indyscan cat "/var/lib/indy/sandbox/pool_transactions_genesis" > "$POOL_FILE"
 
-echo "Going to turn docker-compose up. POOL_DIR=$POOL_DIR   TARGET_POOL=$TARGET_POOL"
-docker-compose up
+echo "Going to turn docker-compose up. POOL_DIR=$POOL_DIR  TARGET_POOL=$TARGET_POOL"
+docker-compose up -d

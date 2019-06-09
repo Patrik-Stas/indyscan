@@ -1,0 +1,13 @@
+version: '3.5'
+
+services:
+  indyscan-indypool:
+    image: ${INDYPOOL_IMAGE}
+    container_name: ${POOL_NAME}
+    ports:
+      - 9701-9708:9701-9708
+
+networks:
+  indynet:
+    name: indynet
+    driver: bridge
