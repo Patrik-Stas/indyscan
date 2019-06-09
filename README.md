@@ -1,15 +1,17 @@
 # Indyscan
-##### Hyperledger Indy Transaction explorer
+### Hyperledger Indy Transaction explorer
 
---------
 
-List and view transactions on Hyperledger Indy blockchain! Look at pretty graphs! *Yayy~*
-
-![Indyscan](/docs/indyscan.png)
+![](indyscan-webapp/static/indyscan-logo.png)
 
 # How it works
 The daemon is periodically looking for new transactions. When new transaction is found, it's
-stored in MongoDB. The WebApp queries MongoDB and displays the data.
+stored in MongoDB. 
+
+The WebApp queries MongoDB and displays the data. You can browse public Sovrin blockchain at [https://indyscan.io](https://indyscan.io).
+
+![](docs/indyscan.png)
+
 
 # Getting started
 You have 3 main options:
