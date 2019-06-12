@@ -21,23 +21,9 @@ services:
     depends_on:
       - mongo
     environment:
-      - URL_MONGO=mongodb://localhost:27999
+      - URL_MONGO=${URL_MONGO}
       - INDY_NETWORKS=${INDY_NETWORKS}
       - SCAN_MODE=${SCAN_MODE}
-
-  indyscan:
-    image: ${WEBAPP_IMAGE}
-    container_name: indyscan-webapp
-    networks:
-      - indynet
-    depends_on:
-      - mongo
-    environment:
-      - URL_MONGO=mongodb://mongo.indynet:27017
-      - INDY_NETWORKS=${INDY_NETWORKS}
-      - WEBAPP_PORT=5050
-    ports:
-      - '5050:5050'
 
 volumes:
   indyscandb:

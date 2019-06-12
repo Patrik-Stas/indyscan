@@ -137,9 +137,9 @@ function help () {
 
 # shellcheck disable=SC2015
 [[ "${__usage+x}" ]] || read -r -d '' __usage <<-'EOF' || true # exits non-zero when EOF encountered
-  -i --indy-networks [arg]      List of pool names known to host, separated by commas.
-  -s --scan-speed    [arg]      Frequency of scanning ledger transactions. Default="FAST"
   -m --mode          [arg]      Valid values are \'download\',\'build\'.
+  -u --url-mongo     [arg]      Url of MongoDB data-source.
+  -i --indy-networks [arg]      List of scanned networks, must match names of MongoDB databases.
   -h --help                     This page
   -n --no-color                 Disable color output
 EOF
@@ -362,11 +362,9 @@ fi
 echo "$arg_m"
 if [[ "${arg_m}" == "download" ]]; then
     info "Indyscan images will be downloaded."
-    DAEMON_IMAGE="pstas/indyscan-daemon:v1.0.0"
     WEBAPP_IMAGE="pstas/indyscan-webapp:v1.0.0"
 elif [[ "${arg_m}" == "build"  ]]; then
     info "Indyscan images will be built now."
-    DAEMON_IMAGE="indyscan-daemon:latest"
     WEBAPP_IMAGE="indyscan-webapp:latest"
     "$__dir"/build.sh
 else
@@ -374,16 +372,10 @@ else
     exit 1
 fi
 
-
-INDY_NETWORKS="${arg_i}"
-SCAN_MODE="${arg_s}"
-
 set -x
-export MOUNTED_POOL_DIR="$HOME/.indy_client/pool"
-export DAEMON_IMAGE="$DAEMON_IMAGE"
 export WEBAPP_IMAGE="$WEBAPP_IMAGE"
-export SCAN_MODE="$SCAN_MODE"
-export INDY_NETWORKS="$INDY_NETWORKS"
+export URL_MONGO="${arg_u}"
+export INDY_NETWORKS="${arg_i}"
 set +x
 
 docker-compose -f "$__dir"/docker-compose.yml up -d

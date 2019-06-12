@@ -1,4 +1,3 @@
-#!/bin/bash
 #!/usr/bin/env bash
 # This file:
 #
@@ -138,12 +137,12 @@ function help () {
 
 # shellcheck disable=SC2015
 [[ "${__usage+x}" ]] || read -r -d '' __usage <<-'EOF' || true # exits non-zero when EOF encountered
-  -f --dockerfile     [arg]      Path to dockerfile to build.
-  -c --context        [arg]      Path to docker build context directory.
-  -n --name           [arg]      Name of image. <owner>/<name>:<tag>
-  -o --owner          [arg]      Owner of image. <owner>/<name>:<tag>
-  -t --tag            [arg]      Tag of image. <owner>/<name>:<tag>e. Default=latest.
-  -h --help                      This page
+  -m --mode          [arg]      Valid values are \'download\',\'build\'.
+  -u --url-mongo     [arg]      Url of MongoDB data-source.
+  -i --indy-networks [arg]      List of pool names known to host, separated by commas.
+  -s --scan-speed    [arg]      Frequency of scanning ledger transactions. Default="FAST"
+  -h --help                     This page
+  -n --no-color                 Disable color output
 EOF
 
 # shellcheck disable=SC2015
@@ -348,35 +347,38 @@ if [[ "${arg_h:?}" = "1" ]]; then
 fi
 
 
+
 ### Validation. Error out if the things required for your script are not present
 ##############################################################################
 
 [[ "${LOG_LEVEL:-}" ]] || emergency "Cannot continue without LOG_LEVEL. "
 
-if [[ -z "${arg_f}" ]]; then
-    error "You have to specify -f/--dockerfile argument value."
-    exit 1
-fi
-if [[ -z "${arg_c}" ]]; then
-    error "You have to specify -c/--context argument value."
-    exit 1
-fi
-if [[ -z "${arg_n}" ]]; then
-    error "You have to specify -n/--name argument value."
+
+if [[ -z "${arg_i}" ]]; then
+    error "You have to specify -i/--indy-networks argument value."
+    info "Found networks known to host ::: `echo \`ls $HOME/.indy_client/pool\``"
     exit 1
 fi
 
-DOCKERFILE="$arg_f"
-CONTEXT="$arg_c"
-IMAGE_NAME="$arg_n"
-IMAGE_TAG="$arg_t"
-IMAGE_OWNER="$arg_o"
-
-FINAL_TAG=""
-if [[ -z "IMAGE_OWNER" ]]; then
-    FINAL_TAG="$IMAGE_OWNER/$IMAGE_NAME:$IMAGE_TAG"
+echo "$arg_m"
+if [[ "${arg_m}" == "download" ]]; then
+    info "Indyscan images will be downloaded."
+    DAEMON_IMAGE="pstas/indyscan-daemon:v1.0.0"
+elif [[ "${arg_m}" == "build"  ]]; then
+    info "Indyscan images will be built now."
+    DAEMON_IMAGE="indyscan-daemon:latest"
+    "$__dir"/build.sh
 else
-    FINAL_TAG="$IMAGE_NAME:$IMAGE_TAG"
+    error "Valid values for -m/--mode is 'download' and 'build'"
+    exit 1
 fi
-echo -e "Will build dockerfile $DOCKERFILE given context $CONTEXT into image $FINAL_TAG".
-docker build --quiet -t "$FINAL_TAG" -f "$DOCKERFILE" "$CONTEXT"
+
+set -x
+export DAEMON_IMAGE="$DAEMON_IMAGE"
+export URL_MONGO="${arg_u}"
+export INDY_NETWORKS="${arg_i}"
+export MOUNTED_POOL_DIR="$HOME/.indy_client/pool"
+export SCAN_MODE="${arg_s}"
+set +x
+
+docker-compose -f "$__dir"/docker-compose.yml up -d
