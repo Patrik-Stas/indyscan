@@ -51,12 +51,62 @@ __base="$(basename "${__file}" .sh)"
 
 # Define the environment variables (and their defaults) that this script depends on
 LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
+NO_COLOR="${NO_COLOR:-}"    # true = disable color. otherwise autodetected
 
 
 ### Functions
 ##############################################################################
 
-source "$__dir/b3bp.sh"
+function __b3bp_log () {
+  local log_level="${1}"
+  shift
+
+  # shellcheck disable=SC2034
+  local color_debug="\x1b[35m"
+  # shellcheck disable=SC2034
+  local color_info="\x1b[32m"
+  # shellcheck disable=SC2034
+  local color_notice="\x1b[34m"
+  # shellcheck disable=SC2034
+  local color_warning="\x1b[33m"
+  # shellcheck disable=SC2034
+  local color_error="\x1b[31m"
+  # shellcheck disable=SC2034
+  local color_critical="\x1b[1;31m"
+  # shellcheck disable=SC2034
+  local color_alert="\x1b[1;33;41m"
+  # shellcheck disable=SC2034
+  local color_emergency="\x1b[1;4;5;33;41m"
+
+  local colorvar="color_${log_level}"
+
+  local color="${!colorvar:-${color_error}}"
+  local color_reset="\x1b[0m"
+
+  if [[ "${NO_COLOR:-}" = "true" ]] || ( [[ "${TERM:-}" != "xterm"* ]] && [[ "${TERM:-}" != "screen"* ]] ) || [[ ! -t 2 ]]; then
+    if [[ "${NO_COLOR:-}" != "false" ]]; then
+      # Don't use colors on pipes or non-recognized terminals
+      color=""; color_reset=""
+    fi
+  fi
+
+  # all remaining arguments are to be printed
+  local log_line=""
+
+  while IFS=$'\n' read -r log_line; do
+    echo -e "$(date -u +"%Y-%m-%d %H:%M:%S UTC") ${color}$(printf "[%9s]" "${log_level}")${color_reset} ${log_line}" 1>&2
+  done <<< "${@:-}"
+}
+
+function emergency () {                                __b3bp_log emergency "${@}"; exit 1; }
+function alert ()     { [[ "${LOG_LEVEL:-0}" -ge 1 ]] && __b3bp_log alert "${@}"; true; }
+function critical ()  { [[ "${LOG_LEVEL:-0}" -ge 2 ]] && __b3bp_log critical "${@}"; true; }
+function error ()     { [[ "${LOG_LEVEL:-0}" -ge 3 ]] && __b3bp_log error "${@}"; true; }
+function warning ()   { [[ "${LOG_LEVEL:-0}" -ge 4 ]] && __b3bp_log warning "${@}"; true; }
+function notice ()    { [[ "${LOG_LEVEL:-0}" -ge 5 ]] && __b3bp_log notice "${@}"; true; }
+function info ()      { [[ "${LOG_LEVEL:-0}" -ge 6 ]] && __b3bp_log info "${@}"; true; }
+function debug ()     { [[ "${LOG_LEVEL:-0}" -ge 7 ]] && __b3bp_log debug "${@}"; true; }
+
 
 function help () {
   echo "" 1>&2
@@ -87,10 +137,11 @@ function help () {
 
 # shellcheck disable=SC2015
 [[ "${__usage+x}" ]] || read -r -d '' __usage <<-'EOF' || true # exits non-zero when EOF encountered
-  -v --version     [arg] Tag of IndySDK repo which is used to get doker pool definition file.
-  -a --address     [arg] Address/hostname where on which is pool suppose to be available.
-  -n --name        [arg] Name of the IndyPool.
-  -h --help               This page
+  -i --indy-networks [arg]      List of pool names known to host, separated by commas.
+  -s --scan-speed    [arg]      Frequency of scanning ledger transactions. Default="FAST"
+  -m --mode          [arg]      Valid values are \'download\',\'build\'.
+  -h --help                     This page
+  -n --no-color                 Disable color output
 EOF
 
 # shellcheck disable=SC2015
@@ -283,11 +334,17 @@ __b3bp_err_report() {
 ##############################################################################
 
 
+# no color mode
+if [[ "${arg_n:?}" = "1" ]]; then
+  NO_COLOR="true"
+fi
+
 # help mode
 if [[ "${arg_h:?}" = "1" ]]; then
   # Help exists with code 1
   help "Help using ${0}"
 fi
+
 
 
 ### Validation. Error out if the things required for your script are not present
@@ -296,21 +353,37 @@ fi
 [[ "${LOG_LEVEL:-}" ]] || emergency "Cannot continue without LOG_LEVEL. "
 
 
-POOL_ADDRESS="$arg_a"
-DOCKER_POOL_VERSION="$arg_v"
-POOL_NAME="$arg_n"
-TARGET_IMAGE_REPO="indypool-$DOCKER_POOL_VERSION"
-TARGET_IMAGE_TAG="$$POOL_ADDRESS"
+if [[ -z "${arg_i}" ]]; then
+    error "You have to specify -i/--indy-networks argument value."
+    info "Found networks known to host ::: `echo \`ls $HOME/.indy_client/pool\``"
+    exit 1
+fi
 
-"$__dir"/build-indypool.sh --address "$POOL_ADDRESS" --version "$DOCKER_POOL_VERSION" --image-repo "$TARGET_IMAGE_REPO" --image-tag "$TARGET_IMAGE_TAG"
+echo "$arg_m"
+if [[ "${arg_m}" == "download" ]]; then
+    info "Indyscan images will be downloaded."
+    DAEMON_IMAGE="pstas/indyscan-daemon:v1.0.0"
+    WEBAPP_IMAGE="pstas/indyscan-webapp:v1.0.0"
+elif [[ "${arg_m}" == "build"  ]]; then
+    info "Indyscan images will be built now."
+    DAEMON_IMAGE="indyscan-daemon:latest"
+    WEBAPP_IMAGE="indyscan-webapp:latest"
+    "$__dir"/build.sh
+else
+    error "Valid values for -m/--mode is 'download' and 'build'"
+    exit 1
+fi
 
-#export TARGET_POOL="indyscan-pool"
-LOCAL_POOL_DIR="${HOME}"/.indy_client/pool/"${POOL_NAME}"
-mkdir -p "${LOCAL_POOL_DIR}"
-POOL_FILE="${LOCAL_POOL_DIR}/${POOL_NAME}".txn
-info "Generating genesis for indy-pool '$POOL_NAME' on localhost into file '$POOL_FILE'"
-docker run localhost/indypool:indyscan cat "/var/lib/indy/sandbox/pool_transactions_genesis" > "$POOL_FILE"
 
-INDYPOOL_IMAGE="$TARGET_IMAGE_REPO:$TARGET_IMAGE_TAG"
-echo "Going to turn up IndyPool container $POOL_NAME out of image $INDYPOOL_IMAGE."
-POOL_NAME="$POOL_NAME" INDYPOOL_IMAGE="$INDYPOOL_IMAGE" docker-compose -f "$__dir"/compose/indypool.yml up
+INDY_NETWORKS="${arg_i}"
+SCAN_MODE="${arg_s}"
+
+set -x
+export MOUNTED_POOL_DIR="$HOME/.indy_client/pool"
+export DAEMON_IMAGE="$DAEMON_IMAGE"
+export WEBAPP_IMAGE="$WEBAPP_IMAGE"
+export SCAN_MODE="$SCAN_MODE"
+export INDY_NETWORKS="$INDY_NETWORKS"
+set +x
+
+docker-compose -f "$__dir"/docker-compose.yml up -d

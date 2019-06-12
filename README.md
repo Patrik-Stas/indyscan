@@ -16,7 +16,7 @@ The WebApp queries MongoDB and displays the data. You can browse public Sovrin b
 # Getting started
 You have 3 main options:
 
-1.  **IndyPool + IndyScan [locally](start/localhost)**
+1.  **IndyPool + IndyScan [locally](start/indyscan)**
 
   The easiest way to get started with Indy. Spins up Indy network locally with IndyScan explorer
     already connected out of the box. 
@@ -25,7 +25,7 @@ You have 3 main options:
   
   Good for development or sharing private browseable ledger with your coworkers.
   
-3.  **IndyScan [locally](start/generic) + any Indy Network**
+3.  **IndyScan [locally](start/indyscan) + any Indy Network**
 
   This might be the most useful in case you want to browse Indy pool running on your local machine,
   or your private Indy network deployed elsewhere. Browser for public Sovrin Indy networks is deployed [here](https://indyscan.io).  
