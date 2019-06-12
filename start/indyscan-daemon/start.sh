@@ -141,6 +141,7 @@ function help () {
   -u --url-mongo     [arg]      Url of MongoDB data-source.
   -i --indy-networks [arg]      List of pool names known to host, separated by commas.
   -s --scan-speed    [arg]      Frequency of scanning ledger transactions. Default="FAST"
+  -d --detach                   Detach docker-compose.
   -h --help                     This page
   -n --no-color                 Disable color output
 EOF
@@ -381,4 +382,8 @@ export MOUNTED_POOL_DIR="$HOME/.indy_client/pool"
 export SCAN_MODE="${arg_s}"
 set +x
 
-docker-compose -f "$__dir"/docker-compose.yml up -d
+if [[ "${arg_d:?}" = "1" ]]; then
+    docker-compose -f "$__dir"/docker-compose.yml up -d
+else
+    docker-compose -f "$__dir"/docker-compose.yml up
+fi

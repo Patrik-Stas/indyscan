@@ -140,6 +140,7 @@ function help () {
   -m --mode          [arg]      Valid values are \'download\',\'build\'.
   -u --url-mongo     [arg]      Url of MongoDB data-source.
   -i --indy-networks [arg]      List of scanned networks, must match names of MongoDB databases.
+  -d --detach                   Detach docker-compose.
   -h --help                     This page
   -n --no-color                 Disable color output
 EOF
@@ -378,4 +379,8 @@ export URL_MONGO="${arg_u}"
 export INDY_NETWORKS="${arg_i}"
 set +x
 
-docker-compose -f "$__dir"/docker-compose.yml up -d
+if [[ "${arg_d:?}" = "1" ]]; then
+    docker-compose -f "$__dir"/docker-compose.yml up -d
+else
+    docker-compose -f "$__dir"/docker-compose.yml up
+fi
