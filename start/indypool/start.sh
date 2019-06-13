@@ -384,7 +384,7 @@ fi
 
 mkdir -p "${LOCAL_POOL_DIR}"
 info "Generating genesis for indy-pool '$POOL_NAME' on localhost into file '$POOL_FILE'"
-docker run localhost/indypool:indyscan cat "/var/lib/indy/sandbox/pool_transactions_genesis" > "$POOL_FILE"
+docker run "$INDYPOOL_IMAGE" cat "/var/lib/indy/sandbox/pool_transactions_genesis" > "$POOL_FILE"
 
 
 echo "Going to turn up IndyPool container $POOL_NAME out of image '$INDYPOOL_IMAGE'."
