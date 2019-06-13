@@ -1,5 +1,5 @@
-## IndyPool with IndyScan in cloud
-1. Setup your environemnt.
+ # IndyPool with IndyScan in cloud
+1. Setup your environment.
 - 0.1: Install terraform `0.11.8` https://releases.hashicorp.com/terraform/0.11.8/
 - 0.2: Setup your AWS API Access token in `~/.aws/credentials`
 - 0.3: Generate/download private part of AWS SSH Keypair. 

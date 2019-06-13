@@ -1,3 +1,4 @@
+#!/bin/bash
 #!/usr/bin/env bash
 # This file:
 #
@@ -57,7 +58,56 @@ NO_COLOR="${NO_COLOR:-}"    # true = disable color. otherwise autodetected
 ### Functions
 ##############################################################################
 
-source "$__dir/b3bp.sh"
+function __b3bp_log () {
+  local log_level="${1}"
+  shift
+
+  # shellcheck disable=SC2034
+  local color_debug="\x1b[35m"
+  # shellcheck disable=SC2034
+  local color_info="\x1b[32m"
+  # shellcheck disable=SC2034
+  local color_notice="\x1b[34m"
+  # shellcheck disable=SC2034
+  local color_warning="\x1b[33m"
+  # shellcheck disable=SC2034
+  local color_error="\x1b[31m"
+  # shellcheck disable=SC2034
+  local color_critical="\x1b[1;31m"
+  # shellcheck disable=SC2034
+  local color_alert="\x1b[1;33;41m"
+  # shellcheck disable=SC2034
+  local color_emergency="\x1b[1;4;5;33;41m"
+
+  local colorvar="color_${log_level}"
+
+  local color="${!colorvar:-${color_error}}"
+  local color_reset="\x1b[0m"
+
+  if [[ "${NO_COLOR:-}" = "true" ]] || ( [[ "${TERM:-}" != "xterm"* ]] && [[ "${TERM:-}" != "screen"* ]] ) || [[ ! -t 2 ]]; then
+    if [[ "${NO_COLOR:-}" != "false" ]]; then
+      # Don't use colors on pipes or non-recognized terminals
+      color=""; color_reset=""
+    fi
+  fi
+
+  # all remaining arguments are to be printed
+  local log_line=""
+
+  while IFS=$'\n' read -r log_line; do
+    echo -e "$(date -u +"%Y-%m-%d %H:%M:%S UTC") ${color}$(printf "[%9s]" "${log_level}")${color_reset} ${log_line}" 1>&2
+  done <<< "${@:-}"
+}
+
+function emergency () {                                __b3bp_log emergency "${@}"; exit 1; }
+function alert ()     { [[ "${LOG_LEVEL:-0}" -ge 1 ]] && __b3bp_log alert "${@}"; true; }
+function critical ()  { [[ "${LOG_LEVEL:-0}" -ge 2 ]] && __b3bp_log critical "${@}"; true; }
+function error ()     { [[ "${LOG_LEVEL:-0}" -ge 3 ]] && __b3bp_log error "${@}"; true; }
+function warning ()   { [[ "${LOG_LEVEL:-0}" -ge 4 ]] && __b3bp_log warning "${@}"; true; }
+function notice ()    { [[ "${LOG_LEVEL:-0}" -ge 5 ]] && __b3bp_log notice "${@}"; true; }
+function info ()      { [[ "${LOG_LEVEL:-0}" -ge 6 ]] && __b3bp_log info "${@}"; true; }
+function debug ()     { [[ "${LOG_LEVEL:-0}" -ge 7 ]] && __b3bp_log debug "${@}"; true; }
+
 
 function help () {
   echo "" 1>&2
@@ -88,12 +138,12 @@ function help () {
 
 # shellcheck disable=SC2015
 [[ "${__usage+x}" ]] || read -r -d '' __usage <<-'EOF' || true # exits non-zero when EOF encountered
-  -v --version     [arg]  Tag of IndySDK repo which is used to get doker pool definition file. Default="v1.8.3"
-  -a --address     [arg]  Address/hostname where on which is pool suppose to be available. Default="127.0.0.1"
-  -r --image-repo  [arg]  Repository of docker image to be built.
-  -t --image-tag   [arg]  Tag of the docker image to be built.
-  -h --help               This page
-  -n --no-color           Disable color output
+  -f --dockerfile     [arg]      Path to dockerfile to build.
+  -c --context        [arg]      Path to docker build context directory.
+  -n --name           [arg]      Name of image. <owner>/<name>:<tag>
+  -o --owner          [arg]      Owner of image. <owner>/<name>:<tag>
+  -t --tag            [arg]      Tag of image. <owner>/<name>:<tag>e. Default=latest.
+  -h --help                      This page
 EOF
 
 # shellcheck disable=SC2015
@@ -303,23 +353,30 @@ fi
 
 [[ "${LOG_LEVEL:-}" ]] || emergency "Cannot continue without LOG_LEVEL. "
 
+if [[ -z "${arg_f}" ]]; then
+    error "You have to specify -f/--dockerfile argument value."
+    exit 1
+fi
+if [[ -z "${arg_c}" ]]; then
+    error "You have to specify -c/--context argument value."
+    exit 1
+fi
+if [[ -z "${arg_n}" ]]; then
+    error "You have to specify -n/--name argument value."
+    exit 1
+fi
 
-POOL_ADDRESS="$arg_a"
-DOCKER_POOL_VERSION="$arg_v"
-IMAGE_REPOSITORY="$arg_r"
+DOCKERFILE="$arg_f"
+CONTEXT="$arg_c"
+IMAGE_NAME="$arg_n"
 IMAGE_TAG="$arg_t"
+IMAGE_OWNER="$arg_o"
 
-mkdir -p "$__dir/tmp"
-DOCKERFILE_PATH="$__dir/tmp"/indy-pool-"$DOCKER_POOL_VERSION".dockerfile
-#IMAGE_TAG=indyscan_indy_pool-"$POOL_ADDRESS":"$DOCKER_POOL_VERSION"
-
-info "Pool address: $POOL_ADDRESS"
-info "Indypool dockerfile version: $DOCKER_POOL_VERSION"
-info "Will create download indypool dockerfile to: $DOCKERFILE_PATH"
-info "Will create image tagged as: $IMAGE_TAG"
-
-curl https://raw.githubusercontent.com/hyperledger/indy-sdk/"$DOCKER_POOL_VERSION"/ci/indy-pool.dockerfile > "$DOCKERFILE_PATH"
-docker build --build-arg pool_ip="$POOL_ADDRESS" -f "$DOCKERFILE_PATH" -t "$IMAGE_REPOSITORY:$IMAGE_TAG" .
-
-info "Image built:"
-docker image ls | grep "$IMAGE_REPOSITORY" | grep "$IMAGE_TAG"
+FINAL_TAG=""
+if [[ -z "IMAGE_OWNER" ]]; then
+    FINAL_TAG="$IMAGE_OWNER/$IMAGE_NAME:$IMAGE_TAG"
+else
+    FINAL_TAG="$IMAGE_NAME:$IMAGE_TAG"
+fi
+echo -e "Will build dockerfile $DOCKERFILE given context $CONTEXT into image $FINAL_TAG".
+docker build --quiet -t "$FINAL_TAG" -f "$DOCKERFILE" "$CONTEXT"

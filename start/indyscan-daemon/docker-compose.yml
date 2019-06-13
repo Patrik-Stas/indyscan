@@ -1,0 +1,35 @@
+version: '3.5'
+
+services:
+
+  mongo:
+    image: mongo:3.4.18
+    container_name: indyscan-mongo
+    networks:
+      - indynet
+    volumes:
+      -  indyscandb:/data/db
+    ports:
+      - 27999:27017
+
+  indyscan-daemon:
+    image: ${DAEMON_IMAGE}
+    container_name: indyscan-daemon
+    volumes:
+      - ${MOUNTED_POOL_DIR}:/home/indyscan/.indy_client/pool
+    network_mode: host
+    depends_on:
+      - mongo
+    environment:
+      - URL_MONGO=${URL_MONGO}
+      - INDY_NETWORKS=${INDY_NETWORKS}
+      - SCAN_MODE=${SCAN_MODE}
+
+volumes:
+  indyscandb:
+    external: false
+
+networks:
+  indynet:
+    name: indynet
+    driver: bridge
