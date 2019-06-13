@@ -14,10 +14,6 @@ services:
     ports:
       - '5050:5050'
 
-volumes:
-  indyscandb:
-    external: false
-
 networks:
   indynet:
     name: indynet
