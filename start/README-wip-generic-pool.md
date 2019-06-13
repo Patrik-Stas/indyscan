@@ -1,3 +1,5 @@
+TODO: Streamline description and process for arbitrary indy pool.
+
 # Run indyscan locally
 You can run indyscan locally against an arbitrary Indy network. Whether it's Indy pool running in docker
 on your localhost, your private Indy network running in cloud or public networks such as Sovrin.
