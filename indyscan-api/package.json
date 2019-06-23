@@ -1,7 +1,9 @@
 {
   "name": "indyscan-api",
   "version": "1.0.0",
-  "description": "",
+  "author": "Patrik Staš",
+  "license": "ISC",
+  "description": "IndyScan HTTP API client.",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,8 +12,6 @@
     "istx": "node ./script/istx.js --url 'http://localhost:3000' --network SOVRIN_TESTNET -l domain -s 5",
     "isseries": "node ./script/isseries.js --url 'http://localhost:3000' --network SOVRIN_TESTNET -l domain"
   },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "command-line-args": "^5.1.1",
     "command-line-usage": "^5.0.5",

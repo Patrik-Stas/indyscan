@@ -15,9 +15,9 @@ WORKDIR /home/indyscan/indyscan-daemon
 RUN npm install
 
 
-LABEL org.label-schema.schema-version="1.0"
+LABEL org.label-schema.schema-version="1.1.0"
 LABEL org.label-schema.name="indyscan-daemon"
-LABEL org.label-schema.description="NodeJS app to look foro new transactions and saving them to MongoDB"
+LABEL org.label-schema.description="Application scanning Hyperledger Indy blockchain for new transactions and further processing."
 LABEL org.label-schema.vcs-url="https://github.com/Patrik-Stas/indyscan"
 
 ENV LD_LIBRARY_PATH "/libindy/debug/"

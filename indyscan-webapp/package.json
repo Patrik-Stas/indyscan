@@ -1,7 +1,7 @@
 {
-  "name": "nexttutorial",
+  "name": "indyscan-webapp",
   "version": "1.0.0",
-  "description": "",
+  "description": "Web application to browse Hyperledger Indy blockchain transactions.",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon server/index.js",
@@ -10,7 +10,7 @@
     "start": "NODE_ENV=production node server/index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Patrik Staš",
   "license": "ISC",
   "dependencies": {
     "@zeit/next-sass": "^1.0.1",

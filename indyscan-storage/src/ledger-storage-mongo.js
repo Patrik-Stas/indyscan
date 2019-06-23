@@ -60,8 +60,6 @@ async function createLedgerStore (mongoDatabase, collectionName) {
   }
 
   async function addTx (tx) {
-    console.log(`Inserting transaction to ${collectionName} collection!`)
-    console.log(JSON.stringify(tx))
     const txWithNoDots = removeDotsFromKeys(tx)
     await collection.insertOne(txWithNoDots, async (err, res) => {
       if (err) {
