@@ -1,13 +1,14 @@
-const txTypes = require('./tx-types')
 const assert = require('assert')
 
 const { createLedgerStore } = require('./ledger-storage-mongo')
 const { MongoClient } = require('mongodb')
 const util = require('util')
 
-const collectionNameDomain = 'txs-domain'
-const collectionNamePool = 'txs-pool'
-const collectionNameConfig = 'txs-config'
+const subledgers = {
+  domain: { name: 'domain', collection: 'txs-domain' },
+  pool: { name: 'pool', collection: 'txs-pool' },
+  config: { name: 'config', collection: 'txs-config}' }
+}
 
 const asyncMongoConnect = util.promisify(MongoClient.connect)
 
@@ -26,12 +27,12 @@ async function createLedgerStorageManager (mongoUri) {
     let mongoDatabase = await mongoHost.db(networkName)
     networks[networkName] = {}
     try {
-      const domain = await createLedgerStore(mongoDatabase, collectionNameDomain)
-      const pool = await createLedgerStore(mongoDatabase, collectionNamePool)
-      const config = await createLedgerStore(mongoDatabase, collectionNameConfig)
-      networks[networkName][txTypes.domain] = domain
-      networks[networkName][txTypes.pool] = pool
-      networks[networkName][txTypes.config] = config
+      const domain = await createLedgerStore(mongoDatabase, subledgers.domain.collection)
+      const pool = await createLedgerStore(mongoDatabase, subledgers.pool.collection)
+      const config = await createLedgerStore(mongoDatabase, subledgers.config.collection)
+      networks[networkName][subledgers.domain.name] = domain
+      networks[networkName][subledgers.pool.name] = pool
+      networks[networkName][subledgers.config.name] = config
     } catch (error) {
       console.error(error)
       console.error(error.stack)
@@ -58,3 +59,4 @@ async function createLedgerStorageManager (mongoUri) {
 }
 
 module.exports.createLedgerStorageManager = createLedgerStorageManager
+module.exports.subledgers = subledgers
