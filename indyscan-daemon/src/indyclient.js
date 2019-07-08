@@ -1,10 +1,10 @@
 const indy = require('indy-sdk')
-const logger = require('../logging/logger-main')
+const logger = require('./logging/logger-main')
 
 const LEDGER_NAME_TO_CODE = {
-  'POOL': '0',
-  'DOMAIN': '1',
-  'CONFIG': '2'
+  'pool': '0',
+  'domain': '1',
+  'config': '2'
 }
 
 module.exports = async function createClient (poolName, walletName) {
@@ -33,7 +33,7 @@ module.exports = async function createClient (poolName, walletName) {
   logger.debug(`Created did/verkey ${JSON.stringify(res)}`)
 
   async function getTx (subledgerName, txid) {
-    const subledgerCode = LEDGER_NAME_TO_CODE[subledgerName]
+    const subledgerCode = LEDGER_NAME_TO_CODE[subledgerName.toLowerCase()]
     const getTx = await indy.buildGetTxnRequest(did, subledgerCode, txid)
     const tx = await indy.submitRequest(poolHandle, getTx)
     if (tx.op === 'REPLY') {

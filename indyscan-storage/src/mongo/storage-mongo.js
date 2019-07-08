@@ -1,17 +1,13 @@
 const { txsQuery } = require('./query-builder')
-
 const keyTransform = require('./transform-keys')
+const { projectAvailableTimestamps } = require('../projections')
 const dotTransformer = keyTransform.createReplacementFunction('.', 'U+FF0E')
 const removeDotsFromKeys = keyTransform.recursiveJSONKeyTransform(dotTransformer)
 
-const projectAvailableTimestamps = (txs) => {
-  return txs.filter(t => !!t.txnMetadata && !!t.txnMetadata.txnTime).map(t => t.txnMetadata.txnTime)
-}
-
-async function createLedgerStore (mongoDatabase, collectionName) {
-  let collection = await mongoDatabase.collection(collectionName)
-  await collection.createIndex({ 'txnMetadata.seqNo': 1 })
-
+/*
+ Implementation of IndyScan storage for particular network and ledger
+ */
+async function createStorageMongo (collection) {
   async function getTxCount (filter = {}) {
     if (Object.keys(filter) === 0) {
       return collection.estimatedDocumentCount()
@@ -48,12 +44,13 @@ async function createLedgerStore (mongoDatabase, collectionName) {
   Returns array of (by default all) transactions.
   By default are transactions sorted from latest (index 0) to the oldest (last index of result array)
    */
-  async function getTxs (skip = null, limit = null, filter = null, sort = { 'txnMetadata.seqNo': -1 }, projection = null, transform = null) {
+  async function getTxs (skip = null, limit = null, filter = null, sort = null, projection = null, transform = null) {
+    sort = (sort) || { 'txnMetadata.seqNo': -1 }
     const q = txsQuery().setLimit(limit).setSkip(skip).setFilter(filter).setSort(sort).setProjection(projection).setTransform(transform)
     return getTxsByQuery(q)
   }
 
-  async function findMaxTxIdInDb () {
+  async function findMaxSeqNo () {
     const qres = await collection.aggregate([{ $group: { _id: null, maxTx: { $max: '$txnMetadata.seqNo' } } }]).toArray()
     const { maxTx } = (qres.length > 0) ? qres[0] : { maxTx: 0 }
     return maxTx
@@ -61,20 +58,20 @@ async function createLedgerStore (mongoDatabase, collectionName) {
 
   async function addTx (tx) {
     const txWithNoDots = removeDotsFromKeys(tx)
-    await collection.insertOne(txWithNoDots, async (err, res) => {
+    return collection.insertOne(txWithNoDots, async (err, res) => {
       if (err) {
         console.log('Failed to save transaction. Probably because keys contains character not supported by mongodb. Full err:')
         console.log(err)
         console.log(err.stack)
         console.log(`Original transaction: ${JSON.stringify(tx)}`)
         console.log(`Transformed transaction we tried to insert: ${JSON.stringify(txWithNoDots)}`)
-        throw Error(`Failed to insert tx in db.`)
+        throw err
       }
     })
   }
 
   return {
-    findMaxTxIdInDb,
+    findMaxSeqNo,
     addTx,
     getOldestTimestamp,
     getTxsTimestamps,
@@ -85,4 +82,4 @@ async function createLedgerStore (mongoDatabase, collectionName) {
   }
 }
 
-module.exports.createLedgerStore = createLedgerStore
+module.exports.createStorageMongo = createStorageMongo

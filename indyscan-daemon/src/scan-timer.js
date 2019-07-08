@@ -1,30 +1,38 @@
-import { jitterize } from './util'
+const { jitterize } = require('./util')
 const sleep = require('sleep-promise')
 
-export async function createTimerLock (config) {
-  const { frequencySec, unavailableExtraTimeout, jitterRatio } = config
+function createTimerLock () {
+  let unlockUtime = Math.floor(new Date() / 1)
 
-  let unlockUtime = Date.now()
-
-  function timeoutBlock () {
-    unlockUtime += jitterize(frequencySec, jitterRatio)
+  function getMsTillUnlock () {
+    return unlockUtime - Math.floor(new Date() / 1)
   }
 
-  function frequencyBlock () {
-    unlockUtime += jitterize(unavailableExtraTimeout, jitterRatio)
+  function isBlocked () {
+    return getMsTillUnlock() > 0
+  }
+
+  function addBlockTime (blockTimeMs, jitterRatio = 0) {
+    const addedBlockTime = jitterize(blockTimeMs, jitterRatio)
+    if (isBlocked()) {
+      unlockUtime += addedBlockTime
+    } else {
+      unlockUtime = Math.floor(new Date() / 1) + addedBlockTime
+    }
   }
 
   async function waitTillUnlock () {
-    let msTillUnlock = unlockUtime - Date.now()
+    let msTillUnlock = getMsTillUnlock()
     while (msTillUnlock > 0) {
       await sleep(msTillUnlock)
-      msTillUnlock = unlockUtime - Date.now()
+      msTillUnlock = getMsTillUnlock()
     }
   }
 
   return {
-    timeoutBlock,
-    frequencyBlock,
+    addBlockTime,
     waitTillUnlock
   }
 }
+
+module.exports.createTimerLock = createTimerLock

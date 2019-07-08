@@ -1,7 +1,7 @@
 const createIndyClient = require('../indyclient')
 const logger = require('../logging/logger-main')
 
-export async function createTxResolverLedger (networks) {
+async function createTxResolverLedger (networks) {
   logger.info(`Creating ledger tx-resolver for following networks '${JSON.stringify(networks)}'.`)
 
   let clients = {}
@@ -22,3 +22,5 @@ export async function createTxResolverLedger (networks) {
 
   return txResolve
 }
+
+module.exports.createTxResolverLedger = createTxResolverLedger

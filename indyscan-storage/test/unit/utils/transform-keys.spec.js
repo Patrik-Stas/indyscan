@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const keyTransform = require('../../src/transform-keys')
+const keyTransform = require('../../src/mongo/transform-keys')
 
 it('it should replace dots in object keys', async () => {
   const obj = { 'test.dot': 123 }

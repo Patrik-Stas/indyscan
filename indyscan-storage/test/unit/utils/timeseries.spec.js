@@ -1,6 +1,6 @@
 /* eslint-env jest */
 import 'jest'
-import { createHistogram, createHistogramInRange } from '../../src/histogram'
+import { createHistogram, createHistogramInRange } from '../../src/utils/histogram'
 import 'assert'
 import { timestamps } from './../resource/data-timestamps'
 

@@ -1,7 +1,8 @@
-import { createConsumerMongo } from './consumers/consumer-mongo'
+import { createConsumerMongo } from './consumers/consumer-sequential'
 import { createTxEmitter } from './tx-emitter'
 import { createTxResolverLedger } from './resolvers/ledger-resolver'
 import { createTimerLock } from './scan-timer'
+import { createLedgerStore, subledgers } from 'indyscan-storage'
 const util = require('util')
 
 const storage = require('indyscan-storage')
@@ -16,12 +17,12 @@ const INDY_NETWORKS = process.env.INDY_NETWORKS
 const networks = INDY_NETWORKS.split(',')
 
 const scanModes = {
-  'SLOW': { frequencySec: 30, unavailableExtraTimeout: 30, jitterRatio: 0.1 },
-  'MEDIUM': { frequencySec: 10, unavailableExtraTimeout: 20, jitterRatio: 0.1 },
-  'INDYSCAN.IO': { frequencySec: 3, unavailableExtraTimeout: 5, jitterRatio: 0.1 },
-  'FAST': { frequencySec: 1, unavailableExtraTimeout: 2, jitterRatio: 0.1 },
-  'TURBO': { frequencySec: 0.3, unavailableExtraTimeout: 1, jitterRatio: 0.1 },
-  'FRENZY': { frequencySec: 0.3, unavailableExtraTimeout: 0.3, jitterRatio: 0.1 },
+  'SLOW': { periodMs: 30, unavailableTimeoutMs: 30, jitterRatio: 0.1 },
+  'MEDIUM': { periodMs: 10, unavailableTimeoutMs: 20, jitterRatio: 0.1 },
+  'INDYSCAN.IO': { periodMs: 3, unavailableTimeoutMs: 5, jitterRatio: 0.1 },
+  'FAST': { periodMs: 1, unavailableTimeoutMs: 2, jitterRatio: 0.1 },
+  'TURBO': { periodMs: 0.3, unavailableTimeoutMs: 1, jitterRatio: 0.1 },
+  'FRENZY': { periodMs: 0.3, unavailableTimeoutMs: 0.3, jitterRatio: 0.1 }
 }
 
 const SCAN_MODE = process.env.SCAN_MODE || 'MEDIUM'
@@ -46,10 +47,10 @@ async function scanNetwork (resolveTx, networkName, mongoHost) {
     const txEmitter = await createTxEmitter(networkName, resolveTx)
 
     let mongoDb = await mongoHost.db(networkName)
-    const timerLock = createTimerLock(scanModes[SCAN_MODE])
-    await createConsumerMongo(txEmitter, mongoDb, networkName, storage.subledgerCollections.domain, timerLock)
-    await createConsumerMongo(txEmitter, mongoDb, networkName, storage.subledgerCollections.pool, timerLock)
-    await createConsumerMongo(txEmitter, mongoDb, networkName, storage.subledgerCollections.config, timerLock)
+    const indyscanMongoClient = await createLedgerStore(mongoDb, subledgers[subledger].collection)
+    await createConsumerMongo(txEmitter, indyscanMongoClient, networkName, storage.subledgerCollections.domain, timerLock)
+    await createConsumerMongo(txEmitter, indyscanMongoClient, networkName, storage.subledgerCollections.pool, timerLock)
+    await createConsumerMongo(txEmitter, indyscanMongoClient, networkName, storage.subledgerCollections.config, timerLock)
   } catch (err) {
     logger.error(`Something when wrong creating indy client for network '${networkName}'. Details:`)
     logger.error(err)
