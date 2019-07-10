@@ -1,5 +1,6 @@
 const { jitterize } = require('./util')
 const sleep = require('sleep-promise')
+const logger = require('./logging/logger-main')
 
 function createTimerLock () {
   let unlockUtime = Math.floor(new Date() / 1)
@@ -24,12 +25,14 @@ function createTimerLock () {
   async function waitTillUnlock () {
     let msTillUnlock = getMsTillUnlock()
     while (msTillUnlock > 0) {
+      logger.info(`Timer lock blocking for '${msTillUnlock}' ms.`)
       await sleep(msTillUnlock)
       msTillUnlock = getMsTillUnlock()
     }
   }
 
   return {
+    getMsTillUnlock,
     addBlockTime,
     waitTillUnlock
   }

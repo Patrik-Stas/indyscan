@@ -3,7 +3,7 @@ const { createTimerLock } = require('../scan-timer')
 const logger = require('../logging/logger-main')
 
 function createConsumerSequential (txEmitter, indyscanStorage, network, subledger, timerConfig, name = null) {
-  const consumerName = name || `consumer-${network}-${subledger}`
+  const consumerName = name || `${network}-${subledger}`
   const { periodMs, unavailableTimeoutMs, jitterRatio } = timerConfig
 
   let processedTxCount = 0
@@ -54,17 +54,22 @@ function createConsumerSequential (txEmitter, indyscanStorage, network, subledge
   async function consumptionCycle () {
     while (true) {
       try {
+        logger.info(`Consumer [${consumerName}]: Starting new consumption cycle '${requestCycleCount}'.`)
         if (!enabled) {
+          logger.info(`Consumer [${consumerName}]: Disabled, breaking consumption cycle.`)
           break
         }
+        logger.info(`Consumer [${consumerName}]: Waiting at the start of cycle, roughly '${timerLock.getMsTillUnlock()}' miliseconds.`)
         await timerLock.waitTillUnlock()
         timerLock.addBlockTime(periodMs, jitterRatio)
         const seqNo = await getDesiredSeqNo()
+        logger.info(`Consumer [${consumerName}]: Going to request tx network='${network}' subledger}='${subledger}' seqNo='${seqNo}' as '${consumerName}'.`)
         txEmitter.submitTxRequest(network, subledger, seqNo, consumerName)
+        logger.info(`Consumer [${consumerName}]: Finished cycle '${requestCycleCount}'.`)
         requestCycleCount++
       } catch (error) {
         cycleExceptionCount++
-        logger.error(`Consumer [${consumerName}] threw Error out to the consumer cycle:`)
+        logger.error(`Consumer [${consumerName}] threw Error out to the consumer cycle '${requestCycleCount}'.`)
         logger.error(error.stack)
         timerLock.addBlockTime(unavailableTimeoutMs, jitterRatio)
       }

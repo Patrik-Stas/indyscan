@@ -20,11 +20,11 @@
   },
   "dependencies": {
     "@types/jest": "^24.0.11",
-    "mongodb": "^3.1.10",
     "indyscan-txtype": "file:../indyscan-txtype",
     "node-persist": "^3.0.4"
   },
   "devDependencies": {
+    "mongodb": "^3.1.10",
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.3.4",
     "@babel/preset-env": "^7.4.3",

@@ -8,13 +8,14 @@
   "scripts": {
     "lint": "eslint client",
     "dev": "cross-env NODE_ENV=development nodemon ./src/index.js --exec node",
-    "start": "cross-env NODE_ENV=production node ./index.js",
+    "start": "cross-env NODE_ENV=production node ./src/index.js",
     "localhost:startmongo": "docker run --network=indyscan-net -d -p 27017:27017 -v ~/indyscan/mainnet:/data/db --name mongo mongo:3.4.18",
     "test:unit": "jest test/unit",
     "test:integration": "jest test/integration",
     "genesis": "node genesis.js"
   },
   "dependencies": {
+    "mongodb": "^3.1.10",
     "indy-sdk": "1.9.0",
     "indyscan-storage": "file:../indyscan-storage",
     "indyscan-txtype": "file:../indyscan-txtype",
