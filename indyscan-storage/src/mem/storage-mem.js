@@ -1,7 +1,12 @@
+const { projectAvailableTimestamps } = require('../projections')
+
 function createStorageMem () {
   let txs = []
 
-  async function getTxCount (filter = {}) {
+  async function getTxCount (filter = null) {
+    if (filter) {
+      throw Error('not implemented')
+    }
     return txs.length
   }
 
@@ -22,8 +27,8 @@ function createStorageMem () {
     }
   }
 
-  async function getTxsTimestamps (skip = null, limit = null, filter = null, sort = { 'txnMetadata.seqNo': -1 }, projection = null) {
-    txs.map(tx => tx['txnMetadata']['txnTime'])
+  async function getTxsTimestamps (skip = null, limit = null, filter = null, sort = null, projection = null) {
+    return getTxs(skip, limit, filter, sort, projection, projectAvailableTimestamps)
   }
 
   async function getTxsByQuery (txsQuery) {
@@ -38,7 +43,9 @@ function createStorageMem () {
     if (filter || sort || projection) {
       throw Error('not implemented')
     }
+    transform = transform || ((txs) => txs)
     const total = txs.length
+    limit = limit || total
     const txSlice = txs.slice(total - (skip + limit), total - skip)
     return transform(txSlice.reverse())
   }
@@ -47,6 +54,7 @@ function createStorageMem () {
     if (txs.length === 0) {
       return 0
     }
+    console.log(JSON.stringify(txs[txs.length - 1]))
     return txs[txs.length - 1]['txnMetadata']['seqNo']
   }
 

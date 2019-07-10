@@ -23,8 +23,8 @@ describe('ledger tx resolution', () => {
     const utime1 = Math.floor(new Date() / 1)
     await timerLock.waitTillUnlock()
     const utime2 = Math.floor(new Date() / 1)
-    expect(utime2 - utime1).toBeGreaterThanOrEqual(300)
-    expect(utime2 - utime1).toBeLessThan(350)
+    expect(utime2 - utime1).toBeGreaterThanOrEqual(295)
+    expect(utime2 - utime1).toBeLessThan(320)
   })
 
   it('should not matter when the timer clock was created', async () => {

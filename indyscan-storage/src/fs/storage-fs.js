@@ -1,4 +1,4 @@
-const {projectAvailableTimestamps} = require('../projections')
+const { projectAvailableTimestamps } = require('../projections')
 const { createStorage } = require('./storage-wrapper')
 
 async function createStorageFs (name) {

@@ -1,4 +1,4 @@
-import storage from 'node-persist'
+const storage = require('node-persist')
 
 async function createStorage (name) {
   const storageInstance = storage.create({ dir: name })

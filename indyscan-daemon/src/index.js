@@ -1,18 +1,13 @@
-import { createConsumerMongo } from './consumers/consumer-sequential'
-import { createTxEmitter } from './tx-emitter'
-import { createTxResolverLedger } from './resolvers/ledger-resolver'
-import { createTimerLock } from './scan-timer'
-import { createLedgerStore, subledgers } from 'indyscan-storage'
+const { MongoClient } = require('mongodb')
 const util = require('util')
-
-const storage = require('indyscan-storage')
+const { createConsumerSequential } = require('./consumers/consumer-sequential')
+const { createTxEmitter } = require('./tx-emitter')
+const { createTxResolverLedger } = require('./resolvers/ledger-resolver')
+const { createStorageMongo } = require('indyscan-storage/src/factory')
 
 const logger = require('./logging/logger-main')
-const { MongoClient } = require('mongodb')
 const URL_MONGO = process.env.URL_MONGO || 'mongodb://localhost:27017'
 const INDY_NETWORKS = process.env.INDY_NETWORKS
-
-// const INITIAL_SCAN_DELAY_MS = process.env.INITIAL_SCAN_DELAY_MS || 1000
 
 const networks = INDY_NETWORKS.split(',')
 
@@ -25,7 +20,7 @@ const scanModes = {
   'FRENZY': { periodMs: 0.3, unavailableTimeoutMs: 0.3, jitterRatio: 0.1 }
 }
 
-const SCAN_MODE = process.env.SCAN_MODE || 'MEDIUM'
+const SCAN_MODE = process.env.SCAN_MODE || 'SLOW'
 
 const asyncMongoConnect = util.promisify(MongoClient.connect)
 
@@ -34,7 +29,7 @@ async function run () {
   const mongoHost = await asyncMongoConnect(URL_MONGO)
   console.log(`Connected to Mongo '${URL_MONGO}'.`)
   logger.info(`Following networks will be scanned ${JSON.stringify(networks)}`)
-  const resolveTxOnLedger  = await createTxResolverLedger(networks)
+  const resolveTxOnLedger = await createTxResolverLedger(networks)
   for (const indyNetwork of networks) {
     await scanNetwork(resolveTxOnLedger, indyNetwork, mongoHost)
   }
@@ -43,14 +38,14 @@ async function run () {
 async function scanNetwork (resolveTx, networkName, mongoHost) {
   logger.info(`Initiating network scan for network '${networkName}'.`)
   try {
-    logger.info('Creating TX forwarder')
     const txEmitter = await createTxEmitter(networkName, resolveTx)
-
     let mongoDb = await mongoHost.db(networkName)
-    const indyscanMongoClient = await createLedgerStore(mongoDb, subledgers[subledger].collection)
-    await createConsumerMongo(txEmitter, indyscanMongoClient, networkName, storage.subledgerCollections.domain, timerLock)
-    await createConsumerMongo(txEmitter, indyscanMongoClient, networkName, storage.subledgerCollections.pool, timerLock)
-    await createConsumerMongo(txEmitter, indyscanMongoClient, networkName, storage.subledgerCollections.config, timerLock)
+    const storageDomain = await createStorageMongo(mongoDb, 'txs-domain')
+    const storagePool = await createStorageMongo(mongoDb, 'txs-pool')
+    const storageConfig = await createStorageMongo(mongoDb, 'txs-config')
+    await createConsumerSequential(txEmitter, storageDomain, networkName, 'domain', scanModes[SCAN_MODE])
+    await createConsumerSequential(txEmitter, storagePool, networkName, 'pool', scanModes[SCAN_MODE])
+    await createConsumerSequential(txEmitter, storageConfig, networkName, 'config', scanModes[SCAN_MODE])
   } catch (err) {
     logger.error(`Something when wrong creating indy client for network '${networkName}'. Details:`)
     logger.error(err)

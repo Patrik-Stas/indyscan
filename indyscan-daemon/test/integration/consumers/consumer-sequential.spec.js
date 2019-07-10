@@ -2,7 +2,7 @@
 const { createTxResolverLedger } = require('../../../src/resolvers/ledger-resolver')
 const { createConsumerSequential } = require('../../../src/consumers/consumer-sequential')
 const { createTxEmitter } = require('../../../src/tx-emitter')
-const { createStorageMem } = require('indyscan-storage')
+const { createStorageFs } = require('indyscan-storage')
 const sleep = require('sleep-promise')
 
 const network = 'SOVRIN_MAIN_NET'
@@ -13,8 +13,9 @@ let txResolve
 
 describe('ledger tx resolution', () => {
   beforeAll(async () => {
+    const suiteTime = Math.floor(new Date() / 1)
     jest.setTimeout(1000 * 60 * 4)
-    storage = createStorageMem()
+    storage = await createStorageFs(`teststorage-consumer-seq-${network}-${suiteTime}`)
     txResolve = await createTxResolverLedger([network])
   })
 

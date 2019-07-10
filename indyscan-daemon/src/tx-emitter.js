@@ -30,6 +30,7 @@ async function createTxEmitter (network, resolveTxStrategy) {
     logger.info(`Emitter: Received tx request ${requestId}: network=${network}, subledger=${subledger}, seqNo=${seqNo}, requester=${requester}`)
     resolveTxStrategy(network, subledger, seqNo)
       .then(function (tx) {
+        logger.info(`Emitter: Resolved tx: ${JSON.stringify(tx)}`)
         emitTxResolved(requestId, network, subledger, seqNo, requester, tx)
       }).catch(function (err) {
         logger.error(`Tx resolution ${requestId}: promise was rejected!`)

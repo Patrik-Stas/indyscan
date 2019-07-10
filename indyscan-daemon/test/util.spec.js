@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const { jitterize } = require('../util')
+const { jitterize } = require('../src/util')
 
 describe('configuration processing', () => {
   it('should create config object from v1 config style', async () => {

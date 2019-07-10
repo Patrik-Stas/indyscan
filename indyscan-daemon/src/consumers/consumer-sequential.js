@@ -2,8 +2,8 @@ const { createTimerLock } = require('../scan-timer')
 
 const logger = require('../logging/logger-main')
 
-function createConsumerSequential (txEmitter, indyscanStorage, networkName, subledger, timerConfig) {
-  const consumerName = `consumer-${networkName}-${subledger}`
+function createConsumerSequential (txEmitter, indyscanStorage, network, subledger, timerConfig, name = null) {
+  const consumerName = name || `consumer-${network}-${subledger}`
   const { periodMs, unavailableTimeoutMs, jitterRatio } = timerConfig
 
   let processedTxCount = 0
@@ -11,10 +11,20 @@ function createConsumerSequential (txEmitter, indyscanStorage, networkName, subl
   let txNotAvailableCount = 0
   let cycleExceptionCount = 0
 
+  let enabled = true
+
   const timerLock = createTimerLock()
 
-  async function filterTxs (network, subledger, seqNo, requester, tx) {
-    return (requester === consumerName && _desiredSeqNo !== undefined && seqNo === _desiredSeqNo)
+  async function filterTxs (txNetwork, txNubledger, txSeqNo, txRequester, tx) {
+    const shouldBeProcessed = (
+      network === txNetwork &&
+      subledger === txNubledger &&
+      _desiredSeqNo === txSeqNo
+    )
+    if (!shouldBeProcessed) {
+      logger.warn(`${consumerName} (desiredSeqNo=${_desiredSeqNo}) will filter transaction. (txNetwork=${txNetwork}, txNubledger=${txNubledger}, txSeqN=${txSeqNo}, txRequester=${txRequester})`)
+    }
+    return shouldBeProcessed
   }
 
   txEmitter.onTxResolved(processTx, filterTxs)
@@ -44,10 +54,13 @@ function createConsumerSequential (txEmitter, indyscanStorage, networkName, subl
   async function consumptionCycle () {
     while (true) {
       try {
+        if (!enabled) {
+          break
+        }
         await timerLock.waitTillUnlock()
         timerLock.addBlockTime(periodMs, jitterRatio)
         const seqNo = await getDesiredSeqNo()
-        txEmitter.submitTxRequest(networkName, subledger, seqNo, consumerName)
+        txEmitter.submitTxRequest(network, subledger, seqNo, consumerName)
         requestCycleCount++
       } catch (error) {
         cycleExceptionCount++
@@ -74,8 +87,13 @@ function createConsumerSequential (txEmitter, indyscanStorage, networkName, subl
     consumptionCycle()
   }
 
+  function stop () {
+    enabled = false
+  }
+
   return {
     start,
+    stop,
     info
   }
 }
