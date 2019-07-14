@@ -5,7 +5,7 @@ const { createTimerLock } = require('../scan-timer')
 const logger = require('../logging/logger-main')
 
 function createConsumerSequential (txEmitter, indyscanStorage, network, subledger, timerConfig) {
-  const logPrefix = `ConsumerSequential [${network}-${subledger}]: `
+  const logPrefix = `ConsumerSequential/${network}/${subledger} : `
   const { periodMs, unavailableTimeoutMs, jitterRatio } = timerConfig
 
   let processedTxCount = 0
@@ -51,7 +51,7 @@ function createConsumerSequential (txEmitter, indyscanStorage, network, subledge
     await indyscanStorage.addTx(tx)
     _desiredSeqNo++
     processedTxCount++
-    logger.info(rightPad(`Consumer [${logPrefix}] processed new tx. `, 70, ' ') + `Details: network='${network}' subledger='${subledger}' seqNo='${seqNo}' requester='${requester}'.`)
+    logger.info(rightPad(`${logPrefix} processed new tx. `, 70, ' ') + `Details: network='${network}' subledger='${subledger}' seqNo='${seqNo}' requester='${requester}'.`)
     logger.debug(`${JSON.stringify(tx)}`)
   }
 
