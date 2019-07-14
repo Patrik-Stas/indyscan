@@ -1,19 +1,11 @@
 const {TX_DETAILS, LEDGER_TX_NAMES, NAME_TO_TYPE, TYPE_TO_NAME} = require('./txdata')
 
 function txTypeToTxName (txType) {
-  const res = TYPE_TO_NAME[txType]
-  if (res) {
-    return res
-  }
-  throw Error(`Unknown txType '${txType}'`)
+  return TYPE_TO_NAME[txType]
 }
 
 function txNameToTxCode (txName) {
-  const res = NAME_TO_TYPE[txName]
-  if (res) {
-    return res
-  }
-  throw Error(`Unknown txName '${txName}'`)
+  return NAME_TO_TYPE[txName]
 }
 
 function txTypesToNames (txTypes) {
@@ -68,18 +60,21 @@ function genFieldChangeString (fieldObj) {
 function describeTransaction (tx) {
   const code = tx.txn.type
   const txName = txTypeToTxName(code)
+  if (!txName) {
+    return `Unknown transition ${code}`
+  }
   switch (txName) {
     case 'NODE':
       const {alias, blskey, node_ip, client_port, node_port, services} = tx.txn.data.data
-      const changeObj = {
-        'alias': alias,
-        'blskey': blskey,
-        'node_ip': node_ip,
-        'client_port': client_port,
-        'node_port': node_port,
-        'services': services
-      }
-      const changes = genFieldChangeString(changeObj)
+      // const changeObj = {
+      //   'alias': alias,
+      //   'blskey': blskey,
+      //   'node_ip': node_ip,
+      //   'client_port': client_port,
+      //   'node_port': node_port,
+      //   'services': services
+      // }
+      // const changes = genFieldChangeString(changeObj)
       const {dest} = tx.txn.data
       // return `Adds or updates node ${dest} with alias ${alias}. Changes: ${changes.join(' ')}`
       return `Adds or updates node ${dest} with alias ${alias}.`

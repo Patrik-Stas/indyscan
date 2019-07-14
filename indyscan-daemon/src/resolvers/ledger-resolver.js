@@ -1,9 +1,6 @@
 const createIndyClient = require('../indyclient')
-const logger = require('../logging/logger-main')
 
 async function createTxResolverLedger (networks) {
-  logger.info(`Creating ledger tx-resolver for following networks '${JSON.stringify(networks)}'.`)
-
   let clients = {}
 
   for (const network of networks) {
@@ -12,7 +9,6 @@ async function createTxResolverLedger (networks) {
   }
 
   async function txResolve (network, subledger, seqNo) {
-    logger.info(`Ledger tx resolver: resolving: ${network}/${subledger}/${seqNo}`)
     const client = clients[network]
     if (!client) {
       throw Error(`Can't resolve transaction ${network}/${subledger}/${seqNo} because the network ${network} is not

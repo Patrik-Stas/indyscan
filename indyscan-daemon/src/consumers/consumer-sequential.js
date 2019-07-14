@@ -1,9 +1,11 @@
+const { rightPad } = require('../logging/logutil')
+
 const { createTimerLock } = require('../scan-timer')
 
 const logger = require('../logging/logger-main')
 
-function createConsumerSequential (txEmitter, indyscanStorage, network, subledger, timerConfig, name = null) {
-  const consumerName = name || `${network}-${subledger}`
+function createConsumerSequential (txEmitter, indyscanStorage, network, subledger, timerConfig) {
+  const logPrefix = `ConsumerSequential [${network}-${subledger}]: `
   const { periodMs, unavailableTimeoutMs, jitterRatio } = timerConfig
 
   let processedTxCount = 0
@@ -15,20 +17,21 @@ function createConsumerSequential (txEmitter, indyscanStorage, network, subledge
 
   const timerLock = createTimerLock()
 
-  async function filterTxs (txNetwork, txNubledger, txSeqNo, txRequester, tx) {
+  async function filterTxs (txRequestId, txNetwork, txSubledger, txSeqNo, txRequester, tx) {
     const shouldBeProcessed = (
       network === txNetwork &&
-      subledger === txNubledger &&
+      subledger === txSubledger &&
       _desiredSeqNo === txSeqNo
     )
     if (!shouldBeProcessed) {
-      logger.warn(`${consumerName} (desiredSeqNo=${_desiredSeqNo}) will filter transaction. (txNetwork=${txNetwork}, txNubledger=${txNubledger}, txSeqN=${txSeqNo}, txRequester=${txRequester})`)
+      logger.debug(`${logPrefix} Filtering transaction request result: requestId='${txRequestId}' txNetwork='${txNetwork}' txNubledger='${txSubledger}' txSeqN=${txSeqNo}, txRequester='${txRequester}')`)
     }
     return shouldBeProcessed
   }
 
   txEmitter.onTxResolved(processTx, filterTxs)
   txEmitter.onTxNotAvailable(delayNextOnNotAvailable, filterTxs)
+  txEmitter.onResolutionError(delayNextOnNotAvailable, filterTxs)
 
   let _desiredSeqNo
   async function getDesiredSeqNo () {
@@ -38,38 +41,39 @@ function createConsumerSequential (txEmitter, indyscanStorage, network, subledge
     return _desiredSeqNo
   }
 
-  async function delayNextOnNotAvailable (network, subledger, seqNo, requester) {
-    logger.info(`${consumerName} Tx seqno=${seqNo} does not yet exist.`)
+  async function delayNextOnNotAvailable (requestId, network, subledger, seqNo, requester) {
+    logger.info(`${logPrefix} Tx seqno=${seqNo} does not yet exist.`)
     txNotAvailableCount++
     timerLock.addBlockTime(unavailableTimeoutMs, jitterRatio)
   }
 
-  async function processTx (network, subledger, seqNo, requester, tx) {
+  async function processTx (requestId, network, subledger, seqNo, requester, tx) {
     await indyscanStorage.addTx(tx)
     _desiredSeqNo++
     processedTxCount++
-    logger.info(`${consumerName} >>>>>>> New tx seqno=${seqNo} retrieved and stored`)
+    logger.info(rightPad(`Consumer [${logPrefix}] processed new tx. `, 70, ' ') + `Details: network='${network}' subledger='${subledger}' seqNo='${seqNo}' requester='${requester}'.`)
+    logger.debug(`${JSON.stringify(tx)}`)
   }
 
   async function consumptionCycle () {
     while (true) {
       try {
-        logger.info(`Consumer [${consumerName}]: Starting new consumption cycle '${requestCycleCount}'.`)
+        logger.debug(`${logPrefix} Cycle '${requestCycleCount}' starts.`)
         if (!enabled) {
-          logger.info(`Consumer [${consumerName}]: Disabled, breaking consumption cycle.`)
+          logger.warn(`${logPrefix} Cycle '${requestCycleCount}' discovered consumer was disabled. Terminating cycle now.`)
           break
         }
-        logger.info(`Consumer [${consumerName}]: Waiting at the start of cycle, roughly '${timerLock.getMsTillUnlock()}' miliseconds.`)
+        logger.debug(`${logPrefix} Cycle '${requestCycleCount}' will wait '${timerLock.getMsTillUnlock()}' ms before it requests tx.`)
         await timerLock.waitTillUnlock()
         timerLock.addBlockTime(periodMs, jitterRatio)
         const seqNo = await getDesiredSeqNo()
-        logger.info(`Consumer [${consumerName}]: Going to request tx network='${network}' subledger}='${subledger}' seqNo='${seqNo}' as '${consumerName}'.`)
-        txEmitter.submitTxRequest(network, subledger, seqNo, consumerName)
-        logger.info(`Consumer [${consumerName}]: Finished cycle '${requestCycleCount}'.`)
+        logger.info(`${logPrefix}  Cycle '${requestCycleCount}' submitting tx request network='${network}' subledger}='${subledger}' seqNo='${seqNo}'.`)
+        txEmitter.submitTxRequest(network, subledger, seqNo, logPrefix)
+        logger.debug(`${logPrefix} Cycle '${requestCycleCount}' finished.`)
         requestCycleCount++
       } catch (error) {
         cycleExceptionCount++
-        logger.error(`Consumer [${consumerName}] threw Error out to the consumer cycle '${requestCycleCount}'.`)
+        logger.error(`${logPrefix} Cycle '${requestCycleCount}' thrown error.`)
         logger.error(error.stack)
         timerLock.addBlockTime(unavailableTimeoutMs, jitterRatio)
       }
@@ -78,7 +82,7 @@ function createConsumerSequential (txEmitter, indyscanStorage, network, subledge
 
   function info () {
     return {
-      consumerName,
+      consumerName: logPrefix,
       desiredSeqNo: _desiredSeqNo,
       processedTxCount,
       requestCycleCount,
@@ -88,7 +92,7 @@ function createConsumerSequential (txEmitter, indyscanStorage, network, subledge
   }
 
   function start () {
-    logger.info(`${consumerName}: Starting`)
+    logger.info(`${logPrefix}: Starting`)
     consumptionCycle()
   }
 

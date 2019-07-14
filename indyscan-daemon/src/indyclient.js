@@ -32,12 +32,21 @@ module.exports = async function createClient (poolName, walletName) {
   const did = res[0]
   logger.debug(`Created did/verkey ${JSON.stringify(res)}`)
 
+  /*
+  Returns transaction data if transaction was resolved
+  Returns null if transaction does not exists on the ledger
+  Return null if proper response is not received
+  */
   async function getTx (subledgerName, txid) {
     const subledgerCode = LEDGER_NAME_TO_CODE[subledgerName.toLowerCase()]
     const getTx = await indy.buildGetTxnRequest(did, subledgerCode, txid)
     const tx = await indy.submitRequest(poolHandle, getTx)
     if (tx.op === 'REPLY') {
-      return tx.result.data
+      if (tx.result.data) {
+        return tx.result.data
+      } else {
+        return null
+      }
     } else {
       throw Error(`We have issues receiving reply from the network.`)
     }

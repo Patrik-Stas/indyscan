@@ -112,4 +112,9 @@ describe('ledger tx resolution', () => {
     }
     expect(toCanonicalJson(tx)).toBe(toCanonicalJson(expectedTx))
   })
+
+  it('should return if transaction does not exist on ledger', async () => {
+    const tx = await txResolve(networks, 'pool', 100000000)
+    expect(tx).toBe(null)
+  })
 })
