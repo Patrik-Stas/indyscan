@@ -19,7 +19,10 @@ function txTypesToNames (txTypes) {
 function txNamesToTypes (txNames) {
   let types = []
   for (const txName of txNames) {
-    types.push(txNameToTxCode(txName))
+    const txCode = txNameToTxCode(txName)
+    console.log(txName)
+    console.log(txCode)
+    types.push(txCode)
   }
   return types
 }
