@@ -67,7 +67,7 @@ function createConsumerSequential (txEmitter, indyscanStorage, network, subledge
         await timerLock.waitTillUnlock()
         timerLock.addBlockTime(periodMs, jitterRatio)
         const seqNo = await getDesiredSeqNo()
-        logger.info(`${logPrefix}  Cycle '${requestCycleCount}' submitting tx request network='${network}' subledger}='${subledger}' seqNo='${seqNo}'.`)
+        logger.info(`${logPrefix}  Cycle '${requestCycleCount}' submitting tx request network='${network}' subledger='${subledger}' seqNo='${seqNo}'.`)
         txEmitter.submitTxRequest(network, subledger, seqNo, logPrefix)
         logger.debug(`${logPrefix} Cycle '${requestCycleCount}' finished.`)
         requestCycleCount++

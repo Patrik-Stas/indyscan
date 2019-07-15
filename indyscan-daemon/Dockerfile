@@ -11,6 +11,10 @@ COPY indyscan-txtype /home/indyscan/indyscan-txtype
 RUN chown -R indyscan:indyscan /home/indyscan
 USER indyscan
 
+
+WORKDIR /home/indyscan/indyscan-storage
+RUN npm install
+
 WORKDIR /home/indyscan/indyscan-daemon
 RUN npm install
 
