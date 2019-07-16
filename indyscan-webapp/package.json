@@ -1,6 +1,6 @@
 {
   "name": "indyscan-webapp",
-  "version": "2.0.0-rc1",
+  "version": "2.0.0-rc2",
   "description": "Web application to browse Hyperledger Indy blockchain transactions.",
   "main": "index.js",
   "scripts": {
@@ -21,11 +21,13 @@
     "indyscan-api": "file:../indyscan-api",
     "indyscan-storage": "file:../indyscan-storage",
     "indyscan-txtype": "file:../indyscan-txtype",
+    "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.11",
     "moment": "^2.23.0",
     "next": "^7.0.2",
     "next-routes": "^1.4.2",
     "node-sass": "^4.11.0",
+    "pkginfo": "^0.4.1",
     "query-string": "^6.2.0",
     "raw-loader": "^0.5.1",
     "rc-pagination": "^1.17.5",

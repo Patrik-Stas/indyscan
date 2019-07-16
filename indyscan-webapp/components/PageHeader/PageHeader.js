@@ -16,21 +16,14 @@ class PageHeader extends Component {
 
   renderNetworks (networks, activeNetwork) {
     let networkMenuLinks = []
-    console.log(`Networks = ${networks}`)
     for (let i = 0; i < networks.length; i++) {
       const network = networks[i]
       networkMenuLinks.push(
-        <GridColumn key={network.id} floated="left" width={3}>
-          <Grid>
-            <Grid.Row>
               <MenuLink active={network.id === activeNetwork}
                         href={`/home?network=${network.id}`}
                         as={`/home/${network.id}`}>
                 {network.display}
               </MenuLink>
-            </Grid.Row>
-          </Grid>
-        </GridColumn>
       )
     }
     return networkMenuLinks
@@ -55,13 +48,11 @@ class PageHeader extends Component {
             <h5>Hyperledger Indy transaction explorer</h5>
           </GridRow>
           <GridRow>
-            {this.renderNetworks(this.state.networks || [network], network)}
-            <GridColumn floated="right" width={5}>
-              <Grid>
-                <GridRow>
+            <GridColumn width={11}>
+              {this.renderNetworks(this.state.networks || [network], network)}
+            </GridColumn>
+            <GridColumn align="right" width={5}>
                   <Navbar page={this.props.page} network={this.props.network}/>
-                </GridRow>
-              </Grid>
             </GridColumn>
           </GridRow>
 

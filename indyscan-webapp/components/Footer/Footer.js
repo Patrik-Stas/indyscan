@@ -19,6 +19,13 @@ class Footer extends Component {
                                 <a href="https://www.linkedin.com/pulse/better-browser-internet-patrik-sta%C5%A1/">What's Brave?</a>
                         </Grid.Column>
                     </Grid.Row>
+                  {this.props.displayVersion &&
+                  <Grid.Row>
+                    <Grid.Column textAlign='center'>
+                      <p style={{fontSize: '0.7rem'}}>Indyscan Explorer version: {this.props.displayVersion}</p>
+                    </Grid.Column>
+                  </Grid.Row>
+                  }
                 </Grid>
             </div>
         );

@@ -62,6 +62,11 @@ async function startServer () {
         res.redirect(`/home/${networkManager.getDefaultNetworkId()}`)
       })
 
+      server.get('/version', (req, res) => {
+        require('pkginfo')(module)
+        return res.status(200).send({ version: module.exports.version })
+      })
+
       server.get('/home', (req, res) => {
         logger.debug(`ROOT URL: /`)
         res.redirect(`/home/${networkManager.getDefaultNetworkId()}`)

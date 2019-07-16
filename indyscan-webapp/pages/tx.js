@@ -19,7 +19,12 @@ class Tx extends Component {
   static async getInitialProps ({req, query}) {
     const {network, ledger, seqNo} = query
     const baseUrl = getBaseUrl(req)
-    const txDetail = await getTx(baseUrl, network, ledger, seqNo)
+    let txDetail
+    try {
+      txDetail = await getTx(baseUrl, network, ledger, seqNo)
+    } catch (e) {
+      txDetail={error:"This tx was not scanned yet, or something went wrong trying to retrieve it."}
+    }
     return {
       baseUrl,
       txDetail,

@@ -6,7 +6,7 @@ import Link from "next/link";
 
 class TxPreview extends Component {
     render() {
-        const {seqNo, type, timestamp, txnId, rootHash} = this.props.txInfo;
+        const {seqNo, type, timestamp, txnId, rootHash, from} = this.props.txInfo;
         const {baseUrl, network, ledger} = this.props;
         const href = `${baseUrl}/tx?network=${network}&ledger=${ledger}&seqNo=${seqNo}`;
         const as = `/tx/${network}/${ledger}/${seqNo}`;
@@ -18,7 +18,8 @@ class TxPreview extends Component {
                     <Item.Content>
                         <Item.Header>{txTypeToTxName(type)}</Item.Header>
                         <Item.Meta>{timestamp}</Item.Meta>
-                        <Item.Description>{`${rootHash.substring(0, 28)}`}</Item.Description>
+                        <Item.Description>RootHash: {rootHash ? `${rootHash.substring(0, 14)}` : 'n/a'}...</Item.Description>
+                        <Item.Description>From {from? `${from.substring(0, 14)}}` : 'n/a'}...</Item.Description>
                     </Item.Content>
                 </Item>
 

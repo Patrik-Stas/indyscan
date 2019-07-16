@@ -16,6 +16,7 @@ class Navbar extends Component {
                 <MenuLink active={page==="domain"} href={`/txs?network=${network}&ledger=domain`} as={`/txs/${network}/domain`}>Domain</MenuLink >
                 <MenuLink active={page==="pool"} href={`/txs?network=${network}&ledger=pool`} as={`/txs/${network}/pool`}>Pool</MenuLink >
                 <MenuLink active={page==="config"} href={`/txs?network=${network}&ledger=config`} as={`/txs/${network}/config`}>Config</MenuLink >
+                <MenuLink active={page==="stats"} href={`/stats?network=${network}`} as={`/stats/${network}`}>Stats</MenuLink >
             </div>
         );
     }
