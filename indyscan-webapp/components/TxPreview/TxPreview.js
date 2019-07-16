@@ -19,7 +19,7 @@ class TxPreview extends Component {
                         <Item.Header>{txTypeToTxName(type)}</Item.Header>
                         <Item.Meta>{timestamp}</Item.Meta>
                         <Item.Description>RootHash: {rootHash ? `${rootHash.substring(0, 14)}` : 'n/a'}...</Item.Description>
-                        <Item.Description>From {from? `${from.substring(0, 14)}}` : 'n/a'}...</Item.Description>
+                        <Item.Description>From {from? `${from.substring(0, 14)}` : 'n/a'}...</Item.Description>
                     </Item.Content>
                 </Item>
 
