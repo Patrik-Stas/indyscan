@@ -25,16 +25,16 @@
     "mongodb": "^3.1.10"
   },
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.3.4",
-    "@babel/preset-env": "^7.4.3",
-    "@babel/register": "^7.0.0",
-    "babel-jest": "^24.7.1",
-    "jest": "^24.7.1",
-    "jest-cli": "^24.7.1",
-    "standard": "^12.0.1",
+    "@babel/cli": "^7.5.0",
+    "@babel/core": "^7.5.4",
+    "@babel/preset-env": "^7.5.4",
+    "@babel/register": "^7.4.4",
     "@types/node-persist": "0.0.33",
-    "sleep-promise": "^8.0.1"
+    "babel-jest": "^24.8.0",
+    "jest": "^24.8.0",
+    "jest-cli": "^24.8.0",
+    "sleep-promise": "^8.0.1",
+    "standard": "^12.0.1"
   },
   "keywords": []
 }
