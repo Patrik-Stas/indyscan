@@ -364,7 +364,7 @@ fi
 echo "$arg_m"
 if [[ "${arg_m}" == "download" ]]; then
     info "Indyscan images will be downloaded."
-    DAEMON_IMAGE="pstas/indyscan-daemon:2.0.0"
+    DAEMON_IMAGE="pstas/indyscan-daemon:2.2.0"
 elif [[ "${arg_m}" == "build"  ]]; then
     info "Indyscan images will be built now."
     DAEMON_IMAGE="indyscan-daemon:latest"

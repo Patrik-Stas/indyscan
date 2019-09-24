@@ -85,8 +85,8 @@ class Txs extends Component {
     if (ledgerTxNames.length > 1) {
       for (const txName of ledgerTxNames) {
         const box = (
-          <GridColumn width={2}>
-            <Checkbox label={txName}
+          <GridColumn width={4}>
+            <Checkbox style={{marginTop:'10px'}} label={txName}
                       onChange={(event, data) => { this.setParamsFilter(txName, data.checked) }}
                       checked={this.props.filterTxNames.includes(txName)}
             />
@@ -115,6 +115,8 @@ class Txs extends Component {
         </GridRow>
         <GridRow>
           {this.renderSelectButtons()}
+        </GridRow>
+        <GridRow style={{ marginTop: '0.1em'}}>
           <GridColumn floated='right' width={2}>
             <span style={{fontSize: '2em', marginRight: '0.2em'}}>{txCount}</span>
             <span style={{fontSize: '1.2em'}}> txs</span></GridColumn>

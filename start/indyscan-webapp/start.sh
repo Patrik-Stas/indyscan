@@ -363,7 +363,7 @@ fi
 echo "$arg_m"
 if [[ "${arg_m}" == "download" ]]; then
     info "Indyscan images will be downloaded."
-    WEBAPP_IMAGE="pstas/indyscan-webapp:2.0.0"
+    WEBAPP_IMAGE="pstas/indyscan-webapp:2.2.0"
 elif [[ "${arg_m}" == "build"  ]]; then
     info "Indyscan images will be built now."
     WEBAPP_IMAGE="indyscan-webapp:latest"

@@ -17,7 +17,7 @@ module.exports.TX_DETAILS = {
 }
 
 module.exports.LEDGER_TX_NAMES = {
-  'domain': ['NYM', 'ATTRIB', 'SCHEMA', 'CLAIM_DEF', 'REVOC_REG_DEF', 'REVOC_REG_ENTRY'],
+  'domain': ['NYM', 'ATTRIB', 'SCHEMA', 'CLAIM_DEF', 'REVOC_REG_DEF', 'REVOC_REG_ENTRY', 'TXN_AUTHOR_AGREEMENT', 'TXN_AUTHOR_AGREEMENT_AML'],
   'pool': ['NODE'],
   'config': ['NODE_UPGRADE', 'POOL_UPGRADE', 'POOL_CONFIG', 'AUTH_RULE']
 }
