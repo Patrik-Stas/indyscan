@@ -1,4 +1,4 @@
-async function createStorageEs (esClient) {
+async function createStorageEs (client) {
   async function getTxCount (filter = {}) {
     return 5
   }
@@ -16,20 +16,23 @@ async function createStorageEs (esClient) {
     return {}
   }
 
-  async function getTxsTimestamps (skip = null, limit = null, filter = null, sort = { 'txnMetadata.seqNo': -1 }, projection = null) {
+  async function getTxsTimestamps (skip = null, limit = null, filter = null, sort = null, projection = null) {
     return [1, 2, 3]
   }
 
   async function getTxsByQuery (txsQuery) {
-    return {}
+    throw Error('not implemented, this will require refactor, this method wass originally made for mongodb')
   }
 
   /*
   Returns array of (by default all) transactions.
   By default are transactions sorted from latest (index 0) to the oldest (last index of result array)
    */
-  async function getTxs (skip = null, limit = null, filter = null, sort = { 'txnMetadata.seqNo': -1 }, projection = null, transform = null) {
-    return [{}, {}]
+  async function getTxs (skip = null, limit = null, filter = null, sort = null, projection = null, transform = null) {
+    return client.search({
+      index: 'txs',
+      body: { foo: 'bar' }
+    })
   }
 
   async function findMaxSeqNo () {
@@ -37,7 +40,10 @@ async function createStorageEs (esClient) {
   }
 
   async function addTx (tx) {
-    console.log('ok')
+    await client.index({
+      index: 'txs',
+      body: tx
+    })
   }
 
   return {

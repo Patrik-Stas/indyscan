@@ -1,6 +1,6 @@
 {
   "name": "indyscan-daemon",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": "Patrik Staš",
   "license": "ISC",
   "description": "Application scanning Hyperledger Indy blockchain for new transactions and further processing.",
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "mongodb": "^3.1.10",
-    "indy-sdk": "1.9.0",
+    "indy-sdk": "1.11.1",
     "indyscan-storage": "file:../indyscan-storage",
     "indyscan-txtype": "file:../indyscan-txtype",
     "sleep-promise": "^8.0.1",

@@ -32,7 +32,7 @@ async function run () {
   logger.info(`Following networks will be scanned ${JSON.stringify(networks)}`)
   const resolveTxOnLedger = await createTxResolverLedger(networks)
   for (const indyNetwork of networks) {
-    await scanNetwork(resolveTxOnLedger, indyNetwork, mongoHost)
+     scanNetwork(resolveTxOnLedger, indyNetwork, mongoHost)
   }
 }
 

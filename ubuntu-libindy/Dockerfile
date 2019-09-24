@@ -55,32 +55,22 @@ RUN apt-get install -y zip
 RUN useradd -ms /bin/bash -u $uid indy
 USER indy
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain 1.31.0
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain 1.35.0
 ENV PATH /home/indy/.cargo/bin:$PATH
 
 WORKDIR /home/indy
 
 ARG INDY_VERSION
-
 RUN git clone "https://github.com/hyperledger/indy-sdk.git" "./indy-sdk"
 
-RUN (cd "./indy-sdk" && git checkout "tags/$INDY_VERSION")
+RUN cd "/home/indy/indy-sdk" && git checkout "tags/$INDY_VERSION"
 
-RUN (cd "./indy-sdk/libindy" && cargo build --release)
-RUN (cd "./indy-sdk/libindy" && cargo build)
-
+RUN cd "/home/indy/indy-sdk/libindy" && cargo build --release
 USER root
-
-RUN mkdir -p "/libindy/release"
-RUN mkdir -p "/libindy/debug"
-RUN cp "./indy-sdk/libindy/target/release/libindy.so" "/libindy/release/libindy.so"
-RUN cp "./indy-sdk/libindy/target/debug/libindy.so" "/libindy/debug/libindy.so"
-
-RUN cp "/libindy/release/libindy.so" "/usr/local/lib/libindy.so"
-
+RUN cp "/home/indy/indy-sdk/libindy/target/release/libindy.so" "/usr/lib/libindy.so"
 USER indy
 
-RUN rm -r "./indy-sdk"
+RUN rm -r "/home/indy/indy-sdk"
 
 LABEL org.label-schema.schema-version="1.0"
 LABEL org.label-schema.name="libindy"
