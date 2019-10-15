@@ -11,6 +11,7 @@ function createConsumerSequential (txEmitter, indyscanStorage, network, subledge
   let processedTxCount = 0
   let requestCycleCount = 0
   let txNotAvailableCount = 0
+  let txResolutionErrorCount = 0
   let cycleExceptionCount = 0
 
   let enabled = true
@@ -31,7 +32,7 @@ function createConsumerSequential (txEmitter, indyscanStorage, network, subledge
 
   txEmitter.onTxResolved(processTx, filterTxs)
   txEmitter.onTxNotAvailable(delayNextOnNotAvailable, filterTxs)
-  txEmitter.onResolutionError(delayNextOnNotAvailable, filterTxs)
+  txEmitter.onResolutionError(delayNextOnFailedResolution, filterTxs)
 
   let _desiredSeqNo
   async function getDesiredSeqNo () {
@@ -44,6 +45,12 @@ function createConsumerSequential (txEmitter, indyscanStorage, network, subledge
   async function delayNextOnNotAvailable (requestId, network, subledger, seqNo, requester) {
     logger.info(`${logPrefix} Tx seqno=${seqNo} does not yet exist.`)
     txNotAvailableCount++
+    timerLock.addBlockTime(unavailableTimeoutMs, jitterRatio)
+  }
+
+  async function delayNextOnFailedResolution (requestId, network, subledger, seqNo, requester) {
+    logger.error(`${logPrefix} Tx seqno=${seqNo} failed to resolve.`)
+    txResolutionErrorCount++
     timerLock.addBlockTime(unavailableTimeoutMs, jitterRatio)
   }
 

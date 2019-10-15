@@ -1,5 +1,7 @@
-const { createStorageMongo, createMongoCollection } = require('indyscan-storage')
+const indy = require('indy-sdk')
 
+const appConfig = require('./config')
+const { createStorageMongo, createMongoCollection } = require('indyscan-storage')
 const { MongoClient } = require('mongodb')
 const util = require('util')
 const { createConsumerSequential } = require('./consumers/consumer-sequential')
@@ -7,10 +9,11 @@ const { createTxEmitter } = require('./tx-emitter')
 const { createTxResolverLedger } = require('./resolvers/ledger-resolver')
 
 const logger = require('./logging/logger-main')
-const URL_MONGO = process.env.URL_MONGO || 'mongodb://localhost:27017'
-const INDY_NETWORKS = process.env.INDY_NETWORKS
+const networks = appConfig.INDY_NETWORKS.split(',')
 
-const networks = INDY_NETWORKS.split(',')
+// indy.setLogger(function (level, target, message, modulePath, file, line) {
+//   logger.debug(message)
+// })
 
 const scanModes = {
   'SLOW': { periodMs: 30 * 1000, unavailableTimeoutMs: 30 * 1000, jitterRatio: 0.1 },
@@ -21,14 +24,12 @@ const scanModes = {
   'FRENZY': { periodMs: 300, unavailableTimeoutMs: 300, jitterRatio: 0.1 }
 }
 
-const SCAN_MODE = process.env.SCAN_MODE || 'SLOW'
-
 const asyncMongoConnect = util.promisify(MongoClient.connect)
 
 async function run () {
   logger.info(`Starting daemon...`)
-  const mongoHost = await asyncMongoConnect(URL_MONGO)
-  console.log(`Connected to Mongo '${URL_MONGO}'.`)
+  const mongoHost = await asyncMongoConnect(appConfig.URL_MONGO)
+  console.log(`Connected to Mongo '${appConfig.URL_MONGO}'.`)
   logger.info(`Following networks will be scanned ${JSON.stringify(networks)}`)
   const resolveTxOnLedger = await createTxResolverLedger(networks)
   for (const indyNetwork of networks) {
@@ -48,9 +49,9 @@ async function scanNetwork (resolveTx, networkName, mongoHost) {
     const storagePool = await createStorageMongo(await createMongoCollection(mongoDb, 'txs-pool'))
     const storageConfig = await createStorageMongo(await createMongoCollection(mongoDb, 'txs-config'))
     logger.debug(`Creating consumers for network '${networkName}'.`)
-    const consumerDomain = await createConsumerSequential(txEmitter, storageDomain, networkName, 'domain', scanModes[SCAN_MODE])
-    const consumerPool = await createConsumerSequential(txEmitter, storagePool, networkName, 'pool', scanModes[SCAN_MODE])
-    const consumerConfig = await createConsumerSequential(txEmitter, storageConfig, networkName, 'config', scanModes[SCAN_MODE])
+    const consumerDomain = await createConsumerSequential(txEmitter, storageDomain, networkName, 'domain', scanModes[appConfig.SCAN_MODE])
+    const consumerPool = await createConsumerSequential(txEmitter, storagePool, networkName, 'pool', scanModes[appConfig.SCAN_MODE])
+    const consumerConfig = await createConsumerSequential(txEmitter, storageConfig, networkName, 'config', scanModes[appConfig.SCAN_MODE])
     logger.debug(`Starting consumers for network '${networkName}'.`)
     consumerDomain.start()
     consumerPool.start()

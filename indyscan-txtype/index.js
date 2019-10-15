@@ -1,113 +1,57 @@
-const {TX_DETAILS, LEDGER_TX_NAMES, NAME_TO_TYPE, TYPE_TO_NAME} = require('./txdata')
+const {TYPE_TO_DETAIL, NAME_TO_DETAIL, LEDGER_TX_NAMES} = require('./txdata')
 
 function txTypeToTxName (txType) {
-  return TYPE_TO_NAME[txType]
+  const detail = TYPE_TO_DETAIL[txType]
+  if (!detail) {
+    return undefined
+  }
+  return detail.txName
 }
 
 function txNameToTxCode (txName) {
-  return NAME_TO_TYPE[txName]
-}
-
-function txTypesToNames (txTypes) {
-  let names = []
-  for (const txType of txTypes) {
-    names.push(txTypeToTxName(txType))
+  const detail = NAME_TO_DETAIL[txName]
+  if (!detail) {
+    return undefined
   }
-  return names
+  return detail.txType
 }
 
 function txNamesToTypes (txNames) {
   let types = []
   for (const txName of txNames) {
     const txCode = txNameToTxCode(txName)
-    console.log(txName)
-    console.log(txCode)
     types.push(txCode)
   }
   return types
 }
 
-function getLedgerTxTypes (ledger) {
-  return LEDGER_TX_NAMES[ledger]
-}
-
 function getDomainsTxNames () {
-  return LEDGER_TX_NAMES.domain
+  return LEDGER_TX_NAMES['DOMAIN']
 }
 
 function getPoolTxNames () {
-  return LEDGER_TX_NAMES.pool
+  return LEDGER_TX_NAMES['POOL']
 }
 
 function getConfigTxNames () {
-  return LEDGER_TX_NAMES.config
-}
-
-function txTypToTxDescription (txType) {
-  return TX_DETAILS[txType]['description']
-}
-
-function genFieldChangeString (fieldObj) {
-  const fieldNames = Object.keys(fieldObj)
-  let changes = []
-  for (let i = 0; i < fieldNames.length; i++) {
-    const fieldName = fieldNames[i]
-    const value = fieldObj[fieldName]
-    if (value) {
-      changes.push(`Value of ${fieldName} changed to ${value}.`)
-    }
-  }
-  return changes
+  return LEDGER_TX_NAMES['CONFIG']
 }
 
 function describeTransaction (tx) {
-  const code = tx.txn.type
-  const txName = txTypeToTxName(code)
-  if (!txName) {
-    return `Unknown transition ${code}`
+  const txType = tx.txn.type
+  const detail = TYPE_TO_DETAIL[txType]
+  if (!detail) {
+    return `Unknown transition ${txType}`
   }
-  switch (txName) {
-    case 'NODE':
-      const {alias, blskey, node_ip, client_port, node_port, services} = tx.txn.data.data
-      // const changeObj = {
-      //   'alias': alias,
-      //   'blskey': blskey,
-      //   'node_ip': node_ip,
-      //   'client_port': client_port,
-      //   'node_port': node_port,
-      //   'services': services
-      // }
-      // const changes = genFieldChangeString(changeObj)
-      const {dest} = tx.txn.data
-      // return `Adds or updates node ${dest} with alias ${alias}. Changes: ${changes.join(' ')}`
-      return `Adds or updates node ${dest} with alias ${alias}.`
-    case 'NYM':
-      return 'TODO tx Description'
-    case 'ATTRIB':
-      return 'TODO tx Description'
-    case 'SCHEMA':
-      return 'TODO tx Description'
-    case 'CLAIM_DEF':
-      return 'TODO tx Description'
-    case 'POOL_UPGRADE':
-      return 'TODO tx Description'
-    case 'NODE_UPGRADE':
-      return 'TODO tx Description'
-    case 'POOL_CONFIG':
-      return 'TODO tx Description'
-  }
+  return detail.description
 }
 
 module.exports = {
   txNameToTxCode,
   txNamesToTypes,
   txTypeToTxName,
-  txTypesToNames,
-  txTypToTxDescription,
-  genFieldChangeString,
   describeTransaction,
   getDomainsTxNames,
   getPoolTxNames,
-  getConfigTxNames,
-  getLedgerTxTypes
+  getConfigTxNames
 }

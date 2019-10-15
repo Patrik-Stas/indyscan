@@ -40,6 +40,7 @@ module.exports = async function createClient (poolName, walletName) {
   async function getTx (subledgerName, txid) {
     const subledgerCode = LEDGER_NAME_TO_CODE[subledgerName.toLowerCase()]
     const getTx = await indy.buildGetTxnRequest(did, subledgerCode, txid)
+    logger.debug(`Built GET_TX request: ${JSON.stringify(getTx)}`)
     const tx = await indy.submitRequest(poolHandle, getTx)
     if (tx.op === 'REPLY') {
       if (tx.result.data) {

@@ -12,7 +12,7 @@ class TxListItem extends Component {
         const {seqNo, type, timestamp, txnId, rootHash} = this.props.txInfo;
         const {baseUrl, description, ledger, network} = this.props;
         const {href, as} = getTxLinkData(baseUrl, network, ledger, seqNo);
-        const txName = txTypeToTxName(type)
+        const txName = txTypeToTxName(type) || `UnknownTx:${txName}`
         return (
             <TableRow className="txListItem" style={{fontSize:"0.8em", height:"100%"}}>
                 <TableCell><Link href={href} as={as}><a>{seqNo}</a></Link></TableCell>
