@@ -16,13 +16,20 @@ const RESOURCE_DIR = path.resolve(__dirname, '../resource')
 let storage
 const { Client } = require('@elastic/elasticsearch')
 
+const URL_ES = process.env.URL_ES || 'http://localhost:9200'
+
 beforeAll(async () => {
   jest.setTimeout(1000 * 60 * 4)
   // const suiteUtime = Math.floor(new Date() / 1000)
-  const esClient = new Client({ node: 'http://localhost:9200' })
+  const esClient = new Client({ node: URL_ES })
   storage = await createStorageEs(esClient)
   await importFileToStorage(storage, `${RESOURCE_DIR}/txs-test/domain.json`)
-  await sleep(1000) // it takes a moment until mongo index all loaded documents
+  await sleep(1000) // make sure docs are processed, indexed
+})
+
+afterAll(async function() {
+  console.log(`Dropping ES index.`)
+  await storage.deleteEsIndex()
 })
 
 function areTxsOfTypes (txs, ...expectedTypes) {

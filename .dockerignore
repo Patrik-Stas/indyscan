@@ -1,3 +1,11 @@
-*/node_modules
-*/Dockerfile
+**/.idea
+**/node_modules
+**/dist
+**/.next
+**/test
+**/Dockerfile
 ./localhost
+./start
+./start-aws
+./ubuntu-libindy
+./git

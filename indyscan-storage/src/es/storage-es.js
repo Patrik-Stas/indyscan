@@ -46,6 +46,12 @@ async function createStorageEs (client) {
     })
   }
 
+  async function deleteEsIndex() {
+    client.indices.delete({
+      index: 'txs'
+    })
+  }
+
   return {
     findMaxSeqNo,
     addTx,
@@ -54,7 +60,8 @@ async function createStorageEs (client) {
     getTxs,
     getTxsByQuery,
     getTxCount,
-    getTxBySeqNo
+    getTxBySeqNo,
+    deleteEsIndex
   }
 }
 
