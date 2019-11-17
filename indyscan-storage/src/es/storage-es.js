@@ -1,10 +1,29 @@
-async function createStorageEs (client) {
-  async function getTxCount (filter = {}) {
-    return 5
+import { esAndFilters, esFilterBySeqNo, esFilterHasTimestamp } from './es-query-builder'
+
+async function createStorageEs (client, index) {
+  async function getTxCount (query) {
+    query = query || {'match_all': {}}
+    const {body} = await client.search({
+      index,
+      filter_path: 'hits.total',
+      body: {query}
+    })
+    return body.hits.total.value
   }
 
   async function getTxBySeqNo (seqNo) {
-    return {}
+    const query = esFilterBySeqNo(seqNo)
+    const {body} = await client.search({
+      index,
+      body: {query}
+    })
+    if (body.hits.hits.length > 1) {
+      throw Error(`Requested tx seqno ${seqNo} but ${res.hits.hits.length()} documents were returned. Should only be 1.`)
+    }
+    if (body.hits.hits.length === 0) {
+      return null
+    }
+    return body.hits.hits.map(h => h['_source'])[0]
   }
 
   /*
@@ -13,26 +32,36 @@ async function createStorageEs (client) {
   By default are transactions sorted from latest (index 0) to the oldest (last index of result array)
    */
   async function getOldestTimestamp () {
-    return {}
+    let res = await getTxs(0,
+      1,
+      esFilterHasTimestamp(),
+      {'txnMetadata.seqNo': {'order': 'asc'}},
+      (txs) => txs.map(t => t.txnMetadata.txnTime)
+    )
+    return res[0]
   }
 
-  async function getTxsTimestamps (skip = null, limit = null, filter = null, sort = null, projection = null) {
-    return [1, 2, 3]
-  }
-
-  async function getTxsByQuery (txsQuery) {
-    throw Error('not implemented, this will require refactor, this method wass originally made for mongodb')
+  async function getTxsTimestamps (skip, limit, query) {
+    return getTxs(skip, limit, esAndFilters(query, esFilterHasTimestamp()), null, (txs) => txs.map(t => t.txnMetadata.txnTime))
   }
 
   /*
   Returns array of (by default all) transactions.
   By default are transactions sorted from latest (index 0) to the oldest (last index of result array)
    */
-  async function getTxs (skip = null, limit = null, filter = null, sort = null, projection = null, transform = null) {
-    return client.search({
-      index: 'txs',
-      body: { foo: 'bar' }
-    })
+  async function getTxs (skip, limit, query, sort, transform) {
+    query = query || {'match_all': {}}
+    sort = sort || {'txnMetadata.seqNo': {'order': 'desc'}}
+    const searchRequest = {
+      from: skip,
+      size: limit,
+      index,
+      body: {query, sort},
+    }
+    console.log(JSON.stringify(searchRequest))
+    const {body} = await client.search(searchRequest)
+    let documents = body.hits.hits.map(h => h['_source'])
+    return transform ? transform(documents) : documents
   }
 
   async function findMaxSeqNo () {
@@ -41,14 +70,8 @@ async function createStorageEs (client) {
 
   async function addTx (tx) {
     await client.index({
-      index: 'txs',
+      index,
       body: tx
-    })
-  }
-
-  async function deleteEsIndex() {
-    client.indices.delete({
-      index: 'txs'
     })
   }
 
@@ -58,10 +81,8 @@ async function createStorageEs (client) {
     getOldestTimestamp,
     getTxsTimestamps,
     getTxs,
-    getTxsByQuery,
     getTxCount,
-    getTxBySeqNo,
-    deleteEsIndex
+    getTxBySeqNo
   }
 }
 

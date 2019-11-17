@@ -28,7 +28,7 @@ function initTxsApi (router, ledgerStorageManager, networkManager) {
       res.status(400).send({ message: 'i don\'t like your query string' })
       return
     }
-    const txFilter = txFilters.filterByTxTypeNames(filterTxNames)
+    const txFilter = txFilters.mongoFilterByTxTypeNames(filterTxNames)
     const limit = toRecentTx - fromRecentTx
     const txs = await ledgerStorageManager.getLedger(networkDbName, ledger).getTxs(fromRecentTx, limit, txFilter)
     res.status(200).send({ txs })
@@ -120,7 +120,7 @@ function initTxsApi (router, ledgerStorageManager, networkManager) {
     const { ledger } = req.params
     const networkDbName = getNetworkDbName(req, res)
     const filterTxNames = (parts.query.filterTxNames) ? JSON.parse(parts.query.filterTxNames) : []
-    const txFilter = txFilters.filterByTxTypeNames(filterTxNames)
+    const txFilter = txFilters.mongoFilterByTxTypeNames(filterTxNames)
     const txCount = await ledgerStorageManager.getLedger(networkDbName, ledger).getTxCount(txFilter)
     res.status(200).send({ txCount })
   })

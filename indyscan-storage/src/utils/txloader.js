@@ -6,7 +6,6 @@ async function importFileToStorage (storage, filePath) {
     .filter(Boolean)
   for (const line of lines) {
     const tx = JSON.parse(line)
-    console.log(`Importing tx: ${JSON.stringify(tx)}`)
     await storage.addTx(tx)
   }
 }

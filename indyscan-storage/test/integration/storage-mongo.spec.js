@@ -1,10 +1,10 @@
 /* eslint-env jest */
 import {
-  andFilters,
-  filterAboveSeqNo, filterBelowSeqNo,
-  filterTxnAfterTime,
-  filterTxnBeforeTime,
-  filterByTxTypeNames
+  mongoAndFilters,
+  mongoFilterAboveSeqNo, mongoFilterBelowSeqNo,
+  mongoFilterTxnAfterTime,
+  mongoFilterTxnBeforeTime,
+  mongoFilterByTxTypeNames
 } from '../../src/mongo/filter-builder'
 import { txNamesToTypes, txNameToTxCode } from 'indyscan-txtype'
 import { importFileToStorage } from '../../src/utils/txloader'
@@ -88,7 +88,7 @@ describe('basic storage test', () => {
   })
 
   it('should count 194 SCHEMA and CLAIM_DEF documents', async () => {
-    const txFilter = filterByTxTypeNames(['SCHEMA', 'CLAIM_DEF'])
+    const txFilter = mongoFilterByTxTypeNames(['SCHEMA', 'CLAIM_DEF'])
     const count = await storage.getTxCount(txFilter)
     expect(count).toBe(194)
   })
@@ -117,9 +117,9 @@ describe('basic storage test', () => {
     expect(txs.length).toBe(10)
   })
 
-  it('should project transactions', async () => {
+  it('should transform documenta', async () => {
     const rootHashTransform = (txs) => txs.map(tx => tx.rootHash)
-    const txs = await storage.getTxs(0, 10, null, null, null, rootHashTransform)
+    const txs = await storage.getTxs(0, 10, null, null, rootHashTransform)
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBe(10)
     expect(txs[0]).toBe('C6UHGXwdPRqyzSnvhZ83rVwCMZLwfNcK2MfbrW1QQ4kD')
@@ -138,7 +138,7 @@ describe('basic storage test', () => {
   })
 
   it('should get transactions of specific type', async () => {
-    const txFilter = filterByTxTypeNames([['CLAIM_DEF']])
+    const txFilter = mongoFilterByTxTypeNames([['CLAIM_DEF']])
     const txs = await storage.getTxs(0, 10, txFilter)
     for (const tx of txs) {
       expect(tx.rootHash).toBeDefined()
@@ -152,7 +152,7 @@ describe('basic storage test', () => {
   })
 
   it('should get transactions of two type', async () => {
-    const txFilter = filterByTxTypeNames(['SCHEMA', 'CLAIM_DEF'])
+    const txFilter = mongoFilterByTxTypeNames(['SCHEMA', 'CLAIM_DEF'])
     const txs = await storage.getTxs(0, 10, txFilter)
     expect(areTxsOfTypes(txs, '101', '102')).toBeTruthy()
     expect(containsTxOfType(txs, '101')).toBeTruthy()
@@ -162,7 +162,7 @@ describe('basic storage test', () => {
   it('should get transactions with txn before specific time', async () => {
     // txn 50 @ 1519920217
     // txn 61 @ 1520277085
-    const txFilter = filterTxnBeforeTime(1520277085)
+    const txFilter = mongoFilterTxnBeforeTime(1520277085)
     const txs = await storage.getTxs(0, 12, txFilter)
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBe(12)
@@ -174,7 +174,7 @@ describe('basic storage test', () => {
   it('should get transactions with txn after specific time', async () => {
     // txn 50 @ 1519920217
     // txn 61 @ 1520277085
-    const txFilter = filterTxnAfterTime(1520277085)
+    const txFilter = mongoFilterTxnAfterTime(1520277085)
     const txs = await storage.getTxs(0, 300, txFilter)
     console.log(txs.length)
     expect(Array.isArray(txs)).toBeTruthy()
@@ -188,9 +188,9 @@ describe('basic storage test', () => {
     // txn 50 @ 1519920217 // old tx
     // txn 61 @ 1520277085 // mid
     // txn 70 @ 1520365010 // more recent txn
-    const afterFilter = filterTxnAfterTime(1519920217)
-    const beforeFilter = filterTxnBeforeTime(1520365010)
-    const boundTimerangeFilter = andFilters(beforeFilter, afterFilter)
+    const afterFilter = mongoFilterTxnAfterTime(1519920217)
+    const beforeFilter = mongoFilterTxnBeforeTime(1520365010)
+    const boundTimerangeFilter = mongoAndFilters(beforeFilter, afterFilter)
     const txs = await storage.getTxs(0, 300, boundTimerangeFilter)
     console.log(txs.length)
     expect(Array.isArray(txs)).toBeTruthy()
@@ -205,10 +205,10 @@ describe('basic storage test', () => {
     // txn 50 @ 1519920217 // old tx
     // txn 61 @ 1520277085 // mid
     // txn 70 @ 1520365010 // more recent txn
-    const beforeFilter = filterTxnBeforeTime(1520365010)
-    const afterFilter = filterTxnAfterTime(1519920217)
-    const txTypeFilter = filterByTxTypeNames(['SCHEMA', 'CLAIM_DEF'])
-    const combinedFilter = andFilters(beforeFilter, afterFilter, txTypeFilter)
+    const beforeFilter = mongoFilterTxnBeforeTime(1520365010)
+    const afterFilter = mongoFilterTxnAfterTime(1519920217)
+    const txTypeFilter = mongoFilterByTxTypeNames(['SCHEMA', 'CLAIM_DEF'])
+    const combinedFilter = mongoAndFilters(beforeFilter, afterFilter, txTypeFilter)
     const txs = await storage.getTxs(0, 300, combinedFilter)
     expect(areTxsAfterTime(txs, 1519920217)).toBeTruthy()
     expect(areTxsBeforeTime(txs, 1520365010)).toBeTruthy()
@@ -223,7 +223,7 @@ describe('basic storage test', () => {
   })
 
   it('should get transaction in seqNo range', async () => {
-    const filter = andFilters(filterAboveSeqNo(200), filterBelowSeqNo(230))
+    const filter = mongoAndFilters(mongoFilterAboveSeqNo(200), mongoFilterBelowSeqNo(230))
     const timestamps = await storage.getTxs(0, 100, filter)
     expect(timestamps.length).toBe(30)
     expect(timestamps[0].txnMetadata.seqNo).toBe(229)
@@ -249,7 +249,7 @@ describe('basic storage test', () => {
   })
 
   it('should get less than 100 timestamps if filter is applied', async () => {
-    const filter = andFilters(filterByTxTypeNames(['NYM']), filterAboveSeqNo(200), filterBelowSeqNo(301))
+    const filter = mongoAndFilters(mongoFilterByTxTypeNames(['NYM']), mongoFilterAboveSeqNo(200), mongoFilterBelowSeqNo(301))
     const timestamps = await storage.getTxsTimestamps(0, 100, filter)
     expect(timestamps.length).toBe(9)
   })

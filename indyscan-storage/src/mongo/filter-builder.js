@@ -1,6 +1,6 @@
 const txTypeUtils = require('indyscan-txtype')
 
-function filterByTxTypeNames (txNames) {
+function mongoFilterByTxTypeNames (txNames) {
   const txTypes = txTypeUtils.txNamesToTypes(txNames)
   let filterArray = []
   for (const txType of txTypes) {
@@ -13,34 +13,34 @@ function filterByTxTypeNames (txNames) {
   return {}
 }
 
-function filterAboveSeqNo (seqNo) {
+function mongoFilterAboveSeqNo (seqNo) {
   return { 'txnMetadata.seqNo': { '$gte': seqNo } }
 }
 
-function filterBelowSeqNo (seqNo) {
+function mongoFilterBelowSeqNo (seqNo) {
   return { 'txnMetadata.seqNo': { '$lt': seqNo } }
 }
 
-function filterTxnAfterTime (utime) {
+function mongoFilterTxnAfterTime (utime) {
   return { 'txnMetadata.txnTime': { '$gte': utime } }
 }
 
-function filterTxnBeforeTime (utime) {
+function mongoFilterTxnBeforeTime (utime) {
   return { 'txnMetadata.txnTime': { '$lt': utime } }
 }
 
-function orFilters (...filters) {
+function mongoOrFilters (...filters) {
   return { '$or': [...filters] }
 }
 
-function andFilters (...filters) {
+function mongoAndFilters (...filters) {
   return { '$and': [...filters] }
 }
 
-module.exports.filterByTxTypeNames = filterByTxTypeNames
-module.exports.filterTxnAfterTime = filterTxnAfterTime
-module.exports.filterTxnBeforeTime = filterTxnBeforeTime
-module.exports.filterAboveSeqNo = filterAboveSeqNo
-module.exports.filterBelowSeqNo = filterBelowSeqNo
-module.exports.andFilters = andFilters
-module.exports.orFilters = orFilters
+module.exports.mongoFilterByTxTypeNames = mongoFilterByTxTypeNames
+module.exports.mongoFilterTxnAfterTime = mongoFilterTxnAfterTime
+module.exports.mongoFilterTxnBeforeTime = mongoFilterTxnBeforeTime
+module.exports.mongoFilterAboveSeqNo = mongoFilterAboveSeqNo
+module.exports.mongoFilterBelowSeqNo = mongoFilterBelowSeqNo
+module.exports.mongoAndFilters = mongoAndFilters
+module.exports.mongoOrFilters = mongoOrFilters

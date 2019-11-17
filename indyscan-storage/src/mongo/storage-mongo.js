@@ -34,10 +34,10 @@ createStorageMongo (collection) {
   }
 
   async function getTxsTimestamps (skip = null, limit = null, filter = null, sort = { 'txnMetadata.seqNo': -1 }, projection = null) {
-    return getTxs(skip, limit, filter, sort, projection, projectAvailableTimestamps)
+    return getTxs(skip, limit, filter, sort, projectAvailableTimestamps)
   }
 
-  async function getTxsByQuery (txsQuery) {
+  async function _getTxsByQuery (txsQuery) {
     return txsQuery.executeAgainst(collection)
   }
 
@@ -45,10 +45,10 @@ createStorageMongo (collection) {
   Returns array of (by default all) transactions.
   By default are transactions sorted from latest (index 0) to the oldest (last index of result array)
    */
-  async function getTxs (skip = null, limit = null, filter = null, sort = null, projection = null, transform = null) {
+  async function getTxs (skip = null, limit = null, filter = null, sort = null, transform = null) {
     sort = (sort) || { 'txnMetadata.seqNo': -1 }
-    const q = txsQuery().setLimit(limit).setSkip(skip).setFilter(filter).setSort(sort).setProjection(projection).setTransform(transform)
-    return getTxsByQuery(q)
+    const q = txsQuery().setLimit(limit).setSkip(skip).setFilter(filter).setSort(sort).setTransform(transform)
+    return _getTxsByQuery(q)
   }
 
   async function findMaxSeqNo () {
@@ -77,7 +77,6 @@ createStorageMongo (collection) {
     getOldestTimestamp,
     getTxsTimestamps,
     getTxs,
-    getTxsByQuery,
     getTxCount,
     getTxBySeqNo
   }
