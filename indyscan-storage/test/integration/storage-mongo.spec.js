@@ -10,10 +10,10 @@ import { txNamesToTypes, txNameToTxCode } from 'indyscan-txtype'
 import { importFileToStorage } from '../../src/utils/txloader'
 import sleep from 'sleep-promise'
 import path from 'path'
-
-const util = require('util')
-const { createStorageMongo } = require('../../src/mongo/storage-mongo')
-const { MongoClient } = require('mongodb')
+import { areTxsAfterTime, areTxsBeforeTime, areTxsOfTypes, containsTxOfType } from './common'
+import { createStorageMongo } from '../../src/mongo/storage-mongo'
+import { MongoClient } from 'mongodb'
+import util from 'util'
 
 const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017'
 const asyncMongoConnect = util.promisify(MongoClient.connect)
@@ -31,58 +31,19 @@ let storage
 
 beforeAll(async () => {
   jest.setTimeout(1000 * 60 * 4)
-  mongoHost = await asyncMongoConnect(MONGO_URL)
+  mongoHost = await asyncMongoConnect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   let mongoDatabase = await mongoHost.db(`TESTRUN-NETWORK-${suiteUtime}`)
   storage = await createStorageMongo(await createMongoTxsCollection(mongoDatabase, 'domain'))
   await importFileToStorage(storage, `${RESOURCE_DIR}/txs-test/domain.json`)
   await sleep(1000) // it takes a moment until mongo index all loaded documents
-  console.log(`Finished before all`)
 })
 
 afterAll(async () => {
   await mongoHost.close()
 })
 
-function areTxsOfTypes (txs, ...expectedTypes) {
-  for (const tx of txs) {
-    if (!expectedTypes.includes(tx.txn.type)) {
-      console.log(`Type of transaction ${JSON.stringify(tx)} is not one of these: ${JSON.stringify(expectedTypes)}`)
-      return false
-    }
-  }
-  return true
-}
-
-function containsTxOfType (txs, expectedTxType) {
-  for (const tx of txs) {
-    if (expectedTxType === tx.txn.type) {
-      return true
-    }
-  }
-  return false
-}
-
-function areTxsAfterTime (txs, utimeThreshold) {
-  for (const tx of txs) {
-    if (tx.txnMetadata.txnTime < utimeThreshold) {
-      return false
-    }
-  }
-  return true
-}
-
-function areTxsBeforeTime (txs, utimeThreshold) {
-  for (const tx of txs) {
-    if (tx.txnMetadata.txnTime > utimeThreshold) {
-      return false
-    }
-  }
-  return true
-}
-
 describe('basic storage test', () => {
   it('should return 300 as count of domains txs', async () => {
-    console.log(`Starting the test`)
     const count = await storage.getTxCount()
     expect(count).toBe(300)
   })
@@ -176,7 +137,6 @@ describe('basic storage test', () => {
     // txn 61 @ 1520277085
     const txFilter = mongoFilterTxnAfterTime(1520277085)
     const txs = await storage.getTxs(0, 300, txFilter)
-    console.log(txs.length)
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBe(240)
     expect(txs[0].txnMetadata.seqNo).toBe(300)
@@ -192,7 +152,6 @@ describe('basic storage test', () => {
     const beforeFilter = mongoFilterTxnBeforeTime(1520365010)
     const boundTimerangeFilter = mongoAndFilters(beforeFilter, afterFilter)
     const txs = await storage.getTxs(0, 300, boundTimerangeFilter)
-    console.log(txs.length)
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBe(20)
     expect(txs[0].txnMetadata.seqNo).toBe(69)

@@ -1,6 +1,5 @@
 /* eslint-env jest */
 import { txNamesToTypes, txNameToTxCode } from 'indyscan-txtype'
-import { importFileToStorage } from '../../src/utils/txloader'
 import sleep from 'sleep-promise'
 import path from 'path'
 import {
@@ -10,6 +9,7 @@ import {
   esFilterTxnBeforeTime
 } from '../../src/es/es-query-builder'
 import fs from 'fs'
+import { areTxsAfterTime, areTxsBeforeTime, areTxsOfTypes, containsTxOfType } from './common'
 const { createStorageEs } = require('../../src/es/storage-es')
 
 const RESOURCE_DIR = path.resolve(__dirname, '../resource')
@@ -23,12 +23,10 @@ const index = 'txs-domain-test-integration'
 
 beforeAll(async () => {
   jest.setTimeout(1000 * 60 * 4)
-  // const suiteUtime = Math.floor(new Date() / 1000)
   esClient = new Client({ node: URL_ES })
   storage = await createStorageEs(esClient, index)
   let bulkdata = fs.readFileSync(`${RESOURCE_DIR}/es-bulk-files/domain.json`, 'utf-8')
   await esClient.bulk({index, body: bulkdata})
-  // await importFileToStorage(storage, `${RESOURCE_DIR}/txs-test/domain.json`)
   await sleep(500)
 })
 
@@ -38,46 +36,8 @@ afterAll(async function() {
   })
 })
 
-function areTxsOfTypes (txs, ...expectedTypes) {
-  for (const tx of txs) {
-    if (!expectedTypes.includes(tx.txn.type)) {
-      console.log(`Type of transaction ${JSON.stringify(tx)} is not one of these: ${JSON.stringify(expectedTypes)}`)
-      return false
-    }
-  }
-  return true
-}
-
-function containsTxOfType (txs, expectedTxType) {
-  for (const tx of txs) {
-    if (expectedTxType === tx.txn.type) {
-      return true
-    }
-  }
-  return false
-}
-
-function areTxsAfterTime (txs, utimeThreshold) {
-  for (const tx of txs) {
-    if (tx.txnMetadata.txnTime < utimeThreshold) {
-      return false
-    }
-  }
-  return true
-}
-
-function areTxsBeforeTime (txs, utimeThreshold) {
-  for (const tx of txs) {
-    if (tx.txnMetadata.txnTime > utimeThreshold) {
-      return false
-    }
-  }
-  return true
-}
-
 describe('basic storage test', () => {
   it('should return 300 as count of domains txs', async () => {
-    console.log(`Starting the test`)
     const count = await storage.getTxCount()
     expect(count).toBe(300)
   })
@@ -171,7 +131,6 @@ describe('basic storage test', () => {
     // txn 61 @ 1520277085
     const txFilter = esFilterTxnAfterTime(1520277085)
     const txs = await storage.getTxs(0, 300, txFilter)
-    console.log(txs.length)
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBe(240)
     expect(txs[0].txnMetadata.seqNo).toBe(300)
@@ -187,7 +146,6 @@ describe('basic storage test', () => {
     const beforeFilter = esFilterTxnBeforeTime(1520365010)
     const boundTimerangeFilter = esAndFilters(beforeFilter, afterFilter)
     const txs = await storage.getTxs(0, 300, boundTimerangeFilter)
-    console.log(txs.length)
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBe(20)
     expect(txs[0].txnMetadata.seqNo).toBe(69)
@@ -245,7 +203,6 @@ describe('basic storage test', () => {
 
   it('should get less than 100 timestamps if filter is applied', async () => {
     const filter = esAndFilters(esFilterByTxTypeNames(['NYM']), esFilterAboveSeqNo(200), esFilterBelowSeqNo(301))
-    console.log(JSON.stringify(filter))
     const timestamps = await storage.getTxsTimestamps(0, 100, filter)
     expect(timestamps.length).toBe(9)
   })

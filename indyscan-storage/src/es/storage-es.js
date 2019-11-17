@@ -26,11 +26,6 @@ async function createStorageEs (client, index) {
     return body.hits.hits.map(h => h['_source'])[0]
   }
 
-  /*
-  Returns array of unix-time timestamps (seconds granularity) of (by default all) transactions which contain timestamp.
-  Non-timestamped transactions are skipped.
-  By default are transactions sorted from latest (index 0) to the oldest (last index of result array)
-   */
   async function getOldestTimestamp () {
     let res = await getTxs(0,
       1,
@@ -47,7 +42,7 @@ async function createStorageEs (client, index) {
 
   /*
   Returns array of (by default all) transactions.
-  By default are transactions sorted from latest (index 0) to the oldest (last index of result array)
+  By default are transactions sorted from the latest (index 0) to the oldest (last index of result array)
    */
   async function getTxs (skip, limit, query, sort, transform) {
     query = query || {'match_all': {}}
@@ -58,7 +53,6 @@ async function createStorageEs (client, index) {
       index,
       body: {query, sort},
     }
-    console.log(JSON.stringify(searchRequest))
     const {body} = await client.search(searchRequest)
     let documents = body.hits.hits.map(h => h['_source'])
     return transform ? transform(documents) : documents
