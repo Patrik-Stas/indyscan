@@ -7,8 +7,7 @@ const removeDotsFromKeys = keyTransform.recursiveJSONKeyTransform(dotTransformer
 /*
  Implementation of IndyScan storage for particular network and ledger
  */
-async function
-createStorageMongo (collection) {
+async function createStorageMongo (collection) {
   async function getTxCount (filter = {}) {
     if (Object.keys(filter) === 0) {
       return collection.estimatedDocumentCount()
