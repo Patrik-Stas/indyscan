@@ -6,6 +6,7 @@
   "description": "Application scanning Hyperledger Indy blockchain for new transactions and further processing.",
   "main": "srcc/index.js",
   "scripts": {
+    "lint": "standard",
     "dev": "cross-env NODE_ENV=development nodemon ./src/index.js --exec node",
     "start": "cross-env NODE_ENV=production node ./src/index.js",
     "test:unit": "jest test/unit",
@@ -16,16 +17,17 @@
     "networks:add:sovrin": "bash genesis/sovrin/setup.sh"
   },
   "dependencies": {
-    "mongodb": "^3.1.10",
+    "@elastic/elasticsearch": "^7.4.0",
+    "dotenv": "^7.0.0",
     "indy-sdk": "1.11.1",
     "indyscan-storage": "file:../indyscan-storage",
+    "joi": "^14.3.1",
+    "mongodb": "^3.1.10",
     "sleep-promise": "^8.0.1",
     "util": "^0.11.1",
     "uuid": "^3.3.2",
     "winston": "^3.2.1",
-    "write": "^1.0.3",
-    "joi": "^14.3.1",
-    "dotenv": "^7.0.0"
+    "write": "^1.0.3"
   },
   "devDependencies": {
     "@types/jest": "^24.0.15",

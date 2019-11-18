@@ -1,6 +1,33 @@
-import { esAndFilters, esFilterBySeqNo, esFilterHasTimestamp } from './es-query-builder'
+const {esAndFilters, esFilterBySeqNo, esFilterHasTimestamp} = require('./es-query-builder')
 
 async function createStorageEs (client, index) {
+
+  const { body: exists } = await client.indices.exists({index})
+
+  if (!exists) {
+    await client.indices.create({
+      index: index,
+      body: {
+        settings: {
+          index: {
+            number_of_replicas: 0 // for local development
+          }
+        }
+      }
+    })
+
+    const foo = {
+      index,
+      body: {
+        'properties': {
+          "txnMetadata.seqNo": {'type': 'integer'}
+        }
+      }
+    }
+    await client.indices.putMapping(foo)
+  }
+
+
   async function getTxCount (query) {
     query = query || {'match_all': {}}
     const {body} = await client.search({
@@ -59,7 +86,15 @@ async function createStorageEs (client, index) {
   }
 
   async function findMaxSeqNo () {
-    return 123
+    let txs = await getTxs(0,
+      1,
+      null,
+      {'txnMetadata.seqNo': {'order': 'desc'}},
+      null
+    )
+    if (txs.length === 0) {
+      return 0
+    } else return txs[0].txnMetadata.seqNo
   }
 
   async function addTx (tx) {

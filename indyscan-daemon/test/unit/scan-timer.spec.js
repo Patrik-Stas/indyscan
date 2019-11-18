@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const { createTimerLock } = require('../../src/scan-timer')
+const { createTimerLock } = require('../../src/time/scan-timer')
 const sleep = require('sleep-promise')
 
 describe('ledger tx resolution', () => {

@@ -1,6 +1,6 @@
 const { rightPad } = require('../logging/logutil')
 
-const { createTimerLock } = require('../scan-timer')
+const { createTimerLock } = require('../time/scan-timer')
 
 const logger = require('../logging/logger-main')
 
@@ -11,7 +11,6 @@ function createConsumerSequential (txEmitter, indyscanStorage, network, subledge
   let processedTxCount = 0
   let requestCycleCount = 0
   let txNotAvailableCount = 0
-  let txResolutionErrorCount = 0
   let cycleExceptionCount = 0
 
   let enabled = true
@@ -50,7 +49,6 @@ function createConsumerSequential (txEmitter, indyscanStorage, network, subledge
 
   async function delayNextOnFailedResolution (requestId, network, subledger, seqNo, requester) {
     logger.error(`${logPrefix} Tx seqno=${seqNo} failed to resolve.`)
-    txResolutionErrorCount++
     timerLock.addBlockTime(unavailableTimeoutMs, jitterRatio)
   }
 
