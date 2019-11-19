@@ -9,8 +9,8 @@ module.exports.createStorageFactory = async function createStorageFactory () {
 
   if (appConfig.USE_STORAGE === 'ELASTIC_SEARCH') {
     const elasticsearch = require('@elastic/elasticsearch')
-    console.log(`Connecting to ElasticSearh '${appConfig.URL_ES}'.`)
-    esClient = new elasticsearch.Client({ node: appConfig.URL_ES })
+    console.log(`Connecting to ElasticSearh '${appConfig.ES_URL}'.`)
+    esClient = new elasticsearch.Client({ node: appConfig.ES_URL })
   } else if (appConfig.USE_STORAGE === 'MONGO') {
     const mongodb = require('mongodb')
     const asyncMongoConnect = util.promisify(mongodb.MongoClient.connect)
@@ -20,9 +20,9 @@ module.exports.createStorageFactory = async function createStorageFactory () {
 
   async function createEsStoragesForNetwork (networkName) {
     logger.debug(`Creating ElasticSearch storages for network '${networkName}'.`)
-    const storageDomain = await createStorageEs(esClient, `txs-${networkName.toLowerCase()}-domain`)
-    const storagePool = await createStorageEs(esClient, `txs-${networkName.toLowerCase()}-pool`)
-    const storageConfig = await createStorageEs(esClient, `txs-${networkName.toLowerCase()}-config`)
+    const storageDomain = await createStorageEs(esClient, `txs-${networkName.toLowerCase()}-domain`, appConfig.ES_REPLICA_COUNT)
+    const storagePool = await createStorageEs(esClient, `txs-${networkName.toLowerCase()}-pool`, appConfig.ES_REPLICA_COUNT)
+    const storageConfig = await createStorageEs(esClient, `txs-${networkName.toLowerCase()}-config`, appConfig.ES_REPLICA_COUNT)
     return { storageDomain, storagePool, storageConfig }
   }
 

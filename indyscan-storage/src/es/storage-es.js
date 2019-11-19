@@ -1,32 +1,32 @@
 const {esAndFilters, esFilterBySeqNo, esFilterHasTimestamp} = require('./es-query-builder')
 
-async function createStorageEs (client, index) {
+async function createStorageEs (client, index, replicaCount) {
 
-  const { body: exists } = await client.indices.exists({index})
+  const {body: indexExists} = await client.indices.exists({index})
 
-  if (!exists) {
+  if (!indexExists) {
     await client.indices.create({
       index: index,
       body: {
         settings: {
           index: {
-            number_of_replicas: 0 // for local development
+            number_of_replicas: replicaCount
           }
         }
       }
     })
 
-    const foo = {
+    const coreMappings = {
       index,
       body: {
         'properties': {
-          "txnMetadata.seqNo": {'type': 'integer'}
+          'txnMetadata.seqNo': {'type': 'integer'},
+          "txnMetadata.txnTime": { "type": "date", "format": "epoch_second" }
         }
       }
     }
-    await client.indices.putMapping(foo)
+    await client.indices.putMapping(coreMappings)
   }
-
 
   async function getTxCount (query) {
     query = query || {'match_all': {}}

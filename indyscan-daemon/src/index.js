@@ -26,8 +26,15 @@ async function run () {
   const resolveTxOnLedger = await createTxResolverLedger(networks)
   const storageFactory = await createStorageFactory()
   for (const indyNetwork of networks) {
-    const { storageDomain, storagePool, storageConfig } = await storageFactory.createStoragesForNetwork(indyNetwork)
-    scanNetwork(resolveTxOnLedger, indyNetwork, storageDomain, storagePool, storageConfig)
+    try {
+      const {storageDomain, storagePool, storageConfig} = await storageFactory.createStoragesForNetwork(indyNetwork)
+      scanNetwork(resolveTxOnLedger, indyNetwork, storageDomain, storagePool, storageConfig)
+    } catch (err) {
+      logger.error(`Problem setting up storage for network '${indyNetwork}'.`)
+      logger.error(err.message)
+      logger.error(err.stack)
+      logger.error(JSON.stringify(err, null, 2))
+    }
   }
 }
 
