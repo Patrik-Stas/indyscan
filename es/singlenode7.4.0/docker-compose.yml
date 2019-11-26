@@ -1,8 +1,6 @@
 version: '3.7'
 
 services:
-
-  # Elasticsearch Docker Images: https://www.docker.elastic.co/
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
     container_name: elasticsearch
@@ -19,7 +17,7 @@ services:
     cap_add:
       - IPC_LOCK
     volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
+      - indyscan-es:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
       - 9300:9300
@@ -35,5 +33,5 @@ services:
       - elasticsearch
 
 volumes:
-  elasticsearch-data:
+  indyscan-es:
     driver: local

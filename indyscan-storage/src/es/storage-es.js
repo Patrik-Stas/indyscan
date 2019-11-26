@@ -98,9 +98,10 @@ async function createStorageEs (client, index, replicaCount) {
   }
 
   async function addTx (tx) {
+    let transformedTx = await esTransform(tx)
     await client.index({
       index,
-      body: tx
+      body: transformedTx
     })
   }
 

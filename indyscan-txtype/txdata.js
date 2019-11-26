@@ -6,9 +6,7 @@ let TYPE_TO_DETAIL = {
   '113': { ledger: 'DOMAIN', txName: 'REVOC_REG_DEF', description: 'Adds a Revocation Registry Definition, that Issuer creates and publishes for a particular Claim Definition. It contains public keys, maximum number of credentials the registry may contain, reference to the Claim Def, plus some revocation registry specific data.'},
   '114': { ledger: 'DOMAIN', txName: 'REVOC_REG_ENTRY', description: 'The RevocReg entry containing the new accumulator value and issued/revoked indices. This is just a delta of indices, not the whole list. So, it can be sent each time a new claim is issued/revoked.'},
   '200': { ledger: 'DOMAIN', txName: 'SET_CONTEXT', description: 'Adds a Context'},
-
   '0':   { ledger: 'POOL',   txName: 'NODE', description: 'Adds a new node to the pool or updates an existing node in the pool'},
-
   '109': { ledger: 'CONFIG', txName: 'POOL_UPGRADE', description: 'Command to upgrade the Pool (sent by Trustee). It upgrades the specified Nodes (either all nodes in the Pool, or some specific ones).'},
   '110': { ledger: 'CONFIG', txName: 'NODE_UPGRADE', description: 'Status of each Node\'s upgrade (sent by each upgraded Node)'},
   '111': { ledger: 'CONFIG', txName: 'POOL_CONFIG', description: 'Command to change Pool\'s configuration'},
