@@ -90,7 +90,7 @@ async function createStorageEs (client, index, replicaCount) {
     let txs = await getTxs(0,
       1,
       null,
-      { 'txnMetadata.seqNo': { 'order': 'desc' } },
+      { 'transformed.txnMetadata.seqNo': { 'order': 'desc' } },
       null
     )
     if (txs.length === 0) {
@@ -101,10 +101,13 @@ async function createStorageEs (client, index, replicaCount) {
   let esTxTransform = createEsTxTransform(getTxBySeqNo.bind(this))
 
   async function addTx (tx) {
-    let transformedTx = await esTxTransform(tx)
+    let transformed = await esTxTransform(tx)
     await client.index({
       index,
-      body: transformedTx
+      body: {
+        original: tx,
+        transformed
+      }
     })
   }
 

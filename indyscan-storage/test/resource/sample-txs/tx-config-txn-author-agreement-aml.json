@@ -1,0 +1,51 @@
+{
+  "auditPath": [
+    "2BDehz4VsGcYfkbLE6yAjNHThJpygdiDUu5aVZVVgjPP",
+    "BixjyCAqvxzPSyFS4Q3YYq4mWR9D1m3U682Y8QJJ4ZRM",
+    "Ggeo5SzmJrvX67xrxiGZdi9makAzVyPWDm6kZYzASU7c",
+    "EUdA46dpLuSDNsL52oPQ6Za43fAbp8JhMt2Bfiu4xEDq",
+    "3mwbAZudi9AeQJfu1e4uGaoCpT5XbEYmBtorHHWVSbS3",
+    "Bc6S3KMEG8hbGUE5wH8zyF1xT4GJafYm6RUJRbWxdAmT",
+    "51Su7vQKmw5av8YuYpAFb1YoVqNU8k2yf945Q679bCwT",
+    "EGbd1P9CcQJQz1qEyXpf2EPX3KSNddgfFNZKi8hjMe9j"
+  ],
+  "ledgerSize": 140,
+  "reqSignature": {
+    "type": "ED25519",
+    "values": [
+      {
+        "from": "4TMD8bT757JqBnmoCiNCc3",
+        "value": "5pEUQJAb4fMa1fqshQtan8KBduJfVEsJ1PDmCy7Qbt7DxtFZAqjMb2U2hBzmuKyf8Mbqq9MkAh3NDhxZR2hqZDmW"
+      }
+    ]
+  },
+  "rootHash": "8AqFqTaG6C2RLAaVZQEasoYHjFdeLvwLPod2hBBZvN6F",
+  "txn": {
+    "data": {
+      "aml": {
+        "at_submission": "The agreement was reviewed by the user and accepted at the time of submission of this transaction.",
+        "click_agreement": "The agreement was displayed and then agreed to by typing or clicking acceptance.",
+        "for_session": "The agreement was reviewed by the user and accepted at some point in the user’s session prior to submission.",
+        "on_file": "An authorized person accepted the agreement, and such acceptance is on file with the user’s organization.",
+        "product_eula": "The agreement was included in the software product’s terms and conditions as part of a license to the end user.",
+        "service_agreement": "The agreement was included in the terms and conditions the user accepted as part of contracting a service.",
+        "wallet_agreement": "The agreement was reviewed by the user and this affirmation was persisted in the user’s wallet for use during submission."
+      },
+      "amlContext": "https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/TAA/AML.md",
+      "version": "0.1"
+    },
+    "metadata": {
+      "digest": "e1135b9882119714728457e520bff94942359295cd06ba5caed9286bda565f4a",
+      "from": "4TMD8bT757JqBnmoCiNCc3",
+      "payloadDigest": "16d5a5b22f48bb3fbdaa88a1470b3903dc3b03f6ca8dbe58c3572e273f40a208",
+      "reqId": 1568655345600915000
+    },
+    "protocolVersion": 2,
+    "type": "5"
+  },
+  "txnMetadata": {
+    "seqNo": 9,
+    "txnTime": 1568655345
+  },
+  "ver": "1"
+}

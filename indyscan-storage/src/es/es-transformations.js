@@ -42,15 +42,9 @@ function createEsTxTransform (resolveTxBySeqno) {
     'TXN_AUTHOR_AGREEMENT_AML': noop
   }
 
-  // TODO: Only do the transformation (noop or else), and don't create the original/transformed superobject
   async function esTxTransform (tx) {
-    let final = {}
-    final['original'] = Object.assign({}, tx)
-    final['transformed'] = {}
-    const txTypeName = txTypeToTxName(tx.txn.type)
-    const txTransform = txTransforms[txTypeName] || noop
-    final['transformed'] = await txTransform(tx)
-    return final
+    const transform = txTransforms[txTypeToTxName(tx.txn.type)] || noop
+    return transform(tx)
   }
 
   return esTxTransform
