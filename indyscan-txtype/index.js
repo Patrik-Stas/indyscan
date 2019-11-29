@@ -5,10 +5,12 @@ const {
   describeTransaction,
   getDomainsTxNames,
   getPoolTxNames,
-  getConfigTxNames
+  getConfigTxNames,
+  txTypeToSubledgerName,
+  subledgerIdToName
 } = require('./src/types')
 
-const {extractSchemaTxInfo} = require('./src/extractor')
+const { extractSchemaTxInfo } = require('./src/extractor')
 
 module.exports = {
   txNameToTxCode,
@@ -18,5 +20,7 @@ module.exports = {
   getDomainsTxNames,
   getPoolTxNames,
   getConfigTxNames,
-  extractSchemaTxInfo
+  extractSchemaTxInfo,
+  txTypeToSubledgerName,
+  subledgerIdToName
 }

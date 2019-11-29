@@ -2,6 +2,10 @@ const { createEsTxTransform } = require('./es-transformations')
 const { esAndFilters, esFilterBySeqNo, esFilterHasTimestamp } = require('./es-query-builder')
 
 // txnMetadata.txnId must non-analyzed, might look like this: DkiCRWTKf9JfWobvpBBMqJ:1:a46c629dd642fe32d14d5f54887ad15391d6701b41afc67d60d93525e3f15e7d
+// txn.data.data.alias should be analyzed, case-insensitive (it's field of pool NODE transaction
+//     "data": {
+//       "data": {
+//         "alias": "CULedger",
 async function createStorageEs (client, index, replicaCount) {
   const { body: indexExists } = await client.indices.exists({ index })
 

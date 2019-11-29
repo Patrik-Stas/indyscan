@@ -20,6 +20,13 @@ describe('basic suite', () => {
     expect(txtype.txNameToTxCode('TXN_AUTHOR_AGREEMENT_AML')).toBe('5')
   })
 
+  it('should convert subledger id to name', async () => {
+    expect(txtype.subledgerIdToName(0)).toBe('POOL')
+    expect(txtype.subledgerIdToName(1)).toBe('DOMAIN')
+    expect(txtype.subledgerIdToName(2)).toBe('CONFIG')
+    expect(txtype.subledgerIdToName(3)).toBe('AUDIT')
+  })
+
   it('should convert tx code to name', async () => {
     expect(txtype.txTypeToTxName('1')).toBe('NYM')
     expect(txtype.txTypeToTxName('100')).toBe('ATTRIB')
@@ -36,6 +43,24 @@ describe('basic suite', () => {
     expect(txtype.txTypeToTxName('122')).toBe('AUTH_RULES')
     expect(txtype.txTypeToTxName('4')).toBe('TXN_AUTHOR_AGREEMENT')
     expect(txtype.txTypeToTxName('5')).toBe('TXN_AUTHOR_AGREEMENT_AML')
+  })
+
+  it('should convert tx code to belonding subledger name', async () => {
+    expect(txtype.txTypeToSubledgerName('1')).toBe('DOMAIN')
+    expect(txtype.txTypeToSubledgerName('100')).toBe('DOMAIN')
+    expect(txtype.txTypeToSubledgerName('101')).toBe('DOMAIN')
+    expect(txtype.txTypeToSubledgerName('102')).toBe('DOMAIN')
+    expect(txtype.txTypeToSubledgerName('113')).toBe('DOMAIN')
+    expect(txtype.txTypeToSubledgerName('114')).toBe('DOMAIN')
+    expect(txtype.txTypeToSubledgerName('200')).toBe('DOMAIN')
+    expect(txtype.txTypeToSubledgerName('0')).toBe('POOL')
+    expect(txtype.txTypeToSubledgerName('109')).toBe('CONFIG')
+    expect(txtype.txTypeToSubledgerName('110')).toBe('CONFIG')
+    expect(txtype.txTypeToSubledgerName('111')).toBe('CONFIG')
+    expect(txtype.txTypeToSubledgerName('120')).toBe('CONFIG')
+    expect(txtype.txTypeToSubledgerName('122')).toBe('CONFIG')
+    expect(txtype.txTypeToSubledgerName('4')).toBe('CONFIG')
+    expect(txtype.txTypeToSubledgerName('5')).toBe('CONFIG')
   })
 
   it('should get all domain transaction names', async () => {

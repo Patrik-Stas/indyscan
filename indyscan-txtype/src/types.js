@@ -1,4 +1,4 @@
-const { TYPE_TO_DETAIL, NAME_TO_DETAIL, LEDGER_TX_NAMES } = require('./txdata')
+const { TYPE_TO_DETAIL, NAME_TO_DETAIL, LEDGER_TX_NAMES, LEDGER_ID_TO_DETAIL } = require('./txdata')
 
 function txTypeToTxName (txType) {
   const detail = TYPE_TO_DETAIL[txType]
@@ -6,6 +6,22 @@ function txTypeToTxName (txType) {
     return undefined
   }
   return detail.txName
+}
+
+function subledgerIdToName (subledgerId) {
+  const name = LEDGER_ID_TO_DETAIL[subledgerId]
+  if (!name) {
+    return undefined
+  }
+  return name
+}
+
+function txTypeToSubledgerName (txType) {
+  const detail = TYPE_TO_DETAIL[txType]
+  if (!detail) {
+    return undefined
+  }
+  return detail.ledger
 }
 
 function txNameToTxCode (txName) {
@@ -53,5 +69,7 @@ module.exports = {
   describeTransaction,
   getDomainsTxNames,
   getPoolTxNames,
-  getConfigTxNames
+  getConfigTxNames,
+  txTypeToSubledgerName,
+  subledgerIdToName
 }

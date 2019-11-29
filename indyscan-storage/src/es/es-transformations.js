@@ -1,4 +1,4 @@
-const { txTypeToTxName, extractSchemaTxInfo } = require('indyscan-txtype')
+const {txTypeToTxName, extractSchemaTxInfo, subledgerIdToName} = require('indyscan-txtype')
 const _ = require('lodash')
 
 function createEsTxTransform (resolveTxBySeqno) {
@@ -9,11 +9,11 @@ function createEsTxTransform (resolveTxBySeqno) {
   async function transformCredDef (tx) {
     const schemaRefSeqNo = tx.txn.data.ref
     let schemaTx = resolveTxBySeqno(schemaRefSeqNo)
-    const { txnSeqno, txnTime, schemaId, schemaFrom, schemaName, schemaVersion, attributes } = extractSchemaTxInfo(schemaTx)
+    const {txnSeqno, txnTime, schemaId, schemaFrom, schemaName, schemaVersion, attributes} = extractSchemaTxInfo(schemaTx)
     if (txnSeqno !== schemaRefSeqNo) {
       throw Error(`txnSeqno !== schemaRefSeqNo. This should never happen.`)
     }
-    tx.txn.data = { schema: {} }
+    tx.txn.data = {schema: {}}
     tx.txn.data.schema.txnSeqno = txnSeqno
     tx.txn.data.schema.txnTime = txnTime
     tx.txn.data.schema.schemaId = schemaId
@@ -30,7 +30,7 @@ function createEsTxTransform (resolveTxBySeqno) {
       tx.txn.data.schedule = []
       for (const scheduleKey of Object.keys(originalSchedule)) {
         let scheduleTime = originalSchedule[scheduleKey]
-        tx.txn.data.schedule.push({ scheduleKey, scheduleTime })
+        tx.txn.data.schedule.push({scheduleKey, scheduleTime})
       }
     }
     return tx
@@ -55,11 +55,24 @@ function createEsTxTransform (resolveTxBySeqno) {
     'UNKNOWN': noop
   }
 
-  async function createEsTransformedTx (tx) {
+  const allowedSubledgerCodes = [0, 1, 2]
+
+  async function createEsTransformedTx (tx, subledgerCode) {
+    if (!tx) {
+      throw Error('tx argument not defined')
+    }
+    if (!allowedSubledgerCodes.includes(subledgerCode)) {
+      throw Error(`Subledger code must be one of following integers: '${JSON.stringify(allowedSubledgerCodes)}'.`)
+    }
+    let subledgerName = subledgerIdToName(subledgerCode)
     let txName = txTypeToTxName(tx.txn.type) || 'UNKNOWN'
     const transform = txTransforms[txName]
     let transformed = await transform(_.cloneDeep(tx))
     transformed.txn.typeName = txName
+    transformed.subledger = {
+      code: subledgerCode,
+      name: subledgerName
+    }
     return transformed
   }
 

@@ -16,6 +16,13 @@ const TYPE_TO_DETAIL = {
   5: { ledger: 'CONFIG', txName: 'TXN_AUTHOR_AGREEMENT_AML', description: 'Setting a list of acceptance mechanisms for transaction author agreement. Each write request for which a transaction author agreement needs to be accepted must point to a mechanism from the latest list on the ledger. The chosen mechanism is signed by the write request author (together with the transaction author agreement digest).' }
 }
 
+const LEDGER_ID_TO_DETAIL = {
+  0: 'POOL',
+  1: 'DOMAIN',
+  2: 'CONFIG',
+  3: 'AUDIT'
+}
+
 const TX_TYPES = Object.keys(TYPE_TO_DETAIL)
 
 for (const txType of TX_TYPES) {
@@ -37,3 +44,4 @@ for (const txType of TX_TYPES) {
 module.exports.TYPE_TO_DETAIL = TYPE_TO_DETAIL
 module.exports.NAME_TO_DETAIL = NAME_TO_DETAIL
 module.exports.LEDGER_TX_NAMES = LEDGER_TX_NAMES
+module.exports.LEDGER_ID_TO_DETAIL = LEDGER_ID_TO_DETAIL
