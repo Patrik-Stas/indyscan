@@ -1,4 +1,4 @@
-const {txTypeToTxName, extractSchemaTxInfo, subledgerIdToName} = require('indyscan-txtype')
+const { txTypeToTxName, extractSchemaTxInfo, subledgerIdToName } = require('indyscan-txtype')
 const _ = require('lodash')
 
 function createEsTxTransform (resolveTxBySeqno) {
@@ -9,18 +9,18 @@ function createEsTxTransform (resolveTxBySeqno) {
   async function transformCredDef (tx) {
     const schemaRefSeqNo = tx.txn.data.ref
     let schemaTx = resolveTxBySeqno(schemaRefSeqNo)
-    const {txnSeqno, txnTime, schemaId, schemaFrom, schemaName, schemaVersion, attributes} = extractSchemaTxInfo(schemaTx)
+    const { txnSeqno, txnTime, schemaId, schemaFrom, schemaName, schemaVersion, attributes } = extractSchemaTxInfo(schemaTx)
     if (txnSeqno !== schemaRefSeqNo) {
       throw Error(`txnSeqno !== schemaRefSeqNo. This should never happen.`)
     }
-    tx.txn.data = {schema: {}}
-    tx.txn.data.schema.txnSeqno = txnSeqno
-    tx.txn.data.schema.txnTime = txnTime
-    tx.txn.data.schema.schemaId = schemaId
-    tx.txn.data.schema.schemaName = schemaName
-    tx.txn.data.schema.schemaVersion = schemaVersion
-    tx.txn.data.schema.schemaFrom = schemaFrom
-    tx.txn.data.schema.schemaAttributes = attributes
+    tx.txn.data = { }
+    tx.txn.data.refSchemaTxnSeqno = txnSeqno
+    tx.txn.data.refSchemaTxnTime = txnTime
+    tx.txn.data.refSchemaId = schemaId
+    tx.txn.data.refSchemaName = schemaName
+    tx.txn.data.refSchemaVersion = schemaVersion
+    tx.txn.data.refSchemaFrom = schemaFrom
+    tx.txn.data.refSchemaAttributes = attributes
     return tx
   }
 
@@ -30,7 +30,7 @@ function createEsTxTransform (resolveTxBySeqno) {
       tx.txn.data.schedule = []
       for (const scheduleKey of Object.keys(originalSchedule)) {
         let scheduleTime = originalSchedule[scheduleKey]
-        tx.txn.data.schedule.push({scheduleKey, scheduleTime})
+        tx.txn.data.schedule.push({ scheduleKey, scheduleTime })
       }
     }
     return tx

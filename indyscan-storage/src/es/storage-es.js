@@ -6,7 +6,9 @@ const { esAndFilters, esFilterBySeqNo, esFilterHasTimestamp } = require('./es-qu
 //     "data": {
 //       "data": {
 //         "alias": "CULedger",
-async function createStorageEs (client, index, replicaCount) {
+async function createStorageEs (client, index, replicaCount, subledgerName) {
+  subledgerName = subledgerName.toUpperCase()
+
   const { body: indexExists } = await client.indices.exists({ index })
 
   if (!indexExists) {
@@ -25,8 +27,41 @@ async function createStorageEs (client, index, replicaCount) {
       index,
       body: {
         'properties': {
-          'txnMetadata.seqNo': { 'type': 'integer' },
-          'txnMetadata.txnTime': { 'type': 'date', 'format': 'epoch_second' }
+          'original': { type: 'text', index: false },
+          'indyscan.txnMetadata.seqNo': { type: 'integer' },
+          'indyscan.txnMetadata.txnTime': { type: 'date', format: 'epoch_second' },
+          'indyscan.txnMetadata.txnId': { type: 'keyword', index: true },
+
+          // TX: CLAIM_DEF
+          'txn.data.refSchemaTxnSeqno': { type: 'integer' },
+          'txn.data.refSchemaTxnTime': { type: 'date', format: 'epoch_second' },
+          'txn.data.refSchemaId': { type: 'keyword', index: true },
+          'txn.data.refSchemaName': { type: 'text', index: true },
+          'txn.data.refSchemaVersion': { type: 'keyword', index: true },
+          'txn.data.refSchemaFrom': { type: 'keyword', index: true },
+          // TODO:: 'txn.data.refSchemaAttributes' :
+
+          // TX: pool NODE transaction
+          'indyscan.txn.data.data.alias': { type: 'text', index: true },
+
+          // Added to every tx
+          'transformed.txn.type': { type: 'keyword', index: true },
+          'transformed.txn.typeName': { type: 'keyword', index: true },
+          'indyscan.subledger.code': { type: 'keyword', index: true },
+          'indyscan.subledger.name': { type: 'keyword', index: true },
+          'indyscan.meta.scanTime': { type: 'date', format: 'basic_date_time' },
+
+          // TX: domain AUTHOR_AGREEMENT_AML
+          'txn.data.aml.at_submission': { type: 'text', analyzer: 'english' },
+          'txn.data.aml.click_agreement': { type: 'text', analyzer: 'english' },
+          'txn.data.aml.for_session': { type: 'text', analyzer: 'english' },
+          'txn.data.aml.on_file': { type: 'text', analyzer: 'english' },
+          'txn.data.aml.product_eula': { type: 'text', analyzer: 'english' },
+          'txn.data.aml.service_agreement': { type: 'text', analyzer: 'english' },
+          'txn.data.aml.wallet_agreement': { type: 'text', analyzer: 'english' },
+
+          // TX: domain AUTHOR_AGREEMENT
+          'txn.data.text': { type: 'text', analyzer: 'english' }
         }
       }
     }
@@ -50,7 +85,7 @@ async function createStorageEs (client, index, replicaCount) {
       body: { query }
     })
     if (body.hits.hits.length > 1) {
-      throw Error(`Requested tx seqno ${seqNo} but ${res.hits.hits.length()} documents were returned. Should only be 1.`)
+      throw Error(`Requested tx seqno ${seqNo} but ${body.hits.hits.length()} documents were returned. Should only be 1.`)
     }
     if (body.hits.hits.length === 0) {
       return null
@@ -106,11 +141,14 @@ async function createStorageEs (client, index, replicaCount) {
 
   async function addTx (tx) {
     let transformed = await createEsTransformedTx(tx)
+    transformed.meta = {
+      scanTime: new Date()
+    }
     await client.index({
       index,
       body: {
-        original: tx,
-        transformed
+        original: JSON.stringify(tx),
+        indyscan: transformed
       }
     })
   }
