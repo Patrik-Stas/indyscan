@@ -1,7 +1,7 @@
 const { createEsTxTransform } = require('./es-transformations')
-const { esTransform } = require('./es-transformations')
 const { esAndFilters, esFilterBySeqNo, esFilterHasTimestamp } = require('./es-query-builder')
 
+// txnMetadata.txnId must non-analyzed, might look like this: DkiCRWTKf9JfWobvpBBMqJ:1:a46c629dd642fe32d14d5f54887ad15391d6701b41afc67d60d93525e3f15e7d
 async function createStorageEs (client, index, replicaCount) {
   const { body: indexExists } = await client.indices.exists({ index })
 
@@ -98,10 +98,10 @@ async function createStorageEs (client, index, replicaCount) {
     } else return txs[0].txnMetadata.seqNo
   }
 
-  let esTxTransform = createEsTxTransform(getTxBySeqNo.bind(this))
+  let createEsTransformedTx = createEsTxTransform(getTxBySeqNo.bind(this))
 
   async function addTx (tx) {
-    let transformed = await esTxTransform(tx)
+    let transformed = await createEsTransformedTx(tx)
     await client.index({
       index,
       body: {

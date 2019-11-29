@@ -26,11 +26,11 @@ beforeAll(async () => {
   esClient = new Client({ node: URL_ES })
   storage = await createStorageEs(esClient, index)
   let bulkdata = fs.readFileSync(`${RESOURCE_DIR}/es-bulk-files/domain.json`, 'utf-8')
-  await esClient.bulk({index, body: bulkdata})
+  await esClient.bulk({ index, body: bulkdata })
   await sleep(500)
 })
 
-afterAll(async function() {
+afterAll(async function () {
   await esClient.indices.delete({
     index
   })
