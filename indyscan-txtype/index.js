@@ -7,7 +7,8 @@ const {
   getPoolTxNames,
   getConfigTxNames,
   txTypeToSubledgerName,
-  subledgerIdToName
+  subledgerIdToName,
+  subledgerNameToId
 } = require('./src/types')
 
 const { extractSchemaTxInfo } = require('./src/extractor')
@@ -22,5 +23,6 @@ module.exports = {
   getConfigTxNames,
   extractSchemaTxInfo,
   txTypeToSubledgerName,
-  subledgerIdToName
+  subledgerIdToName,
+  subledgerNameToId
 }

@@ -23,6 +23,13 @@ const LEDGER_ID_TO_DETAIL = {
   3: 'AUDIT'
 }
 
+const LEDGER_NAME_TO_ID = {
+  POOL: 0,
+  DOMAIN: 1,
+  CONFIG: 2,
+  AUDIT: 3
+}
+
 const TX_TYPES = Object.keys(TYPE_TO_DETAIL)
 
 for (const txType of TX_TYPES) {
@@ -45,3 +52,4 @@ module.exports.TYPE_TO_DETAIL = TYPE_TO_DETAIL
 module.exports.NAME_TO_DETAIL = NAME_TO_DETAIL
 module.exports.LEDGER_TX_NAMES = LEDGER_TX_NAMES
 module.exports.LEDGER_ID_TO_DETAIL = LEDGER_ID_TO_DETAIL
+module.exports.LEDGER_NAME_TO_ID = LEDGER_NAME_TO_ID

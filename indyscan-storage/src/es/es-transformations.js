@@ -1,5 +1,6 @@
-const { txTypeToTxName, extractSchemaTxInfo, subledgerIdToName } = require('indyscan-txtype')
+const { txTypeToTxName, extractSchemaTxInfo, subledgerNameToId } = require('indyscan-txtype')
 const _ = require('lodash')
+const sleep = require('sleep-promise')
 
 function createEsTxTransform (resolveTxBySeqno) {
   function noop (tx) {
@@ -8,14 +9,25 @@ function createEsTxTransform (resolveTxBySeqno) {
 
   async function transformCredDef (tx) {
     const schemaRefSeqNo = tx.txn.data.ref
-    let schemaTx = resolveTxBySeqno(schemaRefSeqNo)
+    let schemaTx = await resolveTxBySeqno(schemaRefSeqNo)
+    if (!schemaTx) {
+      await sleep(1000)
+      schemaTx = await resolveTxBySeqno(schemaRefSeqNo)
+      if (!schemaTx) {
+        throw Error(`Can't resolve referenced schema TX ${schemaRefSeqNo}`)
+      }
+    }
+    console.log(`Resolved schema TX seqno=${schemaRefSeqNo}  === ${JSON.stringify(schemaTx)}`)
     const { txnSeqno, txnTime, schemaId, schemaFrom, schemaName, schemaVersion, attributes } = extractSchemaTxInfo(schemaTx)
     if (txnSeqno !== schemaRefSeqNo) {
       throw Error(`txnSeqno !== schemaRefSeqNo. This should never happen.`)
     }
     tx.txn.data = { }
     tx.txn.data.refSchemaTxnSeqno = txnSeqno
-    tx.txn.data.refSchemaTxnTime = txnTime
+    if (txnTime) {
+      let epochMiliseconds = txnTime * 1000
+      tx.txn.data.refSchemaTxnTime = new Date(epochMiliseconds).toISOString()
+    }
     tx.txn.data.refSchemaId = schemaId
     tx.txn.data.refSchemaName = schemaName
     tx.txn.data.refSchemaVersion = schemaVersion
@@ -55,19 +67,25 @@ function createEsTxTransform (resolveTxBySeqno) {
     'UNKNOWN': noop
   }
 
-  const allowedSubledgerCodes = [0, 1, 2]
+  const allowedSubledgerNames = ['DOMAIN', 'POOL', 'CONFIG']
 
-  async function createEsTransformedTx (tx, subledgerCode) {
+  async function createEsTransformedTx (tx, subledgerName) {
     if (!tx) {
       throw Error('tx argument not defined')
     }
-    if (!allowedSubledgerCodes.includes(subledgerCode)) {
-      throw Error(`Subledger code must be one of following integers: '${JSON.stringify(allowedSubledgerCodes)}'.`)
+    subledgerName = subledgerName.toUpperCase()
+    if (!allowedSubledgerNames.includes(subledgerName)) {
+      throw Error(`Provided subledger name ${subledgerName}. Allowed values: '${JSON.stringify(allowedSubledgerNames)}'.`)
     }
-    let subledgerName = subledgerIdToName(subledgerCode)
+    let subledgerCode = subledgerNameToId(subledgerName)
     let txName = txTypeToTxName(tx.txn.type) || 'UNKNOWN'
     const transform = txTransforms[txName]
     let transformed = await transform(_.cloneDeep(tx))
+    if (transformed.txnMetadata.txnTime) {
+      let epochMiliseconds = transformed.txnMetadata.txnTime * 1000
+      console.log(epochMiliseconds)
+      transformed.txnMetadata.txnTime = new Date(epochMiliseconds).toISOString()
+    }
     transformed.txn.typeName = txName
     transformed.subledger = {
       code: subledgerCode,

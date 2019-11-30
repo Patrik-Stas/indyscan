@@ -1,18 +1,18 @@
 const { createEsTxTransform } = require('./es-transformations')
 const { esAndFilters, esFilterBySeqNo, esFilterHasTimestamp } = require('./es-query-builder')
 
-// txnMetadata.txnId must non-analyzed, might look like this: DkiCRWTKf9JfWobvpBBMqJ:1:a46c629dd642fe32d14d5f54887ad15391d6701b41afc67d60d93525e3f15e7d
-// txn.data.data.alias should be analyzed, case-insensitive (it's field of pool NODE transaction
-//     "data": {
-//       "data": {
-//         "alias": "CULedger",
 async function createStorageEs (client, index, replicaCount, subledgerName) {
   subledgerName = subledgerName.toUpperCase()
+
+  // let subledgerQuery = {
+  //
+  // }
 
   const { body: indexExists } = await client.indices.exists({ index })
 
   if (!indexExists) {
-    await client.indices.create({
+    console.log(`Creating index ${index}`)
+    let createIndexRes = await client.indices.create({
       index: index,
       body: {
         settings: {
@@ -22,6 +22,7 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
         }
       }
     })
+    console.log(JSON.stringify(createIndexRes, null, 2))
 
     const coreMappings = {
       index,
@@ -29,43 +30,45 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
         'properties': {
           'original': { type: 'text', index: false },
           'indyscan.txnMetadata.seqNo': { type: 'integer' },
-          'indyscan.txnMetadata.txnTime': { type: 'date', format: 'epoch_second' },
+          'indyscan.txnMetadata.txnTime': { type: 'date', format: 'date_time' },
           'indyscan.txnMetadata.txnId': { type: 'keyword', index: true },
 
           // TX: CLAIM_DEF
-          'txn.data.refSchemaTxnSeqno': { type: 'integer' },
-          'txn.data.refSchemaTxnTime': { type: 'date', format: 'epoch_second' },
-          'txn.data.refSchemaId': { type: 'keyword', index: true },
-          'txn.data.refSchemaName': { type: 'text', index: true },
-          'txn.data.refSchemaVersion': { type: 'keyword', index: true },
-          'txn.data.refSchemaFrom': { type: 'keyword', index: true },
+          'indyscan.txn.data.refSchemaTxnSeqno': { type: 'integer' },
+          'indyscan.txn.data.refSchemaTxnTime': { type: 'date', format: 'date_time' },
+          'indyscan.txn.data.refSchemaId': { type: 'keyword', index: true },
+          'indyscan.txn.data.refSchemaName': { type: 'text', index: true },
+          'indyscan.txn.data.refSchemaVersion': { type: 'keyword', index: true },
+          'indyscan.txn.data.refSchemaFrom': { type: 'keyword', index: true },
           // TODO:: 'txn.data.refSchemaAttributes' :
 
           // TX: pool NODE transaction
           'indyscan.txn.data.data.alias': { type: 'text', index: true },
 
           // Added to every tx
-          'transformed.txn.type': { type: 'keyword', index: true },
-          'transformed.txn.typeName': { type: 'keyword', index: true },
+          'indyscan.txn.type': { type: 'keyword', index: true },
+          'indyscan.txn.typeName': { type: 'keyword', index: true },
           'indyscan.subledger.code': { type: 'keyword', index: true },
           'indyscan.subledger.name': { type: 'keyword', index: true },
-          'indyscan.meta.scanTime': { type: 'date', format: 'basic_date_time' },
+          'indyscan.meta.scanTime': { type: 'date', format: 'date_time' },
 
           // TX: domain AUTHOR_AGREEMENT_AML
-          'txn.data.aml.at_submission': { type: 'text', analyzer: 'english' },
-          'txn.data.aml.click_agreement': { type: 'text', analyzer: 'english' },
-          'txn.data.aml.for_session': { type: 'text', analyzer: 'english' },
-          'txn.data.aml.on_file': { type: 'text', analyzer: 'english' },
-          'txn.data.aml.product_eula': { type: 'text', analyzer: 'english' },
-          'txn.data.aml.service_agreement': { type: 'text', analyzer: 'english' },
-          'txn.data.aml.wallet_agreement': { type: 'text', analyzer: 'english' },
+          'indyscan.txn.data.aml.at_submission': { type: 'text', analyzer: 'english' },
+          'indyscan.txn.data.aml.click_agreement': { type: 'text', analyzer: 'english' },
+          'indyscan.txn.data.aml.for_session': { type: 'text', analyzer: 'english' },
+          'indyscan.txn.data.aml.on_file': { type: 'text', analyzer: 'english' },
+          'indyscan.txn.data.aml.product_eula': { type: 'text', analyzer: 'english' },
+          'indyscan.txn.data.aml.service_agreement': { type: 'text', analyzer: 'english' },
+          'indyscan.txn.data.aml.wallet_agreement': { type: 'text', analyzer: 'english' },
 
           // TX: domain AUTHOR_AGREEMENT
-          'txn.data.text': { type: 'text', analyzer: 'english' }
+          'indyscan.txn.data.text': { type: 'text', analyzer: 'english' }
         }
       }
     }
     await client.indices.putMapping(coreMappings)
+  } else {
+    console.log(`Idex ${index} alredy exists`)
   }
 
   async function getTxCount (query) {
@@ -90,14 +93,16 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
     if (body.hits.hits.length === 0) {
       return null
     }
-    return body.hits.hits.map(h => h['_source'])[0]['original']
+    let original = body.hits.hits.map(h => h['_source'])[0]['original']
+    console.log(`Retrieved origianl = ${original}`)
+    return JSON.parse(original)
   }
 
   async function getOldestTimestamp () {
     let res = await getTxs(0,
       1,
       esFilterHasTimestamp(),
-      { 'txnMetadata.seqNo': { 'order': 'asc' } },
+      { 'indyscan.txnMetadata.seqNo': { 'order': 'asc' } },
       (txs) => txs.map(t => t.txnMetadata.txnTime)
     )
     return res[0]
@@ -113,15 +118,16 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
    */
   async function getTxs (skip, limit, query, sort, transform) {
     query = query || { 'match_all': {} }
-    sort = sort || { 'txnMetadata.seqNo': { 'order': 'desc' } }
+    sort = sort || { 'indyscan.txnMetadata.seqNo': { 'order': 'desc' } }
     const searchRequest = {
       from: skip,
       size: limit,
       index,
       body: { query, sort }
     }
+    console.log(`search req = ${JSON.stringify(searchRequest)}`)
     const { body } = await client.search(searchRequest)
-    let documents = body.hits.hits.map(h => h['_source'])
+    let documents = body.hits.hits.map(h => JSON.parse(h['_source']['original']))
     return transform ? transform(documents) : documents
   }
 
@@ -140,16 +146,18 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
   let createEsTransformedTx = createEsTxTransform(getTxBySeqNo.bind(this))
 
   async function addTx (tx) {
-    let transformed = await createEsTransformedTx(tx)
+    let transformed = await createEsTransformedTx(tx, subledgerName)
     transformed.meta = {
-      scanTime: new Date()
+      scanTime: new Date().toISOString()
     }
+    let data = {
+      original: JSON.stringify(tx),
+      indyscan: transformed
+    }
+    console.log(`Index transaction:\n${JSON.stringify(data)}`)
     await client.index({
       index,
-      body: {
-        original: JSON.stringify(tx),
-        indyscan: transformed
-      }
+      body: data
     })
   }
 

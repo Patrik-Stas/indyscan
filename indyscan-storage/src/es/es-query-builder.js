@@ -3,7 +3,7 @@ const txTypeUtils = require('indyscan-txtype')
 function esFilterByTxTypeNames (txNames) {
   return {
     'terms': {
-      'txn.type': txTypeUtils.txNamesToTypes(txNames)
+      'indyscan.txn.type': txTypeUtils.txNamesToTypes(txNames)
     }
   }
 }
@@ -11,7 +11,7 @@ function esFilterByTxTypeNames (txNames) {
 function esFilterHasTimestamp () {
   return {
     'exists': {
-      'field': 'txnMetadata.txnTime'
+      'field': 'indyscan.txnMetadata.txnTime'
     }
   }
 }
@@ -19,7 +19,7 @@ function esFilterHasTimestamp () {
 function esFilterBySeqNo (seqNo) {
   return {
     'term': {
-      'txnMetadata.seqNo': {
+      'indyscan.txnMetadata.seqNo': {
         'value': seqNo
       }
     }
@@ -29,7 +29,7 @@ function esFilterBySeqNo (seqNo) {
 function esFilterAboveSeqNo (seqNo) {
   return {
     'range': {
-      'txnMetadata.seqNo': {
+      'indyscan.txnMetadata.seqNo': {
         'gte': seqNo
       }
     }
@@ -39,7 +39,7 @@ function esFilterAboveSeqNo (seqNo) {
 function esFilterBelowSeqNo (seqNo) {
   return {
     'range': {
-      'txnMetadata.seqNo': {
+      'indyscan.txnMetadata.seqNo': {
         'lt': seqNo
       }
     }
@@ -49,8 +49,8 @@ function esFilterBelowSeqNo (seqNo) {
 function esFilterTxnAfterTime (utime) {
   return {
     'range': {
-      'txnMetadata.txnTime': {
-        'gte': utime
+      'indyscan.txnMetadata.txnTime': {
+        'gte': new Date(utime * 1000).toISOString()
       }
     }
   }
@@ -59,19 +59,19 @@ function esFilterTxnAfterTime (utime) {
 function esFilterTxnBeforeTime (utime) {
   return {
     'range': {
-      'txnMetadata.txnTime': {
-        'lt': utime
+      'indyscan.txnMetadata.txnTime': {
+        'lt': new Date(utime * 1000).toISOString()
       }
     }
   }
 }
 
 function esOrFilters (...filters) {
-  return {'bool': {'should': [...filters]}}
+  return { 'bool': { 'should': [...filters] } }
 }
 
 function esAndFilters (...filters) {
-  return {'bool': {'must': [...filters]}}
+  return { 'bool': { 'must': [...filters] } }
 }
 
 module.exports.esFilterByTxTypeNames = esFilterByTxTypeNames

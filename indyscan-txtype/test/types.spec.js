@@ -27,6 +27,13 @@ describe('basic suite', () => {
     expect(txtype.subledgerIdToName(3)).toBe('AUDIT')
   })
 
+  it('should convert subledger name to id', async () => {
+    expect(txtype.subledgerNameToId('POOL')).toBe(0)
+    expect(txtype.subledgerNameToId('DOMAIN')).toBe(1)
+    expect(txtype.subledgerNameToId('CONFIG')).toBe(2)
+    expect(txtype.subledgerNameToId('AUDIT')).toBe(3)
+  })
+
   it('should convert tx code to name', async () => {
     expect(txtype.txTypeToTxName('1')).toBe('NYM')
     expect(txtype.txTypeToTxName('100')).toBe('ATTRIB')
