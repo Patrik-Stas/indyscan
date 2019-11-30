@@ -17,15 +17,6 @@ describe('network config manager', () => {
     expect(networks[2]).toBe('SOVRIN_BUILDERNET-db')
   })
 
-  it('should return correct network ids', async () => {
-    const networkManager = createNetworkManager(networkConfig)
-    const ids = networkManager.getNetworkIds()
-    expect(ids.length).toBe(3)
-    expect(ids[0]).toBe('sovrin-main-net')
-    expect(ids[1]).toBe('sovrin-staging-net')
-    expect(ids[2]).toBe('sovrin-builder-net')
-  })
-
   it('should return the first network from config as the default one', async () => {
     const networkManager = createNetworkManager(networkConfig)
     expect(networkManager.getDefaultNetworkId()).toBe('sovrin-main-net')
@@ -45,11 +36,11 @@ describe('network config manager', () => {
 
   it('should resolve db name by passing network id as reference', async () => {
     const networkManager = createNetworkManager(networkConfig)
-    expect(networkManager.getDbName('sovrin-main-net')).toBe('SOVRIN_MAINNET-db')
+    expect(networkManager.getNetworkId('sovrin-main-net')).toBe('SOVRIN_MAINNET-db')
   })
 
   it('should resolve db name by passing network alias as reference', async () => {
     const networkManager = createNetworkManager(networkConfig)
-    expect(networkManager.getDbName('SOVRIN_TESTNET')).toBe('SOVRIN_TESTNET-db')
+    expect(networkManager.getNetworkId('SOVRIN_TESTNET')).toBe('SOVRIN_TESTNET-db')
   })
 })

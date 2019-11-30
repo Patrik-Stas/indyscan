@@ -24,9 +24,9 @@ const index = 'txs-integration-test'
 beforeAll(async () => {
   jest.setTimeout(1000 * 60 * 4)
   esClient = new Client({ node: URL_ES })
-  let domainStoragePromise = await createStorageEs(esClient, index, 0, 'DOMAIN', true)
-  let configStoragePromise = await createStorageEs(esClient, index, 0, 'CONFIG', false)
-  let poolStoragePromise = await createStorageEs(esClient, index, 0, 'POOL', false)
+  let domainStoragePromise = await createStorageEs(esClient, index, 0, 'DOMAIN', true, false)
+  let configStoragePromise = await createStorageEs(esClient, index, 0, 'CONFIG', false, false)
+  let poolStoragePromise = await createStorageEs(esClient, index, 0, 'POOL', false, false)
   const [domainStorageResolved, configStorageResolved, poolStorageResolved] =
     await Promise.all([domainStoragePromise, configStoragePromise, poolStoragePromise])
   domainStorage = domainStorageResolved

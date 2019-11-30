@@ -8,9 +8,10 @@
   "scripts": {
     "lint": "standard",
     "lint:fix": "standard --fix",
-    "dev": "cross-env NODE_ENV=development nodemon ./src/index.js --exec node",
-    "start": "cross-env NODE_ENV=production node ./src/index.js",
-    "start:sovrin": "INDY_NETWORKS='SOVRIN_BUILDERNET,SOVRIN_TESTNET,SOVRIN_MAINNET,SOVRIN_TRAININGNET' cross-env NODE_ENV=production node ./src/index.js",
+    "dev": "cross-env ENVIRONMENT=localhost NODE_ENV=development nodemon ./src/index.js --exec node",
+    "dev:sovrin": "cross-env ENVIRONMENT=localhost-sovrin NODE_ENV=development nodemon ./src/index.js --exec node",
+    "start": "cross-env ENVIRONMENT=localhost NODE_ENV=production node ./src/index.js",
+    "start:sovrin": "cross-env  ENVIRONMENT=localhost-sovrin NODE_ENV=production node ./src/index.js",
     "test:unit": "jest test/unit",
     "test:integration": "jest test/integration",
     "localhost:startmongo": "docker run -d -p 27017:27017 -v ~/indyscan/mongo-dev:/data/db --name dev-indyscan-mongo mongo:3.4.18",

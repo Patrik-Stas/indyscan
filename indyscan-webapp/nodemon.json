@@ -2,5 +2,13 @@
   "verbose": true,
   "ignore": ["node_modules", ".next"],
   "watch": ["server/**/*", "index.js"],
-  "ext": "js json"
+  "ext": "js json",
+  "env": {
+    "ES_URL": "http://localhost:9200",
+    "LOG_LEVEL": "debug",
+    "PORT" : 3701,
+    "LOG_HTTP_REQUESTS" : true,
+    "LOG_HTTP_RESPONSES" : true,
+    "NETWORKS_CONFIG_PATH": "./config-networks/localhost-sovrin.json"
+  }
 }

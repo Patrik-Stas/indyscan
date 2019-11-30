@@ -2,26 +2,28 @@ const { createEsTxTransform } = require('./es-transformations')
 const { esFilterSubledgerName, esAndFilters, esFilterBySeqNo, esFilterHasTimestamp } = require('./es-query-builder')
 const { txTypeToSubledgerName } = require('indyscan-txtype')
 
-async function createStorageEs (client, index, replicaCount, subledgerName, assureEsIndices, logger) {
-  const knownSubledgers = ["DOMAIN", "POOL", "CONFIG"]
+async function createStorageEs (client, index, replicaCount, subledgerName, assureEsIndex, expectEsIndex, logger) {
+  const knownSubledgers = ['DOMAIN', 'POOL', 'CONFIG']
   const subledgerNameUpperCase = subledgerName.toUpperCase()
   if (knownSubledgers.includes(subledgerNameUpperCase) === false) {
     throw Error(`Unknown subledger '${subledgerNameUpperCase}'. Known ledger = ${JSON.stringify(knownSubledgers)}`)
   }
   const subledgerTxsQuery = esFilterSubledgerName(subledgerNameUpperCase)
 
-  if (assureEsIndices) {
-    const existsResponse = await client.indices.exists({ index })
-    const { body: indexExists } = existsResponse
-    if (indexExists === undefined || indexExists === null) {
-      throw Error(`Can't figure out if index ${index} exists in ES. ES Response: ${JSON.stringify(existsResponse)}.`)
-    }
-    if (indexExists === false) {
-      await createEsIndex()
-    }
+  const existsResponse = await client.indices.exists({ index })
+  const { body: indexExists } = existsResponse
+  if (indexExists === undefined || indexExists === null) {
+    throw Error(`Can't figure out if index ${index} exists in ES. ES Response: ${JSON.stringify(existsResponse)}.`)
   }
 
-  async function createEsIndex() {
+  if (expectEsIndex && !indexExists) {
+    throw Error(`Index ${index} was expected to already exist, but did not!`)
+  }
+  if (assureEsIndex && !indexExists) {
+    await createEsIndex()
+  }
+
+  async function createEsIndex () {
     let createIndexRes = await client.indices.create({
       index: index,
       body: {
@@ -163,7 +165,7 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
         logger.warn(`Can't verify which subledger txn.type '${tx.txn.type}' belongs to. Maybe a new Indy tx type?`)
       }
     } else if (recognizedSubledger.toUpperCase() !== subledgerNameUpperCase) {
-        throw Error(`Won't add transaction to storage. It is considered to belong to ${recognizedSubledger}` +
+      throw Error(`Won't add transaction to storage. It is considered to belong to ${recognizedSubledger}` +
         ` but attempt was made to add it to storage for subledger '${subledgerNameUpperCase}'.` +
         ` The transaction: '${JSON.stringify(tx)}'.`)
     }
