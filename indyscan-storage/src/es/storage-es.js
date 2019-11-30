@@ -1,8 +1,10 @@
 const { createEsTxTransform } = require('./es-transformations')
-const { esAndFilters, esFilterBySeqNo, esFilterHasTimestamp } = require('./es-query-builder')
+const { esFilterSubledgerName, esAndFilters, esFilterBySeqNo, esFilterHasTimestamp } = require('./es-query-builder')
+const { txTypeToSubledgerName } = require('indyscan-txtype')
 
 async function createStorageEs (client, index, replicaCount, subledgerName) {
-  subledgerName = subledgerName.toUpperCase()
+  const subledgerNameUpperCase = subledgerName.toUpperCase()
+  const subledgerTxsQuery = esFilterSubledgerName(subledgerNameUpperCase)
 
   // let subledgerQuery = {
   //
@@ -68,11 +70,11 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
     }
     await client.indices.putMapping(coreMappings)
   } else {
-    console.log(`Idex ${index} alredy exists`)
+    console.log(`Index ${index} already exists`)
   }
 
   async function getTxCount (query) {
-    query = query || { 'match_all': {} }
+    query = query ? esAndFilters(subledgerTxsQuery, query) : subledgerTxsQuery
     const { body } = await client.search({
       index,
       filter_path: 'hits.total',
@@ -82,19 +84,21 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
   }
 
   async function getTxBySeqNo (seqNo) {
-    const query = esFilterBySeqNo(seqNo)
+    const query = esAndFilters(subledgerTxsQuery, esFilterBySeqNo(seqNo))
     const { body } = await client.search({
       index,
       body: { query }
     })
+    if (!(body || body.hits || body.hits.hits)) {
+      throw Error(`Invalid response from ElasticSearch: ${JSON.stringify(body)}`)
+    }
     if (body.hits.hits.length > 1) {
-      throw Error(`Requested tx seqno ${seqNo} but ${body.hits.hits.length()} documents were returned. Should only be 1.`)
+      throw Error(`Requested tx seqno ${seqNo} but ${body.hits.hits.length} documents were returned. Should only be 1.`)
     }
     if (body.hits.hits.length === 0) {
       return null
     }
     let original = body.hits.hits.map(h => h['_source'])[0]['original']
-    console.log(`Retrieved origianl = ${original}`)
     return JSON.parse(original)
   }
 
@@ -117,7 +121,7 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
   By default are transactions sorted from the latest (index 0) to the oldest (last index of result array)
    */
   async function getTxs (skip, limit, query, sort, transform) {
-    query = query || { 'match_all': {} }
+    query = query ? esAndFilters(subledgerTxsQuery, query) : subledgerTxsQuery
     sort = sort || { 'indyscan.txnMetadata.seqNo': { 'order': 'desc' } }
     const searchRequest = {
       from: skip,
@@ -125,7 +129,6 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
       index,
       body: { query, sort }
     }
-    console.log(`search req = ${JSON.stringify(searchRequest)}`)
     const { body } = await client.search(searchRequest)
     let documents = body.hits.hits.map(h => JSON.parse(h['_source']['original']))
     return transform ? transform(documents) : documents
@@ -146,7 +149,11 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
   let createEsTransformedTx = createEsTxTransform(getTxBySeqNo.bind(this))
 
   async function addTx (tx) {
-    let transformed = await createEsTransformedTx(tx, subledgerName)
+    let recognizedSubledger = txTypeToSubledgerName(tx.txn.type).toUpperCase()
+    if (recognizedSubledger !== undefined && recognizedSubledger !== subledgerNameUpperCase) {
+      throw Error(`Problem adding tx ${JSON.stringify(tx)} using storage for subledger '${subledgerNameUpperCase}'.`)
+    }
+    let transformed = await createEsTransformedTx(tx, subledgerNameUpperCase)
     transformed.meta = {
       scanTime: new Date().toISOString()
     }

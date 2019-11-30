@@ -8,6 +8,14 @@ function esFilterByTxTypeNames (txNames) {
   }
 }
 
+function esFilterSubledgerName (subledgerName) {
+  return {
+    'term': {
+      'indyscan.subledger.name': subledgerName
+    }
+  }
+}
+
 function esFilterHasTimestamp () {
   return {
     'exists': {
@@ -74,6 +82,7 @@ function esAndFilters (...filters) {
   return { 'bool': { 'must': [...filters] } }
 }
 
+module.exports.esFilterSubledgerName = esFilterSubledgerName
 module.exports.esFilterByTxTypeNames = esFilterByTxTypeNames
 module.exports.esFilterTxnAfterTime = esFilterTxnAfterTime
 module.exports.esFilterTxnBeforeTime = esFilterTxnBeforeTime

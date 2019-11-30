@@ -1,7 +1,7 @@
 const { TYPE_TO_DETAIL, NAME_TO_DETAIL, LEDGER_TX_NAMES, LEDGER_ID_TO_DETAIL, LEDGER_NAME_TO_ID } = require('./txdata')
 
 function txTypeToTxName (txType) {
-  const detail = TYPE_TO_DETAIL[txType]
+  const detail = TYPE_TO_DETAIL[txType.toString()]
   if (!detail) {
     return undefined
   }
@@ -9,7 +9,7 @@ function txTypeToTxName (txType) {
 }
 
 function subledgerIdToName (subledgerId) {
-  const name = LEDGER_ID_TO_DETAIL[subledgerId]
+  const name = LEDGER_ID_TO_DETAIL[subledgerId.toString()]
   if (!name) {
     return undefined
   }

@@ -25,17 +25,23 @@ beforeAll(async () => {
   jest.setTimeout(1000 * 60 * 4)
   esClient = new Client({ node: URL_ES })
   domainStorage = await createStorageEs(esClient, index, 0, 'DOMAIN')
+  let configStorage = await createStorageEs(esClient, index, 0, 'CONFIG')
+  let poolStorage = await createStorageEs(esClient, index, 0, 'POOL')
   // let bulkdata = fs.readFileSync(`${RESOURCE_DIR}/es-bulk-files/domain.json`, 'utf-8')
   // await esClient.bulk({ index, body: bulkdata })
-  // await importFileToStorage(domainStorage, `${RESOURCE_DIR}/txs-test/domain.json`)
-  // await sleep(1000) // it takes a moment until ES indexes all documents
+  let imports = []
+  imports.push(importFileToStorage(domainStorage, `${RESOURCE_DIR}/txs-test/domain.json`))
+  imports.push(importFileToStorage(configStorage, `${RESOURCE_DIR}/txs-test/config.json`))
+  imports.push(importFileToStorage(poolStorage, `${RESOURCE_DIR}/txs-test/pool.json`))
+  await Promise.all(imports)
+  await sleep(1000) // it takes a moment until ES indexes all documents
 })
 
-// afterAll(async function () {
-//   await esClient.indices.delete({
-//     index
-//   })
-// })
+afterAll(async function () {
+  await esClient.indices.delete({
+    index
+  })
+})
 
 describe('basic storage test', () => {
   it('should return 300 as count of domains txs', async () => {

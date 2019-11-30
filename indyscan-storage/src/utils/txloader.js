@@ -1,4 +1,5 @@
 const fs = require('fs')
+const sleep = require('sleep-promise')
 
 async function importFileToStorage (storage, filePath) {
   console.log(`Readng file ${filePath} for tx import.`)
@@ -7,7 +8,8 @@ async function importFileToStorage (storage, filePath) {
     .filter(Boolean)
   for (const line of lines) {
     const tx = JSON.parse(line)
-    console.log(`Adding tx to storage`)
+    // console.log(`Adding tx to storage`)
+    await sleep(5)
     await storage.addTx(tx)
   }
 }

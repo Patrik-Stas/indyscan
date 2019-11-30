@@ -88,7 +88,7 @@ describe('elasticsearch pre-ingestion transaction transformations', () => {
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txCredDef))
     expect(transformed.txn.typeName).toBe('CLAIM_DEF')
     expect(transformed.txn.data.refSchemaTxnSeqno).toBe(74631)
-    expect(transformed.txn.data.refSchemaTxnTime).toBe(1571048985)
+    expect(transformed.txn.data.refSchemaTxnTime).toBe('2019-10-14T10:29:45.000Z')
     expect(transformed.txn.data.refSchemaId).toBe('GJw3XR52kQEWY44vNojmyH:2:demo_credential_3:808.118.467')
     expect(transformed.txn.data.refSchemaName).toBe('demo_credential_3')
     expect(transformed.txn.data.refSchemaVersion).toBe('808.118.467')

@@ -7,17 +7,25 @@ function createEsTxTransform (resolveTxBySeqno) {
     return Object.assign({}, tx)
   }
 
+  async function tryResolveTx (seqNo, timeoutMs, retryLimit) {
+    let retryCnt = 0
+    let schemaTx
+    while (!schemaTx) {
+      if (retryCnt === retryLimit) {
+        throw Error(`Can't resolve referenced schema TX ${seqNo} after ${retryCnt} retries using timeout ${timeoutMs}ms`)
+      }
+      schemaTx = await resolveTxBySeqno(seqNo)
+      if (!schemaTx) {
+        await sleep(timeoutMs)
+      }
+      retryCnt++
+    }
+    return schemaTx
+  }
+
   async function transformCredDef (tx) {
     const schemaRefSeqNo = tx.txn.data.ref
-    let schemaTx = await resolveTxBySeqno(schemaRefSeqNo)
-    if (!schemaTx) {
-      await sleep(1000)
-      schemaTx = await resolveTxBySeqno(schemaRefSeqNo)
-      if (!schemaTx) {
-        throw Error(`Can't resolve referenced schema TX ${schemaRefSeqNo}`)
-      }
-    }
-    console.log(`Resolved schema TX seqno=${schemaRefSeqNo}  === ${JSON.stringify(schemaTx)}`)
+    let schemaTx = await tryResolveTx(schemaRefSeqNo, 333, 6)
     const { txnSeqno, txnTime, schemaId, schemaFrom, schemaName, schemaVersion, attributes } = extractSchemaTxInfo(schemaTx)
     if (txnSeqno !== schemaRefSeqNo) {
       throw Error(`txnSeqno !== schemaRefSeqNo. This should never happen.`)
