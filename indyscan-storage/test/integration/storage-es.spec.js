@@ -24,16 +24,17 @@ const index = 'txs-integration-test'
 beforeAll(async () => {
   jest.setTimeout(1000 * 60 * 4)
   esClient = new Client({ node: URL_ES })
-  domainStorage = await createStorageEs(esClient, index, 0, 'DOMAIN')
-  let configStorage = await createStorageEs(esClient, index, 0, 'CONFIG')
-  let poolStorage = await createStorageEs(esClient, index, 0, 'POOL')
-  // let bulkdata = fs.readFileSync(`${RESOURCE_DIR}/es-bulk-files/domain.json`, 'utf-8')
-  // await esClient.bulk({ index, body: bulkdata })
-  let imports = []
-  imports.push(importFileToStorage(domainStorage, `${RESOURCE_DIR}/txs-test/domain.json`))
-  imports.push(importFileToStorage(configStorage, `${RESOURCE_DIR}/txs-test/config.json`))
-  imports.push(importFileToStorage(poolStorage, `${RESOURCE_DIR}/txs-test/pool.json`))
-  await Promise.all(imports)
+  let domainStoragePromise = await createStorageEs(esClient, index, 0, 'DOMAIN', true)
+  let configStoragePromise = await createStorageEs(esClient, index, 0, 'CONFIG', false)
+  let poolStoragePromise = await createStorageEs(esClient, index, 0, 'POOL', false)
+  const [domainStorageResolved, configStorageResolved, poolStorageResolved] =
+    await Promise.all([domainStoragePromise, configStoragePromise, poolStoragePromise])
+  domainStorage = domainStorageResolved
+  let dataImports = []
+  dataImports.push(importFileToStorage(domainStorageResolved, `${RESOURCE_DIR}/txs-test/domain.json`))
+  dataImports.push(importFileToStorage(configStorageResolved, `${RESOURCE_DIR}/txs-test/config.json`))
+  dataImports.push(importFileToStorage(poolStorageResolved, `${RESOURCE_DIR}/txs-test/pool.json`))
+  await Promise.all(dataImports)
   await sleep(1000) // it takes a moment until ES indexes all documents
 })
 

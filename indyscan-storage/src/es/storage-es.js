@@ -2,18 +2,26 @@ const { createEsTxTransform } = require('./es-transformations')
 const { esFilterSubledgerName, esAndFilters, esFilterBySeqNo, esFilterHasTimestamp } = require('./es-query-builder')
 const { txTypeToSubledgerName } = require('indyscan-txtype')
 
-async function createStorageEs (client, index, replicaCount, subledgerName) {
+async function createStorageEs (client, index, replicaCount, subledgerName, assureEsIndices, logger) {
+  const knownSubledgers = ["DOMAIN", "POOL", "CONFIG"]
   const subledgerNameUpperCase = subledgerName.toUpperCase()
+  if (knownSubledgers.includes(subledgerNameUpperCase) === false) {
+    throw Error(`Unknown subledger '${subledgerNameUpperCase}'. Known ledger = ${JSON.stringify(knownSubledgers)}`)
+  }
   const subledgerTxsQuery = esFilterSubledgerName(subledgerNameUpperCase)
 
-  // let subledgerQuery = {
-  //
-  // }
+  if (assureEsIndices) {
+    const existsResponse = await client.indices.exists({ index })
+    const { body: indexExists } = existsResponse
+    if (indexExists === undefined || indexExists === null) {
+      throw Error(`Can't figure out if index ${index} exists in ES. ES Response: ${JSON.stringify(existsResponse)}.`)
+    }
+    if (indexExists === false) {
+      await createEsIndex()
+    }
+  }
 
-  const { body: indexExists } = await client.indices.exists({ index })
-
-  if (!indexExists) {
-    console.log(`Creating index ${index}`)
+  async function createEsIndex() {
     let createIndexRes = await client.indices.create({
       index: index,
       body: {
@@ -24,7 +32,9 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
         }
       }
     })
-    console.log(JSON.stringify(createIndexRes, null, 2))
+    if (createIndexRes.statusCode !== 200) {
+      throw Error(`Problem creating index ${index}. ES Response: ${createIndexRes}`)
+    }
 
     const coreMappings = {
       index,
@@ -69,8 +79,6 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
       }
     }
     await client.indices.putMapping(coreMappings)
-  } else {
-    console.log(`Index ${index} already exists`)
   }
 
   async function getTxCount (query) {
@@ -138,7 +146,7 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
     let txs = await getTxs(0,
       1,
       null,
-      { 'transformed.txnMetadata.seqNo': { 'order': 'desc' } },
+      { 'indyscan.txnMetadata.seqNo': { 'order': 'desc' } },
       null
     )
     if (txs.length === 0) {
@@ -149,9 +157,15 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
   let createEsTransformedTx = createEsTxTransform(getTxBySeqNo.bind(this))
 
   async function addTx (tx) {
-    let recognizedSubledger = txTypeToSubledgerName(tx.txn.type).toUpperCase()
-    if (recognizedSubledger !== undefined && recognizedSubledger !== subledgerNameUpperCase) {
-      throw Error(`Problem adding tx ${JSON.stringify(tx)} using storage for subledger '${subledgerNameUpperCase}'.`)
+    let recognizedSubledger = txTypeToSubledgerName(tx.txn.type)
+    if (recognizedSubledger === undefined || recognizedSubledger === null) {
+      if (logger) {
+        logger.warn(`Can't verify which subledger txn.type '${tx.txn.type}' belongs to. Maybe a new Indy tx type?`)
+      }
+    } else if (recognizedSubledger.toUpperCase() !== subledgerNameUpperCase) {
+        throw Error(`Won't add transaction to storage. It is considered to belong to ${recognizedSubledger}` +
+        ` but attempt was made to add it to storage for subledger '${subledgerNameUpperCase}'.` +
+        ` The transaction: '${JSON.stringify(tx)}'.`)
     }
     let transformed = await createEsTransformedTx(tx, subledgerNameUpperCase)
     transformed.meta = {
@@ -161,7 +175,6 @@ async function createStorageEs (client, index, replicaCount, subledgerName) {
       original: JSON.stringify(tx),
       indyscan: transformed
     }
-    console.log(`Index transaction:\n${JSON.stringify(data)}`)
     await client.index({
       index,
       body: data

@@ -20,9 +20,10 @@ module.exports.createStorageFactory = async function createStorageFactory () {
 
   async function createEsStoragesForNetwork (networkName) {
     logger.debug(`Creating ElasticSearch storages for network '${networkName}'.`)
-    const storageDomain = await createStorageEs(esClient, `txs-${networkName.toLowerCase()}-domain`, appConfig.ES_REPLICA_COUNT)
-    const storagePool = await createStorageEs(esClient, `txs-${networkName.toLowerCase()}-pool`, appConfig.ES_REPLICA_COUNT)
-    const storageConfig = await createStorageEs(esClient, `txs-${networkName.toLowerCase()}-config`, appConfig.ES_REPLICA_COUNT)
+    const storageDomainPromise = createStorageEs(esClient, `txs-${networkName.toLowerCase()}`, appConfig.ES_REPLICA_COUNT, 'DOMAIN', true, logger)
+    const storagePoolPromise = createStorageEs(esClient, `txs-${networkName.toLowerCase()}`, appConfig.ES_REPLICA_COUNT, 'POOL', false, logger)
+    const storageConfigPromise = createStorageEs(esClient, `txs-${networkName.toLowerCase()}`, appConfig.ES_REPLICA_COUNT, 'CONFIG', false, logger)
+    const [storageDomain, storagePool, storageConfig] = await Promise.all([storageDomainPromise, storagePoolPromise, storageConfigPromise])
     return { storageDomain, storagePool, storageConfig }
   }
 

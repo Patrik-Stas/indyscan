@@ -8,39 +8,39 @@ const LEDGER_NAME_TO_CODE = {
 }
 
 module.exports = async function createClient (poolName, walletName) {
-  logger.info(`Creating indy client for pool '${poolName}' with wallet '${walletName}'.`)
+  const whoami = `IndyNetworkClient[${poolName}] `
   indy.setProtocolVersion(2)
 
-  logger.info(`Connecting to ${poolName}`)
+  logger.info(`${whoami} Connecting.`)
   const poolHandle = await indy.openPoolLedger(poolName)
-  logger.info('Connected.')
+  logger.info(`${whoami} Connected.`)
 
-  logger.info('Assuring local wallet.')
+  logger.info(`${whoami} Assuring local wallet.`)
   const config = JSON.stringify({ id: walletName, storage_type: 'default' })
   const credentials = JSON.stringify({ key: 'ke®y' })
   try {
     await indy.createWallet(config, credentials)
-    logger.debug(`New wallet '${walletName}' created.`)
+    logger.debug(`${whoami} New wallet '${walletName}' created.`)
   } catch (err) {
     logger.debug(err)
     logger.debug(err.stack)
     logger.debug('Wallet probably already exists, will proceed.')
   }
   const wh = await indy.openWallet(config, credentials)
-  logger.debug(`Opened wallet '${walletName}'.`)
+  logger.debug(`${whoami} Opened wallet '${walletName}'.`)
   const res = await indy.createAndStoreMyDid(wh, {})
   const did = res[0]
-  logger.debug(`Created did/verkey ${JSON.stringify(res)}`)
+  logger.debug(`${whoami} Created did/verkey ${JSON.stringify(res)}`)
 
   /*
   Returns transaction data if transaction was resolved
   Returns null if transaction does not exists on the ledger
   Return null if proper response is not received
   */
-  async function getTx (subledgerName, txid) {
+  async function getTx (subledgerName, seqNo) {
     const subledgerCode = LEDGER_NAME_TO_CODE[subledgerName.toLowerCase()]
-    const getTx = await indy.buildGetTxnRequest(did, subledgerCode, txid)
-    logger.debug(`Built GET_TX request: ${JSON.stringify(getTx)}`)
+    const getTx = await indy.buildGetTxnRequest(did, subledgerCode, seqNo)
+    logger.debug(`${whoami} Built GET_TX request: ${JSON.stringify(getTx)}`)
     const tx = await indy.submitRequest(poolHandle, getTx)
     if (tx.op === 'REPLY') {
       if (tx.result.data) {
@@ -49,7 +49,7 @@ module.exports = async function createClient (poolName, walletName) {
         return null
       }
     } else {
-      throw Error(`We have issues receiving reply from the network.`)
+      throw Error(`${whoami} Problem receiving tx seqNo='${seqNo}' for subledger='${subledgerName}'`)
     }
   }
 

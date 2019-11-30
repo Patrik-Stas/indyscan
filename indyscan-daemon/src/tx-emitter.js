@@ -37,7 +37,7 @@ async function createTxEmitter (network, resolveTxStrategy) {
     const transactionDetails = `network='${network}' subledger='${subledger}' seqNo='${seqNo}' requester='${requester}'`
     const logPrefix = `Emitter::submitTxRequest requestId='${requestId}' ${transactionDetails}`
     logger.debug(`${logPrefix}: Tx resolution request received.`)
-    resolveTxStrategy(network, subledger, seqNo)
+    resolveTxStrategy(subledger, seqNo)
       .then(function (tx) {
         if (tx) {
           logger.debug(`${logPrefix}: Resolved tx: ${JSON.stringify(tx)}`)

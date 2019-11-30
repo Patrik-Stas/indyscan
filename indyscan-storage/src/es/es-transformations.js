@@ -72,6 +72,7 @@ function createEsTxTransform (resolveTxBySeqno) {
     'AUTH_RULES': noop,
     'TXN_AUTHOR_AGREEMENT': noop,
     'TXN_AUTHOR_AGREEMENT_AML': noop,
+    "SET_FEES": noop,
     'UNKNOWN': noop
   }
 
@@ -91,7 +92,6 @@ function createEsTxTransform (resolveTxBySeqno) {
     let transformed = await transform(_.cloneDeep(tx))
     if (transformed.txnMetadata.txnTime) {
       let epochMiliseconds = transformed.txnMetadata.txnTime * 1000
-      console.log(epochMiliseconds)
       transformed.txnMetadata.txnTime = new Date(epochMiliseconds).toISOString()
     }
     transformed.txn.typeName = txName

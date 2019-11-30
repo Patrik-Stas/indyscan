@@ -20,27 +20,12 @@ const scanModes = {
   'FRENZY': { periodMs: 300, unavailableTimeoutMs: 300, jitterRatio: 0.1 }
 }
 
-async function run () {
-  logger.info(`Starting daemon.`)
-  logger.info(`Following networks will be scanned ${JSON.stringify(networks)}`)
-  const resolveTxOnLedger = await createTxResolverLedger(networks)
-  const storageFactory = await createStorageFactory()
-  for (const indyNetwork of networks) {
-    try {
-      const {storageDomain, storagePool, storageConfig} = await storageFactory.createStoragesForNetwork(indyNetwork)
-      scanNetwork(resolveTxOnLedger, indyNetwork, storageDomain, storagePool, storageConfig)
-    } catch (err) {
-      logger.error(`Problem setting up storage for network '${indyNetwork}'.`)
-      logger.error(err.message)
-      logger.error(err.stack)
-      logger.error(JSON.stringify(err, null, 2))
-    }
-  }
-}
-
-async function scanNetwork (resolveTx, networkName, storageDomain, storagePool, storageConfig) {
-  logger.info(`Initiating network scan for network '${networkName}'.`)
+async function scanNetwork (networkName, storageFactory) {
   try {
+    logger.info(`Initiating network scan for network '${networkName}'.`)
+    const { storageDomain, storagePool, storageConfig } = await storageFactory.createStoragesForNetwork(networkName)
+    const resolveTx = await createTxResolverLedger(networkName)
+
     logger.debug(`Creating tx emitter for network '${networkName}'.`)
     const txEmitter = await createTxEmitter(networkName, resolveTx)
 
@@ -57,6 +42,14 @@ async function scanNetwork (resolveTx, networkName, storageDomain, storagePool, 
     logger.error(`Something when wrong initiating scanning for network '${networkName}'. Details:`)
     logger.error(err.message)
     logger.error(err.stack)
+  }
+}
+
+async function run () {
+  logger.info(`Starting. Networks to be scanned: ${JSON.stringify(networks)}`)
+  const storageFactory = await createStorageFactory()
+  for (const indyNetwork of networks) {
+    scanNetwork(indyNetwork, storageFactory)
   }
 }
 

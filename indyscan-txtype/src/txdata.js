@@ -13,7 +13,8 @@ const TYPE_TO_DETAIL = {
   "120": { ledger: 'CONFIG', txName: 'AUTH_RULE', description: 'A command to change authentication rules.' },
   "122": { ledger: 'CONFIG', txName: 'AUTH_RULES', description: 'A command to set multiple AUTH_RULEs by one transaction.' },
   "4": { ledger: 'CONFIG', txName: 'TXN_AUTHOR_AGREEMENT', description: 'Setting (enabling/disabling) a transaction author agreement for the pool. If transaction author agreement is set, then all write requests to Domain ledger (transactions) must include additional metadata pointing to the latest transaction author agreement\'s digest which is signed by the transaction author.' },
-  "5": { ledger: 'CONFIG', txName: 'TXN_AUTHOR_AGREEMENT_AML', description: 'Setting a list of acceptance mechanisms for transaction author agreement. Each write request for which a transaction author agreement needs to be accepted must point to a mechanism from the latest list on the ledger. The chosen mechanism is signed by the write request author (together with the transaction author agreement digest).' }
+  "5": { ledger: 'CONFIG', txName: 'TXN_AUTHOR_AGREEMENT_AML', description: 'Setting a list of acceptance mechanisms for transaction author agreement. Each write request for which a transaction author agreement needs to be accepted must point to a mechanism from the latest list on the ledger. The chosen mechanism is signed by the write request author (together with the transaction author agreement digest).' },
+  "20000": { ledger: 'CONFIG', txName: 'SET_FEES', description: 'Sets fees for transaction.' }
 }
 
 const LEDGER_ID_TO_DETAIL = {

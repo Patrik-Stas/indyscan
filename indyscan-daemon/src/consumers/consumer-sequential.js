@@ -71,16 +71,30 @@ function createConsumerSequential (txEmitter, indyscanStorage, network, subledge
         logger.debug(`${logPrefix} Cycle '${requestCycleCount}' will wait '${timerLock.getMsTillUnlock()}' ms before it requests tx.`)
         await timerLock.waitTillUnlock()
         timerLock.addBlockTime(periodMs, jitterRatio)
-        const seqNo = await getDesiredSeqNo()
+        let seqNo
+        try {
+          seqNo = await getDesiredSeqNo()
+        } catch (err) {
+          cycleExceptionCount++
+          timerLock.addBlockTime(unavailableTimeoutMs, jitterRatio)
+          logger.error(`${logPrefix} Cycle '${requestCycleCount}' thrown error while determining next desired seqNo. Details: ${err.message} ${err.stack}`)
+          continue
+        }
         logger.info(`${logPrefix}  Cycle '${requestCycleCount}' submitting tx request network='${network}' subledger='${subledger}' seqNo='${seqNo}'.`)
-        txEmitter.submitTxRequest(network, subledger, seqNo, logPrefix)
+        try {
+          txEmitter.submitTxRequest(network, subledger, seqNo, logPrefix)
+        } catch (err) {
+          cycleExceptionCount++
+          timerLock.addBlockTime(unavailableTimeoutMs, jitterRatio)
+          logger.error(`${logPrefix} Cycle '${requestCycleCount}' thrown error submitting tx request for seqNo ${seqNo}. Details: ${err.message} ${err.stack}`)
+          continue
+        }
         logger.debug(`${logPrefix} Cycle '${requestCycleCount}' finished.`)
         requestCycleCount++
-      } catch (error) {
+      } catch (err) {
         cycleExceptionCount++
-        logger.error(`${logPrefix} Cycle '${requestCycleCount}' thrown error.`)
-        logger.error(error.stack)
         timerLock.addBlockTime(unavailableTimeoutMs, jitterRatio)
+        logger.error(`${logPrefix} Cycle '${requestCycleCount}' thrown error unexpected error. Details: ${err.message} ${err.stack}`)
       }
     }
   }
