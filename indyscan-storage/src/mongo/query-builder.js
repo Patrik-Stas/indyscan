@@ -40,11 +40,6 @@ module.exports.txsQuery = function txsQuery () {
     return buildFunctions
   }
 
-  function setProjection (queryProjection) {
-    projection = queryProjection
-    return buildFunctions
-  }
-
   async function executeAgainst (collection) {
     let finalProjection = projection || {}
     finalProjection['_id'] = 0

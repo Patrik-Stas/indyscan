@@ -6,6 +6,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
+    "lint": "standard",
+    "lint:fix": "standard --fix",
     "test": "jest test",
     "test:unit": "jest test/unit",
     "test:integration": "jest test/integration",
