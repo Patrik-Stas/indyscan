@@ -26,9 +26,9 @@ beforeAll(() => {
   })
 })
 
-const POOL_LEDGER_ID = 0
-const DOMAIN_LEDGER_ID = 1
-const CONFIG_LEDGER_ID = 2
+const POOL_LEDGER_ID = '0'
+const DOMAIN_LEDGER_ID = '1'
+const CONFIG_LEDGER_ID = '2'
 // const AUDIT_LEDGER_ID = 3
 
 describe('elasticsearch pre-ingestion transaction transformations', () => {
