@@ -1,7 +1,6 @@
 const { createStorageFactory } = require('./storage-factory')
 const appConfig = require('./config')
 const { createConsumerSequential } = require('./consumers/consumer-sequential')
-const { createTxEmitter } = require('./tx-emitter')
 const { createTxResolverLedger } = require('./resolvers/ledger-resolver')
 const logger = require('./logging/logger-main')
 const networks = appConfig.INDY_NETWORKS.split(',')
@@ -12,12 +11,18 @@ const networks = appConfig.INDY_NETWORKS.split(',')
 // })
 
 const scanModes = {
-  'SLOW': { periodMs: 30 * 1000, unavailableTimeoutMs: 30 * 1000, jitterRatio: 0.1 },
-  'MEDIUM': { periodMs: 10 * 1000, unavailableTimeoutMs: 20 * 1000, jitterRatio: 0.1 },
-  'INDYSCAN.IO': { periodMs: 3 * 1000, unavailableTimeoutMs: 5 * 1000, jitterRatio: 0.1 },
-  'FAST': { periodMs: 1000, unavailableTimeoutMs: 2 * 1000, jitterRatio: 0.1 },
-  'TURBO': { periodMs: 300, unavailableTimeoutMs: 1000, jitterRatio: 0.1 },
-  'FRENZY': { periodMs: 300, unavailableTimeoutMs: 300, jitterRatio: 0.1 }
+  'SLOW':
+    { normalTimeoutMs: 30 * 1000, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 30 * 1000, jitterRatio: 0.1 },
+  'MEDIUM':
+    { normalTimeoutMs: 10 * 1000, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 20 * 1000, jitterRatio: 0.1 },
+  'INDYSCAN.IO':
+    { normalTimeoutMs: 1000, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 3000, jitterRatio: 0.1 },
+  'FAST':
+    { normalTimeoutMs: 1000, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 2000, jitterRatio: 0.1 },
+  'TURBO':
+    { normalTimeoutMs: 300, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 2000, jitterRatio: 0.1 },
+  'FRENZY':
+    { normalTimeoutMs: 300, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 2000, jitterRatio: 0.1 }
 }
 
 async function scanNetwork (networkName, storageFactory) {

@@ -43,9 +43,27 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
       body: {
         'properties': {
           'original': { type: 'text', index: false },
+
+          // Every tx
+          'indyscan.ver': { type: 'keyword', index: true },
+          'indyscan.rootHash': { type: 'keyword', index: true },
+          'indyscan.txn.type': { type: 'keyword', index: true },
+          'indyscan.txn.typeName': { type: 'keyword', index: true },
+          'indyscan.subledger.code': { type: 'keyword', index: true },
+          'indyscan.subledger.name': { type: 'keyword', index: true },
+          'indyscan.txn.protocolVersion': { type: 'keyword', index: true },
+          'indyscan.txn.metadata.from': { type: 'keyword', index: true },
+          'indyscan.txn.metadata.reqId': { type: 'keyword', index: true },
+          'indyscan.txn.data.data.blskey': { type: 'keyword', index: true },
+          'indyscan.txn.data.data.blskey_pop': { type: 'keyword', index: true },
+          'indyscan.meta.scanTime': { type: 'date', format: 'date_time' },
+
           'indyscan.txnMetadata.seqNo': { type: 'integer' },
           'indyscan.txnMetadata.txnTime': { type: 'date', format: 'date_time' },
           'indyscan.txnMetadata.txnId': { type: 'keyword', index: true },
+
+          // TX: NYM, ATTRIB
+          'indyscan.txn.data.raw': { type: 'text', index: true },
 
           // TX: CLAIM_DEF
           'indyscan.txn.data.refSchemaTxnSeqno': { type: 'integer' },
@@ -54,17 +72,24 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
           'indyscan.txn.data.refSchemaName': { type: 'text', index: true },
           'indyscan.txn.data.refSchemaVersion': { type: 'keyword', index: true },
           'indyscan.txn.data.refSchemaFrom': { type: 'keyword', index: true },
-          // TODO:: 'txn.data.refSchemaAttributes' :
+          'indyscan.txn.data.refSchemaAttributes': { type: 'text', index: true },
 
           // TX: pool NODE transaction
           'indyscan.txn.data.data.alias': { type: 'text', index: true },
+          'indyscan.txn.data.data.client_ip': { type: 'ip', index: true },
+          'indyscan.txn.data.data.client_port': { type: 'integer', index: true },
+          'indyscan.txn.data.data.node_ip': { type: 'ip', index: true },
+          'indyscan.txn.data.data.node_port': { type: 'integer', index: true },
 
-          // Added to every tx
-          'indyscan.txn.type': { type: 'keyword', index: true },
-          'indyscan.txn.typeName': { type: 'keyword', index: true },
-          'indyscan.subledger.code': { type: 'keyword', index: true },
-          'indyscan.subledger.name': { type: 'keyword', index: true },
-          'indyscan.meta.scanTime': { type: 'date', format: 'date_time' },
+          // TX: NODE tx geo information
+          'indyscan.txn.data.data.client_ip_geo.location': { type: 'geo_point' },
+          'indyscan.txn.data.data.client_ip_geo.eu': { type: 'boolean' },
+          'indyscan.txn.data.data.client_ip_geo.timezone': { type: 'keyword', index: true },
+          'indyscan.txn.data.data.client_ip_geo.city': { type: 'keyword', index: true },
+          'indyscan.txn.data.data.node_ip_geo.location': { type: 'geo_point' },
+          'indyscan.txn.data.data.node_ip_geo.eu': { type: 'boolean' },
+          'indyscan.txn.data.data.node_ip_geo.timezone': { type: 'keyword', index: true },
+          'indyscan.txn.data.data.node_ip_geo.city': { type: 'keyword', index: true },
 
           // TX: domain AUTHOR_AGREEMENT_AML
           'indyscan.txn.data.aml.at_submission': { type: 'text', analyzer: 'english' },
@@ -139,7 +164,6 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
       index,
       body: { query, sort }
     }
-    console.log(JSON.stringify(searchRequest))
     const { body } = await client.search(searchRequest)
     let documents = body.hits.hits.map(h => JSON.parse(h['_source']['original']))
     return transform ? transform(documents) : documents

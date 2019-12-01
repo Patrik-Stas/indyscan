@@ -111,6 +111,21 @@ describe('elasticsearch pre-ingestion transaction transformations', () => {
     expect(transformed.subledger.code).toBe(POOL_LEDGER_ID)
     expect(transformed.subledger.name).toBe('POOL')
     expect(transformed.txnMetadata.txnTime).toBe('2019-11-08T21:40:59.000Z')
+    expect(transformed.txn.data.data.client_ip_geo.country).toBe('US')
+    expect(transformed.txn.data.data.client_ip_geo.region).toBe('VA')
+    expect(transformed.txn.data.data.client_ip_geo.eu).toBe(false)
+    expect(transformed.txn.data.data.client_ip_geo.timezone).toBe('America/New_York')
+    expect(transformed.txn.data.data.client_ip_geo.city).toBe('Ashburn')
+    expect(transformed.txn.data.data.client_ip_geo.location.lat.toString()).toContain(39.018.toString())
+    expect(transformed.txn.data.data.client_ip_geo.location.lon.toString()).toContain(-77.539.toString())
+
+    expect(transformed.txn.data.data.node_ip_geo.country).toBe('US')
+    expect(transformed.txn.data.data.node_ip_geo.region).toBe('VA')
+    expect(transformed.txn.data.data.node_ip_geo.eu).toBe(false)
+    expect(transformed.txn.data.data.node_ip_geo.timezone).toBe('America/New_York')
+    expect(transformed.txn.data.data.node_ip_geo.city).toBe('Ashburn')
+    expect(transformed.txn.data.data.node_ip_geo.location.lat.toString()).toContain(39.018.toString())
+    expect(transformed.txn.data.data.node_ip_geo.location.lon.toString()).toContain(-77.539.toString())
   })
 
   it('should add typeName and subledger for config TXN_AUTHOR_AGREEMENT transaction', async () => {

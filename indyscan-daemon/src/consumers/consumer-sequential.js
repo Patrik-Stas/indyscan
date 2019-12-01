@@ -1,10 +1,10 @@
 const { createTimerLock } = require('../time/scan-timer')
-
+const util = require('util')
 const logger = require('../logging/logger-main')
 
 function createConsumerSequential (resolveTx, indyscanStorage, network, subledger, timerConfig) {
   const whoami = `ConsumerSequential/${network}/${subledger} : `
-  const { periodMs, unavailableTimeoutMs, jitterRatio } = timerConfig
+  const { normalTimeoutMs, errorTimeoutMs, timeoutTxNotFoundMs, jitterRatio } = timerConfig
 
   let processedTxCount = 0
   let requestCycleCount = 0
@@ -18,21 +18,35 @@ function createConsumerSequential (resolveTx, indyscanStorage, network, subledge
 
   async function consumptionCycle () {
     while (enabled) { // eslint-disable-line
+      logger.info(`${whoami}  Cycle '${requestCycleCount}' start.`)
       try {
-        desiredSeqNo = await indyscanStorage.findMaxSeqNo() + 1
-        logger.info(`${whoami}  Cycle '${requestCycleCount}' submitting tx request network='${network}' subledger='${subledger}' seqNo='${desiredSeqNo}'.`)
+        let desiredSeqNo = await indyscanStorage.findMaxSeqNo() + 1
+        logger.info(`${whoami}  Cycle '${requestCycleCount}' submitting tx request seqNo='${desiredSeqNo}'.`)
         let tx = await resolveTx(subledger, desiredSeqNo)
-        await indyscanStorage.addTx(tx)
-        processedTxCount++
-        logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}.`)
-        logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}: ${JSON.stringify(tx)}.`)
-        timerLock.addBlockTime(periodMs, jitterRatio)
+        if (tx) {
+          try {
+            await indyscanStorage.addTx(tx)
+            processedTxCount++
+            logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}.`)
+            logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}: ${JSON.stringify(tx)}.`)
+            timerLock.addBlockTime(normalTimeoutMs, jitterRatio)
+          } catch (err) {
+            cycleExceptionCount++
+            timerLock.addBlockTime(errorTimeoutMs, jitterRatio)
+            logger.error(`${whoami} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${err.message} ${err.stack} \n ${util.inspect(err, false, 10)}`)
+          }
+        } else {
+          txNotAvailableCount++
+          logger.info(`${whoami} Cycle '${requestCycleCount}' found that tx ${desiredSeqNo} does not exist.`)
+          timerLock.addBlockTime(timeoutTxNotFoundMs, jitterRatio)
+        }
       } catch (err) {
         cycleExceptionCount++
-        timerLock.addBlockTime(unavailableTimeoutMs, jitterRatio)
+        timerLock.addBlockTime(errorTimeoutMs, jitterRatio)
         logger.error(`${whoami} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${err.message} ${err.stack}`)
       }
       await timerLock.waitTillUnlock()
+      requestCycleCount++
     }
   }
 
@@ -48,12 +62,13 @@ function createConsumerSequential (resolveTx, indyscanStorage, network, subledge
   }
 
   function start () {
-    logger.info(`${whoami}: Starting`)
+    logger.info(`${whoami}: Starting ...`)
     enabled = true
     consumptionCycle()
   }
 
   function stop () {
+    logger.info(`${whoami}: Stopping ...`)
     enabled = false
   }
 

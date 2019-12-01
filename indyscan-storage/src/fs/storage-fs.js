@@ -61,7 +61,7 @@ async function createStorageFs (name) {
     if (txs.length === 0) {
       return 0
     }
-    return txs[txs.length - 1]['txnMetadata']['seqNo']
+    return Math.max.apply(null, txs.map(tx => tx.txnMetadata.seqNo))
   }
 
   async function addTx (tx) {

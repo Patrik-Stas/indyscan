@@ -8,12 +8,12 @@ const LEDGER_NAME_TO_CODE = {
 }
 
 module.exports = async function createClient (poolName, walletName) {
-  const whoami = `IndyNetworkClient[${poolName}] `
+  const whoami = `IndyNetworkClient[${poolName}]`
   indy.setProtocolVersion(2)
 
-  logger.info(`${whoami} Connecting.`)
+  logger.info(`${whoami} Connecting to ${poolName}.`)
   const poolHandle = await indy.openPoolLedger(poolName)
-  logger.info(`${whoami} Connected.`)
+  logger.info(`${whoami} Connected to ${poolName}.`)
 
   logger.info(`${whoami} Assuring local wallet.`)
   const config = JSON.stringify({ id: walletName, storage_type: 'default' })

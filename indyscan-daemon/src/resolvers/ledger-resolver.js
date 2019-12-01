@@ -23,8 +23,7 @@ async function createTxResolverLedger (network) {
     try {
       await reconnect()
     } catch (err) {
-      logger.error(`${whoami} Indy Network connection problem. Will try later.`)
-      logger.error(err)
+      logger.error(`${whoami} Indy Network connection problem. Will try later. Error: ${err.message} ${err.stack}`)
     }
   }
 

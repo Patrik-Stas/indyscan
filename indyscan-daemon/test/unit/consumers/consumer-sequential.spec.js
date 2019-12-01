@@ -1,6 +1,5 @@
 /* eslint-env jest */
 const { createConsumerSequential } = require('../../../src/consumers/consumer-sequential')
-const { createTxEmitter } = require('../../../src/tx-emitter')
 const { createStorageMem } = require('indyscan-storage')
 const sleep = require('sleep-promise')
 
