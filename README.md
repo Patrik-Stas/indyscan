@@ -58,7 +58,7 @@ SOVRIN_MAINNET SOVRIN_TESTNET
 ```
 And each of these 2 directories contains genesis transactions for given network. If you don't have any pool configurations, you can quickly generate configurations for sovrin testnet and mainnet by running
 ```
-node genesis.js
+npm run networks:add:sovrin
 ```
 When we start indyscan daemon, we need to asur that variable `INDY_NETWORKS` is exported. It's value should be list of pool names separated by comma, matching pool names in your `~/.indy_client/pool` directory. 
 So for example, given content of my `~/.indy_client/pool` shown in example above, I would start running daemon against these pool like this: 
