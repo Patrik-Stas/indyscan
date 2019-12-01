@@ -72,7 +72,7 @@ function createEsTxTransform (resolveTxBySeqno) {
     'AUTH_RULES': noop,
     'TXN_AUTHOR_AGREEMENT': noop,
     'TXN_AUTHOR_AGREEMENT_AML': noop,
-    "SET_FEES": noop,
+    'SET_FEES': noop,
     'UNKNOWN': noop
   }
 

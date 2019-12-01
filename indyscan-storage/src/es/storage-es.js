@@ -139,6 +139,7 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
       index,
       body: { query, sort }
     }
+    console.log(JSON.stringify(searchRequest))
     const { body } = await client.search(searchRequest)
     let documents = body.hits.hits.map(h => JSON.parse(h['_source']['original']))
     return transform ? transform(documents) : documents
@@ -159,6 +160,9 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
   let createEsTransformedTx = createEsTxTransform(getTxBySeqNo.bind(this))
 
   async function addTx (tx) {
+    if (!tx || !tx.txnMetadata || tx.txnMetadata.seqNo === undefined || tx.txnMetadata.seqNo === null) {
+      throw Error(`Tx failed basic validation. Tx ${JSON.stringify(tx)}`)
+    }
     let recognizedSubledger = txTypeToSubledgerName(tx.txn.type)
     if (recognizedSubledger === undefined || recognizedSubledger === null) {
       if (logger) {
@@ -178,6 +182,7 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
       indyscan: transformed
     }
     await client.index({
+      id: `${subledgerNameUpperCase}-${tx.txnMetadata.seqNo}`,
       index,
       body: data
     })

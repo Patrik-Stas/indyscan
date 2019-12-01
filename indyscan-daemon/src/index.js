@@ -26,13 +26,10 @@ async function scanNetwork (networkName, storageFactory) {
     const { storageDomain, storagePool, storageConfig } = await storageFactory.createStoragesForNetwork(networkName)
     const resolveTx = await createTxResolverLedger(networkName)
 
-    logger.debug(`Creating tx emitter for network '${networkName}'.`)
-    const txEmitter = await createTxEmitter(networkName, resolveTx)
-
     logger.debug(`Creating consumers for network '${networkName}'.`)
-    const consumerDomain = await createConsumerSequential(txEmitter, storageDomain, networkName, 'domain', scanModes[appConfig.SCAN_MODE])
-    const consumerPool = await createConsumerSequential(txEmitter, storagePool, networkName, 'pool', scanModes[appConfig.SCAN_MODE])
-    const consumerConfig = await createConsumerSequential(txEmitter, storageConfig, networkName, 'config', scanModes[appConfig.SCAN_MODE])
+    const consumerDomain = await createConsumerSequential(resolveTx, storageDomain, networkName, 'domain', scanModes[appConfig.SCAN_MODE])
+    const consumerPool = await createConsumerSequential(resolveTx, storagePool, networkName, 'pool', scanModes[appConfig.SCAN_MODE])
+    const consumerConfig = await createConsumerSequential(resolveTx, storageConfig, networkName, 'config', scanModes[appConfig.SCAN_MODE])
 
     logger.debug(`Starting consumers for network '${networkName}'.`)
     consumerDomain.start()
