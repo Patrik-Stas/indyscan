@@ -31,9 +31,9 @@ beforeAll(async () => {
     await Promise.all([domainStoragePromise, configStoragePromise, poolStoragePromise])
   domainStorage = domainStorageResolved
   let dataImports = []
-  dataImports.push(importFileToStorage(domainStorageResolved, `${RESOURCE_DIR}/txs-test/domain.json`))
-  dataImports.push(importFileToStorage(configStorageResolved, `${RESOURCE_DIR}/txs-test/config.json`))
-  dataImports.push(importFileToStorage(poolStorageResolved, `${RESOURCE_DIR}/txs-test/pool.json`))
+  // dataImports.push(importFileToStorage(domainStorageResolved, `${RESOURCE_DIR}/txs-test/domain.json`))
+  // dataImports.push(importFileToStorage(configStorageResolved, `${RESOURCE_DIR}/txs-test/config.json`))
+  // dataImports.push(importFileToStorage(poolStorageResolved, `${RESOURCE_DIR}/txs-test/pool.json`))
   await Promise.all(dataImports)
   await sleep(1000) // it takes a moment until ES indexes all documents
 })
@@ -78,14 +78,6 @@ describe('basic storage test', () => {
     const txs = await domainStorage.getTxs(0, 10)
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBe(10)
-  })
-
-  it('should project transactions', async () => {
-    const rootHashTransform = (txs) => txs.map(tx => tx.rootHash)
-    const txs = await domainStorage.getTxs(0, 10, null, null, rootHashTransform)
-    expect(Array.isArray(txs)).toBeTruthy()
-    expect(txs.length).toBe(10)
-    expect(txs[0]).toBe('C6UHGXwdPRqyzSnvhZ83rVwCMZLwfNcK2MfbrW1QQ4kD')
   })
 
   it('objects from tx range should be transactions', async () => {

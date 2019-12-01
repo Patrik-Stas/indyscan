@@ -1,5 +1,3 @@
-const logger = require('../logging/logger-main')
-
 function initNetworksApi (router, networkManager) {
   router.get('/networks', async (req, res) => {
     const networks = networkManager.getNetworkConfigs()

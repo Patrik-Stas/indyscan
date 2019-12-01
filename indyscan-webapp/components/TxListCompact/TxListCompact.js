@@ -1,12 +1,10 @@
-import { Component } from 'react'
 import TxListItem from '../TxListItem/TxListItem'
 import { Table, TableBody, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react'
 import { extractTxInformation } from '../../txtools'
-import React from 'react'
+import React, { Component } from 'react'
 import { describeTransaction } from 'indyscan-txtype'
 
 class TxListCompact extends Component {
-
   render () {
     console.log(`render tx list compact ::::`)
     console.log(JSON.stringify(this.props.ledger))
@@ -28,11 +26,11 @@ class TxListCompact extends Component {
             const description = describeTransaction(txn)
             return (
               <TxListItem baseUrl={this.props.baseUrl}
-                          network={this.props.network}
-                          ledger={this.props.ledger}
-                          key={txn.seqNo}
-                          txInfo={txInfo}
-                          description={description}
+                network={this.props.network}
+                ledger={this.props.ledger}
+                key={txn.seqNo}
+                txInfo={txInfo}
+                description={description}
               />
             )
           })}

@@ -1,6 +1,6 @@
 const logger = require('../logging/logger-main')
 const elasticsearch = require('@elastic/elasticsearch')
-const {createStorageEs} = require('indyscan-storage')
+const { createStorageEs } = require('indyscan-storage')
 
 /*
  Manages multiple IndyScan storages - groups together storages for different networks and subledgers
@@ -9,7 +9,7 @@ async function createLedgerStorageManager (esUrl) {
   let storages = {}
 
   logger.info(`Connecting to ElasticSearh '${esUrl}'.`)
-  esClient = new elasticsearch.Client({node: esUrl})
+  let esClient = new elasticsearch.Client({ node: esUrl })
 
   async function addIndyNetwork (networkId, networkEsIndex) {
     const [storageDomain, storagePool, storageConfig] = await Promise.all([

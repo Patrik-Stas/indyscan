@@ -1,10 +1,9 @@
 const logger = require('../logging/logger-main')
 
 function createNetworkManager () {
-
   let networkConfigs = {}
 
-  function addNetworkConfig(config) {
+  function addNetworkConfig (config) {
     logger.info(`Validating network configuration ${JSON.stringify(config)}`)
     if (!config.id) {
       throw Error(`Network config '${JSON.stringify(config)}' must contain 'id'.`)
@@ -26,7 +25,6 @@ function createNetworkManager () {
     logger.info(`Validated network configuration ${config.id}`)
     networkConfigs[config.id] = config
   }
-
 
   function getNetworkDbs () {
     return networkConfigs.map(network => network.db)
@@ -58,7 +56,7 @@ function createNetworkManager () {
     return Object.values(networkConfigs)
   }
 
-  function getNetworkConfig(networkId) {
+  function getNetworkConfig (networkId) {
     return networkConfigs[networkId]
   }
 

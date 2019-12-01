@@ -1,16 +1,15 @@
 const logger = require('./logging/logger-main')
-const {appConfig, networksConfig} = require('./config')
+const { appConfig, networksConfig } = require('./config')
 const express = require('express')
 const next = require('next')
 
 const { logRequests, logResponses } = require('./middleware')
-const {createNetworkManager} = require('./service/service-networks')
+const { createNetworkManager } = require('./service/service-networks')
 const initApiTxs = require('./api/txs.js')
 const initApiNetworks = require('./api/networks.js')
-const {createLedgerStorageManager} = require('./service/service-storages')
+const { createLedgerStorageManager } = require('./service/service-storages')
 
-
-function setupNetworkManager(networkConfigs) {
+function setupNetworkManager (networkConfigs) {
   const networkConfigManager = createNetworkManager()
   for (const networkConfig of networkConfigs) {
     try {
@@ -22,7 +21,7 @@ function setupNetworkManager(networkConfigs) {
   return networkConfigManager
 }
 
-async function setupStorageManager(networkConfigManager, esUrl) {
+async function setupStorageManager (networkConfigManager, esUrl) {
   const ledgerStorageManager = await createLedgerStorageManager(esUrl)
   const storagePromises = []
   for (const networkConfig of networkConfigManager.getNetworkConfigs()) {
@@ -50,7 +49,7 @@ async function startServer () {
   const networkConfigManager = setupNetworkManager(networksConfig)
   const ledgerStorageManager = await setupStorageManager(networkConfigManager, appConfig.ES_URL)
 
-  const app = next({dev: process.env.NODE_ENV !== 'production'})
+  const app = next({ dev: process.env.NODE_ENV !== 'production' })
   const handle = app.getRequestHandler()
 
   app
@@ -77,7 +76,7 @@ async function startServer () {
 
       server.get('/version', (req, res) => {
         require('pkginfo')(module)
-        return res.status(200).send({version: module.exports.version})
+        return res.status(200).send({ version: module.exports.version })
       })
 
       server.get('/home/:network', (req, res) => {

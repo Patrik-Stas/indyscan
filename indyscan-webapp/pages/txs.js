@@ -3,15 +3,13 @@ import TxListCompact from '../components/TxListCompact/TxListCompact'
 import React, { Component } from 'react'
 import { getTransactions, getTxCount } from 'indyscan-api'
 import PageHeader from '../components/PageHeader/PageHeader'
-import { Divider, Grid, GridColumn, GridRow, Pagination } from 'semantic-ui-react'
+import { Grid, GridColumn, GridRow, Pagination, Checkbox } from 'semantic-ui-react'
 import Router from 'next/dist/lib/router'
 import { getBaseUrl } from '../routing'
 import Footer from '../components/Footer/Footer'
-import { Checkbox } from 'semantic-ui-react'
 import { getConfigTxNames, getDomainsTxNames, getPoolTxNames } from 'indyscan-txtype'
 
 class Txs extends Component {
-
   updateUrl (baseUrl, network, ledger, page, pageSize, filterTxNames = '[]') {
     Router.push(
       `${baseUrl}/txs?network=${network}&ledger=${ledger}&page=${page}&pageSize=${pageSize}&filterTxNames=${filterTxNames}`,
@@ -20,14 +18,14 @@ class Txs extends Component {
   }
 
   handleClick (e, data) {
-    const {activePage} = data
-    const {baseUrl, network, ledger, pageSize, filterTxNames} = this.props
+    const { activePage } = data
+    const { baseUrl, network, ledger, pageSize, filterTxNames } = this.props
     this.updateUrl(baseUrl, network, ledger, activePage, pageSize, JSON.stringify(filterTxNames))
   }
 
   setParamsFilter (txName, shouldDisplay) {
     console.log(`Set filter parameters. Change: ${txName} to shouldDisplay = ${shouldDisplay}`)
-    const {baseUrl, network, ledger, page, pageSize, filterTxNames} = this.props
+    const { baseUrl, network, ledger, page, pageSize, filterTxNames } = this.props
     let newFilter = []
     if (shouldDisplay) {
       if (!filterTxNames.includes(txName)) {
@@ -43,11 +41,11 @@ class Txs extends Component {
     this.updateUrl(baseUrl, network, ledger, page, pageSize, JSON.stringify(newFilter))
   }
 
-  static async getInitialProps ({req, query}) {
+  static async getInitialProps ({ req, query }) {
     console.log(`TXS PAGE :: getInitialProps >>> ${JSON.stringify(query)} `)
-    const {network, ledger} = query
-    const page = (!!query.page) ? query.page : 1
-    const pageSize = (!!query.pageSize) ? query.pageSize : 50
+    const { network, ledger } = query
+    const page = (query.page) ? query.page : 1
+    const pageSize = (query.pageSize) ? query.pageSize : 50
     const fromRecentTx = (page - 1) * pageSize
     const toRecentTx = page * pageSize
     const baseUrl = getBaseUrl(req)
@@ -86,9 +84,9 @@ class Txs extends Component {
       for (const txName of ledgerTxNames) {
         const box = (
           <GridColumn width={4}>
-            <Checkbox style={{marginTop:'10px'}} label={txName}
-                      onChange={(event, data) => { this.setParamsFilter(txName, data.checked) }}
-                      checked={this.props.filterTxNames.includes(txName)}
+            <Checkbox style={{ marginTop: '10px' }} label={txName}
+              onChange={(event, data) => { this.setParamsFilter(txName, data.checked) }}
+              checked={this.props.filterTxNames.includes(txName)}
             />
           </GridColumn>)
         checkButtons.push(box)
@@ -100,42 +98,42 @@ class Txs extends Component {
   }
 
   render () {
-    const {ledger, network, txCount, page, baseUrl, pageSize} = this.props
+    const { ledger, network, txCount, page, baseUrl, pageSize } = this.props
     const pageCount = Math.ceil(txCount / pageSize)
     return (
       <Grid>
         <GridRow>
           <GridColumn>
-            <PageHeader page={ledger || 'home'} network={network} baseUrl={baseUrl}/>
+            <PageHeader page={ledger || 'home'} network={network} baseUrl={baseUrl} />
           </GridColumn>
         </GridRow>
-        <GridRow centered style={{marginBottom: '2em'}}>
+        <GridRow centered style={{ marginBottom: '2em' }}>
           <Pagination defaultActivePage={page} totalPages={pageCount}
-                      onPageChange={(e, data) => this.handleClick(e, data)}/>
+            onPageChange={(e, data) => this.handleClick(e, data)} />
         </GridRow>
         <GridRow>
           {this.renderSelectButtons()}
         </GridRow>
-        <GridRow style={{ marginTop: '0.1em'}}>
+        <GridRow style={{ marginTop: '0.1em' }}>
           <GridColumn floated='right' width={2}>
-            <span style={{fontSize: '2em', marginRight: '0.2em'}}>{txCount}</span>
-            <span style={{fontSize: '1.2em'}}> txs</span></GridColumn>
+            <span style={{ fontSize: '2em', marginRight: '0.2em' }}>{txCount}</span>
+            <span style={{ fontSize: '1.2em' }}> txs</span></GridColumn>
         </GridRow>
         <GridRow>
           <GridColumn>
             <TxListCompact baseUrl={this.props.baseUrl}
-                           network={this.props.network}
-                           ledger={this.props.ledger}
-                           txs={this.props.txs}/>
+              network={this.props.network}
+              ledger={this.props.ledger}
+              txs={this.props.txs} />
           </GridColumn>
         </GridRow>
         <GridRow centered>
           <Pagination defaultActivePage={page} totalPages={pageCount}
-                      onPageChange={(e, data) => this.handleClick(e, data)}/>
+            onPageChange={(e, data) => this.handleClick(e, data)} />
         </GridRow>
         <GridRow>
           <GridColumn>
-            <Footer/>
+            <Footer />
           </GridColumn>
         </GridRow>
       </Grid>

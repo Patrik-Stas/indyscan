@@ -18,7 +18,7 @@ let appConfig = {
   NETWORKS_CONFIG_PATH: process.env.NETWORKS_CONFIG_PATH,
   LOG_LEVEL: process.env.LOG_LEVEL,
   LOG_HTTP_REQUESTS: process.env.LOG_HTTP_REQUESTS,
-  LOG_HTTP_RESPONSES: process.env.LOG_HTTP_RESPONSES,
+  LOG_HTTP_RESPONSES: process.env.LOG_HTTP_RESPONSES
 }
 
 logger.info(`Loaded configuration:\n${JSON.stringify(appConfig, null, 2)}`)
@@ -29,7 +29,7 @@ const configValidation = Joi.object().keys({
   ES_URL: Joi.string().uri().required(),
   LOG_LEVEL: Joi.string().valid(['trace', 'debug', 'info', 'warn', 'error']).required(),
   LOG_HTTP_REQUESTS: Joi.string().valid(['true', 'false']).required(),
-  LOG_HTTP_RESPONSES: Joi.string().valid(['true', 'false']).required(),
+  LOG_HTTP_RESPONSES: Joi.string().valid(['true', 'false']).required()
 })
 
 Joi.validate(appConfig, configValidation, (err, ok) => { if (err) throw err })

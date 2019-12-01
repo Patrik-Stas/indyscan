@@ -138,24 +138,20 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
   }
 
   async function getOldestTimestamp () {
-    let res = await getTxs(0,
+    let txs = await getTxs(0,
       1,
       esFilterHasTimestamp(),
       { 'indyscan.txnMetadata.seqNo': { 'order': 'asc' } },
-      (txs) => txs.map(t => t.txnMetadata.txnTime)
     )
-    return res[0]
+    return txs[0].txnMetadata.txnTime
   }
 
   async function getTxsTimestamps (skip, limit, query) {
-    return getTxs(skip, limit, esAndFilters(query, esFilterHasTimestamp()), null, (txs) => txs.map(t => t.txnMetadata.txnTime))
+    let txs = await getTxs(skip, limit, esAndFilters(query, esFilterHasTimestamp()), null)
+    return txs.map(t => t.txnMetadata.txnTime)
   }
 
-  /*
-  Returns array of (by default all) transactions.
-  By default are transactions sorted from the latest (index 0) to the oldest (last index of result array)
-   */
-  async function getTxs (skip, limit, query, sort, transform) {
+  async function _getTxs (skip, limit, query, sort) {
     query = query ? esAndFilters(subledgerTxsQuery, query) : subledgerTxsQuery
     sort = sort || { 'indyscan.txnMetadata.seqNo': { 'order': 'desc' } }
     const searchRequest = {
@@ -165,8 +161,20 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
       body: { query, sort }
     }
     const { body } = await client.search(searchRequest)
-    let documents = body.hits.hits.map(h => JSON.parse(h['_source']['original']))
-    return transform ? transform(documents) : documents
+    return body.hits.hits.map(h => h['_source'])
+  }
+
+  /*
+  Returns array of (by default all) transactions.
+  By default are transactions sorted from the latest (index 0) to the oldest (last index of result array)
+   */
+  async function getTxs (skip, limit, query, sort) {
+    let hits = await _getTxs(skip, limit, query, sort)
+    return hits.map(h => JSON.parse(h.original))
+  }
+
+  async function getFullTxs (skip, limit, query, sort) {
+    return _getTxs(skip, limit, query, sort)
   }
 
   async function findMaxSeqNo () {
@@ -218,6 +226,7 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
     getOldestTimestamp,
     getTxsTimestamps,
     getTxs,
+    getFullTxs,
     getTxCount,
     getTxBySeqNo
   }
