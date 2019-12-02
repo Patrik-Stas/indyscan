@@ -382,7 +382,7 @@ info "Going to build IndyPool docker image from dockerfile contained at IndySdk 
 info "The pool will have genesis for address: $POOL_ADDRESS"
 
 curl -s https://raw.githubusercontent.com/hyperledger/indy-sdk/"$DOCKER_POOL_VERSION"/ci/indy-pool.dockerfile > "$DOCKERFILE_PATH"
-docker build --build-arg pool_ip="$POOL_ADDRESS" -f "$DOCKERFILE_PATH" -t "$IMAGE_REPOSITORY:$IMAGE_TAG" . > /dev/null
+docker build --build-arg pool_ip="$POOL_ADDRESS" -f "$DOCKERFILE_PATH" -t "$IMAGE_REPOSITORY:$IMAGE_TAG" .
 
 info "The image built:"
 docker image ls "$IMAGE_REPOSITORY":"$IMAGE_TAG"
