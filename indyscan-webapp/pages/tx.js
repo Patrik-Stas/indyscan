@@ -2,7 +2,19 @@ import '../scss/style.scss'
 import React, { Component } from 'react'
 import { getTx } from 'indyscan-api'
 import PageHeader from '../components/PageHeader/PageHeader'
-import { Grid, Container, GridRow, GridColumn, Label } from 'semantic-ui-react'
+import {
+  Grid,
+  Container,
+  GridRow,
+  GridColumn,
+  Label,
+  Segment,
+  Header,
+  Item,
+  Icon,
+  Image,
+  List
+} from 'semantic-ui-react'
 import JSONPretty from 'react-json-pretty'
 import top100 from '../components/palettes'
 import Link from 'next/link'
@@ -10,7 +22,9 @@ import Router from 'next/dist/lib/router'
 import { getTxLinkData, getBaseUrl } from '../routing'
 import Footer from '../components/Footer/Footer'
 import toCanonicalJson from 'canonical-json'
+import TxDisplay from '../components/TxDisplay/TxDisplay'
 
+/// / role verkey alias dest raw(==stringified json) raw.endpoint.xdi raw.endpoint.agent
 class Tx extends Component {
   static async getInitialProps ({ req, query }) {
     const { network, ledger, seqNo } = query
@@ -91,17 +105,11 @@ class Tx extends Component {
             <Link href={hrefPrev} as={asPrev}><a className='menulink'>Prev tx</a></Link>
           </GridColumn>
         </GridRow>
-        { txIndyscan &&
-          <GridRow>
-            <GridColumn>
-              <Label>{`${txIndyscan.txn.typeName}`}</Label>
-              <Label>{`${txIndyscan.txnMetadata.txnTime}`}</Label>
-              <Label>{`${txIndyscan.txn.metadata.from}`}</Label>
-              <Label>{`${JSON.stringify(txIndyscan.txn.data, null, 2)}`}</Label> // role verkey alias dest raw(==stringified json) raw.endpoint.xdi raw.endpoint.agent
-            </GridColumn>
-          </GridRow>
+        {txIndyscan &&
+        <GridRow>
+          <TxDisplay txIndyscan={txIndyscan} txLedger={txDetail}/>
+        </GridRow>
         }
-
         <GridRow>
           <GridColumn width={3} textAlign='center' />
           <GridColumn width={10} textAlign='center'>
