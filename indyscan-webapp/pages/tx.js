@@ -2,7 +2,7 @@ import '../scss/style.scss'
 import React, { Component } from 'react'
 import { getTx } from 'indyscan-api'
 import PageHeader from '../components/PageHeader/PageHeader'
-import { Grid, Container, GridRow, GridColumn } from 'semantic-ui-react'
+import { Grid, Container, GridRow, GridColumn, Label } from 'semantic-ui-react'
 import JSONPretty from 'react-json-pretty'
 import top100 from '../components/palettes'
 import Link from 'next/link'
@@ -15,13 +15,17 @@ class Tx extends Component {
   static async getInitialProps ({ req, query }) {
     const { network, ledger, seqNo } = query
     const baseUrl = getBaseUrl(req)
+    let txIndyscan
     let txDetail
     try {
-      txDetail = await getTx(baseUrl, network, ledger, seqNo)
+      let txFull = await getTx(baseUrl, network, ledger, seqNo, 'full')
+      txIndyscan = txFull.indyscan
+      txDetail = JSON.parse(txFull.original)
     } catch (e) {
       txDetail = { error: 'This tx was not scanned yet, or something went wrong trying to retrieve it.' }
     }
     return {
+      txIndyscan,
       baseUrl,
       txDetail,
       network,
@@ -65,7 +69,7 @@ class Tx extends Component {
       boolean: `color:${palette[4]};`
     }
 
-    const { baseUrl, txDetail, network, ledger, seqNo } = this.props
+    const { baseUrl, txDetail, network, ledger, seqNo, txIndyscan } = this.props
     const { href: hrefPrev, as: asPrev } = getTxLinkData(baseUrl, network, ledger, parseInt(seqNo) - 1)
     const { href: hrefNext, as: asNext } = getTxLinkData(baseUrl, network, ledger, parseInt(seqNo) + 1)
     return (
@@ -87,10 +91,28 @@ class Tx extends Component {
             <Link href={hrefPrev} as={asPrev}><a className='menulink'>Prev tx</a></Link>
           </GridColumn>
         </GridRow>
+        { txIndyscan &&
+          <GridRow>
+            <GridColumn>
+              <Label>{`${txIndyscan.txn.typeName}`}</Label>
+              <Label>{`${txIndyscan.txnMetadata.txnTime}`}</Label>
+              <Label>{`${txIndyscan.txn.metadata.from}`}</Label>
+              <Label>{`${JSON.stringify(txIndyscan.txn.data, null, 2)}`}</Label> // role verkey alias dest raw(==stringified json) raw.endpoint.xdi raw.endpoint.agent
+            </GridColumn>
+          </GridRow>
+        }
+
+        <GridRow>
+          <GridColumn width={3} textAlign='center' />
+          <GridColumn width={10} textAlign='center'>
+            <h4>Ledger data</h4>
+          </GridColumn>
+          <GridColumn width={3} textAlign='center' />
+        </GridRow>
         <GridRow>
           <GridColumn>
             <Container textAlign='justified'>
-              {<JSONPretty theme={mytheme} data={toCanonicalJson(txDetail)} />}
+              {<JSONPretty theme={mytheme} data={toCanonicalJson(txIndyscan)} />}
             </Container>
           </GridColumn>
         </GridRow>

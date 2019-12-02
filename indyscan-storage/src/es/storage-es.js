@@ -118,7 +118,7 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
     return body.hits.total.value
   }
 
-  async function getTxBySeqNo (seqNo) {
+  async function _getTxBySeqNo (seqNo) {
     const query = esAndFilters(subledgerTxsQuery, esFilterBySeqNo(seqNo))
     const { body } = await client.search({
       index,
@@ -133,8 +133,16 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
     if (body.hits.hits.length === 0) {
       return null
     }
-    let original = body.hits.hits.map(h => h['_source'])[0]['original']
-    return JSON.parse(original)
+    return body.hits.hits[0]['_source']
+  }
+
+  async function getTxBySeqNo (seqNo) {
+    const tx = await _getTxBySeqNo(seqNo)
+    return JSON.parse(tx.original)
+  }
+
+  async function getFullTxBySeqNo (seqNo) {
+    return _getTxBySeqNo(seqNo)
   }
 
   async function getOldestTimestamp () {
@@ -228,7 +236,8 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
     getTxs,
     getFullTxs,
     getTxCount,
-    getTxBySeqNo
+    getTxBySeqNo,
+    getFullTxBySeqNo
   }
 }
 

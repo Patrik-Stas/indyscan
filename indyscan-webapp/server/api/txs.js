@@ -58,6 +58,11 @@ function initTxsApi (router, ledgerStorageManager, networkManager) {
 
   router.get('/networks/:networkRef/ledgers/:ledger/txs/:seqNo', async (req, res) => {
     let { ledger, seqNo } = req.params
+    let { format } = req.query
+    format = format || 'original'
+    if (!['original', 'full'].includes(format)) {
+      res.status(400).send({ message: `Invalid tx format '${format}' requested.` })
+    }
     const networkDbName = getNetworkId(req, res)
     let parsedSeqNo
     try {
@@ -65,8 +70,9 @@ function initTxsApi (router, ledgerStorageManager, networkManager) {
     } catch (e) {
       res.status(400).send({ message: `seqNo must be number` })
     }
-    const tx = await ledgerStorageManager.getStorage(networkDbName, ledger).getTxBySeqNo(parsedSeqNo)
-    logger.info(JSON.stringify(tx))
+    const storage = await ledgerStorageManager.getStorage(networkDbName, ledger)
+    logger.info(`format = ${format}`)
+    const tx = (format === 'original') ? await storage.getTxBySeqNo(parsedSeqNo) : await storage.getFullTxBySeqNo(parsedSeqNo)
     res.status(200).send(tx)
   })
 

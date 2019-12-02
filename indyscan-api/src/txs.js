@@ -13,14 +13,15 @@ async function getTxTimeseries (baseUrl, network, ledger, intervalSec = null, si
   return res.json()
 }
 
-async function getTxs (baseUrl, network, ledger, fromRecentTx, toRecentTx, filterTxNames = []) {
-  const query = queryString.stringify({ fromRecentTx, toRecentTx, filterTxNames: JSON.stringify(filterTxNames) })
+async function getTxs (baseUrl, network, ledger, fromRecentTx, toRecentTx, filterTxNames = [], format='original') {
+  const query = queryString.stringify({ fromRecentTx, toRecentTx, format, filterTxNames: JSON.stringify(filterTxNames) })
   let res = await fetch(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs?${query}`)
   return res.json()
 }
 
-async function getTx (baseUrl, network, ledger, seqNo) {
-  let res = await fetch(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs/${seqNo}`)
+async function getTx (baseUrl, network, ledger, seqNo, format='original') {
+  const query = queryString.stringify({ format })
+  let res = await fetch(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs/${seqNo}?${query}`)
   return res.json()
 }
 
