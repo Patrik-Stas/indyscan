@@ -24,7 +24,6 @@ import Footer from '../components/Footer/Footer'
 import toCanonicalJson from 'canonical-json'
 import TxDisplay from '../components/TxDisplay/TxDisplay'
 
-/// / role verkey alias dest raw(==stringified json) raw.endpoint.xdi raw.endpoint.agent
 class Tx extends Component {
   static async getInitialProps ({ req, query }) {
     const { network, ledger, seqNo } = query
@@ -107,13 +106,13 @@ class Tx extends Component {
         </GridRow>
         {txIndyscan &&
         <GridRow>
-          <TxDisplay txIndyscan={txIndyscan} txLedger={txDetail}/>
+          <TxDisplay txIndyscan={txIndyscan} txLedger={txDetail} />
         </GridRow>
         }
         <GridRow>
           <GridColumn width={3} textAlign='center' />
           <GridColumn width={10} textAlign='center'>
-            <h4>Ledger data</h4>
+            <h4>Enriched data</h4>
           </GridColumn>
           <GridColumn width={3} textAlign='center' />
         </GridRow>
@@ -124,6 +123,22 @@ class Tx extends Component {
             </Container>
           </GridColumn>
         </GridRow>
+
+        <GridRow>
+          <GridColumn width={3} textAlign='center' />
+          <GridColumn width={10} textAlign='center'>
+            <h4>Original ledger data</h4>
+          </GridColumn>
+          <GridColumn width={3} textAlign='center' />
+        </GridRow>
+        <GridRow>
+          <GridColumn>
+            <Container textAlign='justified'>
+              {<JSONPretty theme={mytheme} data={toCanonicalJson(txDetail)} />}
+            </Container>
+          </GridColumn>
+        </GridRow>
+
         <GridRow>
           <GridColumn>
             <Footer />

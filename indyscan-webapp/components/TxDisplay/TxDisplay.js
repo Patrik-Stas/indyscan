@@ -26,7 +26,7 @@ function renderKeyValuePair (key, value, keyValueId) {
       <Label color='red' horizontal>
         {key}
       </Label>
-      {Array.isArray(value) ? renderAsBadges(key, value) : <Label>{value}</Label>}
+      {Array.isArray(value) ? renderAsBadges(key, value) : <Label>{value.toString().trim()}</Label>}
     </List.Item>
   )
 }
@@ -35,8 +35,19 @@ function renderKeyValues (obj, groupId) {
   let items = []
   let i = 0
   for (let [key, value] of Object.entries(obj)) {
-    items.push(renderKeyValuePair(key, value, `${groupId}-${i}`))
-    i++
+    if (value) {
+      if (Array.isArray(value) && value.length > 0) {
+        items.push(renderKeyValuePair(key, value, `${groupId}-${i}`))
+      } else {
+        let stringified = value.toString().trim()
+        if (stringified) {
+          items.push(renderKeyValuePair(key, value, `${groupId}-${i}`))
+        } else {
+          continue
+        }
+      }
+      i++
+    }
   }
   return items
 }
@@ -47,10 +58,40 @@ function basic (txIndyscan) {
   display['Tx ID'] = txIndyscan.txnMetadata.txnId
   return display
 }
+/// // / role verkey alias dest raw(==stringified json) raw.endpoint. raw.endpoint.agent
+function generateNymDisplay (txIndyscan) {
+  let display = {}
+  display['Target DID'] = txIndyscan.txn.data.dest
+  display['Role'] = txIndyscan.txn.data.role
+  display['Verkey'] = txIndyscan.txn.data.verkey
+  display['Alias'] = txIndyscan.txn.data.alias
+  if (txIndyscan.txn.data.raw) {
+    let parsedRaw
+    try {
+      parsedRaw = JSON.parse(txIndyscan.txn.data.raw)
+      if (parsedRaw['endpoint']) {
+        display['Endpoint.xdi'] = parsedRaw['endpoint']['xdi']
+        display['Endpoint.agent'] = parsedRaw['endpoint']['agent']
+      } else {
+        Object.assign(display, parsedRaw)
+      }
+    } catch (e) {
+      display['Raw'] = txIndyscan.txn.data.raw
+    }
+  }
+  return display
+}
+
+function generateSchemaDisplay (txIndyscan) {
+  let display = {}
+  display['Attributes'] = txIndyscan.txn.data.data.attr_names
+  display['Schema name'] = txIndyscan.txn.data.data.name
+  display['Schema version'] = txIndyscan.txn.data.data.version
+  return display
+}
 
 function generateClaimDefDisplay (txIndyscan) {
   let display = {}
-  console.log(JSON.stringify(txIndyscan))
   display['Attributes'] = txIndyscan.txn.data.refSchemaAttributes
   display['Schema ID'] = txIndyscan.txn.data.refSchemaId
   display['Schema author DID'] = txIndyscan.txn.data.refSchemaFrom
@@ -58,6 +99,26 @@ function generateClaimDefDisplay (txIndyscan) {
   display['Schema version'] = txIndyscan.txn.data.refSchemaVersion
   display['Schema seqNo'] = txIndyscan.txn.data.refSchemaTxnSeqno
   display['Schema create time'] = txIndyscan.txn.data.refSchemaTxnTime
+  return display
+}
+
+function generateNodeDisplay (txIndyscan) {
+  let display = {}
+  let { data } = txIndyscan.txn.data
+  display['Destination'] = txIndyscan.txn.data.dest
+  display['Alias'] = txIndyscan.txn.data.data.alias
+  if (data.client_ip) {
+    display['Client'] = `${data.client_ip}:${data.client_port}`
+  }
+  if (data.client_ip_geo) {
+    display['Client location'] = `${data.client_ip_geo.country}, ${data.client_ip_geo.region}, ${data.client_ip_geo.city}`
+  }
+  if (data.node_ip) {
+    display['Node'] = `${data.node_ip}:${data.node_port}`
+  }
+  if (data.client_ip_geo) {
+    display['Node location'] = `${data.node_ip_geo.country}, ${data.node_ip_geo.region}, ${data.node_ip_geo.city}`
+  }
   return display
 }
 
@@ -71,14 +132,14 @@ function merge (f1, f2) {
 }
 
 const txKeyValueDisplayGenerators = {
-  'NYM': basic,
-  'ATTRIB': basic,
-  'SCHEMA': basic,
+  'NYM': merge(basic, generateNymDisplay),
+  'ATTRIB': merge(basic, generateNymDisplay),
+  'SCHEMA': merge(basic, generateSchemaDisplay),
   'CLAIM_DEF': merge(basic, generateClaimDefDisplay),
   'REVOC_REG_DEF': basic,
   'REVOC_REG_ENTRY': basic,
   'SET_CONTEXT': basic,
-  'NODE': basic,
+  'NODE': merge(basic, generateNodeDisplay),
   'POOL_UPGRADE': basic,
   'NODE_UPGRADE': basic,
   'POOL_CONFIG': basic,
