@@ -1,0 +1,46 @@
+{
+  "auditPath": [
+    "LdTquzhdp92MPsSKkW2LjRPQ6jYf8CvKBcRTWbmmAoL",
+    "8GbV9MJ9wxrbLwpFafRHtkPHFd8iyTDFM9KuCCRn6hni",
+    "HwRdB59DDEMSmEymu7ubPbnyozi5o1zWRHnBnpwhSzRV",
+    "2xAwC6z9b1oKdNRkhRrJbC1AmnoLxh7CF4cjQwAsNb95",
+    "FgQ3QyZGF3m5UR3bXSVks8GcbCJuqPBaHcG9aevZQawg",
+    "ET5fuqRcR99Vmry1F89PTQofYiH2LAJiMvPsrjkJNqug",
+    "HxQPDqHLj72xX9Aam7JgQCPgMege1RqMbh5vZMNriamY",
+    "HAgA973B1TsAjMH2q5ak7L8AhnF5o3urofCfFEWWkwCP",
+    "GjS83bEQfRXSfLiY9qcs7SaMDE3kxnfmpz4xgYSCh9Z7",
+    "B2e5Lev63eo4B4UYqi3BdFtDqVcLLzs6TapQ4Bd8bWVs",
+    "EmviEJYzYq4UsT7RvR2H8Ypb7mhKMabhz45LWasgERN"
+  ],
+  "ledgerSize": 79487,
+  "reqSignature": {
+    "type": "ED25519",
+    "values": [
+      {
+        "from": "3hzaM4LfEeoZ4wpx324Hjt",
+        "value": "4Zjk1SYF4umemW5hvHQqWinPymfdQaRgsP2d84G4uktgym7GMJmKUo1o3RfiAv8nRSW7TPEYyA7cg18i7tCBJW5Y"
+      }
+    ]
+  },
+  "rootHash": "AtWskmdDGLwxVMAbjWXRj1qw4QEDvNRLRaqFeMUAUUDs",
+  "txn": {
+    "data": {
+      "dest": "SRySMy5GeztFpbZn4Sdnat",
+      "raw": "{\"last_updated\":1572956741.1868246}"
+    },
+    "metadata": {
+      "digest": "5b1eb7b3213e60bfd7460983ab976e8761e7be9d807a5b150f2c99d30c868a88",
+      "from": "3hzaM4LfEeoZ4wpx324Hjt",
+      "payloadDigest": "7bc13dcf720f48d27a857d8f7a550f20af6ce8cf9d1695a87e02c869d6e17922",
+      "reqId": 1574796721776572200
+    },
+    "protocolVersion": 2,
+    "type": "1"
+  },
+  "txnMetadata": {
+    "seqNo": 79487,
+    "txnId": "0105c4352dafa02b359463891140a953b5c09bfe87204cd5de8e64466c6ce4cb",
+    "txnTime": 1574796721
+  },
+  "ver": "1"
+}

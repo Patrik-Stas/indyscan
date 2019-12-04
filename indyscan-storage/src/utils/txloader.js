@@ -9,7 +9,7 @@ async function importFileToStorage (storage, filePath) {
   for (const line of lines) {
     const tx = JSON.parse(line)
     // console.log(`Adding tx to storage`)
-    await sleep(5)
+    await sleep(15)
     await storage.addTx(tx)
   }
 }

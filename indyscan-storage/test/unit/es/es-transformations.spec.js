@@ -1,7 +1,17 @@
 /* eslint-env jest */
 const { createEsTxTransform } = require('../../../src/es/es-transformations')
-const txNym = require('../../resource/sample-txs/tx-domain-nym')
-const txAttrib = require('../../resource/sample-txs/tx-domain-attrib')
+const txNym = require('../../resource/sample-txs/tx-domain-nym-noraw')
+const txNymAgent = require('../../resource/sample-txs/tx-domain-nym-agent')
+const txNymEndpoint = require('../../resource/sample-txs/tx-domain-nym-endpoint')
+const txNymUrl = require('../../resource/sample-txs/tx-domain-nym-url')
+const txNymInvaliJson = require('../../resource/sample-txs/tx-domain-nym-invalid-json')
+const txNymLastUpdated = require('../../resource/sample-txs/tx-domain-nym-last-updated')
+const txAttribNoRaw = require('../../resource/sample-txs/tx-domain-attrib-noraw')
+const txAttribRawAgent = require('../../resource/sample-txs/tx-domain-attrib-agent')
+const txAttribRawUrl = require('../../resource/sample-txs/tx-domain-attrib-url')
+const txAttribRawEndpoint = require('../../resource/sample-txs/tx-domain-attrib-endpoint')
+const txAttribRawLastUpated = require('../../resource/sample-txs/tx-domain-attrib-last-updated')
+const txAttribRawNoJson = require('../../resource/sample-txs/tx-domain-attrib-raw-invalid-json')
 const txSchemaDef = require('../../resource/sample-txs/tx-domain-schema')
 const txCredDef = require('../../resource/sample-txs/tx-domain-creddef')
 const txRevocDef = require('../../resource/sample-txs/tx-domain-revoc-reg-def')
@@ -42,6 +52,42 @@ describe('elasticsearch pre-ingestion transaction transformations', () => {
     expect(transformed.txnMetadata.txnTime).toBe('2019-11-26T19:32:01.000Z')
   })
 
+  it('should add typeName and subledger for domain NYM transaction with agent in raw data', async () => {
+    const tx = _.cloneDeep(txNymAgent)
+    let transformed = await esTransform(tx, 'DOMAIN')
+    expect(transformed.txn.typeName).toBe('NYM')
+    expect(transformed.txn.data.endpoint).toBe('http://localhost:8080/agency')
+  })
+
+  it('should add typeName and subledger for domain NYM transaction with agent in raw data', async () => {
+    const tx = _.cloneDeep(txNymEndpoint)
+    let transformed = await esTransform(tx, 'DOMAIN')
+    expect(transformed.txn.typeName).toBe('NYM')
+    expect(transformed.txn.data.endpoint).toBe('https://bayer.agent.develop.ssigate.ch/api/v1/inbox')
+  })
+
+  it('should add typeName and subledger for domain NYM transaction with agent in raw data', async () => {
+    const tx = _.cloneDeep(txNymUrl)
+    let transformed = await esTransform(tx, 'DOMAIN')
+    expect(transformed.txn.typeName).toBe('NYM')
+    expect(transformed.txn.data.endpoint).toBe('https://bayer.agent.develop.ssigate.ch/api/v2/inbox')
+  })
+
+  it('should add typeName and subledger for domain NYM transaction with agent in raw data', async () => {
+    const tx = _.cloneDeep(txNymInvaliJson)
+    let transformed = await esTransform(tx, 'DOMAIN')
+    expect(transformed.txn.typeName).toBe('NYM')
+    expect(transformed.txn.data.endpoint).toBeUndefined()
+    expect(transformed.txn.data.raw).toBe('foobar')
+  })
+
+  it('should add typeName and subledger for domain NYM transaction with last_upated in raw data', async () => {
+    const tx = _.cloneDeep(txNymLastUpdated)
+    let transformed = await esTransform(tx, 'DOMAIN')
+    expect(transformed.txn.typeName).toBe('NYM')
+    expect(transformed.txn.data.lastUpdated).toBe(1572956741.1868246)
+  })
+
   it('should add typeName and subledger for domain SCHEMA transaction', async () => {
     const tx = _.cloneDeep(txSchemaDef)
     let transformed = await esTransform(tx, 'DOMAIN')
@@ -52,14 +98,49 @@ describe('elasticsearch pre-ingestion transaction transformations', () => {
     expect(transformed.txnMetadata.txnTime).toBe('2019-10-14T10:29:45.000Z')
   })
 
-  it('should add typeName and subledger for domain ATTRIB transaction', async () => {
-    const tx = _.cloneDeep(txAttrib)
+  it('should add typeName and subledger for domain ATTRIB transaction without raw data', async () => {
+    const tx = _.cloneDeep(txAttribNoRaw)
     let transformed = await esTransform(tx, 'DOMAIN')
-    expect(JSON.stringify(tx)).toBe(JSON.stringify(txAttrib))
+    expect(JSON.stringify(tx)).toBe(JSON.stringify(txAttribNoRaw))
     expect(transformed.txn.typeName).toBe('ATTRIB')
     expect(transformed.subledger.code).toBe(DOMAIN_LEDGER_ID)
     expect(transformed.subledger.name).toBe('DOMAIN')
     expect(transformed.txnMetadata.txnTime).toBe('2019-11-27T15:34:07.000Z')
+  })
+
+  it('should add typeName and subledger for domain ATTRIB transaction with agent in raw dadtat', async () => {
+    const tx = _.cloneDeep(txAttribRawAgent)
+    let transformed = await esTransform(tx, 'DOMAIN')
+    expect(transformed.txn.typeName).toBe('ATTRIB')
+    expect(transformed.txn.data.endpoint).toBe('http://localhost:8080/agency')
+  })
+
+  it('should add typeName and subledger for domain ATTRIB transaction with url in raw data', async () => {
+    const tx = _.cloneDeep(txAttribRawUrl)
+    let transformed = await esTransform(tx, 'DOMAIN')
+    expect(transformed.txn.typeName).toBe('ATTRIB')
+    expect(transformed.txn.data.endpoint).toBe('https://bayer.agent.develop.ssigate.ch/api/v2/inbox')
+  })
+
+  it('should add typeName and subledger for domain ATTRIB transaction with endpoint in raw data', async () => {
+    const tx = _.cloneDeep(txAttribRawEndpoint)
+    let transformed = await esTransform(tx, 'DOMAIN')
+    expect(transformed.txn.typeName).toBe('ATTRIB')
+    expect(transformed.txn.data.endpoint).toBe('https://bayer.agent.develop.ssigate.ch/api/v1/inbox')
+  })
+
+  it('should add typeName and subledger for domain ATTRIB transaction with last_updated in raw data', async () => {
+    const tx = _.cloneDeep(txAttribRawLastUpated)
+    let transformed = await esTransform(tx, 'DOMAIN')
+    expect(transformed.txn.typeName).toBe('ATTRIB')
+    expect(transformed.txn.data.lastUpdated).toBe(1572956741.1868246)
+  })
+
+  it('should add typeName and subledger for domain ATTRIB transaction without json in raw data', async () => {
+    const tx = _.cloneDeep(txAttribRawNoJson)
+    let transformed = await esTransform(tx, 'DOMAIN')
+    expect(transformed.txn.typeName).toBe('ATTRIB')
+    expect(transformed.txn.data.raw).toBe('foobar')
   })
 
   it('should add typeName and subledger for domain REVOC_REG_DEF transaction', async () => {
@@ -168,7 +249,7 @@ describe('elasticsearch pre-ingestion transaction transformations', () => {
     expect(transformed.txnMetadata.txnTime).toBe('2019-11-11T17:06:31.000Z')
   })
 
-  it('should not modify cconfig POOL_UPGRADE transaction', async () => {
+  it('should not modify config POOL_UPGRADE transaction', async () => {
     let transformed = await esTransform(txPoolUpgrade, 'CONFIG')
     expect(transformed.txn.typeName).toBe('POOL_UPGRADE')
     expect(Array.isArray(transformed.txn.data.schedule)).toBeTruthy()

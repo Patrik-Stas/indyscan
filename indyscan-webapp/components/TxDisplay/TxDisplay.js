@@ -58,7 +58,7 @@ function basic (txIndyscan) {
   display['Tx ID'] = txIndyscan.txnMetadata.txnId
   return display
 }
-/// // / role verkey alias dest raw(==stringified json) raw.endpoint. raw.endpoint.agent
+
 function generateNymDisplay (txIndyscan) {
   let display = {}
   display['Target DID'] = txIndyscan.txn.data.dest
@@ -70,8 +70,8 @@ function generateNymDisplay (txIndyscan) {
     try {
       parsedRaw = JSON.parse(txIndyscan.txn.data.raw)
       if (parsedRaw['endpoint']) {
-        display['Endpoint.xdi'] = parsedRaw['endpoint']['xdi']
-        display['Endpoint.agent'] = parsedRaw['endpoint']['agent']
+        display['Endpoint.xdi'] = parsedRaw['endpoint']['xdi'] // todo: index these fields in Es if avaialbe
+        display['Endpoint.agent'] = parsedRaw['endpoint']['agent'] // todo: index these fields in Es if avaialbe
       } else {
         Object.assign(display, parsedRaw)
       }

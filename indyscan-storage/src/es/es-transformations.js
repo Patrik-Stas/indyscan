@@ -26,7 +26,7 @@ function createEsTxTransform (resolveTxBySeqno) {
 
   async function transformCredDef (tx) {
     const schemaRefSeqNo = tx.txn.data.ref
-    let schemaTx = await tryResolveTx(schemaRefSeqNo, 333, 6)
+    let schemaTx = await tryResolveTx(schemaRefSeqNo, 333, 10)
     const { txnSeqno, txnTime, schemaId, schemaFrom, schemaName, schemaVersion, attributes } = extractSchemaTxInfo(schemaTx)
     if (txnSeqno !== schemaRefSeqNo) {
       throw Error(`txnSeqno !== schemaRefSeqNo. This should never happen.`)
@@ -84,9 +84,34 @@ function createEsTxTransform (resolveTxBySeqno) {
     return tx
   }
 
+  async function transformNymAttrib (tx) {
+    if (tx.txn && tx.txn.data && tx.txn.data.raw) {
+      let parsed
+      try {
+        parsed = JSON.parse(tx.txn.data.raw)
+        if (parsed['endpoint']) {
+          if (parsed.endpoint.endpoint) {
+            tx.txn.data.endpoint = parsed.endpoint.endpoint
+          } else if (parsed.endpoint.agent) {
+            tx.txn.data.endpoint = parsed.endpoint.agent
+          } else if (parsed.endpoint.processor_url) {
+            tx.txn.data.endpoint = parsed.endpoint.processor_url
+          } else if (parsed.endpoint.controller_url) {
+            tx.txn.data.endpoint = parsed.endpoint.controller_url
+          }
+        } else if (parsed['url']) {
+          tx.txn.data.endpoint = parsed.url
+        } else if (parsed['last_updated']) {
+          tx.txn.data.lastUpdated = parsed['last_updated']
+        }
+      } catch (err) {} // just nevermind if raw is not JSON
+    }
+    return tx
+  }
+
   const txTransforms = {
-    'NYM': noop,
-    'ATTRIB': noop,
+    'NYM': transformNymAttrib,
+    'ATTRIB': transformNymAttrib,
     'SCHEMA': noop,
     'CLAIM_DEF': transformCredDef,
     'REVOC_REG_DEF': noop,

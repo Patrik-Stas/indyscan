@@ -138,6 +138,9 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
 
   async function getTxBySeqNo (seqNo) {
     const tx = await _getTxBySeqNo(seqNo)
+    if (!tx) {
+      return undefined
+    }
     return JSON.parse(tx.original)
   }
 

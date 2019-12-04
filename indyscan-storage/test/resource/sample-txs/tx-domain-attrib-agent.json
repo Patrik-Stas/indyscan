@@ -23,7 +23,8 @@
   "rootHash": "4c5Q3ZXF3NSqAWp4VoSEgVH3sUtfz4Sg6fotecZLotnK",
   "txn": {
     "data": {
-      "dest": "DkiCRWTKf9JfWobvpBBMqJ"
+      "dest": "DkiCRWTKf9JfWobvpBBMqJ",
+      "raw": "{\"endpoint\": {\"agent\":\"http://localhost:8080/agency\" }}"
     },
     "metadata": {
       "digest": "1081e066bad15fac68a20079019f3939df2cf3a30f6d0aded6b4c0a7109d3926",

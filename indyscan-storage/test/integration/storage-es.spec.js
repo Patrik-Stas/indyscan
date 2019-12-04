@@ -31,18 +31,18 @@ beforeAll(async () => {
     await Promise.all([domainStoragePromise, configStoragePromise, poolStoragePromise])
   domainStorage = domainStorageResolved
   let dataImports = []
-  // dataImports.push(importFileToStorage(domainStorageResolved, `${RESOURCE_DIR}/txs-test/domain.json`))
-  // dataImports.push(importFileToStorage(configStorageResolved, `${RESOURCE_DIR}/txs-test/config.json`))
-  // dataImports.push(importFileToStorage(poolStorageResolved, `${RESOURCE_DIR}/txs-test/pool.json`))
+  dataImports.push(importFileToStorage(domainStorageResolved, `${RESOURCE_DIR}/txs-test/domain.json`))
+  dataImports.push(importFileToStorage(configStorageResolved, `${RESOURCE_DIR}/txs-test/config.json`))
+  dataImports.push(importFileToStorage(poolStorageResolved, `${RESOURCE_DIR}/txs-test/pool.json`))
   await Promise.all(dataImports)
   await sleep(1000) // it takes a moment until ES indexes all documents
 })
 
-// afterAll(async function () {
-//   await esClient.indices.delete({
-//     index
-//   })
-// })
+afterAll(async function () {
+  await esClient.indices.delete({
+    index
+  })
+})
 
 describe('basic storage test', () => {
   it('should return 300 as count of domains txs', async () => {
