@@ -94,6 +94,8 @@ function createEsTxTransform (resolveTxBySeqno) {
             tx.txn.data.endpoint = parsed.endpoint.endpoint
           } else if (parsed.endpoint.agent) {
             tx.txn.data.endpoint = parsed.endpoint.agent
+          } else if (parsed.endpoint.xdi) {
+            tx.txn.data.endpoint = parsed.endpoint.xdi
           } else if (parsed.endpoint.processor_url) {
             tx.txn.data.endpoint = parsed.endpoint.processor_url
           } else if (parsed.endpoint.controller_url) {
