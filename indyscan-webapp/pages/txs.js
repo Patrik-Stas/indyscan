@@ -1,7 +1,7 @@
 import '../scss/style.scss'
 import TxListCompact from '../components/TxListCompact/TxListCompact'
 import React, { Component } from 'react'
-import { getTransactions, getTxCount } from 'indyscan-api'
+import { getTransactions, getTxCount } from 'indyscan-api-client'
 import PageHeader from '../components/PageHeader/PageHeader'
 import { Grid, GridColumn, GridRow, Pagination, Checkbox } from 'semantic-ui-react'
 import Router from 'next/dist/lib/router'

@@ -31,7 +31,7 @@ Following is for those who want to contribute or tweak the code. Here's how to s
 ## Structure
 ```
 - start/               - automation to startup IndyScan (and optionally IndyPool)
-- indyscan-api/        - http client to call indyscan api
+- indyscan-api-client/        - http client to call indyscan api
 - indyscan-webapp/     - nextjs web app
 - indyscan-daemon/     - process looking for a new transactions
 - indyscan-storage/    - shared library for app and daemon

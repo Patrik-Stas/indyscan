@@ -3,7 +3,7 @@ import './PageHeader.scss'
 import Navbar from '../Navbar/Navbar'
 import { Divider, Grid, GridColumn, GridRow } from 'semantic-ui-react'
 import MenuLink from '../MenuLink/MenuLink'
-const { getNetworks } = require('indyscan-api')
+const { getNetworks } = require('indyscan-api-client')
 
 class PageHeader extends Component {
   constructor (props) {

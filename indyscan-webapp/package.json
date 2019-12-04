@@ -32,7 +32,7 @@
     "date-format": "^2.0.0",
     "express": "^4.17.1",
     "@elastic/elasticsearch": "^7.4.0",
-    "indyscan-api": "file:../indyscan-api",
+    "indyscan-api-client": "file:../indyscan-api-client",
     "indyscan-storage": "file:../indyscan-storage",
     "indyscan-txtype": "file:../indyscan-txtype",
     "isomorphic-fetch": "^2.2.1",

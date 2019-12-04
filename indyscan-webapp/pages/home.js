@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import '../scss/style.scss'
-import { getTransactions, getNetwork } from 'indyscan-api'
+import { getTransactions, getNetwork } from 'indyscan-api-client'
 import { getBaseUrl } from '../routing'
   import { Grid, GridColumn, GridRow } from 'semantic-ui-react'
 import PageHeader from '../components/PageHeader/PageHeader'
