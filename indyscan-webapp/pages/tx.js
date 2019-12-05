@@ -6,14 +6,7 @@ import {
   Grid,
   Container,
   GridRow,
-  GridColumn,
-  Label,
-  Segment,
-  Header,
-  Item,
-  Icon,
-  Image,
-  List
+  GridColumn
 } from 'semantic-ui-react'
 import JSONPretty from 'react-json-pretty'
 import top100 from '../components/palettes'

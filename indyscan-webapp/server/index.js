@@ -1,40 +1,13 @@
 const logger = require('./logging/logger-main')
-const { appConfig, networksConfig } = require('./config')
+const { appConfig } = require('./config')
 const express = require('express')
 const next = require('next')
+const apiclient = require('indyscan-api-client')
+const isPortReachable = require('is-port-reachable');
+const url = require('url');
+const sleep = require('sleep-promise')
 
 const { logRequests, logResponses } = require('./middleware')
-const { createNetworkManager } = require('./service/service-networks')
-const initApiTxs = require('./api/txs.js')
-const initApiNetworks = require('./api/networks.js')
-const { createLedgerStorageManager } = require('./service/service-storages')
-
-function setupNetworkManager (networkConfigs) {
-  const networkConfigManager = createNetworkManager()
-  for (const networkConfig of networkConfigs) {
-    try {
-      networkConfigManager.addNetworkConfig(networkConfig)
-    } catch (err) {
-      logger.error(`Problem with network config ${JSON.stringify(networkConfig)}. Error: ${err.message} ${err.stack}`)
-    }
-  }
-  return networkConfigManager
-}
-
-async function setupStorageManager (networkConfigManager, esUrl) {
-  const ledgerStorageManager = await createLedgerStorageManager(esUrl)
-  const storagePromises = []
-  for (const networkConfig of networkConfigManager.getNetworkConfigs()) {
-    let storagePromise = ledgerStorageManager.addIndyNetwork(networkConfig.id, networkConfig.es.index)
-      .catch(err => {
-        logger.error(`Problem creating network storage manager for ${JSON.stringify(networkConfig.id)}. ` +
-          `Error: ${err.message} ${err.stack}`)
-      })
-    storagePromises.push(storagePromise)
-  }
-  await Promise.all(storagePromises)
-  return ledgerStorageManager
-}
 
 function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLogging) {
   if (enableRequestLogging) {
@@ -46,32 +19,32 @@ function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLoggi
 }
 
 async function startServer () {
-  const networkConfigManager = setupNetworkManager(networksConfig)
-  const ledgerStorageManager = await setupStorageManager(networkConfigManager, appConfig.ES_URL)
-
   const app = next({ dev: process.env.NODE_ENV !== 'production' })
   const handle = app.getRequestHandler()
+
+  const {INDYSCAN_API_URL} = appConfig
+  let {hostname, port} = url.parse(INDYSCAN_API_URL)
+  while ( false === await isPortReachable(port, {host: hostname})) {
+    logger.info(`Can't reach Indyscan API '${INDYSCAN_API_URL}'.`)
+    await sleep(1000)
+  }
 
   app
     .prepare()
     .then(() => {
       const server = express()
-      const apiRouter = express.Router()
-      initApiTxs(apiRouter, ledgerStorageManager, networkConfigManager)
-      initApiNetworks(apiRouter, networkConfigManager)
-
       setupLoggingMiddlleware(server, appConfig.LOG_HTTP_REQUESTS === 'true', appConfig.LOG_HTTP_RESPONSES === 'true')
 
-      server.use('/api', apiRouter)
-
-      server.get('/', (req, res) => {
+      server.get('/', async (req, res) => {
         logger.info('GET /')
-        res.redirect(`/home/${networkConfigManager.getDefaultNetworkId()}`)
+        const {id} = await apiclient.getDefaultNetwork(INDYSCAN_API_URL)
+        res.redirect(`/home/${id}`)
       })
 
-      server.get('/home', (req, res) => {
+      server.get('/home', async (req, res) => {
         logger.info('GET /home')
-        res.redirect(`/home/${networkConfigManager.getDefaultNetworkId()}`)
+        const {id} = await apiclient.getDefaultNetwork(INDYSCAN_API_URL)
+        res.redirect(`/home/${id}`)
       })
 
       server.get('/version', (req, res) => {

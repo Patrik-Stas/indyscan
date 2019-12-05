@@ -1,6 +1,6 @@
 const logger = require('../logging/logger-main')
 const elasticsearch = require('@elastic/elasticsearch')
-const { createStorageEs } = require('indyscan-storage')
+const { createStorageEs } = require('indyscan-storage/src')
 
 /*
  Manages multiple IndyScan storages - groups together storages for different networks and subledgers

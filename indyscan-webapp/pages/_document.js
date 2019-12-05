@@ -3,7 +3,6 @@ import React from 'react'
 
 export default class MyDocument extends Document {
   render () {
-    console.log(`[_document.js] render()`)
     return (
       <html>
         <Head>
