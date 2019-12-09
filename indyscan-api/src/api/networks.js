@@ -1,14 +1,13 @@
 const { asyncHandler } = require('../middleware')
 
 function initNetworksApi (app, networkManager) {
-  app.get('/networks',
+  app.get('/api/networks',
     asyncHandler(async function (req, res) {
       const networks = networkManager.getNetworkConfigs()
-      const defaultNetwork = networkManager.getNetworkConfig(networkManager.getDefaultNetworkId())
-      res.status(200).send({ networks, defaultNetwork })
+      res.status(200).send(networks)
     }))
 
-  app.get('/networks/:id',
+  app.get('/api/networks/:id',
     asyncHandler(async function (req, res) {
       const networkId = req.params.id
       const network = networkManager.getNetworkConfig(networkId)
@@ -17,6 +16,12 @@ function initNetworksApi (app, networkManager) {
       } else {
         res.status(404).send({ message: `Network id=${networkId} not found.` })
       }
+    }))
+
+  app.get('/api/default-network',
+    asyncHandler(async function (req, res) {
+      const network = await networkManager.getHighestPrirorityNetwork()
+      res.status(200).send(network)
     }))
 }
 

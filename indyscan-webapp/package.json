@@ -34,6 +34,7 @@
     "express": "^4.17.1",
     "express-prettify": "^0.1.1",
     "express-validation": "^1.0.2",
+    "http-proxy-middleware": "^0.20.0",
     "indyscan-api-client": "file:../indyscan-api-client",
     "indyscan-txtype": "file:../indyscan-txtype",
     "is-port-reachable": "^3.0.0",

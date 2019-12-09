@@ -6,6 +6,7 @@ import PageHeader from '../components/PageHeader/PageHeader'
 import { Grid, GridColumn, GridRow, Pagination, Checkbox } from 'semantic-ui-react'
 import Router from 'next/dist/lib/router'
 import { getBaseUrl } from '../routing'
+import { getTxs } from 'indyscan-api-client'
 import Footer from '../components/Footer/Footer'
 import { getConfigTxNames, getDomainsTxNames, getPoolTxNames } from 'indyscan-txtype'
 
@@ -42,7 +43,6 @@ class Txs extends Component {
   }
 
   static async getInitialProps ({ req, query }) {
-    console.log(`TXS PAGE :: getInitialProps >>> ${JSON.stringify(query)} `)
     const { network, ledger } = query
     const page = (query.page) ? query.page : 1
     const pageSize = (query.pageSize) ? query.pageSize : 50
@@ -50,10 +50,10 @@ class Txs extends Component {
     const toRecentTx = page * pageSize
     const baseUrl = getBaseUrl(req)
     const filterTxNames = (query.filterTxNames) ? JSON.parse(query.filterTxNames) : []
-    const domainTxs = await getTransactions(baseUrl, network, ledger, fromRecentTx || 0, toRecentTx || pageSize, filterTxNames)
+    const txs = await getTxs(baseUrl, network, ledger, fromRecentTx || 0, toRecentTx || pageSize, filterTxNames)
     const txCount = await getTxCount(baseUrl, network, ledger, filterTxNames)
     return {
-      txs: domainTxs.txs,
+      txs,
       network,
       ledger,
       baseUrl,

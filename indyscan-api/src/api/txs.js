@@ -10,7 +10,7 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
   function getNetworkId (req, res) {
     const { networkRef } = req.params
     try {
-      return networkManager.getNetworkId(networkRef)
+      return networkManager.getNetworkConfig(networkRef).id
     } catch (err) {
       return res.status(404).send({ message: `Couldn't resolve network you are referencing (${networkRef})` })
     }
@@ -49,16 +49,16 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
     }
   }
 
-  app.get('/networks/:networkRef/ledgers/:ledger/txs',
-    // validate(
-    //   {
-    //     query: {
-    //       fromRecentTx: Joi.string().required(),
-    //       toRecentTx: Joi.string().required(),
-    //       filterTxNames: Joi.string().required(),
-    //     }
-    //   }
-    // ),
+  app.get('/api/networks/:networkRef/ledgers/:ledger/txs',
+    validate(
+      {
+        query: {
+          fromRecentTx: Joi.number(),
+          toRecentTx: Joi.number(),
+          filterTxNames: Joi.array().items(Joi.string()).required(),
+        }
+      }
+    ),
     asyncHandler(async function (req, res) {
       const parts = url.parse(req.url, true)
       const networkId = getNetworkId(req, res)
@@ -66,10 +66,10 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
       let { fromRecentTx, toRecentTx, filterTxNames } = parts.query
       let { skip, size } = getTxRange(fromRecentTx, toRecentTx)
       const txs = await ledgerStorageManager.getStorage(networkId, ledger).getTxs(skip, size, urlQueryTxNamesToEsQuery(filterTxNames))
-      res.status(200).send({ txs })
+      res.status(200).send(txs)
     }))
 
-  app.get('/networks/:networkRef/ledgers/:ledger/txs/:seqNo',
+  app.get('/api/networks/:networkRef/ledgers/:ledger/txs/:seqNo',
     validate(
       {
         query: {
@@ -81,24 +81,24 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
       let { ledger, seqNo } = req.params
       let { format } = req.query
       format = format || 'original'
-      const networkDbName = getNetworkId(req, res)
+      const networkId = getNetworkId(req, res)
       let parsedSeqNo
       try {
         parsedSeqNo = parseInt(seqNo)
       } catch (e) {
         res.status(400).send({ message: `seqNo must be number` })
       }
-      const storage = await ledgerStorageManager.getStorage(networkDbName, ledger)
+      const storage = await ledgerStorageManager.getStorage(networkId, ledger)
       logger.info(`format = ${format}`)
       const tx = (format === 'original') ? await storage.getTxBySeqNo(parsedSeqNo) : await storage.getFullTxBySeqNo(parsedSeqNo)
       res.status(200).send(tx)
     }))
 
-  app.get('/networks/:networkRef/ledgers/:ledger/txs/stats/count',
+  app.get('/api/networks/:networkRef/ledgers/:ledger/txs/stats/count',
     validate(
       {
         query: {
-
+          filterTxNames: Joi.array().items(Joi.string()).required(),
         }
       }
     ),

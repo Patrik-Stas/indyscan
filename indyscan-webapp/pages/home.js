@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import '../scss/style.scss'
-import { getTransactions, getNetwork } from 'indyscan-api-client'
+import { getTxs, getNetwork } from 'indyscan-api-client'
 import { getBaseUrl } from '../routing'
 import { Grid, GridColumn, GridRow } from 'semantic-ui-react'
 import PageHeader from '../components/PageHeader/PageHeader'
@@ -27,17 +27,18 @@ class HomePage extends Component {
     const baseUrl = getBaseUrl(req)
     const { network } = query
     const networkDetails = await getNetwork(baseUrl, network)
-    const domainTxs = await getTransactions(baseUrl, network, 'domain', 0, 13)
-    const poolTxs = await getTransactions(baseUrl, network, 'pool', 0, 13)
-    const configTxs = await getTransactions(baseUrl, network, 'config', 0, 13)
+    console.log(`HOME getInitialProps:: baseUrl = ${baseUrl}`)
+    const domainTxs = await getTxs(baseUrl, network, 'domain', 0, 13)
+    const poolTxs = await getTxs(baseUrl, network, 'pool', 0, 13)
+    const configTxs = await getTxs(baseUrl, network, 'config', 0, 13)
     const versionRes = await fetch(`${baseUrl}/version`)
     const version = (await versionRes.json()).version
     return {
       networkDetails,
       network,
-      domainTxs: domainTxs.txs,
-      poolTxs: poolTxs.txs,
-      configTxs: configTxs.txs,
+      domainTxs: domainTxs,
+      poolTxs: poolTxs,
+      configTxs: configTxs,
       baseUrl,
       version
     }

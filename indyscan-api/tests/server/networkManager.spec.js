@@ -1,46 +1,151 @@
 /* eslint-env jest */
-const { createNetworkManager } = require('../../server/networkManager')
+const {createNetworkManager} = require('../../src/service/service-networks')
 
 describe('network config manager', () => {
-  const networkConfig = [
-    { id: 'sovrin-main-net', db: 'SOVRIN_MAINNET-db', display: 'SOVRIN MAIN NET' },
-    { id: 'sovrin-staging-net', db: 'SOVRIN_TESTNET-db', display: 'SOVRIN STAGING NET', aliases: ['SOVRIN_TESTNET'] },
-    { id: 'sovrin-builder-net', db: 'SOVRIN_BUILDERNET-db', display: 'SOVRIN BUILDER NET' }
+  const standardNetworkConfig = [
+    {
+      "id": "sovmain",
+      "aliases": [
+        "SOVRIN_MAINNET"
+      ],
+      "ui": {
+        "priority": 3,
+        "display": "MainNet",
+        "description": "MainNet is live network for production use."
+      },
+      "es" : {
+        "index": "txs-sovrin_mainnet"
+      }
+    },
+    {
+      "id": "sovstaging",
+      "ui": {
+        "priority": 2,
+        "display": "StagingNet",
+        "description": "StagingNet is area where end-users of products can test in a pre-production environment."
+      },
+      "aliases": [
+        "SOVRIN_TESTNET"
+      ],
+      "es" : {
+        "index": "txs-sovrin_testnet"
+      }
+    },
+    {
+      "id": "sovbuilder",
+      "ui": {
+        "priority": 1,
+        "display": "BuilderNet",
+        "description": "BuilderNet is network to try out their product before giving their end-users a go at it."
+      },
+      "es" : {
+        "index": "txs-sovrin_buildernet"
+      }
+    }
   ]
 
-  it('should return correct db names', async () => {
-    const networkManager = createNetworkManager(networkConfig)
-    const networks = networkManager.getNetworkDbs()
-    expect(networks.length).toBe(3)
-    expect(networks[0]).toBe('SOVRIN_MAINNET-db')
-    expect(networks[1]).toBe('SOVRIN_TESTNET-db')
-    expect(networks[2]).toBe('SOVRIN_BUILDERNET-db')
-  })
+
+  const minimalNetworkConfig = [
+    {
+      "id": "sovmain",
+      "es" : {
+        "index": "txs-sovrin_mainnet"
+      }
+    }
+  ]
+
+  const missingElasticsearchConfiguration = [
+    {
+      "id": "sovmain",
+      "es" : { }
+    }
+  ]
+
+  const missingNetworkId = [
+    {
+      "aliases": [
+        "SOVRIN_MAINNET"
+      ],
+      "ui": {
+        "priority": 3,
+        "display": "MainNet",
+        "description": "MainNet is live network for production use."
+      },
+      "es" : {
+        "index": "txs-sovrin_mainnet"
+      }
+    }
+  ]
+
 
   it('should return the first network from config as the default one', async () => {
-    const networkManager = createNetworkManager(networkConfig)
-    expect(networkManager.getDefaultNetworkId()).toBe('sovrin-main-net')
+    const networkManager = createNetworkManager(standardNetworkConfig)
+    const defaultNetwork = networkManager.getHighestPrirorityNetwork()
+    expect(defaultNetwork.id).toBe('sovmain')
+    expect(defaultNetwork.aliases).toContain('SOVRIN_MAINNET')
+    expect(defaultNetwork.ui.priority).toBe(3)
+    expect(defaultNetwork.ui.display).toBe('MainNet')
+    expect(defaultNetwork.ui.description).toBe('MainNet is live network for production use.')
+    expect(defaultNetwork.es.index).toBe('txs-sovrin_mainnet')
   })
 
-  it('should return correct network ids', async () => {
-    const networkManager = createNetworkManager(networkConfig)
-    const networks = networkManager.getNetworkDetails()
+  it('should return networks ordered by priority', async () => {
+    const networkManager = createNetworkManager(standardNetworkConfig)
+    const networks = networkManager.getNetworkConfigs()
     expect(networks.length).toBe(3)
-    expect(networks[0].id).toBe('sovrin-main-net')
-    expect(networks[0].display).toBe('SOVRIN MAIN NET')
-    expect(networks[1].id).toBe('sovrin-staging-net')
-    expect(networks[1].display).toBe('SOVRIN STAGING NET')
-    expect(networks[2].id).toBe('sovrin-builder-net')
-    expect(networks[2].display).toBe('SOVRIN BUILDER NET')
+    expect(networks[0].id).toBe('sovmain')
+    expect(networks[1].id).toBe('sovstaging')
+    expect(networks[2].id).toBe('sovbuilder')
   })
 
   it('should resolve db name by passing network id as reference', async () => {
-    const networkManager = createNetworkManager(networkConfig)
-    expect(networkManager.getNetworkId('sovrin-main-net')).toBe('SOVRIN_MAINNET-db')
+    const networkManager = createNetworkManager(standardNetworkConfig)
+    expect(networkManager.getNetworkConfig('sovmain').id).toBe('sovmain')
   })
 
   it('should resolve db name by passing network alias as reference', async () => {
-    const networkManager = createNetworkManager(networkConfig)
-    expect(networkManager.getNetworkId('SOVRIN_TESTNET')).toBe('SOVRIN_TESTNET-db')
+    const networkManager = createNetworkManager(standardNetworkConfig)
+    expect(networkManager.getNetworkConfig('SOVRIN_MAINNET').id).toBe('sovmain')
+  })
+
+
+  it('should should accept minimal config with only required fields', async () => {
+    const networkManager = createNetworkManager(minimalNetworkConfig)
+    const defaultNetwork = networkManager.getHighestPrirorityNetwork()
+    expect(defaultNetwork.id).toBe('sovmain')
+    expect(defaultNetwork.es.index).toBe('txs-sovrin_mainnet')
+  })
+
+  it('should add empty alias array if missing in configuration', async () => {
+    const networkManager = createNetworkManager(minimalNetworkConfig)
+    const defaultNetwork = networkManager.getHighestPrirorityNetwork()
+    expect(Array.isArray(defaultNetwork.aliases)).toBeTruthy()
+    expect(defaultNetwork.aliases.length).toBe(0)
+  })
+
+  it('should assign default network ui.priority of 1', async () => {
+    const networkManager = createNetworkManager(minimalNetworkConfig)
+    const defaultNetwork = networkManager.getHighestPrirorityNetwork()
+    expect(defaultNetwork.ui.priority).toBe(1)
+  })
+
+  it('should set ui display ui.name same as ID, if name is missing', async () => {
+    const networkManager = createNetworkManager(minimalNetworkConfig)
+    const defaultNetwork = networkManager.getHighestPrirorityNetwork()
+    expect(defaultNetwork.ui.display).toBe('sovmain')
+  })
+
+  it('should generate ui.description if missing in config', async () => {
+    const networkManager = createNetworkManager(minimalNetworkConfig)
+    const defaultNetwork = networkManager.getHighestPrirorityNetwork()
+    expect(defaultNetwork.ui.description).toBe('Hyperledger Indy network sovmain.')
+  })
+
+  it('should throw if elasticsearch configuration is missing', async () => {
+    expect(createNetworkManager.bind(null, missingElasticsearchConfiguration)).toThrow(" must contain 'es.index'");
+  })
+
+  it('should throw if id of network is missing', async () => {
+    expect(createNetworkManager.bind(null, missingNetworkId)).toThrow(" must contain 'id'");
   })
 })

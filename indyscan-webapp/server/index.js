@@ -2,11 +2,8 @@ const logger = require('./logging/logger-main')
 const { appConfig } = require('./config')
 const express = require('express')
 const next = require('next')
-const apiclient = require('indyscan-api-client')
-const isPortReachable = require('is-port-reachable');
-const url = require('url');
-const sleep = require('sleep-promise')
-
+const proxy = require('http-proxy-middleware')
+const {getDefaultNetwork} = require('indyscan-api-client')
 const { logRequests, logResponses } = require('./middleware')
 
 function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLogging) {
@@ -22,13 +19,6 @@ async function startServer () {
   const app = next({ dev: process.env.NODE_ENV !== 'production' })
   const handle = app.getRequestHandler()
 
-  const {INDYSCAN_API_URL} = appConfig
-  let {hostname, port} = url.parse(INDYSCAN_API_URL)
-  while ( false === await isPortReachable(port, {host: hostname})) {
-    logger.info(`Can't reach Indyscan API '${INDYSCAN_API_URL}'.`)
-    await sleep(1000)
-  }
-
   app
     .prepare()
     .then(() => {
@@ -37,14 +27,17 @@ async function startServer () {
 
       server.get('/', async (req, res) => {
         logger.info('GET /')
-        const {id} = await apiclient.getDefaultNetwork(INDYSCAN_API_URL)
-        res.redirect(`/home/${id}`)
+        let defaultNetwork
+        try {
+          defaultNetwork = await getDefaultNetwork(appConfig.INDYSCAN_API_URL)
+        } catch (err) {
+          return res.redirect(`/pending`)
+        }
+        return (defaultNetwork) ?  res.redirect(`/home/${defaultNetwork.id}`) : res.redirect(`/pending`)
       })
 
       server.get('/home', async (req, res) => {
-        logger.info('GET /home')
-        const {id} = await apiclient.getDefaultNetwork(INDYSCAN_API_URL)
-        res.redirect(`/home/${id}`)
+        res.redirect(`lo`)
       })
 
       server.get('/version', (req, res) => {
@@ -69,6 +62,11 @@ async function startServer () {
         logger.debug(`Custom express routing handler: /txs/:network/:ledger\nmerged query: ${JSON.stringify(mergedQuery)}`)
         return app.render(req, res, '/tx', mergedQuery)
       })
+
+      server.use(
+        '/api',
+        proxy({ target: 'http://localhost:3708', changeOrigin: true })
+      );
 
       server.get('*', (req, res) => {
         return handle(req, res)
