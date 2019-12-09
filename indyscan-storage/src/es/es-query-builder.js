@@ -74,12 +74,21 @@ function esFilterTxnBeforeTime (utime) {
   }
 }
 
+function esFullTextsearch (text) {
+  return {
+    'simple_query_string': {
+      'query': text,
+      'default_operator': 'and'
+    }
+  }
+}
+
 function esOrFilters (...filters) {
-  return { 'bool': { 'should': [...filters] } }
+  return {'bool': {'should': [...filters]}}
 }
 
 function esAndFilters (...filters) {
-  return { 'bool': { 'must': [...filters] } }
+  return {'bool': {'must': [...filters]}}
 }
 
 module.exports.esFilterSubledgerName = esFilterSubledgerName
@@ -92,3 +101,4 @@ module.exports.esFilterAboveSeqNo = esFilterAboveSeqNo
 module.exports.esFilterBelowSeqNo = esFilterBelowSeqNo
 module.exports.esAndFilters = esAndFilters
 module.exports.esOrFilters = esOrFilters
+module.exports.esFullTextsearch = esFullTextsearch

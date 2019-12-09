@@ -49,6 +49,7 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
     }
   }
 
+
   app.get('/api/networks/:networkRef/ledgers/:ledger/txs',
     validate(
       {
@@ -56,6 +57,7 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
           fromRecentTx: Joi.number(),
           toRecentTx: Joi.number(),
           filterTxNames: Joi.array().items(Joi.string()).required(),
+          search: Joi.string()
         }
       }
     ),
@@ -63,9 +65,11 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
       const parts = url.parse(req.url, true)
       const networkId = getNetworkId(req, res)
       let { ledger } = req.params
-      let { fromRecentTx, toRecentTx, filterTxNames } = parts.query
+      let { fromRecentTx, toRecentTx, filterTxNames, search } = parts.query
       let { skip, size } = getTxRange(fromRecentTx, toRecentTx)
-      const txs = await ledgerStorageManager.getStorage(networkId, ledger).getTxs(skip, size, urlQueryTxNamesToEsQuery(filterTxNames))
+      const txs = (search)
+        ? await ledgerStorageManager.getStorage(networkId, ledger).search(skip, size, urlQueryTxNamesToEsQuery(filterTxNames), search)
+        : await ledgerStorageManager.getStorage(networkId, ledger).getTxs(skip, size, urlQueryTxNamesToEsQuery(filterTxNames))
       res.status(200).send(txs)
     }))
 

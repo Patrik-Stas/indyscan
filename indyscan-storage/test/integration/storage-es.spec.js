@@ -24,24 +24,28 @@ const index = 'txs-integration-test'
 beforeAll(async () => {
   jest.setTimeout(1000 * 60 * 4)
   esClient = new Client({ node: URL_ES })
+  // try {
+  //   await esClient.indices.delete({index})
+  // } catch (err) {} // ok, just making sure here
+
   let domainStoragePromise = await createStorageEs(esClient, index, 0, 'DOMAIN', true, false)
   let configStoragePromise = await createStorageEs(esClient, index, 0, 'CONFIG', false, false)
   let poolStoragePromise = await createStorageEs(esClient, index, 0, 'POOL', false, false)
   const [domainStorageResolved, configStorageResolved, poolStorageResolved] =
     await Promise.all([domainStoragePromise, configStoragePromise, poolStoragePromise])
   domainStorage = domainStorageResolved
-  let dataImports = []
-  dataImports.push(importFileToStorage(domainStorageResolved, `${RESOURCE_DIR}/txs-test/domain.json`))
-  dataImports.push(importFileToStorage(configStorageResolved, `${RESOURCE_DIR}/txs-test/config.json`))
-  dataImports.push(importFileToStorage(poolStorageResolved, `${RESOURCE_DIR}/txs-test/pool.json`))
-  await Promise.all(dataImports)
+  // let dataImports = []
+  // dataImports.push(importFileToStorage(domainStorageResolved, `${RESOURCE_DIR}/txs-test/domain.json`))
+  // dataImports.push(importFileToStorage(configStorageResolved, `${RESOURCE_DIR}/txs-test/config.json`))
+  // dataImports.push(importFileToStorage(poolStorageResolved, `${RESOURCE_DIR}/txs-test/pool.json`))
+  // await Promise.all(dataImports)
   await sleep(1000) // it takes a moment until ES indexes all documents
 })
 
 afterAll(async function () {
-  await esClient.indices.delete({
-    index
-  })
+  // await esClient.indices.delete({
+  //   index
+  // })
 })
 
 describe('basic storage test', () => {
@@ -205,5 +209,59 @@ describe('basic storage test', () => {
     const filter = esAndFilters(esFilterByTxTypeNames(['NYM']), esFilterAboveSeqNo(200), esFilterBelowSeqNo(301))
     const timestamps = await domainStorage.getTxsTimestamps(0, 100, filter)
     expect(timestamps.length).toBe(9)
+  })
+
+  it('should find schemas and credential definitions with field "License type"', async () => {
+    const txs = await domainStorage.searchTxs(0, 100, "License type")
+    expect(Array.isArray(txs)).toBeTruthy()
+    expect(txs.length).toBeGreaterThanOrEqual(1)
+    for (const tx of txs) {
+      expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/license type/i))
+      expect(['SCHEMA', 'CLAIM_DEF']).toContain(tx.indyscan.txn.typeName)
+    }
+  })
+
+  it('should find pool node transaction regard IP address "34.250.128.221"', async () => {
+    const txs = await domainStorage.searchTxs(0, 100, "34.250.128.221")
+    expect(Array.isArray(txs)).toBeTruthy()
+    expect(txs.length).toBeGreaterThanOrEqual(1)
+    for (const tx of txs) {
+      expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/34.250.128.221/i))
+      expect(['NODE']).toContain(tx.indyscan.txn.typeName)
+    }
+  })
+
+  it('should find nym transaction posted by DID TTQMzH5FkGdbHuSygCWsok', async () => {
+    const txs = await domainStorage.searchTxs(0, 100, "TTQMzH5FkGdbHuSygCWsok")
+    expect(Array.isArray(txs)).toBeTruthy()
+    expect(txs.length).toBeGreaterThanOrEqual(1)
+    for (const tx of txs) {
+      expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/TTQMzH5FkGdbHuSygCWsok/))
+    }
+    let nymTxs = txs.filter(tx => tx.indyscan.txn.typeName === 'NYM')
+    let nymTxsPostedBy = nymTxs.filter(tx => tx.indyscan.txn.metadata.from === 'TTQMzH5FkGdbHuSygCWsok')
+    expect(nymTxsPostedBy.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('should find schemas with name "TranscriptSchema"', async () => {
+    const txs = await domainStorage.searchTxs(0, 100, "TranscriptSchema")
+    expect(Array.isArray(txs)).toBeTruthy()
+    const schemaTxs = txs.filter(tx => tx.indyscan.txn.typeName === 'SCHEMA')
+    expect(schemaTxs.length).toBeGreaterThanOrEqual(1)
+    for (const tx of schemaTxs) {
+      expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/TranscriptSchema/))
+      expect(tx.indyscan.txn.data.data.name).toBe('TranscriptSchema')
+    }
+  })
+
+  it('should find cred definitions referring to schema with name "TranscriptSchema"', async () => {
+    const txs = await domainStorage.searchTxs(0, 100, "TranscriptSchema")
+    expect(Array.isArray(txs)).toBeTruthy()
+    const claimDefTxs = txs.filter(tx => tx.indyscan.txn.typeName === 'CLAIM_DEF')
+    expect(claimDefTxs.length).toBeGreaterThanOrEqual(1)
+    for (const tx of claimDefTxs) {
+      expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/TranscriptSchema/))
+      expect(tx.indyscan.txn.data.refSchemaName).toBe('TranscriptSchema')
+    }
   })
 })

@@ -1,3 +1,4 @@
+const {esFullTextsearch} = require('./es-query-builder')
 const { createEsTxTransform } = require('./es-transformations')
 const { esFilterSubledgerName, esAndFilters, esFilterBySeqNo, esFilterHasTimestamp } = require('./es-query-builder')
 const { txTypeToSubledgerName } = require('indyscan-txtype')
@@ -63,12 +64,14 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
 
           // TX: NYM, ATTRIB
           'indyscan.txn.data.raw': { type: 'text' },
+          'indyscan.txn.data.dest': { type: 'keyword' },
 
           // TX: CLAIM_DEF
           'indyscan.txn.data.refSchemaTxnSeqno': { type: 'integer' },
           'indyscan.txn.data.refSchemaTxnTime': { type: 'date', format: 'date_time' },
           'indyscan.txn.data.refSchemaVersion': { type: 'keyword' },
           'indyscan.txn.data.refSchemaFrom': { type: 'keyword' },
+
 
           // TX: pool NODE transaction
           'indyscan.txn.data.data.client_ip': { type: 'ip' },
@@ -166,6 +169,19 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
     return body.hits.hits.map(h => h['_source'])
   }
 
+  async function _searchTxs (skip, limit, searchQuery) {
+    let query = esFullTextsearch(searchQuery)
+    let sort = { 'indyscan.txnMetadata.seqNo': { 'order': 'desc' } }
+    const searchRequest = {
+      from: skip,
+      size: limit,
+      index,
+      body: { query, sort }
+    }
+    const { body } = await client.search(searchRequest)
+    return body.hits.hits.map(h => h['_source'])
+  }
+
   /*
   Returns array of (by default all) transactions.
   By default are transactions sorted from the latest (index 0) to the oldest (last index of result array)
@@ -173,6 +189,10 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
   async function getTxs (skip, limit, query, sort) {
     let hits = await _getTxs(skip, limit, query, sort)
     return hits.map(h => JSON.parse(h.original))
+  }
+
+  async function searchTxs (skip, limit, searchText) {
+    return _searchTxs(skip, limit, searchText)
   }
 
   async function getFullTxs (skip, limit, query, sort) {
@@ -228,6 +248,7 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
     getOldestTimestamp,
     getTxsTimestamps,
     getTxs,
+    searchTxs,
     getFullTxs,
     getTxCount,
     getTxBySeqNo,

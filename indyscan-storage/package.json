@@ -20,7 +20,8 @@
     "export-mongo": "npm run export-config && npm run export-domain && npm run export-pool",
     "export-config": "mkdir -p data; mongoexport --db SOVRIN_TESTNET --collection txs-config | head -300 > data/config.txs",
     "export-domain": "mkdir -p data; mongoexport --db SOVRIN_TESTNET --collection txs-domain | head -300 > data/domain.txs",
-    "export-pool": "  mkdir -p data; mongoexport --db SOVRIN_TESTNET --collection txs-pool   | head -300 > data/pool.txs"
+    "export-pool": "  mkdir -p data; mongoexport --db SOVRIN_TESTNET --collection txs-pool   | head -300 > data/pool.txs",
+    "elastic:delete:test": "bash delete-integration-test-es-indices.sh"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^7.3.0",
