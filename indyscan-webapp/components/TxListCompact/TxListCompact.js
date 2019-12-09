@@ -6,9 +6,6 @@ import { describeTransaction } from 'indyscan-txtype'
 
 class TxListCompact extends Component {
   render () {
-    console.log(`render tx list compact ::::`)
-    console.log(JSON.stringify(this.props.ledger))
-
     return (
       <Table striped celled selectable>
         <TableHeader>

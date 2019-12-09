@@ -27,7 +27,6 @@ class HomePage extends Component {
     const baseUrl = getBaseUrl(req)
     const { network } = query
     const networkDetails = await getNetwork(baseUrl, network)
-    console.log(`HOME getInitialProps:: baseUrl = ${baseUrl}`)
     const domainTxs = await getTxs(baseUrl, network, 'domain', 0, 13)
     const poolTxs = await getTxs(baseUrl, network, 'pool', 0, 13)
     const configTxs = await getTxs(baseUrl, network, 'config', 0, 13)
@@ -53,7 +52,6 @@ class HomePage extends Component {
 
   render () {
     const { network, networkDetails, baseUrl } = this.props
-    console.log(JSON.stringify(networkDetails))
     return (
       <Grid>
         <GridRow style={{ backgroundColor: 'white', marginBottom: '-1em' }}>

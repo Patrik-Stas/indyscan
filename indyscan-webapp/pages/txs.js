@@ -25,7 +25,6 @@ class Txs extends Component {
   }
 
   setParamsFilter (txName, shouldDisplay) {
-    console.log(`Set filter parameters. Change: ${txName} to shouldDisplay = ${shouldDisplay}`)
     const { baseUrl, network, ledger, page, pageSize, filterTxNames } = this.props
     let newFilter = []
     if (shouldDisplay) {
@@ -38,7 +37,6 @@ class Txs extends Component {
         newFilter = filterTxNames.filter(item => item !== txName)
       }
     }
-    console.log(JSON.stringify(newFilter))
     this.updateUrl(baseUrl, network, ledger, page, pageSize, JSON.stringify(newFilter))
   }
 

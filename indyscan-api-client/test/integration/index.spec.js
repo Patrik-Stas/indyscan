@@ -14,6 +14,10 @@ beforeAll(async () => {
   jest.setTimeout(1000 * 5)
 })
 
+/*
+This works under assumption you have configured api for at least 1 network with some transactions (let's say 50txs on each subledger).
+TODO: We could improve the test suite by preloading some test dataset into ES along with required API configuration to have deterministic testsuite
+ */
 describe('basic api test suite', () => {
 
   function basicNetworkValidation(network) {

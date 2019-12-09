@@ -89,7 +89,6 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
         res.status(400).send({ message: `seqNo must be number` })
       }
       const storage = await ledgerStorageManager.getStorage(networkId, ledger)
-      logger.info(`format = ${format}`)
       const tx = (format === 'original') ? await storage.getTxBySeqNo(parsedSeqNo) : await storage.getFullTxBySeqNo(parsedSeqNo)
       res.status(200).send(tx)
     }))
