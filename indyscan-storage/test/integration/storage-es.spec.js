@@ -10,10 +10,13 @@ import {
 } from '../../src/es/es-query-builder'
 import { areTxsAfterTime, areTxsBeforeTime, areTxsOfTypes, containsTxOfType } from './common'
 import { importFileToStorage } from '../../src/utils/txloader'
+
+const {esFullTextsearch} = require('../../src/es/es-query-builder')
 const { createStorageEs } = require('../../src/es/storage-es')
 
 const RESOURCE_DIR = path.resolve(__dirname, '../resource')
 let domainStorage
+let poolstorage
 const { Client } = require('@elastic/elasticsearch')
 
 const URL_ES = process.env.URL_ES || 'http://localhost:9200'
@@ -34,6 +37,7 @@ beforeAll(async () => {
   const [domainStorageResolved, configStorageResolved, poolStorageResolved] =
     await Promise.all([domainStoragePromise, configStoragePromise, poolStoragePromise])
   domainStorage = domainStorageResolved
+  poolstorage = poolStorageResolved
   // let dataImports = []
   // dataImports.push(importFileToStorage(domainStorageResolved, `${RESOURCE_DIR}/txs-test/domain.json`))
   // dataImports.push(importFileToStorage(configStorageResolved, `${RESOURCE_DIR}/txs-test/config.json`))
@@ -212,7 +216,7 @@ describe('basic storage test', () => {
   })
 
   it('should find schemas and credential definitions with field "License type"', async () => {
-    const txs = await domainStorage.searchTxs(0, 100, "License type")
+    const txs = await domainStorage.getFullTxs(0, 100, esFullTextsearch("License type"))
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBeGreaterThanOrEqual(1)
     for (const tx of txs) {
@@ -222,8 +226,7 @@ describe('basic storage test', () => {
   })
 
   it('should find pool node transaction regard IP address "34.250.128.221"', async () => {
-    const txs = await domainStorage.searchTxs(0, 100, "34.250.128.221")
-    expect(Array.isArray(txs)).toBeTruthy()
+    const txs = await poolstorage.getFullTxs(0, 100, esFullTextsearch("34.250.128.221"))
     expect(txs.length).toBeGreaterThanOrEqual(1)
     for (const tx of txs) {
       expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/34.250.128.221/i))
@@ -232,8 +235,7 @@ describe('basic storage test', () => {
   })
 
   it('should find nym transaction posted by DID TTQMzH5FkGdbHuSygCWsok', async () => {
-    const txs = await domainStorage.searchTxs(0, 100, "TTQMzH5FkGdbHuSygCWsok")
-    expect(Array.isArray(txs)).toBeTruthy()
+    const txs = await domainStorage.getFullTxs(0, 100, esFullTextsearch("TTQMzH5FkGdbHuSygCWsok"))
     expect(txs.length).toBeGreaterThanOrEqual(1)
     for (const tx of txs) {
       expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/TTQMzH5FkGdbHuSygCWsok/))
@@ -243,9 +245,38 @@ describe('basic storage test', () => {
     expect(nymTxsPostedBy.length).toBeGreaterThanOrEqual(1)
   })
 
+  it('should find only NYM transactions posted by DID TTQMzH5FkGdbHuSygCWsok', async () => {
+    const nymTxs = await domainStorage.getFullTxs(0, 100, esAndFilters(esFullTextsearch("TTQMzH5FkGdbHuSygCWsok"), esFilterByTxTypeNames(['NYM'])))
+    expect(nymTxs.length).toBeGreaterThanOrEqual(1)
+    for (const tx of nymTxs) {
+      expect(tx.indyscan.txn.typeName).toBe('NYM')
+      expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/TTQMzH5FkGdbHuSygCWsok/))
+    }
+  })
+
+  it('should find only ATTRIB transactions posted by DID PuUvfrkoq4r8zxdr3F7Qe9', async () => {
+    const nymTxs = await domainStorage.getFullTxs(0, 100, esAndFilters(esFullTextsearch("PuUvfrkoq4r8zxdr3F7Qe9"), esFilterByTxTypeNames(['ATTRIB'])))
+    expect(nymTxs.length).toBeGreaterThanOrEqual(1)
+    for (const tx of nymTxs) {
+      expect(tx.indyscan.txn.typeName).toBe('ATTRIB')
+      expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/PuUvfrkoq4r8zxdr3F7Qe9/))
+    }
+  })
+
+  it('should find only schemas and no claim_def which includes string "TranscriptSchema"', async () => {
+    const txs = await domainStorage.getFullTxs(0, 100, esAndFilters(esFullTextsearch("TranscriptSchema"), esFilterByTxTypeNames(['SCHEMA'])))
+    const schemaTxs = txs.filter(tx => tx.indyscan.txn.typeName === 'SCHEMA')
+    expect(schemaTxs.length).toBeGreaterThanOrEqual(1)
+    for (const tx of schemaTxs) {
+      expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/TranscriptSchema/))
+      expect(tx.indyscan.txn.data.data.name).toBe('TranscriptSchema')
+    }
+    const claimDefTxs = txs.filter(tx => tx.indyscan.txn.typeName === 'CLAIM_DEF')
+    expect(claimDefTxs.length).toBe(0)
+  })
+
   it('should find schemas with name "TranscriptSchema"', async () => {
-    const txs = await domainStorage.searchTxs(0, 100, "TranscriptSchema")
-    expect(Array.isArray(txs)).toBeTruthy()
+    const txs = await domainStorage.getFullTxs(0, 100, esFullTextsearch("TranscriptSchema"))
     const schemaTxs = txs.filter(tx => tx.indyscan.txn.typeName === 'SCHEMA')
     expect(schemaTxs.length).toBeGreaterThanOrEqual(1)
     for (const tx of schemaTxs) {
@@ -255,7 +286,7 @@ describe('basic storage test', () => {
   })
 
   it('should find cred definitions referring to schema with name "TranscriptSchema"', async () => {
-    const txs = await domainStorage.searchTxs(0, 100, "TranscriptSchema")
+    const txs = await domainStorage.getFullTxs(0, 100, esFullTextsearch("TranscriptSchema"))
     expect(Array.isArray(txs)).toBeTruthy()
     const claimDefTxs = txs.filter(tx => tx.indyscan.txn.typeName === 'CLAIM_DEF')
     expect(claimDefTxs.length).toBeGreaterThanOrEqual(1)

@@ -165,22 +165,23 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
       index,
       body: { query, sort }
     }
+    console.log(JSON.stringify(searchRequest))
     const { body } = await client.search(searchRequest)
     return body.hits.hits.map(h => h['_source'])
   }
 
-  async function _searchTxs (skip, limit, searchQuery) {
-    let query = esFullTextsearch(searchQuery)
-    let sort = { 'indyscan.txnMetadata.seqNo': { 'order': 'desc' } }
-    const searchRequest = {
-      from: skip,
-      size: limit,
-      index,
-      body: { query, sort }
-    }
-    const { body } = await client.search(searchRequest)
-    return body.hits.hits.map(h => h['_source'])
-  }
+  // async function _searchTxs (skip, limit, searchQuery) {
+  //   let query = esFullTextsearch(searchQuery)
+  //   let sort = { 'indyscan.txnMetadata.seqNo': { 'order': 'desc' } }
+  //   const searchRequest = {
+  //     from: skip,
+  //     size: limit,
+  //     index,
+  //     body: { query, sort }
+  //   }
+  //   const { body } = await client.search(searchRequest)
+  //   return body.hits.hits.map(h => h['_source'])
+  // }
 
   /*
   Returns array of (by default all) transactions.
@@ -190,10 +191,10 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
     let hits = await _getTxs(skip, limit, query, sort)
     return hits.map(h => JSON.parse(h.original))
   }
-
-  async function searchTxs (skip, limit, searchText) {
-    return _searchTxs(skip, limit, searchText)
-  }
+  //
+  // async function searchTxs (skip, limit, searchText) {
+  //   return _searchTxs(skip, limit, searchText)
+  // }
 
   async function getFullTxs (skip, limit, query, sort) {
     return _getTxs(skip, limit, query, sort)
@@ -248,7 +249,6 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
     getOldestTimestamp,
     getTxsTimestamps,
     getTxs,
-    searchTxs,
     getFullTxs,
     getTxCount,
     getTxBySeqNo,

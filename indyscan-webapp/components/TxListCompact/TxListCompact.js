@@ -22,10 +22,11 @@ class TxListCompact extends Component {
             const txInfo = extractTxInformation(txn)
             const description = describeTransaction(txn)
             return (
-              <TxListItem baseUrl={this.props.baseUrl}
+              <TxListItem
+                baseUrl={this.props.baseUrl}
                 network={this.props.network}
                 ledger={this.props.ledger}
-                key={txn.seqNo}
+                key={txInfo.seqNo}
                 txInfo={txInfo}
                 description={description}
               />

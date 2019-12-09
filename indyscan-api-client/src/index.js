@@ -39,8 +39,8 @@ async function getTxCount (baseUrl, network, ledger, filterTxNames = []) {
   return res.txCount
 }
 
-async function getTxs (baseUrl, network, ledger, fromRecentTx, toRecentTx, filterTxNames = [], format = 'original') {
-  const query = qs.stringify({fromRecentTx, toRecentTx, format, filterTxNames: JSON.stringify(filterTxNames)})
+async function getTxs (baseUrl, network, ledger, fromRecentTx, toRecentTx, filterTxNames = [], format = 'original', search) {
+  const query = qs.stringify({fromRecentTx, toRecentTx, format, filterTxNames: JSON.stringify(filterTxNames), search})
   return getRequest(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs?${query}`)
 }
 

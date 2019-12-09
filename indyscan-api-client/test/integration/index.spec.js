@@ -177,4 +177,38 @@ describe('basic api test suite', () => {
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBe(10)
   })
+
+  it('should search NYM transactions containing DID', async () => {
+    const networks = await getNetworks(process.env.API_URL)
+    const firstNetworkId = networks[0].id
+    let txs = await getTxs(process.env.API_URL, firstNetworkId, 'domain', 0, 100, ['NYM'], 'full', 'J4N1K1SEB8uY2muwmecY5q')
+    expect(Array.isArray(txs)).toBeTruthy()
+    for (const tx of txs) {
+      expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/J4N1K1SEB8uY2muwmecY5q/))
+      expect(tx.indyscan.txn.typeName).toBe("NYM")
+    }
+  })
+
+  it('should find 2 NYM transactions containing DID', async () => {
+    const networks = await getNetworks(process.env.API_URL)
+    const firstNetworkId = networks[0].id
+    let txs = await getTxs(process.env.API_URL, firstNetworkId, 'domain', 0, 2, ['NYM'], 'full', 'J4N1K1SEB8uY2muwmecY5q')
+    expect(Array.isArray(txs)).toBeTruthy()
+    expect(txs.length).toBe(2)
+    for (const tx of txs) {
+      expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/J4N1K1SEB8uY2muwmecY5q/))
+      expect(tx.indyscan.txn.typeName).toBe("NYM")
+    }
+  })
+
+  it('should search ATTRIB transactions containing DID', async () => {
+    const networks = await getNetworks(process.env.API_URL)
+    const firstNetworkId = networks[0].id
+    let txs = await getTxs(process.env.API_URL, firstNetworkId, 'domain', 0, 100, ['ATTRIB'], 'full', 'J4N1K1SEB8uY2muwmecY5q')
+    expect(Array.isArray(txs)).toBeTruthy()
+    for (const tx of txs) {
+      expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/J4N1K1SEB8uY2muwmecY5q/))
+      expect(tx.indyscan.txn.typeName).toBe("ATTRIB")
+    }
+  })
 })

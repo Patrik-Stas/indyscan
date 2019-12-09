@@ -1,9 +1,10 @@
+const { esAndFilters } = require('indyscan-storage/src/es/es-query-builder')
 const { asyncHandler } = require('../middleware')
 const validate = require('express-validation')
 const Joi = require('joi')
-const logger = require('../logging/logger-main')
 const url = require('url')
 const indyscanStorage = require('indyscan-storage')
+const {esFullTextsearch} = require('indyscan-storage/src/es/es-query-builder')
 const { esTxFilters } = indyscanStorage
 
 function initTxsApi (app, ledgerStorageManager, networkManager) {
@@ -56,8 +57,9 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
         query: {
           fromRecentTx: Joi.number(),
           toRecentTx: Joi.number(),
-          filterTxNames: Joi.array().items(Joi.string()).required(),
-          search: Joi.string()
+          filterTxNames: Joi.array().items(Joi.string()),
+          search: Joi.string(),
+          format: Joi.string().valid(['original', 'full'])
         }
       }
     ),
@@ -65,12 +67,17 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
       const parts = url.parse(req.url, true)
       const networkId = getNetworkId(req, res)
       let { ledger } = req.params
-      let { fromRecentTx, toRecentTx, filterTxNames, search } = parts.query
+      let { fromRecentTx, toRecentTx, filterTxNames, search, format } = parts.query
       let { skip, size } = getTxRange(fromRecentTx, toRecentTx)
-      const txs = (search)
-        ? await ledgerStorageManager.getStorage(networkId, ledger).search(skip, size, urlQueryTxNamesToEsQuery(filterTxNames), search)
-        : await ledgerStorageManager.getStorage(networkId, ledger).getTxs(skip, size, urlQueryTxNamesToEsQuery(filterTxNames))
-      res.status(200).send(txs)
+      let txTypeQuery = urlQueryTxNamesToEsQuery(filterTxNames)
+      let searchQuery = search ? esFullTextsearch(search) : null
+      if (format === 'original') {
+        let txs = await ledgerStorageManager.getStorage(networkId, ledger).getTxs(skip, size, esAndFilters(txTypeQuery, searchQuery))
+        res.status(200).send(txs)
+      } else {
+        let txs = await ledgerStorageManager.getStorage(networkId, ledger).getFullTxs(skip, size, esAndFilters(txTypeQuery, searchQuery))
+        res.status(200).send(txs)
+      }
     }))
 
   app.get('/api/networks/:networkRef/ledgers/:ledger/txs/:seqNo',
