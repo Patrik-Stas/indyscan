@@ -47,7 +47,7 @@ class Txs extends Component {
 
   setSearch (newSearch) {
     const { baseUrl, network, ledger, page, pageSize, filterTxNames } = this.props
-    this.updateUrl(baseUrl, network, ledger, page, pageSize, filterTxNames, newSearch)
+    this.updateUrl(baseUrl, network, ledger, page, pageSize, JSON.stringify(filterTxNames), newSearch)
   }
 
 
