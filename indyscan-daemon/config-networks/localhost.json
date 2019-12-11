@@ -1,0 +1,14 @@
+[
+  {
+    "id": "localhost-indy",
+    "genesis": {
+      "name": "LOCALHOST_INDYSCAN"
+    },
+    "scanning" : {
+      "mode": "FAST"
+    },
+    "es" : {
+      "index": "txs-localhost-indy"
+    }
+  }
+]

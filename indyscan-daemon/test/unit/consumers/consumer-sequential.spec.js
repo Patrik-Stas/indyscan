@@ -1,18 +1,19 @@
 /* eslint-env jest */
 const { createConsumerSequential } = require('../../../src/consumers/consumer-sequential')
-const { createStorageMem } = require('indyscan-storage')
+const { createStorageFs } = require('indyscan-storage')
 const sleep = require('sleep-promise')
+const uuid = require('uuid')
 
-const network = 'network-foo'
+const network = 'network-unittest'
 
 let consumer
 let storage
-const txResolve = async (network, subledger, seqNo) => {
+const txResolve = async (subledger, seqNo) => {
   return new Promise(function (resolve, reject) {
     resolve({
       network,
       subledger,
-      seqNo
+      txnMetadata: { seqNo }
     })
   })
 }
@@ -20,7 +21,7 @@ const txResolve = async (network, subledger, seqNo) => {
 const createTxResolverWithError = () => {
   let errCount = 0
 
-  return async function txResolverWithError (network, subledger, seqNo) {
+  return async function txResolverWithError (subledger, seqNo) {
     return new Promise(function (resolve, reject) {
       if (errCount === 0 && seqNo === 2) {
         errCount++
@@ -29,7 +30,7 @@ const createTxResolverWithError = () => {
         resolve({
           network,
           subledger,
-          seqNo
+          txnMetadata: { seqNo }
         })
       }
     })
@@ -42,13 +43,12 @@ describe('ledger tx resolution', () => {
   })
 
   beforeEach(async () => {
-    storage = createStorageMem()
+    storage = await createStorageFs(`storage-unittests/${uuid.v4()}`)
   })
 
   it('should store 4 transactions', async () => {
-    const txEmitter = await createTxEmitter(network, txResolve)
-    const timerConfig = { periodMs: 300, unavailableTimeoutMs: 500, jitterRatio: 0 }
-    consumer = createConsumerSequential(txEmitter, storage, network, 'domain', timerConfig, 'TEST:[should store 4 transactions]')
+    const timerConfig = { normalTimeoutMs: 300, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 2000, jitterRatio: 0 }
+    consumer = createConsumerSequential(txResolve, storage, network, 'domain', timerConfig)
     consumer.start()
     await sleep(1000)
     consumer.stop()
@@ -56,61 +56,22 @@ describe('ledger tx resolution', () => {
   })
 
   it('should timeout and only store 2 transactions', async () => {
-    const txEmitter = await createTxEmitter(network, createTxResolverWithError())
-    const timerConfig = { periodMs: 300, unavailableTimeoutMs: 1000, jitterRatio: 0 }
-    consumer = createConsumerSequential(txEmitter, storage, network, 'domain', timerConfig, 'TEST:[should timeout and only store 2 transactions]')
+    const timerConfig = { normalTimeoutMs: 200, errorTimeoutMs: 500, timeoutTxNotFoundMs: 500, jitterRatio: 0 }
+    const txResolveWithError = createTxResolverWithError()
+    consumer = createConsumerSequential(txResolveWithError, storage, network, 'domain', timerConfig)
     consumer.start()
-    await sleep(2300)
-    consumer.stop()
-    expect(await storage.getTxCount()).toBe(4)
-  })
-
-  it('two sequential consumers with different timings for the same network/subledger should end up having same txs', async () => {
-    const txEmitter = await createTxEmitter(network, txResolve)
-    const storage1 = createStorageMem()
-    const storage2 = createStorageMem()
-    const timerConfig1 = { periodMs: 300, unavailableTimeoutMs: 1000, jitterRatio: 0 }
-    const timerConfig2 = { periodMs: 1000, unavailableTimeoutMs: 1000, jitterRatio: 0 }
-    let consumer2 = createConsumerSequential(txEmitter, storage1, network, 'domain', timerConfig1, 'TEST:[should feed two consumers]-CONSUMER1')
-    let consumer1 = createConsumerSequential(txEmitter, storage2, network, 'domain', timerConfig2, 'TEST:[should feed two consumers]-CONSUMER2')
-    consumer1.start()
-    consumer2.start()
     await sleep(1000)
-    consumer1.stop()
-    consumer2.stop()
-    expect(await storage1.getTxCount()).toBeGreaterThanOrEqual(5)
-    expect(await storage2.getTxCount()).toBeGreaterThanOrEqual(5)
-    expect(await storage1.getTxCount()).toBeLessThanOrEqual(6)
-    expect(await storage2.getTxCount()).toBeLessThanOrEqual(6)
-    expect(await storage1.getTxCount()).toBe(await storage2.getTxCount())
+    consumer.stop()
+    expect(await storage.getTxCount()).toBe(3)
   })
 
   it('two sequential consumers with different timings for different subledger on common network should be independent', async () => {
-    const txEmitter = await createTxEmitter(network, txResolve)
-    const storage1 = createStorageMem()
-    const storage2 = createStorageMem()
-    const timerConfig1 = { periodMs: 300, unavailableTimeoutMs: 1000, jitterRatio: 0 }
-    const timerConfig2 = { periodMs: 1000, unavailableTimeoutMs: 1000, jitterRatio: 0 }
-    let consumer1 = createConsumerSequential(txEmitter, storage1, network, 'domain-foo', timerConfig1, 'domain-foo-consumer')
-    let consumer2 = createConsumerSequential(txEmitter, storage2, network, 'domain-bar', timerConfig2, 'domain-bar-consumer')
-    consumer1.start()
-    consumer2.start()
-    await sleep(1400)
-    consumer1.stop()
-    consumer2.stop()
-    expect(await storage1.getTxCount()).toBe(5)
-    expect(await storage2.getTxCount()).toBe(2)
-  })
-
-  it('two sequential consumers with different timings for different networks should be independent', async () => {
-    const txEmitterFoo = await createTxEmitter('foo', txResolve)
-    const txEmitterBar = await createTxEmitter('bar', txResolve)
-    const storage1 = createStorageMem()
-    const storage2 = createStorageMem()
-    const timerConfig1 = { periodMs: 300, unavailableTimeoutMs: 1000, jitterRatio: 0 }
-    const timerConfig2 = { periodMs: 1000, unavailableTimeoutMs: 1000, jitterRatio: 0 }
-    let consumer1 = createConsumerSequential(txEmitterFoo, storage1, 'network-foo', 'domain', timerConfig1, 'netfoo-domain-consumer')
-    let consumer2 = createConsumerSequential(txEmitterBar, storage2, 'network-bar', 'domain', timerConfig2, 'netbar-domain-consumer')
+    const storage1 = await createStorageFs(`storage-unittests/${uuid.v4()}`)
+    const storage2 = await createStorageFs(`storage-unittests/${uuid.v4()}`)
+    const timerConfig1 = { normalTimeoutMs: 300, errorTimeoutMs: 1000, timeoutTxNotFoundMs: 1000, jitterRatio: 0 }
+    const timerConfig2 = { normalTimeoutMs: 1000, errorTimeoutMs: 1000, timeoutTxNotFoundMs: 1000, jitterRatio: 0 }
+    let consumer1 = createConsumerSequential(txResolve, storage1, network, 'domain-foo', timerConfig1)
+    let consumer2 = createConsumerSequential(txResolve, storage2, network, 'domain-bar', timerConfig2)
     consumer1.start()
     consumer2.start()
     await sleep(1400)

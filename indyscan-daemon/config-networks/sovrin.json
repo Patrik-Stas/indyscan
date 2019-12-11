@@ -1,0 +1,80 @@
+[
+  {
+    "name": "sovrin-mainnet",
+    "scanning": {
+      "mode": "INDYSCAN.IO"
+    },
+    "source": {
+      "type": "ledger",
+      "data": {
+        "genesis": "SOVRIN_MAINNET"
+      }
+    },
+    "target": {
+      "type": "elasticsearch",
+      "data": {
+        "index": "txs-sovrin-mainnet"
+      }
+    }
+  },
+  {
+    "name": "sovrin-stagingnet",
+    "scanning": {
+      "mode": "INDYSCAN.IO"
+    },
+    "source": {
+      "type": "ledger",
+      "data": {
+        "genesis": "SOVRIN_STAGINGNET"
+      }
+    },
+    "target": {
+      "type": "elasticsearch",
+      "data": {
+        "index": "txs-sovrin-stagingnet"
+      }
+    }
+  },
+  {
+    "name": "sovrin-buildernet",
+    "scanning": {
+      "mode": "INDYSCAN.IO"
+    },
+    "source": {
+      "type": "ledger",
+      "data": {
+        "genesis": "SOVRIN_BUILDERNET"
+      }
+    },
+    "target": {
+      "type": "elasticsearch",
+      "data": {
+        "index": "txs-sovrin-buildernet"
+      }
+    }
+  },
+  {
+    "name": "sovrin-trainingnet",
+    "scanning": {
+      "mode": "INDYSCAN.IO"
+    },
+    "source": {
+      "type": "ledger",
+      "data": {
+        "genesis": "SOVRIN_TRAININGNET"
+      }
+    },
+    "target": {
+      "type": "elasticsearch",
+      "data": {
+        "index": "txs-sovrin-trainingnet"
+      }
+    }
+  }
+]
+
+
+
+
+
+

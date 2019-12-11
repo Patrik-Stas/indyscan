@@ -2,8 +2,8 @@ const createIndyClient = require('../indyclient')
 const logger = require('../logging/logger-main')
 const sleep = require('sleep-promise')
 
-async function createTxResolverLedger (network) {
-  let whoami = `LedgerResolver[${network}]`
+async function createTxResolverLedger (sourceConfigLedgerType) {
+  let whoami = `LedgerResolver[${sourceConfigLedgerType.genesis}]`
   let client = null
   let isConnecting = false
   let consecutiveTxResolutionFailures
@@ -11,7 +11,7 @@ async function createTxResolverLedger (network) {
   async function reconnect () {
     try {
       isConnecting = true
-      client = await createIndyClient(network, `sovrinscan-${network}`)
+      client = await createIndyClient(sourceConfigLedgerType.genesis, `sovrinscan-${sourceConfigLedgerType.genesis}`)
     } catch (e) {
       throw Error(`${whoami} Failed to create client for network client. Details: ${e.message} ${e.stack}.`)
     } finally {
@@ -51,10 +51,10 @@ async function createTxResolverLedger (network) {
         try {
           return client.getTx(subledger, seqNo)
         } catch (err) {
-          throw Error(`${whoami} Problem getting tx ${network}/${subledger}/${seqNo} after successful network reconnection has been done.`)
+          throw Error(`${whoami} Problem getting tx ${sourceConfigLedgerType.genesis}/${subledger}/${seqNo} after successful network reconnection has been done.`)
         }
       } else {
-        throw Error(`${whoami} Problem getting tx ${network}/${subledger}/${seqNo}. Resolver consecutive failure count: ${consecutiveTxResolutionFailures}`)
+        throw Error(`${whoami} Problem getting tx ${sourceConfigLedgerType.genesis}/${subledger}/${seqNo}. Resolver consecutive failure count: ${consecutiveTxResolutionFailures}`)
       }
     }
   }

@@ -165,7 +165,6 @@ async function createStorageEs (client, index, replicaCount, subledgerName, assu
       index,
       body: { query, sort }
     }
-    console.log(JSON.stringify(searchRequest))
     const { body } = await client.search(searchRequest)
     return body.hits.hits.map(h => h['_source'])
   }
