@@ -3,7 +3,7 @@ const { appConfig } = require('./config')
 const express = require('express')
 const next = require('next')
 const proxy = require('http-proxy-middleware')
-const {getDefaultNetwork} = require('indyscan-api-client')
+const { getDefaultNetwork } = require('indyscan-api-client')
 const { logRequests, logResponses } = require('./middleware')
 
 function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLogging) {
@@ -33,7 +33,7 @@ async function startServer () {
         } catch (err) {
           return res.redirect(`/pending`)
         }
-        return (defaultNetwork) ?  res.redirect(`/home/${defaultNetwork.id}`) : res.redirect(`/pending`)
+        return (defaultNetwork) ? res.redirect(`/home/${defaultNetwork.id}`) : res.redirect(`/pending`)
       })
 
       server.get('/home', async (req, res) => {
@@ -66,7 +66,7 @@ async function startServer () {
       server.use(
         '/api',
         proxy({ target: 'http://localhost:3708', changeOrigin: true })
-      );
+      )
 
       server.get('*', (req, res) => {
         return handle(req, res)

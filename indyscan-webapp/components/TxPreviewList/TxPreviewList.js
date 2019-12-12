@@ -1,18 +1,21 @@
 import TxPreview from '../TxPreview/TxPreview'
-import { extractTxInformation } from '../../txtools'
+import { extractTxDataBasic } from '../../txtools'
 import { ItemGroup } from 'semantic-ui-react'
 import React, { Component } from 'react'
 
 class TxPreviewList extends Component {
   render () {
-    const { txs, network, subledger } = this.props
+    const { indyscanTxs, network, subledger } = this.props
     return (
       <ItemGroup>
         {
-          txs.map(tx => {
-            const txInfo = extractTxInformation(tx)
+          indyscanTxs.map(indyscanTx => {
+            const { seqNo } = extractTxDataBasic(indyscanTx)
             return (
-              <TxPreview key={`preview-${txInfo.seqNo}`} network={network} txInfo={txInfo} ledger={subledger} />
+              <TxPreview key={`preview-${seqNo}`}
+                indyscanTx={indyscanTx}
+                network={network}
+                ledger={subledger} />
             )
           })
         }

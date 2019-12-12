@@ -1,26 +1,23 @@
 import '../scss/style.scss'
 import TxListCompact from '../components/TxListCompact/TxListCompact'
 import React, { Component } from 'react'
-import { getTransactions, getTxCount } from 'indyscan-api-client'
+import { getTxCount, getTxs } from 'indyscan-api-client'
 import PageHeader from '../components/PageHeader/PageHeader'
 import { Grid, GridColumn, GridRow, Pagination, Checkbox, Input, Icon } from 'semantic-ui-react'
 import Router from 'next/dist/lib/router'
 import { getBaseUrl } from '../routing'
-import { getTxs } from 'indyscan-api-client'
 import Footer from '../components/Footer/Footer'
 import { getConfigTxNames, getDomainsTxNames, getPoolTxNames } from 'indyscan-txtype'
 
 class Txs extends Component {
-
-
-  updateUrl (baseUrl, network, ledger, page, pageSize, filterTxNames = '[]', search=null) {
-    let routerUrl =`${baseUrl}/txs?network=${network}&ledger=${ledger}&page=${page}&pageSize=${pageSize}&filterTxNames=${filterTxNames}`;
+  updateUrl (baseUrl, network, ledger, page, pageSize, filterTxNames = '[]', search = null) {
+    let routerUrl = `${baseUrl}/txs?network=${network}&ledger=${ledger}&page=${page}&pageSize=${pageSize}&filterTxNames=${filterTxNames}`
     let routerAs = `/txs/${network}/${ledger}?page=${page}&pageSize=${pageSize}&filterTxNames=${filterTxNames}`
     if (search) {
-      routerUrl+=`&search=${search}`
-      routerAs+=`&search=${search}`
+      routerUrl += `&search=${search}`
+      routerAs += `&search=${search}`
     }
-    Router.push( routerUrl, routerAs )
+    Router.push(routerUrl, routerAs)
   }
 
   handleClick (e, data) {
@@ -50,8 +47,6 @@ class Txs extends Component {
     this.updateUrl(baseUrl, network, ledger, page, pageSize, JSON.stringify(filterTxNames), newSearch)
   }
 
-
-
   static async getInitialProps ({ req, query }) {
     const { network, ledger } = query
     const page = (query.page) ? query.page : 1
@@ -61,10 +56,10 @@ class Txs extends Component {
     const baseUrl = getBaseUrl(req)
     const filterTxNames = (query.filterTxNames) ? JSON.parse(query.filterTxNames) : []
     const search = query.search
-    const txs = await getTxs(baseUrl, network, ledger, fromRecentTx || 0, toRecentTx || pageSize, filterTxNames, 'original', search)
+    const indyscanTxs = await getTxs(baseUrl, network, ledger, fromRecentTx || 0, toRecentTx || pageSize, filterTxNames, 'indyscan', search)
     const txCount = await getTxCount(baseUrl, network, ledger, filterTxNames)
     return {
-      txs,
+      indyscanTxs,
       network,
       ledger,
       baseUrl,
@@ -109,14 +104,13 @@ class Txs extends Component {
     )
   }
 
-  handleChange(e) {
+  handleChange (e) {
     let search = e.target.value
     this.setSearch(search)
   }
 
-
   render () {
-    const { ledger, network, txCount, page, baseUrl, pageSize } = this.props
+    const { ledger, network, txCount, page, baseUrl, pageSize, indyscanTxs } = this.props
     const pageCount = Math.ceil(txCount / pageSize)
     return (
       <Grid>
@@ -141,10 +135,10 @@ class Txs extends Component {
         </GridRow>
         <GridRow>
           <GridColumn>
-            <TxListCompact baseUrl={this.props.baseUrl}
-              network={this.props.network}
-              ledger={this.props.ledger}
-              txs={this.props.txs} />
+            <TxListCompact baseUrl={baseUrl}
+              network={network}
+              ledger={ledger}
+              txs={indyscanTxs} />
           </GridColumn>
         </GridRow>
         <GridRow centered>

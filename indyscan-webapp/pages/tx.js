@@ -91,7 +91,7 @@ class Tx extends Component {
             } as={asNext}><a className='menulink'>Next tx</a></Link>
           </GridColumn>
           <GridColumn width={10} textAlign='center'>
-            <h4>{`${seqNo}th ${ledger} transaction`}</h4>
+            <h4>{`${network} / ${ledger} / ${seqNo}`}</h4>
           </GridColumn>
           <GridColumn width={3} textAlign='center'>
             <Link href={hrefPrev} as={asPrev}><a className='menulink'>Prev tx</a></Link>
