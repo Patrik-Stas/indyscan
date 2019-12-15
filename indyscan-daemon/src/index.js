@@ -16,6 +16,22 @@ async function scanNetwork (scannerName, scanConfig, sourceConfig, targetConfig,
     const { storageDomain, storagePool, storageConfig } = await storageFactory.createStoragesForNetwork(targetConfig)
     let resolveTx = await createTxResolve(sourceConfig)
 
+    // async function tryResolveTx (seqNo, timeoutMs, retryLimit) {
+    //   let retryCnt = 0
+    //   let schemaTx
+    //   while (!schemaTx) {
+    //     if (retryCnt === retryLimit) {
+    //       throw Error(`Can't resolve referenced schema TX ${seqNo} after ${retryCnt} retries using timeout ${timeoutMs}ms`)
+    //     }
+    //     schemaTx = await resolveTxBySeqno(seqNo)
+    //     if (!schemaTx) {
+    //       await sleep(timeoutMs)
+    //     }
+    //     retryCnt++
+    //   }
+    //   return schemaTx
+    // }
+
     logger.debug(`Creating consumers for network '${scannerName}'.`)
     const consumerDomain = await createConsumerSequential(resolveTx, storageDomain, scannerName, 'domain', scanConfig)
     const consumerPool = await createConsumerSequential(resolveTx, storagePool, scannerName, 'pool', scanConfig)

@@ -1,16 +1,14 @@
 /* eslint-env jest */
-import { txNamesToTypes, txNameToTxCode } from 'indyscan-txtype'
-import sleep from 'sleep-promise'
-import path from 'path'
-import {
+const { txNamesToTypes, txNameToTxCode, createEsTxTransform } = require('indyscan-txtype')
+const sleep = reuqire('sleep-promise')
+const path = require('path')
+const {
   esAndFilters, esFilterAboveSeqNo, esFilterBelowSeqNo,
   esFilterByTxTypeNames,
   esFilterTxnAfterTime,
   esFilterTxnBeforeTime
-} from '../../src/es/es-query-builder'
-import { areTxsAfterTime, areTxsBeforeTime, areTxsOfTypes, containsTxOfType } from './common'
-import { importFileToStorage } from '../../src/utils/txloader'
-
+} = require('../../src/es/es-query-builder')
+const { areTxsAfterTime, areTxsBeforeTime, areTxsOfTypes, containsTxOfType } = require('./common')
 const {esFullTextsearch} = require('../../src/es/es-query-builder')
 const { createStorageEs } = require('../../src/es/storage-es')
 
@@ -30,8 +28,8 @@ beforeAll(async () => {
   // try {
   //   await esClient.indices.delete({index})
   // } catch (err) {} // ok, just making sure here
-
   let domainStoragePromise = await createStorageEs(esClient, index, 0, 'DOMAIN', true, false)
+  createEsTxTransform()
   let configStoragePromise = await createStorageEs(esClient, index, 0, 'CONFIG', false, false)
   let poolStoragePromise = await createStorageEs(esClient, index, 0, 'POOL', false, false)
   const [domainStorageResolved, configStorageResolved, poolStorageResolved] =

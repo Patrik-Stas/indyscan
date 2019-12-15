@@ -9,18 +9,10 @@ function txTypeToTxName (txType) {
 }
 
 function subledgerIdToName (subledgerId) {
-  const name = LEDGER_ID_TO_DETAIL[subledgerId.toString()]
-  if (!name) {
-    return undefined
-  }
-  return name
+  return LEDGER_ID_TO_DETAIL[subledgerId.toString()]
 }
 function subledgerNameToId (subledgerName) {
-  const code = LEDGER_NAME_TO_ID[subledgerName.trim().toUpperCase()]
-  if (code === null || code === undefined) {
-    return undefined
-  }
-  return code
+  return LEDGER_NAME_TO_ID[subledgerName.trim().toUpperCase()]
 }
 
 function txTypeToSubledgerName (txType) {

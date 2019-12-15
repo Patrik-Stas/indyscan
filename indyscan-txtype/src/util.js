@@ -10,6 +10,16 @@ function getSchemaLedgerId (issuerDid, schemaName, schemaVersion) {
   const LEDGER_SCHEMA_MARKER = 2
   return `${issuerDid}:${LEDGER_SCHEMA_MARKER}:${schemaName}:${schemaVersion}`
 }
+function isAbbreviatedVerkey (verkey) {
+  return verkey.match(/~.*/)
+}
 
+function composeFullVerkey (did, abbreviatedVerkey) {
+  let withoutAmpersand = abbreviatedVerkey.substring(1, abbreviatedVerkey.length)
+  return `${did}${withoutAmpersand}`
+}
+
+module.exports.isAbbreviatedVerkey = isAbbreviatedVerkey
+module.exports.composeFullVerkey = composeFullVerkey
 module.exports.getSchemaLedgerId = getSchemaLedgerId
 module.exports.parseSchemaId = parseSchemaId

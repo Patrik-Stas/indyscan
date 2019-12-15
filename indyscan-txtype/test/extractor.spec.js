@@ -1,6 +1,6 @@
 /* eslint-env jest */
 const { txSchema } = require('./resource/txs')
-const { extractSchemaTxInfo } = require('../src/extractor')
+const { extractSchemaTxInfo } = require('../src/transformation/domain/schema')
 
 describe('basic suite', () => {
   it('should extract info from schema transaction', async () => {
