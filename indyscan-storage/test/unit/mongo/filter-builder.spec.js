@@ -1,6 +1,6 @@
 /* eslint-env jest */
 
-import { mongoFilterByTxTypeNames } from '../../../src/mongo/filter-builder'
+const { mongoFilterByTxTypeNames } = require('../../../src/mongo/filter-builder')
 
 describe('basic storage test', () => {
   it('should build transaction filter by txType correctly', async () => {

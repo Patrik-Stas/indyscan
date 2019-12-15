@@ -1,40 +1,73 @@
 const appConfig = require('./config')
 const util = require('util')
-const { createStorageMongo, createMongoCollection, createStorageEs } = require('indyscan-storage')
+const {createStorageMongo, createMongoCollection, createStorageReadEs, createStorageWriteEs} = require('indyscan-storage')
 const logger = require('./logging/logger-main')
 const elasticsearch = require('@elastic/elasticsearch')
 const mongodb = require('mongodb')
+const {buildRetryTxResolver} = require('indyscan-storage')
+const {createEsTxTransform} = require('indyscan-txtype')
 const asyncMongoConnect = util.promisify(mongodb.MongoClient.connect)
 
 module.exports.createStorageFactory = async function createStorageFactory () {
+
+  function createTxTransform (subledger, storageReadEs) {
+    let lookupTxBySeqno
+    if (subledger.toUpperCase() === 'DOMAIN') {
+      let simpleDbTxResolver = storageReadEs.getTxBySeqNo.bind(storageReadEs)
+      lookupTxBySeqno = buildRetryTxResolver(simpleDbTxResolver, 1000, 3)
+    } else {
+      lookupTxBySeqno = (seqno) => {
+        throw Error(`Tx-transform module tried to lookup ${subledger} transaction seqNo ${seqno} which was not expected.`)
+      }
+    }
+    return createEsTxTransform(lookupTxBySeqno)
+  }
+
   async function createEsStorageForSubledger (esClient, esIndex, exIndexReplicaCount, subledger, assureEsIndex) {
-    return createStorageEs(esClient, esIndex, exIndexReplicaCount, subledger, assureEsIndex, false, logger)
+    const storageReadEs = createStorageReadEs(esClient, esIndex, subledger)
+    const transformTx = createTxTransform(subledger, storageReadEs)
+    const storageWriteEs = await createStorageWriteEs(esClient, esIndex, exIndexReplicaCount, subledger, assureEsIndex, false, transformTx, logger)
       .then(storage => { return storage })
       .catch(err => {
         logger.error(`Failed to create ES storage for index ${esIndex}: ${util.inspect(err, false, 10)} ${err.stack}`)
         throw Error(`Failed to create ES storage for index ${esIndex}`)
       })
+    return {storageReadEs, storageWriteEs}
   }
 
   async function createEsStoragesForNetwork (urlEs, esIndex, exIndexReplicaCount) {
-    const esClient = new elasticsearch.Client({ node: urlEs })
+    const esClient = new elasticsearch.Client({node: urlEs})
     logger.debug(`Creating ElasticSearch storages for network '${esIndex}'.`)
-    const storageDomainPromise = createEsStorageForSubledger(esClient, esIndex, exIndexReplicaCount, 'DOMAIN', true)
-    const storagePoolPromise = createEsStorageForSubledger(esClient, esIndex, exIndexReplicaCount, 'POOL', false)
-    const storageConfigPromise = createEsStorageForSubledger(esClient, esIndex, exIndexReplicaCount, 'CONFIG', false)
-    const [storageDomain, storagePool, storageConfig] =
-      await Promise.all([storageDomainPromise, storagePoolPromise, storageConfigPromise])
-    return { storageDomain, storagePool, storageConfig }
+
+    const domainStoragePromise =
+      createEsStorageForSubledger(esClient, esIndex, exIndexReplicaCount, 'DOMAIN', true)
+    const poolStoragePromise =
+      createEsStorageForSubledger(esClient, esIndex, exIndexReplicaCount, 'POOL', false)
+    const configStoragePromise =
+      createEsStorageForSubledger(esClient, esIndex, exIndexReplicaCount, 'CONFIG', false)
+
+    const [
+      {storageReadEs: storageReadDomain, storageWriteEs: storageWriteDomain},
+      {storageReadEs: storageReadPool, storageWriteEs: storageWritePool},
+      {storageReadEs: storageReadConfig, storageWriteEs: storageWriteConfig}
+    ] = await Promise.all([domainStoragePromise, poolStoragePromise, configStoragePromise])
+
+    return {
+      storageReadDomain, storageWriteDomain,
+      storageReadPool, storageWritePool,
+      storageReadConfig, storageWriteConfig
+    }
   }
 
   async function createMongoStoragesForNetwork (urlMongo, dbName) {
-    const mongoHost = await asyncMongoConnect(appConfig.URL_MONGO)
+    throw Error('Not supported. If you need this, you can implement and submit pull request.')
+    const mongoHost = await asyncMongoConnect(appConfig.URL_MONGO) // eslint-disable-line
     logger.debug(`Creating MongoDB storages for network '${dbName}'.`)
     const mongoDb = await mongoHost.db(dbName)
     const storageDomain = await createStorageMongo(await createMongoCollection(mongoDb, 'txs-domain'))
     const storagePool = await createStorageMongo(await createMongoCollection(mongoDb, 'txs-pool'))
     const storageConfig = await createStorageMongo(await createMongoCollection(mongoDb, 'txs-config'))
-    return { storageDomain, storagePool, storageConfig }
+    return {storageDomain, storagePool, storageConfig}
   }
 
   async function createStoragesForNetwork (targetConfig) {

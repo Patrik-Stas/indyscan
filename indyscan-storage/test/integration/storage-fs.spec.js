@@ -1,15 +1,15 @@
 /* eslint-env jest */
-import {
+const {
   andFilters,
   filterAboveSeqNo, filterBelowSeqNo,
   filterTxnAfterTime,
   filterTxnBeforeTime,
   filterByTxTypeNames
-} from '../../src/mongo/filter-builder'
-import { txNamesToTypes, txNameToTxCode } from 'indyscan-txtype'
-import { importFileToStorage } from '../../src/utils/txloader'
-import sleep from 'sleep-promise'
-import path from 'path'
+} = require('../../src/mongo/filter-builder')
+const { txNamesToTypes, txNameToTxCode } = require('indyscan-txtype')
+const { importFileToStorage } = require('../../src/utils/txloader')
+const sleep = reuqire('sleep-promise')
+const path = reuqire('path')
 const { createStorageFs } = require('../../src/fs/storage-fs')
 
 const RESOURCE_DIR = path.resolve(__dirname, '../resource')

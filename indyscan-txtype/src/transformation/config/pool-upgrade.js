@@ -10,4 +10,4 @@ async function transformPoolUpgrade (tx) {
   return tx
 }
 
-module.export.transformPoolUpgrade = transformPoolUpgrade
+module.exports.transformPoolUpgrade = transformPoolUpgrade

@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const { createEsTxTransform } = require('../../src/transformation/transform-tx')
-const txNode = require('../resource/sample-txs/tx-pool-node')
+const { createEsTxTransform } = require('../../../src/transformation/transform-tx')
+const txNode = require('../../resource/sample-txs/tx-pool-node')
 const _ = require('lodash')
 
 let esTransform = createEsTxTransform((seqno) => {throw Error(`Domain tx lookup seqno=${seqno } was not expected.`)})

@@ -1,7 +1,7 @@
 /* eslint-env jest */
-const { createEsTxTransform } = require('../../src/transformation/transform-tx')
-const txAuthorAgreement = require('../resource/sample-txs/tx-config-txn-author-agreement')
-const txAuthorAgreementAml = require('../resource/sample-txs/tx-config-txn-author-agreement-aml')
+const { createEsTxTransform } = require('../../../src/transformation/transform-tx')
+const txAuthorAgreement = require('../../resource/sample-txs/tx-config-txn-author-agreement')
+const txAuthorAgreementAml = require('../../resource/sample-txs/tx-config-txn-author-agreement-aml')
 const _ = require('lodash')
 
 let esTransform = createEsTxTransform((seqno) => {throw Error(`Domain tx lookup seqno=${seqno } was not expected.`)})

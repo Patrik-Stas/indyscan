@@ -1,7 +1,8 @@
 {
   "txn": {
     "data": {
-      "dest": "7WhrDsysVnBZHtjwwFAzVSmyGA1jpnBbmqBgs4q9wk9g"
+      "dest": "7WhrDsysVnBZHtjwwFAzVSmyGA1jpnBbmqBgs4q9wk9g",
+      "foobar": "something"
     },
     "metadata": {
       "digest": "0893f92c17af7bc5e4ecad64ab83a641c3e9e830cf96d7856ed4d813f7ea3e8c",

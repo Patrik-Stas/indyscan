@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
-import { importFileToStorage } from '../../../src/utils/txloader'
-import path from 'path'
+const { importFileToStorage } = require('../../../src/utils/txloader')
+const path = require('path')
 const RESOURCE_DIR = path.resolve(__dirname, '../../resource')
 
 function createsSimpleStorage () {

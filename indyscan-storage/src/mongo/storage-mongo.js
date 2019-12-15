@@ -4,9 +4,8 @@ const { projectAvailableTimestamps } = require('../projections')
 const dotTransformer = keyTransform.createReplacementFunction('.', 'U+FF0E')
 const removeDotsFromKeys = keyTransform.recursiveJSONKeyTransform(dotTransformer)
 
-/*
- Implementation of IndyScan storage for particular network and ledger
- */
+// WARNING: Out of date as of version 3.0, won't work unless aligned with elastisearch storage API
+
 async function createStorageMongo (collection) {
   async function getTxCount (filter = {}) {
     if (Object.keys(filter) === 0) {

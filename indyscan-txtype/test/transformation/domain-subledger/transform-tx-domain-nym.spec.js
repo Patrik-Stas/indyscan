@@ -1,11 +1,11 @@
 /* eslint-env jest */
-const { createEsTxTransform } = require('../../src/transformation/transform-tx')
-const txNym = require('../resource/sample-txs/tx-domain-nym-noraw')
-const txNymAgent = require('../resource/sample-txs/tx-domain-nym-agent')
-const txNymEndpoint = require('../resource/sample-txs/tx-domain-nym-endpoint')
-const txNymUrl = require('../resource/sample-txs/tx-domain-nym-url')
-const txNymInvaliJson = require('../resource/sample-txs/tx-domain-nym-invalid-json')
-const txNymLastUpdated = require('../resource/sample-txs/tx-domain-nym-last-updated')
+const { createEsTxTransform } = require('../../../src/transformation/transform-tx')
+const txNym = require('../../resource/sample-txs/tx-domain-nym-noraw')
+const txNymAgent = require('../../resource/sample-txs/tx-domain-nym-agent')
+const txNymEndpoint = require('../../resource/sample-txs/tx-domain-nym-endpoint')
+const txNymUrl = require('../../resource/sample-txs/tx-domain-nym-url')
+const txNymInvaliJson = require('../../resource/sample-txs/tx-domain-nym-invalid-json')
+const txNymLastUpdated = require('../../resource/sample-txs/tx-domain-nym-last-updated')
 const _ = require('lodash')
 
 let esTransform = createEsTxTransform((seqno) => {throw Error(`Domain tx lookup seqno=${seqno } was not expected.`)})

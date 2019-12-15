@@ -6,17 +6,17 @@ const ROLE_ACTIONS = {
   '0': 'SET_TRUSTEE',
   '2': 'SET_STEWARD',
   '101': 'SET_ENDORSER',
-  '201':  'SET_NETWORK_MONITOR',
+  '201': 'SET_NETWORK_MONITOR',
   '': 'REMOVE_ROLE'
 }
 
-const UNKNOWN_ROLE_ACTION = "UNKNOWN_ROLE_ACTION"
+const UNKNOWN_ROLE_ACTION = 'UNKNOWN_ROLE_ACTION'
 
 function roleIdToRoleAction (id) {
-  return ROLE_ACTIONS[id] || UNKNOWN_ROLE_ACTION
+  return ROLE_ACTIONS[id.toString().trim()] || UNKNOWN_ROLE_ACTION
 }
 
-async function tryParseRawData(rawData) {
+function tryParseRawData (rawData) {
   let parsed
   let endpoint
   let lastUpdated
@@ -24,7 +24,7 @@ async function tryParseRawData(rawData) {
     parsed = JSON.parse(rawData)
     if (parsed['endpoint']) {
       if (parsed.endpoint.endpoint) {
-         endpoint = parsed.endpoint.endpoint
+        endpoint = parsed.endpoint.endpoint
       } else if (parsed.endpoint.agent) {
         endpoint = parsed.endpoint.agent
       } else if (parsed.endpoint.xdi) {
@@ -36,30 +36,31 @@ async function tryParseRawData(rawData) {
       }
     } else if (parsed['url']) {
       endpoint = parsed.url
-    } else if (parsed['last_updated']) {
+    }
+    if (parsed['last_updated']) {
       lastUpdated = parsed['last_updated']
     }
   } catch (err) {}
   return {endpoint, lastUpdated}
 }
 
-function getFullVerkey(did, verkey) {
-    return (isAbbreviatedVerkey(verkey)) ? composeFullVerkey(dest, verkey) : verkey
+function getFullVerkey (did, verkey) {
+  return (isAbbreviatedVerkey(verkey)) ? composeFullVerkey(did, verkey) : verkey
 }
 
 async function transformNymAttrib (tx) {
   if (tx.txn && tx.txn.data) {
     if (tx.txn.data.dest === undefined) {
       if (tx.txn.metadata.from === undefined) {
-        throw Error("Found no data.dest and no metadata.from.")
+        throw Error('Found no data.dest and no metadata.from.')
       }
       tx.txn.data.dest = tx.txn.metadata.from
     }
-    if (tx.txn.data.verkey) {
+    if (tx.txn.data.verkey !== undefined) {
       tx.txn.data.verkeyFull = getFullVerkey(tx.txn.data.dest, tx.txn.data.verkey)
     }
-    if (tx.txn.data.role) {
-      tx.txn.data.roleName = roleIdToRoleAction(tx.txn.data.role)
+    if (tx.txn.data.role !== undefined) {
+      tx.txn.data.roleAction = roleIdToRoleAction(tx.txn.data.role)
     }
     if (tx.txn.data.raw) {
       const {endpoint, lastUpdated} = tryParseRawData(tx.txn.data.raw)

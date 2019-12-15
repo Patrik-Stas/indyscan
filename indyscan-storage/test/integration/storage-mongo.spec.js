@@ -1,19 +1,19 @@
 /* eslint-env jest */
-import {
+const {
   mongoAndFilters,
   mongoFilterAboveSeqNo, mongoFilterBelowSeqNo,
   mongoFilterTxnAfterTime,
   mongoFilterTxnBeforeTime,
   mongoFilterByTxTypeNames
-} from '../../src/mongo/filter-builder'
-import { txNamesToTypes, txNameToTxCode } from 'indyscan-txtype'
-import { importFileToStorage } from '../../src/utils/txloader'
-import sleep from 'sleep-promise'
-import path from 'path'
-import { areTxsAfterTime, areTxsBeforeTime, areTxsOfTypes, containsTxOfType } from './common'
-import { createStorageMongo } from '../../src/mongo/storage-mongo'
-import { MongoClient } from 'mongodb'
-import util from 'util'
+} = require('../../src/mongo/filter-builder')
+const { txNamesToTypes, txNameToTxCode } = require('indyscan-txtype')
+const { importFileToStorage } = require('../../src/utils/txloader')
+const sleep = require('sleep-promise')
+const path = require('path')
+const { areTxsAfterTime, areTxsBeforeTime, areTxsOfTypes, containsTxOfType } = require('./common')
+const { createStorageMongo } = require('../../src/mongo/storage-mongo')
+const { MongoClient } = require('mongodb')
+const util = require('util')
 
 const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017'
 const asyncMongoConnect = util.promisify(MongoClient.connect)

@@ -1,6 +1,6 @@
 const { parseSchemaId } = require('../../util')
 
-async function createClaimDefTransform(resolveDomainTxBySeqNo) {
+function createClaimDefTransform(resolveDomainTxBySeqNo) {
 
   function extractSchemaTxInfo (originalTx) {
     const txnSeqno = originalTx.txnMetadata.seqNo

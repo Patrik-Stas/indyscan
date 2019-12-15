@@ -1,6 +1,10 @@
 const fs = require('fs')
 const sleep = require('sleep-promise')
 
+/*
+Note: The reason why we can't really do bulk is that before ledger tx is sent to storage, it's transformed and some
+transformation require backward tx lookups - for example claim definitions lookups schema it's referring to.
+ */
 async function importFileToStorage (storage, filePath) {
   console.log(`Readng file ${filePath} for tx import.`)
   let lines = fs.readFileSync(filePath, 'utf-8')

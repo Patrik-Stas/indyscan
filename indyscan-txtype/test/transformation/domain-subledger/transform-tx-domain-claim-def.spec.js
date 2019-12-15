@@ -1,7 +1,7 @@
 /* eslint-env jest */
-const { createEsTxTransform } = require('../../src/transformation/transform-tx')
-const txSchemaDef = require('../resource/sample-txs/tx-domain-schema')
-const txCredDef = require('../resource/sample-txs/tx-domain-creddef')
+const { createEsTxTransform } = require('../../../src/transformation/transform-tx')
+const txSchemaDef = require('../../resource/sample-txs/tx-domain-schema')
+const txCredDef = require('../../resource/sample-txs/tx-domain-creddef')
 const _ = require('lodash')
 
 let esTransform

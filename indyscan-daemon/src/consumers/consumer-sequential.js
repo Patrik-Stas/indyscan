@@ -2,7 +2,7 @@ const { createTimerLock } = require('../time/scan-timer')
 const util = require('util')
 const logger = require('../logging/logger-main')
 
-function createConsumerSequential (resolveTx, indyscanStorage, network, subledger, timerConfig) {
+function createConsumerSequential (resolveTx, storageRead, storageWrite, network, subledger, timerConfig) {
   const whoami = `ConsumerSequential/${network}/${subledger} : `
   const { normalTimeoutMs, errorTimeoutMs, timeoutTxNotFoundMs, jitterRatio } = timerConfig
 
@@ -20,12 +20,12 @@ function createConsumerSequential (resolveTx, indyscanStorage, network, subledge
     while (enabled) { // eslint-disable-line
       logger.info(`${whoami}  Cycle '${requestCycleCount}' start.`)
       try {
-        let desiredSeqNo = await indyscanStorage.findMaxSeqNo() + 1
+        let desiredSeqNo = await storageRead.findMaxSeqNo() + 1
         logger.info(`${whoami}  Cycle '${requestCycleCount}' submitting tx request seqNo='${desiredSeqNo}'.`)
         let tx = await resolveTx(subledger, desiredSeqNo)
         if (tx) {
           try {
-            await indyscanStorage.addTx(tx)
+            await storageWrite.addTx(tx)
             processedTxCount++
             logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}.`)
             logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}: ${JSON.stringify(tx)}.`)
