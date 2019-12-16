@@ -1,7 +1,6 @@
 /* eslint-env jest */
 const { createEsTxTransform } = require('../../../src/transformation/transform-tx')
 const txAttribRoleSteward = require('../../resource/sample-txs/tx-domain-attrib-role-steward')
-const txAttribRoleStewardAsNumber = require('../../resource/sample-txs/tx-domain-attrib-role-steward-as-number')
 const txAttribRoleNetworkMonitor = require('../../resource/sample-txs/tx-domain-attrib-role-network-monitor')
 const txAttribRoleEndorser = require('../../resource/sample-txs/tx-domain-attrib-role-endorser')
 const txAttribRoleTrustee = require('../../resource/sample-txs/tx-domain-attrib-role-trustee')
@@ -55,14 +54,6 @@ describe('domain/attrib transaction transformations', () => {
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txAttribRoleEndorser))
     expect(transformed.txn.data.endpoint).toBeUndefined()
     expect(transformed.txn.data.roleAction).toBe("SET_ENDORSER")
-  })
-
-  it('should process ATTRIB transaction and parse role even if it is not string but number', async () => {
-    const tx = _.cloneDeep(txAttribRoleStewardAsNumber)
-    let transformed = await esTransform(tx, 'DOMAIN')
-    expect(JSON.stringify(tx)).toBe(JSON.stringify(txAttribRoleStewardAsNumber))
-    expect(transformed.txn.data.endpoint).toBeUndefined()
-    expect(transformed.txn.data.roleAction).toBe("SET_STEWARD")
   })
 
   it('should process ATTRIB transaction and parse role action REMOVE_ROLE if role is set to empty string', async () => {

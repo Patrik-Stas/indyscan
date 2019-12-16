@@ -1,9 +1,9 @@
 /* eslint-env jest */
 require('jest')
-const {composeFullVerkey, isAbbreviatedVerkey} = require('../src/util')
+const {composeFullVerkey, isAbbreviatedVerkey} = require('../../src/util')
 
 
-const { getSchemaLedgerId, parseSchemaId } = require('../src/util')
+const { getSchemaLedgerId, parseSchemaId } = require('../../src/util')
 
 describe('creating, fetching info and deleting connections', () => {
   it('should parse schema id into separate parts', async () => {

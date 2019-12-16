@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const txtype = require('../index')
+const txtype = require('../../index')
 
 describe('basic suite', () => {
   it('should convert tx name to code', async () => {

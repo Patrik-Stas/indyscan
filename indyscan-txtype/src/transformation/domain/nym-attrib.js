@@ -13,7 +13,7 @@ const ROLE_ACTIONS = {
 const UNKNOWN_ROLE_ACTION = 'UNKNOWN_ROLE_ACTION'
 
 function roleIdToRoleAction (id) {
-  return ROLE_ACTIONS[id.toString().trim()] || UNKNOWN_ROLE_ACTION
+  return ROLE_ACTIONS[id.trim()] || UNKNOWN_ROLE_ACTION
 }
 
 function tryParseRawData (rawData) {

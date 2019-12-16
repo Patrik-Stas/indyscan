@@ -31,8 +31,11 @@ function createEsTxTransform (resolveDomainTxBySeqNo) {
     'UNKNOWN': noop
   }
 
+  /*
+  Should never throw. If tx specific transformation fails, this informmation will be captured in result object under
+  "transformed.meta.transformError" object with fields "message" and "stack"
+   */
   async function createEsTransformedTx (tx) {
-    // TODO: Write unit test for case when transform throws (wrong assumption on txtype content for example) and make sure we get error in metadata
     if (!tx) {
       throw Error('tx argument not defined')
     }
@@ -43,6 +46,7 @@ function createEsTxTransform (resolveDomainTxBySeqNo) {
     const subledgerCode = subledgerNameToId(subledgerName) || 'UNKNOWN'
     let transformed = _.cloneDeep(tx)
 
+    // genesis txs do not have time
     if (transformed.txnMetadata && transformed.txnMetadata.txnTime) {
       let epochMiliseconds = transformed.txnMetadata.txnTime * 1000
       transformed.txnMetadata.txnTime = new Date(epochMiliseconds).toISOString()
@@ -58,7 +62,7 @@ function createEsTxTransform (resolveDomainTxBySeqNo) {
       const transform = txTransforms[txnTypeName]
       transformed = await transform(transformed)
     } catch (err) {
-      transform.meta.transformError = {
+      transformed.meta.transformError = {
         message: err.message,
         stack: err.stack
       }

@@ -1,11 +1,18 @@
 /* eslint-env jest */
 const { createEsTxTransform } = require('../../src/transformation/transform-tx')
 const txUnknown = require('../resource/sample-txs/tx-madeup-unknown')
+const txUnexpected = require('../resource/sample-txs/tx-unexpected')
 const _ = require('lodash')
 
 let esTransform = createEsTxTransform((seqno) => {throw Error(`Domain tx lookup seqno=${seqno } was not expected.`)})
 
 describe('unrecognized transaction transformations', () => {
+  it('should not modify original argument', async () => {
+    const tx = _.cloneDeep(txUnknown)
+    await esTransform(tx)
+    expect(JSON.stringify(tx)).toBe(JSON.stringify(txUnknown))
+  })
+
   it('should process unrecognized type of transaction and set typeName and ledger to UNKNOWN', async () => {
     const tx = _.cloneDeep(txUnknown)
     let transformed = await esTransform(tx)
