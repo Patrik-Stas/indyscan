@@ -66,7 +66,7 @@ async function hydrateIndices() {
   await sleep(1500) // it takes a moment till ES indexes all documents
 }
 
-const CLEAN_HYDRATE_CLEAN = process.env.CLEAN_HYDRATE_CLEAN || false
+const CLEAN_HYDRATE_CLEAN = process.env.CLEAN_HYDRATE_CLEAN || true
 
 beforeAll(async () => {
   jest.setTimeout(1000 * 60 * 4)
@@ -83,7 +83,7 @@ beforeAll(async () => {
 
 afterAll(async function () {
   if (CLEAN_HYDRATE_CLEAN) {
-    deleteIntegrationTestIndices()
+    // deleteIntegrationTestIndices()
   }
 })
 

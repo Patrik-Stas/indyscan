@@ -1,11 +1,12 @@
 function extractClassDataNym (txIndyscan) {
   let display = {}
   display['Target DID'] = txIndyscan.txn.data.dest
-  display['Role'] = txIndyscan.txn.data.role
+  display['Role change'] = txIndyscan.txn.data.roleName
   display['Verkey'] = txIndyscan.txn.data.verkey
   display['Alias'] = txIndyscan.txn.data.alias
   display['Endpoint'] = txIndyscan.txn.data.endpoint
-  if (!txIndyscan.txn.data.endpoint && txIndyscan.txn.data.raw) {
+  display['Last Updated'] = txIndyscan.txn.data.lastUpdated
+  if (!display['Endpoint'] && !display['Last Updated'] && txIndyscan.txn.data.raw) {
     display['Raw'] = txIndyscan.txn.data.raw
   }
   return display

@@ -1,16 +1,52 @@
 const scanConfigPresets = {
   'SLOW':
-    { normalTimeoutMs: 30 * 1000, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 30 * 1000, jitterRatio: 0.1 },
+    {
+      timeoutOnSuccess: 30 * 1000,
+      timeoutOnTxIngestionError: 60 * 1000,
+      timeoutOnLedgerResolutionError: 60 * 1000,
+      timeoutOnTxNoFound: 30 * 1000,
+      jitterRatio: 0.1
+    },
   'MEDIUM':
-    { normalTimeoutMs: 6000, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 20 * 1000, jitterRatio: 0.1 },
+    {
+      timeoutOnSuccess: 6000,
+      timeoutOnTxIngestionError: 60 * 1000,
+      timeoutOnLedgerResolutionError: 60 * 1000,
+      timeoutOnTxNoFound: 20 * 1000,
+      jitterRatio: 0.1
+    },
   'INDYSCAN.IO':
-    { normalTimeoutMs: 1000, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 3000, jitterRatio: 0.1 },
+    {
+      timeoutOnSuccess: 1000,
+      timeoutOnTxIngestionError: 60 * 1000,
+      timeoutOnLedgerResolutionError: 60 * 1000,
+      timeoutOnTxNoFound: 3000,
+      jitterRatio: 0.1
+    },
   'FAST':
-    { normalTimeoutMs: 1000, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 2000, jitterRatio: 0.1 },
+    {
+      timeoutOnSuccess: 1000,
+      timeoutOnTxIngestionError: 60 * 1000,
+      timeoutOnLedgerResolutionError: 60 * 1000,
+      timeoutOnTxNoFound: 2000,
+      jitterRatio: 0.1
+    },
   'TURBO':
-    { normalTimeoutMs: 300, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 2000, jitterRatio: 0.1 },
+    {
+      timeoutOnSuccess: 300,
+      timeoutOnTxIngestionError: 60 * 1000,
+      timeoutOnLedgerResolutionError: 60 * 1000,
+      timeoutOnTxNoFound: 2000,
+      jitterRatio: 0.1
+    },
   'FRENZY':
-    { normalTimeoutMs: 300, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 2000, jitterRatio: 0.1 }
+    {
+      timeoutOnSuccess: 300,
+      timeoutOnTxIngestionError: 60 * 1000,
+      timeoutOnLedgerResolutionError: 60 * 1000,
+      timeoutOnTxNoFound: 2000,
+      jitterRatio: 0.1
+    }
 }
 
 function getScanConfig (networkConfig) {
@@ -46,11 +82,11 @@ function getSourceConfig (networkConfig) {
 }
 
 function processConfig (networkConfig, globalEsUrl) {
-  const { name } = networkConfig
+  const {name} = networkConfig
   const scanConfig = getScanConfig(networkConfig)
   const sourceConfig = getSourceConfig(networkConfig)
   const targetConfig = getTargetConfig(networkConfig, globalEsUrl)
-  return { name, scanConfig, sourceConfig, targetConfig }
+  return {name, scanConfig, sourceConfig, targetConfig}
 }
 
 module.exports.processConfig = processConfig

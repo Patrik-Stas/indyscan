@@ -2,11 +2,11 @@ const _ = require('lodash')
 const assert = require('assert')
 const { transformPoolUpgrade } = require('./config/pool-upgrade')
 const { createClaimDefTransform } = require('./domain/claim-def')
-const {transformNode} = require('./pool/node')
-const {transformNymAttrib} = require('./domain/nym-attrib')
-const {txTypeToSubledgerName, txTypeToTxName, subledgerNameToId} = require('../types')
+const { createNodeTransform } = require('./pool/node')
+const { transformNymAttrib } = require('./domain/nym-attrib')
+const { txTypeToSubledgerName, txTypeToTxName, subledgerNameToId } = require('../types')
 
-function createEsTxTransform (resolveDomainTxBySeqNo) {
+function createEsTxTransform (resolveDomainTxBySeqNo, geoipLiteLookupIp) {
   function noop (tx) {
     return Object.assign({}, tx)
   }
@@ -19,7 +19,7 @@ function createEsTxTransform (resolveDomainTxBySeqNo) {
     'REVOC_REG_DEF': noop,
     'REVOC_REG_ENTRY': noop,
     'SET_CONTEXT': noop,
-    'NODE': transformNode,
+    'NODE': createNodeTransform(geoipLiteLookupIp),
     'POOL_UPGRADE': transformPoolUpgrade,
     'NODE_UPGRADE': noop,
     'POOL_CONFIG': noop,

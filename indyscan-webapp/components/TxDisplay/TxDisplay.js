@@ -1,8 +1,13 @@
 import React from 'react'
 import './TxDisplay.scss'
-import { GridRow, Item, Label, List } from 'semantic-ui-react'
+import { GridRow, Item, Label, List, Icon, Popup, Button } from 'semantic-ui-react'
 import { renderAsBadges } from '../Common'
-import { converTxDataBasicToHumanReadable, extractTxDataBasic, extractTxDataDetailsHumanReadable } from '../../txtools'
+import {
+  converTxDataBasicToHumanReadable,
+  extractTxDataBasic,
+  extractTxDataDetailsHumanReadable,
+  secondsToDhms
+} from '../../txtools'
 
 function renderKeyValuePair (key, value, keyValueId, color='red') {
   return (
@@ -36,6 +41,19 @@ function renderKeyValues (obj, groupId, color) {
   return items
 }
 
+function calculateTimeSinceTx (time) {
+  const timestamp = (Date.parse(time) / 1000)
+  const utimeNow = Math.floor(new Date() / 1000)
+  return secondsToDhms(utimeNow - timestamp)
+}
+
+function renderTimeAgoText (txnTimeIso8601) {
+  if (txnTimeIso8601 === undefined) {
+    return "Genesis"
+  } else return calculateTimeSinceTx(txnTimeIso8601)
+
+}
+
 const TxDisplay = ({ txIndyscan, txLedger }) => {
   const keyValTxDetailsHumanReadable = extractTxDataDetailsHumanReadable(txIndyscan)
   const keyValTxBasic = extractTxDataBasic(txIndyscan)
@@ -48,9 +66,9 @@ const TxDisplay = ({ txIndyscan, txLedger }) => {
         <Item>
           <Item.Content>
             <Item.Header>{typeName}</Item.Header>
-            <Item.Meta>{txnTimeIso8601}</Item.Meta>
+            <Item.Meta>{renderTimeAgoText(txnTimeIso8601)}</Item.Meta>
             <Item.Description>
-              <List divided selection>
+              <List divided>
                 {renderKeyValues(keyValBasicHumanReadable, 'txbasic', 'blue')}
                 {renderKeyValues(keyValTxDetailsHumanReadable, 'txdetails', 'green')}
               </List>

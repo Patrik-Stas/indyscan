@@ -10,7 +10,7 @@
       "description": "MainNet is live network for production use."
     },
     "es" : {
-      "index": "txs-sovrin_mainnet"
+      "index": "txs-sovrin-mainnet"
     }
   },
   {
@@ -24,7 +24,7 @@
       "SOVRIN_TESTNET"
     ],
     "es" : {
-      "index": "txs-sovrin_testnet"
+      "index": "txs-sovrin-stagingnet"
     }
   },
   {
@@ -35,7 +35,7 @@
       "description": "BuilderNet is network to try out their product before giving their end-users a go at it."
     },
     "es" : {
-      "index": "txs-sovrin_buildernet"
+      "index": "txs-sovrin-buildernet"
     }
   }
 ]

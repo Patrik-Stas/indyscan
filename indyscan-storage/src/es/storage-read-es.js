@@ -1,12 +1,26 @@
 const { esFilterSubledgerName, esAndFilters, esFilterBySeqNo, esFilterHasTimestamp } = require('./es-query-builder')
 
+function createWinstonLoggerDummy() {
+  let logger = {}
+  logger.error = (param1, param2) => {}
+  logger.warn = (param1, param2) => {}
+  logger.info = (param1, param2) => {}
+  logger.debug = (param1, param2) => {}
+  logger.silly = (param1, param2) => {}
+  return logger
+}
+
 /*
 esClient - elasticsearch client
 esIndex - name of the index to read/write data from/to
 subledgerName - indy subledger managed by this storage client
 logger (optional) - winston logger
  */
-function createStorageReadEs (esClient, esIndex, subledgerName) {
+function createStorageReadEs (esClient, esIndex, subledgerName, logger) {
+  if  (logger === undefined) {
+    logger = createWinstonLoggerDummy()
+  }
+  const whoami = `StorageWrite/${esIndex}/${subledgerName} : `
   const knownSubledgers = ['DOMAIN', 'POOL', 'CONFIG']
   const subledgerNameUpperCase = subledgerName.toUpperCase()
   if (knownSubledgers.includes(subledgerNameUpperCase) === false) {
@@ -43,7 +57,6 @@ function createStorageReadEs (esClient, esIndex, subledgerName) {
   }
 
   async function getTxBySeqNo (seqNo) {
-    console.log(`READ STORAGE: Get by seqno ${seqNo}`)
     const tx = await _getTxBySeqNo(seqNo)
     if (!tx) {
       return undefined
@@ -78,7 +91,9 @@ function createStorageReadEs (esClient, esIndex, subledgerName) {
       index: esIndex,
       body: { query, sort }
     }
+    logger.debug(`${whoami} Submitting ES request ${JSON.stringify(searchRequest, null, 2)}`)
     const { body } = await esClient.search(searchRequest)
+    logger.debug(`${whoami} Received ES response ${JSON.stringify(body, null, 2)}`)
     return body.hits.hits.map(h => h['_source'])
   }
 

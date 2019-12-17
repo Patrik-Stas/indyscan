@@ -7,12 +7,14 @@ const ROLE_ACTIONS = {
   '2': 'SET_STEWARD',
   '101': 'SET_ENDORSER',
   '201': 'SET_NETWORK_MONITOR',
-  '': 'REMOVE_ROLE'
 }
 
 const UNKNOWN_ROLE_ACTION = 'UNKNOWN_ROLE_ACTION'
 
 function roleIdToRoleAction (id) {
+  if (id === null || id.trim() === '') {
+    return 'REMOVE_ROLE'
+  }
   return ROLE_ACTIONS[id.trim()] || UNKNOWN_ROLE_ACTION
 }
 

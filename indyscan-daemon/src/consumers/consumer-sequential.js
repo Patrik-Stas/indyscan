@@ -1,10 +1,17 @@
-const { createTimerLock } = require('../time/scan-timer')
+const {createTimerLock} = require('../time/scan-timer')
 const util = require('util')
 const logger = require('../logging/logger-main')
 
 function createConsumerSequential (resolveTx, storageRead, storageWrite, network, subledger, timerConfig) {
   const whoami = `ConsumerSequential/${network}/${subledger} : `
-  const { normalTimeoutMs, errorTimeoutMs, timeoutTxNotFoundMs, jitterRatio } = timerConfig
+  const {timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio} = timerConfig
+  if (timeoutOnSuccess === undefined ||
+    timeoutOnTxIngestionError === undefined ||
+    timeoutOnLedgerResolutionError === undefined ||
+    timeoutOnTxNoFound === undefined ||
+    jitterRatio === undefined) {
+    throw Error(`${whoami} Invalid timer config ${JSON.stringify(timerConfig, null, 2)}`)
+  }
 
   let processedTxCount = 0
   let requestCycleCount = 0
@@ -29,20 +36,20 @@ function createConsumerSequential (resolveTx, storageRead, storageWrite, network
             processedTxCount++
             logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}.`)
             logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}: ${JSON.stringify(tx)}.`)
-            timerLock.addBlockTime(normalTimeoutMs, jitterRatio)
+            timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
           } catch (err) {
             cycleExceptionCount++
-            timerLock.addBlockTime(errorTimeoutMs, jitterRatio)
+            timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
             logger.error(`${whoami} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${err.message} ${err.stack} \n ${util.inspect(err, false, 10)}`)
           }
         } else {
           txNotAvailableCount++
           logger.info(`${whoami} Cycle '${requestCycleCount}' found that tx ${desiredSeqNo} does not exist.`)
-          timerLock.addBlockTime(timeoutTxNotFoundMs, jitterRatio)
+          timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
         }
       } catch (err) {
         cycleExceptionCount++
-        timerLock.addBlockTime(errorTimeoutMs, jitterRatio)
+        timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
         logger.error(`${whoami} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${err.message} ${err.stack}`)
       }
       await timerLock.waitTillUnlock()

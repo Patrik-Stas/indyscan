@@ -7,6 +7,8 @@ const mongodb = require('mongodb')
 const {buildRetryTxResolver} = require('indyscan-storage')
 const {createEsTxTransform} = require('indyscan-txtype')
 const asyncMongoConnect = util.promisify(mongodb.MongoClient.connect)
+const geoip = require('geoip-lite')
+const geoipLiteLookupIp = geoip.lookup.bind(geoip)
 
 module.exports.createStorageFactory = async function createStorageFactory () {
 
@@ -20,11 +22,11 @@ module.exports.createStorageFactory = async function createStorageFactory () {
         throw Error(`Tx-transform module tried to lookup ${subledger} transaction seqNo ${seqno} which was not expected.`)
       }
     }
-    return createEsTxTransform(lookupTxBySeqno)
+    return createEsTxTransform(lookupTxBySeqno, geoipLiteLookupIp)
   }
 
   async function createEsStorageForSubledger (esClient, esIndex, exIndexReplicaCount, subledger, assureEsIndex) {
-    const storageReadEs = createStorageReadEs(esClient, esIndex, subledger)
+    const storageReadEs = createStorageReadEs(esClient, esIndex, subledger, logger)
     const transformTx = createTxTransform(subledger, storageReadEs)
     const storageWriteEs = await createStorageWriteEs(esClient, esIndex, exIndexReplicaCount, subledger, assureEsIndex, false, transformTx, logger)
       .then(storage => { return storage })

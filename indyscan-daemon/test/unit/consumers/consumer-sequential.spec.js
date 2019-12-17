@@ -47,7 +47,7 @@ describe('ledger tx resolution', () => {
   })
 
   it('should store 4 transactions', async () => {
-    const timerConfig = { normalTimeoutMs: 300, errorTimeoutMs: 60 * 1000, timeoutTxNotFoundMs: 2000, jitterRatio: 0 }
+    const timerConfig = { timeoutOnSuccess: 300, timeoutOnLedgerResolutionError: 60 * 1000, timeoutOnTxNoFound: 2000, jitterRatio: 0 }
     consumer = createConsumerSequential(txResolve, storage, network, 'domain', timerConfig)
     consumer.start()
     await sleep(1000)
@@ -56,7 +56,7 @@ describe('ledger tx resolution', () => {
   })
 
   it('should timeout and only store 2 transactions', async () => {
-    const timerConfig = { normalTimeoutMs: 200, errorTimeoutMs: 500, timeoutTxNotFoundMs: 500, jitterRatio: 0 }
+    const timerConfig = { timeoutOnSuccess: 200, timeoutOnLedgerResolutionError: 500, timeoutOnTxNoFound: 500, jitterRatio: 0 }
     const txResolveWithError = createTxResolverWithError()
     consumer = createConsumerSequential(txResolveWithError, storage, network, 'domain', timerConfig)
     consumer.start()
@@ -68,8 +68,8 @@ describe('ledger tx resolution', () => {
   it('two sequential consumers with different timings for different subledger on common network should be independent', async () => {
     const storage1 = await createStorageFs(`storage-unittests/${uuid.v4()}`)
     const storage2 = await createStorageFs(`storage-unittests/${uuid.v4()}`)
-    const timerConfig1 = { normalTimeoutMs: 300, errorTimeoutMs: 1000, timeoutTxNotFoundMs: 1000, jitterRatio: 0 }
-    const timerConfig2 = { normalTimeoutMs: 1000, errorTimeoutMs: 1000, timeoutTxNotFoundMs: 1000, jitterRatio: 0 }
+    const timerConfig1 = { timeoutOnSuccess: 300, timeoutOnLedgerResolutionError: 1000, timeoutOnTxNoFound: 1000, jitterRatio: 0 }
+    const timerConfig2 = { timeoutOnSuccess: 1000, timeoutOnLedgerResolutionError: 1000, timeoutOnTxNoFound: 1000, jitterRatio: 0 }
     let consumer1 = createConsumerSequential(txResolve, storage1, network, 'domain-foo', timerConfig1)
     let consumer2 = createConsumerSequential(txResolve, storage2, network, 'domain-bar', timerConfig2)
     consumer1.start()

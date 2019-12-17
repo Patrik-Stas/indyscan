@@ -15,7 +15,7 @@ createEsTransformedTx - function taking 1 argument, a transaction as found on le
 logger (optional) - winston logger
  */
 function createWinstonLoggerDummy() {
-  logger = {}
+  let logger = {}
   logger.error = (param1, param2) => {}
   logger.warn = (param1, param2) => {}
   logger.info = (param1, param2) => {}
@@ -133,14 +133,18 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, subledge
     if (!ledgerTx || !ledgerTx.txnMetadata || ledgerTx.txnMetadata.seqNo === undefined || ledgerTx.txnMetadata.seqNo === null) {
       throw Error(`Tx failed basic validation. Tx ${JSON.stringify(ledgerTx)}`)
     }
-    const seqNo = ledgerTx.txnMetadata
-    return {seqno, type}
+    if (!ledgerTx || !ledgerTx.txn || ledgerTx.txn.type === undefined) {
+      throw Error(`Tx failed basic validation. Tx ${JSON.stringify(ledgerTx)}`)
+    }
+    const {seqNo} = ledgerTx.txnMetadata
+    const {type} = ledgerTx.txn
+    return {seqNo, type}
   }
 
   function _basicTransformedTxAnalysis(transformedTx, seqNo, type) {
     if (transformedTx.meta.transformError) {
       logger.error(`${whoami} Transformation for transaction seqNo=${seqNo} failed!`
-        + `Transformation error: ${JSON.stringify(transformedTx.meta.transformError, null, 2)}`)
+        + ` Transformation error: ${JSON.stringify(transformedTx.meta.transformError, null, 2)}`)
     }
     if (transformedTx.txn.typeName === 'UNKNOWN') {
       logger.warn(`${whoami} Could not determine typeName for transaction seqno=${seqNo} with type ${type}.`)
@@ -156,7 +160,7 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, subledge
 
   async function _sendTxToElastic(ledgerTx, transformedTx) {
     await esClient.index({
-      id: `${subledgerNameUpperCase}-${tx.txnMetadata.seqNo}`,
+      id: `${subledgerNameUpperCase}-${transformedTx.txnMetadata.seqNo}`,
       index: esIndex,
       body: {
         original: JSON.stringify(ledgerTx),
@@ -177,7 +181,7 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, subledge
   async function addTx (tx) {
     const {seqNo, type} = _basicTxAnalysis(tx)
     logger.debug(`${whoami} Adding seqno=${seqNo} transaction: ${JSON.stringify(tx, null, 2)}!`)
-    const transformed = _runTransformation(tx)
+    const transformed = await _runTransformation(tx)
     _basicTransformedTxAnalysis(transformed, seqNo, type)
     transformed.meta.scanTime = new Date().toISOString()
     await _sendTxToElastic(tx, transformed)

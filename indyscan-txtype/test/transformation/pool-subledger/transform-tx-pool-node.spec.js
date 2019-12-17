@@ -2,8 +2,10 @@
 const { createEsTxTransform } = require('../../../src/transformation/transform-tx')
 const txNode = require('../../resource/sample-txs/tx-pool-node')
 const _ = require('lodash')
+const geoip = require('geoip-lite')
 
-let esTransform = createEsTxTransform((seqno) => {throw Error(`Domain tx lookup seqno=${seqno } was not expected.`)})
+const geoipLiteLookupIp = geoip.lookup.bind(geoip)
+let esTransform = createEsTxTransform((seqno) => {throw Error(`Domain tx lookup seqno=${seqno } was not expected.`)}, geoipLiteLookupIp)
 
 const POOL_LEDGER_ID = '0'
 

@@ -7,6 +7,7 @@ const txAttribRoleTrustee = require('../../resource/sample-txs/tx-domain-attrib-
 const txAttribRoleRemove = require('../../resource/sample-txs/tx-domain-attrib-role-remove')
 const txAttribRoleUnrecognized = require('../../resource/sample-txs/tx-domain-attrib-role-unrecognized')
 const txAttribRoleRemoveWithSpace = require('../../resource/sample-txs/tx-domain-attrib-role-remove-with-spaces')
+const txAttribRoleRemoveWithNull = require('../../resource/sample-txs/tx-domain-attrib-role-remove-with-null')
 const txAttribVerkeyAbbreviated = require('../../resource/sample-txs/tx-domain-attrib-verkey-abbreviated')
 const txAttribVerkeyFull = require('../../resource/sample-txs/tx-domain-attrib-verkey-full')
 const txAttribRawAgent = require('../../resource/sample-txs/tx-domain-attrib-agent')
@@ -76,6 +77,14 @@ describe('domain/attrib transaction transformations', () => {
     const tx = _.cloneDeep(txAttribRoleRemoveWithSpace)
     let transformed = await esTransform(tx, 'DOMAIN')
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txAttribRoleRemoveWithSpace))
+    expect(transformed.txn.data.endpoint).toBeUndefined()
+    expect(transformed.txn.data.roleAction).toBe("REMOVE_ROLE")
+  })
+
+  it('should process ATTRIB transaction and parse role action REMOVE_ROLE if role only contains null', async () => {
+    const tx = _.cloneDeep(txAttribRoleRemoveWithNull)
+    let transformed = await esTransform(tx, 'DOMAIN')
+    expect(JSON.stringify(tx)).toBe(JSON.stringify(txAttribRoleRemoveWithNull))
     expect(transformed.txn.data.endpoint).toBeUndefined()
     expect(transformed.txn.data.roleAction).toBe("REMOVE_ROLE")
   })
