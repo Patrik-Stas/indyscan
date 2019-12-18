@@ -1,4 +1,5 @@
 const sleep = require('sleep-promise')
+const { performance } = require('perf_hooks')
 
 function getRandomArbitrary (min, max) {
   return Math.random() * (max - min) + min
@@ -13,5 +14,16 @@ async function sleepWithJitter (logPrefix, seconds, jitterRatio) {
   await sleep(timeoutMs)
 }
 
+async function runWithTimer (closure, resultCallback) {
+  const t0 = performance.now()
+  const result = await closure()
+  const t1 = performance.now()
+  try {
+    resultCallback(t1 - t0)
+  } catch (e) {}
+  return result
+}
+
 module.exports.jitterize = jitterize
 module.exports.sleepWithJitter = sleepWithJitter
+module.exports.runWithTimer = runWithTimer

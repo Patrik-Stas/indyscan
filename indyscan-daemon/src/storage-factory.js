@@ -1,17 +1,16 @@
 const appConfig = require('./config')
 const util = require('util')
-const {createStorageMongo, createMongoCollection, createStorageReadEs, createStorageWriteEs} = require('indyscan-storage')
+const { createStorageMongo, createMongoCollection, createStorageReadEs, createStorageWriteEs } = require('indyscan-storage')
 const logger = require('./logging/logger-main')
 const elasticsearch = require('@elastic/elasticsearch')
 const mongodb = require('mongodb')
-const {buildRetryTxResolver} = require('indyscan-storage')
-const {createEsTxTransform} = require('indyscan-txtype')
+const { buildRetryTxResolver } = require('indyscan-storage')
+const { createEsTxTransform } = require('indyscan-txtype')
 const asyncMongoConnect = util.promisify(mongodb.MongoClient.connect)
 const geoip = require('geoip-lite')
 const geoipLiteLookupIp = geoip.lookup.bind(geoip)
 
 module.exports.createStorageFactory = async function createStorageFactory () {
-
   function createTxTransform (subledger, storageReadEs) {
     let lookupTxBySeqno
     if (subledger.toUpperCase() === 'DOMAIN') {
@@ -34,11 +33,11 @@ module.exports.createStorageFactory = async function createStorageFactory () {
         logger.error(`Failed to create ES storage for index ${esIndex}: ${util.inspect(err, false, 10)} ${err.stack}`)
         throw Error(`Failed to create ES storage for index ${esIndex}`)
       })
-    return {storageReadEs, storageWriteEs}
+    return { storageReadEs, storageWriteEs }
   }
 
   async function createEsStoragesForNetwork (urlEs, esIndex, exIndexReplicaCount) {
-    const esClient = new elasticsearch.Client({node: urlEs})
+    const esClient = new elasticsearch.Client({ node: urlEs })
     logger.debug(`Creating ElasticSearch storages for network '${esIndex}'.`)
 
     const domainStoragePromise =
@@ -49,15 +48,18 @@ module.exports.createStorageFactory = async function createStorageFactory () {
       createEsStorageForSubledger(esClient, esIndex, exIndexReplicaCount, 'CONFIG', false)
 
     const [
-      {storageReadEs: storageReadDomain, storageWriteEs: storageWriteDomain},
-      {storageReadEs: storageReadPool, storageWriteEs: storageWritePool},
-      {storageReadEs: storageReadConfig, storageWriteEs: storageWriteConfig}
+      { storageReadEs: storageReadDomain, storageWriteEs: storageWriteDomain },
+      { storageReadEs: storageReadPool, storageWriteEs: storageWritePool },
+      { storageReadEs: storageReadConfig, storageWriteEs: storageWriteConfig }
     ] = await Promise.all([domainStoragePromise, poolStoragePromise, configStoragePromise])
 
     return {
-      storageReadDomain, storageWriteDomain,
-      storageReadPool, storageWritePool,
-      storageReadConfig, storageWriteConfig
+      storageReadDomain,
+      storageWriteDomain,
+      storageReadPool,
+      storageWritePool,
+      storageReadConfig,
+      storageWriteConfig
     }
   }
 
@@ -69,7 +71,7 @@ module.exports.createStorageFactory = async function createStorageFactory () {
     const storageDomain = await createStorageMongo(await createMongoCollection(mongoDb, 'txs-domain'))
     const storagePool = await createStorageMongo(await createMongoCollection(mongoDb, 'txs-pool'))
     const storageConfig = await createStorageMongo(await createMongoCollection(mongoDb, 'txs-config'))
-    return {storageDomain, storagePool, storageConfig}
+    return { storageDomain, storagePool, storageConfig }
   }
 
   async function createStoragesForNetwork (targetConfig) {

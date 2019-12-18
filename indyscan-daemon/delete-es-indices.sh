@@ -1,8 +1,8 @@
-curl -XDELETE localhost:9200/txs-sovrin_trainingnet
+curl -XDELETE localhost:9200/txs-sovrin-trainingnet
 echo -e "\n"
-curl -XDELETE localhost:9200/txs-sovrin_testnet
+curl -XDELETE localhost:9200/txs-sovrin-testnet
 echo -e "\n"
-curl -XDELETE localhost:9200/txs-sovrin_mainnet
+curl -XDELETE localhost:9200/txs-sovrin-mainnet
 echo -e "\n"
-curl -XDELETE localhost:9200/txs-sovrin_buildernet
+curl -XDELETE localhost:9200/txs-sovrin-buildernet
 echo -e "\n"

@@ -82,11 +82,11 @@ function getSourceConfig (networkConfig) {
 }
 
 function processConfig (networkConfig, globalEsUrl) {
-  const {name} = networkConfig
+  const { name } = networkConfig
   const scanConfig = getScanConfig(networkConfig)
   const sourceConfig = getSourceConfig(networkConfig)
   const targetConfig = getTargetConfig(networkConfig, globalEsUrl)
-  return {name, scanConfig, sourceConfig, targetConfig}
+  return { name, scanConfig, sourceConfig, targetConfig }
 }
 
 module.exports.processConfig = processConfig

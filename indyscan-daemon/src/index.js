@@ -1,9 +1,9 @@
-const {appConfig, networksConfig} = require('./config')
+const { appConfig, networksConfig } = require('./config')
 const logger = require('./logging/logger-main')
-const {processConfig} = require('./network-config-processor')
-const {createTxResolve} = require('./resolvers/resolver-factory')
-const {createStorageFactory} = require('./storage-factory')
-const {createConsumerSequential} = require('./consumers/consumer-sequential')
+const { processConfig } = require('./network-config-processor')
+const { createTxResolve } = require('./resolvers/resolver-factory')
+const { createStorageFactory } = require('./storage-factory')
+const { createConsumerSequential } = require('./consumers/consumer-sequential')
 
 // const indy = require('indy-sdk')
 // indy.setLogger(function (level, target, message, modulePath, file, line) {
@@ -41,7 +41,7 @@ async function run () {
   logger.info(`Networks to be scanned: ${JSON.stringify(networksConfig, null, 2)}.`)
   const storageFactory = await createStorageFactory()
   for (const networkConfig of networksConfig) {
-    const {name, scanConfig, sourceConfig, targetConfig} = processConfig(networkConfig, appConfig.ES_URL)
+    const { name, scanConfig, sourceConfig, targetConfig } = processConfig(networkConfig, appConfig.ES_URL)
     scanNetwork(name, scanConfig, sourceConfig, targetConfig, storageFactory)
   }
 }

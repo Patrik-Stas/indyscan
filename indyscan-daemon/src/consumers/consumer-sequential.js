@@ -1,10 +1,11 @@
-const {createTimerLock} = require('../time/scan-timer')
+const { createTimerLock } = require('../time/scan-timer')
 const util = require('util')
 const logger = require('../logging/logger-main')
+const { runWithTimer } = require('../time/util')
 
 function createConsumerSequential (resolveTx, storageRead, storageWrite, network, subledger, timerConfig) {
   const whoami = `ConsumerSequential/${network}/${subledger} : `
-  const {timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio} = timerConfig
+  const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timerConfig
   if (timeoutOnSuccess === undefined ||
     timeoutOnTxIngestionError === undefined ||
     timeoutOnLedgerResolutionError === undefined ||
@@ -23,48 +24,109 @@ function createConsumerSequential (resolveTx, storageRead, storageWrite, network
   let enabled = true
   let desiredSeqNo
 
-  async function consumptionCycle () {
-    while (enabled) { // eslint-disable-line
-      logger.info(`${whoami}  Cycle '${requestCycleCount}' start.`)
-      try {
-        let desiredSeqNo = await storageRead.findMaxSeqNo() + 1
-        logger.info(`${whoami}  Cycle '${requestCycleCount}' submitting tx request seqNo='${desiredSeqNo}'.`)
-        let tx = await resolveTx(subledger, desiredSeqNo)
-        if (tx) {
-          try {
-            await storageWrite.addTx(tx)
-            processedTxCount++
-            logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}.`)
-            logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}: ${JSON.stringify(tx)}.`)
-            timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
-          } catch (err) {
-            cycleExceptionCount++
-            timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
-            logger.error(`${whoami} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${err.message} ${err.stack} \n ${util.inspect(err, false, 10)}`)
-          }
-        } else {
-          txNotAvailableCount++
-          logger.info(`${whoami} Cycle '${requestCycleCount}' found that tx ${desiredSeqNo} does not exist.`)
-          timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
-        }
-      } catch (err) {
-        cycleExceptionCount++
-        timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
-        logger.error(`${whoami} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${err.message} ${err.stack}`)
-      }
-      await timerLock.waitTillUnlock()
-      requestCycleCount++
+  let processesDuration = {}
+
+  function processDurationResult (processId, duration) {
+    if (processesDuration[processId] === undefined) {
+      processesDuration[processId] = []
+    }
+    processesDuration[processId].push(duration)
+    if (processesDuration[processId].length > 10) {
+      processesDuration[processId].shift()
     }
   }
 
-  function info () {
-    return {
-      consumerName: whoami,
-      desiredSeqNo,
-      processedTxCount,
-      requestCycleCount,
-      txNotAvailableCount,
-      cycleExceptionCount
+  function getAverage (list) {
+    let sum = list.reduce((a, b) => a + b, 0)
+    return sum / list.length || 0
+  }
+
+  function getAverageDurations () {
+    let avgDurations = {}
+    for (const [processName, durations] of Object.entries(processesDuration)) {
+      avgDurations[processName] = getAverage(durations)
+    }
+    return avgDurations
+  }
+
+  async function tryConsumeNextTransaction () {
+    logger.info(`${whoami} Cycle '${requestCycleCount}' starts.`)
+    try {
+      logger.info(`${whoami} Average durations ${JSON.stringify(getAverageDurations(), null, 2)}`)
+    } catch (e) {
+      logger.warn(`${whoami} Error evaluating average durations. ${e.message} ${e.stack}`)
+    }
+
+    // find out what do we need
+    let desiredSeqNo
+    try {
+      desiredSeqNo = await storageRead.findMaxSeqNo() + 1
+    } catch (e) {
+      timerLock.addBlockTime(60 * 1000, jitterRatio)
+      logger.info(`${whoami} Cycle '${requestCycleCount}' failed to find out what's the next required seqNo.`)
+      return
+    }
+
+    // get it
+    let tx
+    try {
+      logger.info(`${whoami}  Cycle '${requestCycleCount}' submitting tx request seqNo='${desiredSeqNo}'.`)
+      tx = await resolveTxAndMeasureTime(subledger, desiredSeqNo)
+    } catch (e) {
+      cycleExceptionCount++
+      timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
+      logger.error(`${whoami} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${e.message} ${e.stack}`)
+      return
+    }
+
+    // if we have it, save it
+    if (tx) {
+      try {
+        await addTxAndMeasureTime(tx)
+        processedTxCount++
+        timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
+        logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}.`)
+        logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}: ${JSON.stringify(tx)}.`)
+      } catch (e) {
+        cycleExceptionCount++
+        timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
+        logger.error(`${whoami} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${e.message} ${e.stack} \n ${util.inspect(e, false, 10)}`)
+      }
+    } else {
+      txNotAvailableCount++
+      timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
+      logger.info(`${whoami} Cycle '${requestCycleCount}' found that tx ${desiredSeqNo} does not exist.`)
+    }
+  }
+
+  async function resolveTxAndMeasureTime (subledger, desiredSeqNo) {
+    return runWithTimer(
+      async () => resolveTx(subledger, desiredSeqNo),
+      (duration) => processDurationResult('tx-resolution', duration)
+    )
+  }
+
+  async function addTxAndMeasureTime (tx) {
+    return runWithTimer(
+      async () => storageWrite.addTx(tx),
+      (duration) => processDurationResult('tx-storagewrite', duration)
+    )
+  }
+
+  async function consumptionCycle () {
+    while (enabled) { // eslint-disable-line
+      try {
+        await runWithTimer(
+          async () => tryConsumeNextTransaction(),
+          (duration) => processDurationResult('consumption-iteration', duration)
+        )
+        await timerLock.waitTillUnlock()
+      } catch (e) {
+        logger.error(`${whoami} FATAL Error. Unhandled error propagated to consumption loop. ${e.message} ${e.stack}. Stopping this consumer.`)
+        enabled = false
+      } finally {
+        requestCycleCount++
+      }
     }
   }
 
@@ -77,6 +139,17 @@ function createConsumerSequential (resolveTx, storageRead, storageWrite, network
   function stop () {
     logger.info(`${whoami}: Stopping ...`)
     enabled = false
+  }
+
+  function info () {
+    return {
+      consumerName: whoami,
+      desiredSeqNo,
+      processedTxCount,
+      requestCycleCount,
+      txNotAvailableCount,
+      cycleExceptionCount
+    }
   }
 
   return {
