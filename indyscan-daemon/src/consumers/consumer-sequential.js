@@ -113,14 +113,21 @@ function createConsumerSequential (resolveTx, storageRead, storageWrite, network
     )
   }
 
+  async function tryConsumeNextTransactionAndWait() {
+    await runWithTimer(
+      tryConsumeNextTransaction,
+      (duration) => processDurationResult('consumption-iteration-active', duration)
+    )
+    await timerLock.waitTillUnlock()
+  }
+
   async function consumptionCycle () {
     while (enabled) { // eslint-disable-line
       try {
         await runWithTimer(
-          async () => tryConsumeNextTransaction(),
-          (duration) => processDurationResult('consumption-iteration', duration)
+          tryConsumeNextTransactionAndWait,
+          (duration) => processDurationResult('consumption-iteration-full', duration)
         )
-        await timerLock.waitTillUnlock()
       } catch (e) {
         logger.error(`${whoami} FATAL Error. Unhandled error propagated to consumption loop. ${e.message} ${e.stack}. Stopping this consumer.`)
         enabled = false
