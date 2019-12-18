@@ -1,0 +1,110 @@
+{
+  "configmacros": {
+    "NETWORK" : "sovrin-mainnet"
+  },
+  "sources": [
+    {
+      "id": "es-txs-%NETWORK%-domain",
+      "type": "elasticsearch",
+      "data": {
+        "url": "$URL_ELASTICSEARCH",
+        "index": "txs-%NETWORK%-domain"
+      }
+    },
+    {
+      "id": "es-txs-%NETWORK%-config",
+      "type": "elasticsearch",
+      "data": {
+        "url": "$URL_ELASTICSEARCH",
+        "index": "txs-%NETWORK%-config"
+      }
+    },
+    {
+      "id": "es-txs-%NETWORK%-pool",
+      "type": "elasticsearch",
+      "data": {
+        "url": "$URL_ELASTICSEARCH",
+        "index": "txs-%NETWORK%-pool"
+      }
+    },
+
+
+    {
+      "id": "es-txs-%NETWORK%-domain-reindex",
+      "type": "elasticsearch",
+      "data": {
+        "url": "$URL_ELASTICSEARCH",
+        "index": "txs-%NETWORK%-domain-reindex"
+      }
+    },
+    {
+      "id": "es-txs-%NETWORK%-config-reindex",
+      "type": "elasticsearch",
+      "data": {
+        "url": "$URL_ELASTICSEARCH",
+        "index": "txs-%NETWORK%-config-reindex"
+      }
+    },
+    {
+      "id": "es-txs-%NETWORK%-pool-reindex",
+      "type": "elasticsearch",
+      "data": {
+        "url": "$URL_ELASTICSEARCH",
+        "index": "txs-%NETWORK%-pool-reindex"
+      }
+    }
+  ],
+  "destinations": [
+    {
+      "id": "es-txs-%NETWORK%-domain-reindex",
+      "type": "elasticsearch",
+      "data": {
+        "url": "$URL_ELASTICSEARCH",
+        "index": "txs-%NETWORK%-domain-reindex"
+      }
+    },
+    {
+      "id": "es-txs-%NETWORK%-config-reindex",
+      "type": "elasticsearch",
+      "data": {
+        "url": "$URL_ELASTICSEARCH",
+        "index": "txs-%NETWORK%-config-reindex"
+      }
+    },
+    {
+      "id": "es-txs-%NETWORK%-pool-reindex",
+      "type": "elasticsearch",
+      "data": {
+        "url": "$URL_ELASTICSEARCH",
+        "index": "txs-%NETWORK%-pool-reindex"
+      }
+    }
+  ],
+  "pipeline": {
+    "data": {
+      "timeoutOnSuccess": 1000,
+      "timeoutOnIteratorError": 5000,
+      "timeoutOnTxNotAvailable": 4000,
+      "jitterRatio": 0.4
+    },
+    "iterator": {
+      "type": "iterate-ledger-guided-by-storage",
+      "data": {
+        "source": "source.es-txs-%NETWORK%-domain",
+        "sourceSeqNoGuidance": "source.es-txs-%NETWORK%-domain-reindex"
+      }
+    },
+    "processing": [
+      {
+        "type": "expansion",
+        "data": {
+          "sourceRevLookups": "source.es-txs-%NETWORK%-domain-reindex"
+        }
+      }
+    ],
+    "destination": "es-txs-%NETWORK%-domain-reindex"
+  }
+}
+
+
+

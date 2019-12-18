@@ -20,9 +20,9 @@
     "storageConfig": {
       "type": "elasticsearch",
       "data": {
-        "index": "txs-sovrin-mainnet",
-        "replicas": 2,
-        "url": "http://localhost.io:9200"
+          "index": "txs-sovrin-mainnet",
+          "replicas": 2,
+          "url": "http://localhost.io:9200"
       }
     }
   }

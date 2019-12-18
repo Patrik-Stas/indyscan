@@ -2,7 +2,7 @@ const { createIndyClient } = require('../indy/indyclient')
 const logger = require('../logging/logger-main')
 const sleep = require('sleep-promise')
 
-async function createTxSourceLedger (sourceConfigData) {
+async function createTxSourceLedger ({name, genesisPath, subledger}) {
   let whoami = `LedgerResolver[${sourceConfigData.name}]`
   let client = null
   let isConnecting = false
@@ -11,7 +11,7 @@ async function createTxSourceLedger (sourceConfigData) {
   async function reconnect () {
     try {
       isConnecting = true
-      client = await createIndyClient(sourceConfigData.name, sourceConfigData.genesisPath)
+      client = await createIndyClient(name, genesisPath)
     } catch (e) {
       throw Error(`${whoami} Failed to create client for network client. Details: ${e.message} ${e.stack}.`)
     } finally {
@@ -29,7 +29,7 @@ async function createTxSourceLedger (sourceConfigData) {
 
   await tryReconnect()
 
-  async function txResolve (subledger, seqNo) {
+  async function txResolve (seqNo) {
     let waitingForConnection = 0
     while (isConnecting) { // eslint-disable-line
       if (waitingForConnection > 10 * 1000) {

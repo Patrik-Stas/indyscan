@@ -22,7 +22,7 @@ module.exports.createStorageFactory = async function createStorageFactory () {
     return createIndyscanTransform(lookupTxBySeqno, geoipLiteLookupIp)
   }
 
-  async function createEsStorageForSubledger (esClient, esIndex, exIndexReplicaCount, subledger, assureEsIndex) {
+  async function createWriteStoragesElasticsearch (esClient, esIndex, exIndexReplicaCount, subledger, assureEsIndex) {
     const storageReadEs = createStorageReadEs(esClient, esIndex, subledger, logger)
     const transformTx = createTxTransform(subledger, storageReadEs)
     const storageWriteEs = await createStorageWriteEs(esClient, esIndex, exIndexReplicaCount, subledger, assureEsIndex, false, transformTx, logger)
@@ -60,10 +60,15 @@ module.exports.createStorageFactory = async function createStorageFactory () {
     const configStoragePromise =
       createEsStorageForSubledger(esClient, esIndex, exIndexReplicaCount, 'CONFIG', false)
 
+    {
+      storageReadEs: storageReadDomain
+      storageReadEs: storageReadPool
+      storageReadEs: storageReadConfig
+    } // TODO
     const [
-      { storageReadEs: storageReadDomain, storageWriteEs: storageWriteDomain },
-      { storageReadEs: storageReadPool, storageWriteEs: storageWritePool },
-      { storageReadEs: storageReadConfig, storageWriteEs: storageWriteConfig }
+      { storageWriteEs: storageWriteDomain },
+      { storageWriteEs: storageWritePool },
+      { storageWriteEs: storageWriteConfig }
     ] = await Promise.all([domainStoragePromise, poolStoragePromise, configStoragePromise])
     logger.debug(`Created ElasticSearch storages for network '${esIndex}'.`)
 
