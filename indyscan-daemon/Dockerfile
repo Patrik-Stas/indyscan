@@ -1,4 +1,4 @@
-FROM ubuntu-libindy:v1.10.0
+FROM ubuntu-libindy:v1.13.0
 
 USER root
 RUN groupadd -g 1001 indyscan && \

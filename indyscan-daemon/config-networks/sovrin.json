@@ -52,24 +52,6 @@
         "index": "txs-sovrin-buildernet"
       }
     }
-  },
-  {
-    "name": "sovrin-trainingnet",
-    "scanning": {
-      "mode": "MEDIUM"
-    },
-    "source": {
-      "type": "ledger",
-      "data": {
-        "genesis": "SOVRIN_TRAININGNET"
-      }
-    },
-    "target": {
-      "type": "elasticsearch",
-      "data": {
-        "index": "txs-sovrin-trainingnet"
-      }
-    }
   }
 ]
 
