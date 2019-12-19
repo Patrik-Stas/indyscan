@@ -9,7 +9,6 @@ import Footer from '../components/Footer/Footer'
 import fetch from 'isomorphic-fetch'
 import { secondsToDhms } from '../txtools'
 
-
 class HomePage extends Component {
   static async getInitialProps ({ req, query }) {
     const baseUrl = getBaseUrl(req)

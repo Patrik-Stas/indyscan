@@ -15,7 +15,7 @@ function isAbbreviatedVerkey (verkey) {
 }
 
 function composeFullVerkey (did, abbreviatedVerkey) {
-  let withoutAmpersand = abbreviatedVerkey.substring(1, abbreviatedVerkey.length)
+  const withoutAmpersand = abbreviatedVerkey.substring(1, abbreviatedVerkey.length)
   return `${did}${withoutAmpersand}`
 }
 

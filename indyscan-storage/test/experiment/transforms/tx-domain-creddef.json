@@ -1,0 +1,77 @@
+{
+  "auditPath": [
+    "2ZgKe9ATBswUceTQBBhjopKHkLmYFL1H5EaoLwT2ipe2",
+    "EgZGF9ppv3ZYmWjm9nHiWtJieYLzvwfZLXwKKeTTB7zT",
+    "Gt86EjjQKVAXEPU7nhcitnEmdhjDctnDJPsdimWSykDA",
+    "8E8sutxfBfec9Wrd2sc66ium2CFxjByTWDB3BVnSa2jL",
+    "HRxju2xGC2XPK7wm45NKdz2JntJsusP2dgomkRC62sP6",
+    "GcMJQzo38az51VYGZY8rYC8eN7nyR8cuyiHhNZRHpLub",
+    "9C38naSmZ2hqnq7yjwj75qED3L8AkmjrUUjqWRecddLS",
+    "B2e5Lev63eo4B4UYqi3BdFtDqVcLLzs6TapQ4Bd8bWVs",
+    "EmviEJYzYq4UsT7RvR2H8Ypb7mhKMabhz45LWasgERN"
+  ],
+  "ledgerSize": 74634,
+  "multi_signature": {
+    "participants": [
+      "trusted_you",
+      "regioit01",
+      "DigiCert-Node",
+      "SovrinNode",
+      "Absa",
+      "dativa_validator",
+      "Swisscom",
+      "lab10",
+      "sovrin.sicpa.com",
+      "EBPI-validation-node",
+      "cynjanode"
+    ],
+    "signature": "RDe6UTUy3U696YousucsJL6DbMY3wf4ThUC9z1MU3SSLyjTVPeJEp9XFPBRsE6GXZR3xHtfL1pj21ydysvqUchng899Qg8t7Dz6GLLeqNjzP74XN8tHBfxXDMyAnzADDM6Xc1v3c4QKdxfU8w3XtJWhQbdTiPPdfpCccKVFCHPs71y",
+    "value": {
+      "ledger_id": 1,
+      "pool_state_root_hash": "HNxHwTWsadJeLfCTkjtM5rzkePcvwvjKXWGsD5o9T5wB",
+      "state_root_hash": "47EQbwdbdEKYnkWe1GYmEHnfQyhkAZs8vuCvJmd4Hu4n",
+      "timestamp": 1571049045,
+      "txn_root_hash": "DsyCws7GEvVS976JdPDsAwYD7vLbxQaCa5Zu12XYBAzy"
+    }
+  },
+  "reqSignature": {
+    "type": "ED25519",
+    "values": [
+      {
+        "from": "GJw3XR52kQEWY44vNojmyH",
+        "value": "2QgiPM37KeYaMEF4LMyUGkKuDenB35TrMNHfBy27HT4YWfNREWHtAb8F4WvMfaj8mHUYZAzymQgMzcEmbTRSZbKS"
+      }
+    ]
+  },
+  "rootHash": "DsyCws7GEvVS976JdPDsAwYD7vLbxQaCa5Zu12XYBAzy",
+  "txn": {
+    "data": {
+      "schema": {
+        "txnSeqno": 74631,
+        "txnTime": 1571048985,
+        "schemaId": "GJw3XR52kQEWY44vNojmyH:2:demo_credential_3:808.118.467",
+        "schemaName": "demo_credential_3",
+        "schemaVersion": "808.118.467",
+        "schemaFrom": "GJw3XR52kQEWY44vNojmyH",
+        "schemaAttributes": [
+          "bank_account_number",
+          "bank_account_type"
+        ]
+      }
+    },
+    "metadata": {
+      "digest": "40f456ad9534cae1fa855e8c1cfd359d52ac09a6a5cf43818c7ec1363f14ef22",
+      "from": "GJw3XR52kQEWY44vNojmyH",
+      "payloadDigest": "0dcd56a94fc88267371be04e491a0728c203f199ab3746341560c1cc43aa47d3",
+      "reqId": 1571049012946704400
+    },
+    "protocolVersion": 2,
+    "type": "102"
+  },
+  "txnMetadata": {
+    "seqNo": 74632,
+    "txnId": "GJw3XR52kQEWY44vNojmyH:3:CL:74631:tag1",
+    "txnTime": 1571049024
+  },
+  "ver": "1"
+}

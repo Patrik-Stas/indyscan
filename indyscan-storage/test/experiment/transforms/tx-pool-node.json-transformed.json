@@ -1,0 +1,48 @@
+{
+  "auditPath": [
+    "BcE8K4bES3SiZbipsVbyAvggozUqUQJgTFsixRH3tXmd",
+    "5PoECZuTaDRkrvEsRNPB4BFPw1Ugh1DfZ72fg2kA1khe",
+    "FBa18tGuz4XmojZeWXrY5jkZtb3YXQLjgx4v2X16ETqQ"
+  ],
+  "ledgerSize": 141,
+  "reqSignature": {
+    "type": "ED25519",
+    "values": [
+      {
+        "from": "CwzYfKJZdnYJXAR2jtcbLY",
+        "value": "252As4uKuC6QL5thd38BJgySxjvfwAXC4YJBH4bXU18q6WHorFE5d2wkii5nH7h2p8t5U8AJKx7X4wfi3HwAf2xs"
+      }
+    ]
+  },
+  "rootHash": "JC2dMSRnRKmDLHoD6HdsJ5LZNgP4iMrjUz2SRtP5KYiD",
+  "txn": {
+    "data": {
+      "data": {
+        "alias": "CULedger",
+        "blskey": "3eL5MB5HohfNh3LgFbpM6KG7Q6XZeeJbo7U8L3bNK1rw8Eu3WGrPm69Hq6VbCb6BbqesV5vD9PsZeHpy4dxdL3qcHyYxT4gZzNyknKZt8a7PB2kaK9VZC49pDcntHigLP6KNKM6fpexesYz32DZ2dQuPmWr7QfLNfFNBWBzQxCTx88G",
+        "blskey_pop": "RD341t9u1EAge5prckbmke1wDFCCeAByVAsGfT3GfPGRWJ8nT3nL55WbtgMPQRyLZ1AavHkP1JXnjgaoq9Ja3ETPkthjRZ3WbN3wxCacNr9ug5t4h39DFdHisvnFdR3JUvcv7vBoDVmNFUCwmDBAUiZbfw7k7S7zz8hf6Yj919PPE7",
+        "client_ip": "169.63.79.22",
+        "client_port": 9701,
+        "node_ip": "169.63.79.22",
+        "node_port": 9702,
+        "services": [
+          "VALIDATOR"
+        ]
+      },
+      "dest": "7WhrDsysVnBZHtjwwFAzVSmyGA1jpnBbmqBgs4q9wk9g"
+    },
+    "metadata": {
+      "digest": "0893f92c17af7bc5e4ecad64ab83a641c3e9e830cf96d7856ed4d813f7ea3e8c",
+      "from": "CwzYfKJZdnYJXAR2jtcbLY",
+      "payloadDigest": "cd7a228c2e3ffeead1ff98efde84ea9bb3c356053abf3f5b24a6e5b6b6b8b920",
+      "reqId": 1573249258771117600
+    },
+    "protocolVersion": 2,
+    "type": "0"
+  },
+  "txnMetadata": {
+    "seqNo": 141,
+    "txnTime": 1573249259
+  },
+  "ver": "1"
+}

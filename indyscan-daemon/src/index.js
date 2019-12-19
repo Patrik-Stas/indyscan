@@ -1,8 +1,8 @@
-const { appConfig, networksConfig } = require('./config')
+const { appConfig } = require('./config/config')
 const logger = require('./logging/logger-main')
-const { processConfig } = require('./network-config-processor')
-const { createTxResolve } = require('./resolvers/resolver-factory')
-const { createStorageFactory } = require('./storage-factory')
+const { processScanConfigFile } = require('./config/network-config-processor')
+const { createTxResolve } = require('./tx-sources/tx-source-factory')
+const { createStorageFactory } = require('./tx-storages/tx-storage-factory')
 const { createConsumerSequential } = require('./consumers/consumer-sequential')
 
 // const indy = require('indy-sdk')
@@ -10,25 +10,25 @@ const { createConsumerSequential } = require('./consumers/consumer-sequential')
 //   logger.debug(message)
 // })
 
-async function scanNetwork (scannerName, scanConfig, sourceConfig, targetConfig, storageFactory) {
+async function scanNetwork (scannerName, consumerConfig, sourceConfig, storageConfig, storageFactory) {
   try {
     logger.info(`Initiating network scan for network '${scannerName}'.`)
     const {
       storageReadDomain, storageWriteDomain,
       storageReadPool, storageWritePool,
       storageReadConfig, storageWriteConfig
-    } = await storageFactory.createStoragesForNetwork(targetConfig)
+    } = await storageFactory.createStoragesForNetwork(storageConfig)
     let resolveTx = await createTxResolve(sourceConfig)
 
     logger.debug(`Creating consumers for network '${scannerName}'.`)
-    const consumerDomain = await createConsumerSequential(resolveTx, storageReadDomain, storageWriteDomain, scannerName, 'domain', scanConfig)
-    const consumerPool = await createConsumerSequential(resolveTx, storageReadPool, storageWritePool, scannerName, 'pool', scanConfig)
-    const consumerConfig = await createConsumerSequential(resolveTx, storageReadConfig, storageWriteConfig, scannerName, 'config', scanConfig)
+    const consumerDomainSubledger = await createConsumerSequential(resolveTx, storageReadDomain, storageWriteDomain, scannerName, 'domain', consumerConfig.data)
+    const consumerPoolSubledger = await createConsumerSequential(resolveTx, storageReadPool, storageWritePool, scannerName, 'pool', consumerConfig.data)
+    const consumerConfigSubledger = await createConsumerSequential(resolveTx, storageReadConfig, storageWriteConfig, scannerName, 'config', consumerConfig.data)
 
     logger.debug(`Starting consumers for network '${scannerName}'.`)
-    consumerDomain.start()
-    consumerPool.start()
-    consumerConfig.start()
+    consumerDomainSubledger.start()
+    consumerPoolSubledger.start()
+    consumerConfigSubledger.start()
   } catch (err) {
     logger.error(`Something when wrong initiating scanning for network '${scannerName}'. Details:`)
     logger.error(err.message)
@@ -38,11 +38,15 @@ async function scanNetwork (scannerName, scanConfig, sourceConfig, targetConfig,
 
 async function run () {
   logger.info(`Starting using appConfig ${JSON.stringify(appConfig, null, 2)}.`)
-  logger.info(`Networks to be scanned: ${JSON.stringify(networksConfig, null, 2)}.`)
   const storageFactory = await createStorageFactory()
-  for (const networkConfig of networksConfig) {
-    const { name, scanConfig, sourceConfig, targetConfig } = processConfig(networkConfig, appConfig.ES_URL)
-    scanNetwork(name, scanConfig, sourceConfig, targetConfig, storageFactory)
+  const scanConfigs = await processScanConfigFile(appConfig.NETWORKS_CONFIG_PATH)
+  logger.info(`Loaded and processed scan config file ${appConfig.NETWORKS_CONFIG_PATH}. ` +
+    ` Final scan configuration: ${JSON.stringify(scanConfigs, null, 2)}`)
+  for (const scanConfig of scanConfigs) {
+    // logger.info(JSON.stringify(scanConfig.sourceConfig))
+    const { name, consumerConfig, sourceConfig, storageConfig } = scanConfig
+    logger.info(JSON.stringify(consumerConfig))
+    scanNetwork(name, consumerConfig, sourceConfig, storageConfig, storageFactory)
   }
 }
 

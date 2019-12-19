@@ -1,7 +1,6 @@
 /* eslint-env jest */
 require('jest')
-const {composeFullVerkey, isAbbreviatedVerkey} = require('../../src/util')
-
+const { composeFullVerkey, isAbbreviatedVerkey } = require('../../src/util')
 
 const { getSchemaLedgerId, parseSchemaId } = require('../../src/util')
 
@@ -31,5 +30,4 @@ describe('tx utils testsuite', () => {
   it('should combine did and abbreviated verkey to full verkey', async () => {
     expect(composeFullVerkey('BrYDA5NubejDVHkCYBbpY5', '~4qKbF4VjuiHFiSFcgfnpHE')).toBe('BrYDA5NubejDVHkCYBbpY54qKbF4VjuiHFiSFcgfnpHE')
   })
-
 })

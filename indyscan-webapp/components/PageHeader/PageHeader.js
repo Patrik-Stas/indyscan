@@ -4,7 +4,7 @@ import Navbar from '../Navbar/Navbar'
 import { Divider, Grid, GridColumn, GridRow } from 'semantic-ui-react'
 import MenuLink from '../MenuLink/MenuLink'
 
-const {getNetworks} = require('indyscan-api-client')
+const { getNetworks } = require('indyscan-api-client')
 
 class PageHeader extends Component {
   constructor (props) {
@@ -22,8 +22,8 @@ class PageHeader extends Component {
         <MenuLink
           key={`netlink-${network.id}`}
           active={network.id === activeNetwork}
-                  href={`/home?network=${network.id}`}
-                  as={`/home/${network.id}`}>
+          href={`/home?network=${network.id}`}
+          as={`/home/${network.id}`}>
           {network.ui.display}
         </MenuLink>
       )
@@ -33,18 +33,18 @@ class PageHeader extends Component {
 
   async componentDidMount () {
     const networks = await getNetworks(this.props.baseUrl)
-    this.setState({networks})
+    this.setState({ networks })
   }
 
   render () {
-    const {network} = this.props
+    const { network } = this.props
     return (
       <div>
         <Grid id='page-header'>
           <GridRow>
-            <h1><span style={{color: 'darkcyan'}}>IndyScan</span></h1>
+            <h1><span style={{ color: 'darkcyan' }}>IndyScan</span></h1>
           </GridRow>
-          <GridRow style={{marginTop: '-2em'}}>
+          <GridRow style={{ marginTop: '-2em' }}>
             <h5>Hyperledger Indy transaction explorer</h5>
           </GridRow>
           {
@@ -54,13 +54,13 @@ class PageHeader extends Component {
                 {this.renderNetworks(this.state.networks || [network], network)}
               </GridColumn>
               <GridColumn align='right' width={5}>
-                <Navbar page={this.props.page} network={this.props.network}/>
+                <Navbar page={this.props.page} network={this.props.network} />
               </GridColumn>
             </GridRow>
           }
 
         </Grid>
-        <Divider/>
+        <Divider />
       </div>
     )
   }

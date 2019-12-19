@@ -4,8 +4,14 @@
 **/.next
 **/test
 **/Dockerfile
+**/.gitignore
+**/test
+**/*.env
+**/docs
+
 ./localhost
 ./start
 ./start-aws
 ./ubuntu-libindy
 ./git
+./es

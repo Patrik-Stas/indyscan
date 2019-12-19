@@ -1,6 +1,5 @@
 const axios = require('axios')
 const qs = require('query-string')
-const util = require('util')
 
 async function getRequest (url) {
   const res = await axios.get(url)
@@ -34,19 +33,19 @@ async function getDefaultNetwork (baseUrl) {
 }
 
 async function getTxCount (baseUrl, network, ledger, filterTxNames = []) {
-  const query = qs.stringify({filterTxNames: JSON.stringify(filterTxNames)})
+  const query = qs.stringify({ filterTxNames: JSON.stringify(filterTxNames) })
   let res = await getRequest(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs/stats/count?${query}`)
   return res.txCount
 }
 
 async function getTxs (baseUrl, network, ledger, fromRecentTx, toRecentTx, filterTxNames = [], format = 'original', search) {
-  const query = qs.stringify({fromRecentTx, toRecentTx, format, filterTxNames: JSON.stringify(filterTxNames), search})
+  const query = qs.stringify({ fromRecentTx, toRecentTx, format, filterTxNames: JSON.stringify(filterTxNames), search })
   return getRequest(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs?${query}`)
 }
 
 async function getTx (baseUrl, network, ledger, seqNo, format = 'original') {
-  const query = qs.stringify({format})
-  const axiosCall =   async () => {
+  const query = qs.stringify({ format })
+  const axiosCall = async () => {
     return getRequest(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs/${seqNo}?${query}`)
   }
   return returnNullFor404(axiosCall)

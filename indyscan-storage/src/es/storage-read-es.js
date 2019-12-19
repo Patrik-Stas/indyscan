@@ -1,6 +1,6 @@
 const { esFilterSubledgerName, esAndFilters, esFilterBySeqNo, esFilterHasTimestamp } = require('./es-query-builder')
 
-function createWinstonLoggerDummy() {
+function createWinstonLoggerDummy () {
   let logger = {}
   logger.error = (param1, param2) => {}
   logger.warn = (param1, param2) => {}
@@ -17,7 +17,7 @@ subledgerName - indy subledger managed by this storage client
 logger (optional) - winston logger
  */
 function createStorageReadEs (esClient, esIndex, subledgerName, logger) {
-  if  (logger === undefined) {
+  if (logger === undefined) {
     logger = createWinstonLoggerDummy()
   }
   const whoami = `StorageWrite/${esIndex}/${subledgerName} : `

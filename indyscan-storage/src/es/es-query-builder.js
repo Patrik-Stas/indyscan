@@ -85,12 +85,12 @@ function esFullTextsearch (text) {
 
 function esOrFilters (...filters) {
   let nonNullFilters = filters.filter(f => !!f)
-  return {'bool': {'should': [...nonNullFilters]}}
+  return { 'bool': { 'should': [...nonNullFilters] } }
 }
 
 function esAndFilters (...filters) {
   let nonNullFilters = filters.filter(f => !!f)
-  return {'bool': {'filter': [...nonNullFilters]}}
+  return { 'bool': { 'filter': [...nonNullFilters] } }
 }
 
 module.exports.esFilterSubledgerName = esFilterSubledgerName

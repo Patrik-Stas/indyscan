@@ -3,15 +3,16 @@ const util = require('util')
 const logger = require('../logging/logger-main')
 const { runWithTimer } = require('../time/util')
 
-function createConsumerSequential (resolveTx, storageRead, storageWrite, network, subledger, timerConfig) {
+function createConsumerSequential (resolveTx, storageRead, storageWrite, network, subledger, sequentialConsumerConfigData) {
   const whoami = `ConsumerSequential/${network}/${subledger} : `
-  const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timerConfig
+  const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } =
+    sequentialConsumerConfigData
   if (timeoutOnSuccess === undefined ||
     timeoutOnTxIngestionError === undefined ||
     timeoutOnLedgerResolutionError === undefined ||
     timeoutOnTxNoFound === undefined ||
     jitterRatio === undefined) {
-    throw Error(`${whoami} Invalid timer config ${JSON.stringify(timerConfig, null, 2)}`)
+    throw Error(`${whoami} Invalid sequential consumer config: ${JSON.stringify(sequentialConsumerConfigData, null, 2)}`)
   }
 
   let processedTxCount = 0
@@ -113,7 +114,7 @@ function createConsumerSequential (resolveTx, storageRead, storageWrite, network
     )
   }
 
-  async function tryConsumeNextTransactionAndWait() {
+  async function tryConsumeNextTransactionAndWait () {
     await runWithTimer(
       tryConsumeNextTransaction,
       (duration) => processDurationResult('consumption-iteration-active', duration)

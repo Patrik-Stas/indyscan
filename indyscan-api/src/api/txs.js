@@ -1,19 +1,19 @@
-const {esAndFilters} = require('indyscan-storage/src/es/es-query-builder')
-const {asyncHandler} = require('../middleware')
+const { esAndFilters } = require('indyscan-storage/src/es/es-query-builder')
+const { asyncHandler } = require('../middleware')
 const validate = require('express-validation')
 const Joi = require('joi')
 const url = require('url')
 const indyscanStorage = require('indyscan-storage')
-const {esFullTextsearch} = require('indyscan-storage/src/es/es-query-builder')
-const {esTxFilters} = indyscanStorage
+const { esFullTextsearch } = require('indyscan-storage/src/es/es-query-builder')
+const { esTxFilters } = indyscanStorage
 
 function initTxsApi (app, ledgerStorageManager, networkManager) {
   function getNetworkId (req, res) {
-    const {networkRef} = req.params
+    const { networkRef } = req.params
     try {
       return networkManager.getNetworkConfig(networkRef).id
     } catch (err) {
-      return res.status(404).send({message: `Couldn't resolve network you are referencing (${networkRef})`})
+      return res.status(404).send({ message: `Couldn't resolve network you are referencing (${networkRef})` })
     }
   }
 
@@ -65,9 +65,9 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
     asyncHandler(async function (req, res) {
       const parts = url.parse(req.url, true)
       const networkId = getNetworkId(req, res)
-      let {ledger} = req.params
-      let {fromRecentTx, toRecentTx, filterTxNames, search, format} = parts.query
-      let {skip, size} = getTxRange(fromRecentTx, toRecentTx)
+      let { ledger } = req.params
+      let { fromRecentTx, toRecentTx, filterTxNames, search, format } = parts.query
+      let { skip, size } = getTxRange(fromRecentTx, toRecentTx)
       let txTypeQuery = urlQueryTxNamesToEsQuery(filterTxNames)
       let searchQuery = search ? esFullTextsearch(search) : null
       let txs
@@ -86,7 +86,6 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
           throw Error('This should be unreachable code.')
       }
       res.status(200).send(txs)
-
     }))
 
   app.get('/api/networks/:networkRef/ledgers/:ledger/txs/:seqNo',
@@ -98,15 +97,15 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
       }
     ),
     asyncHandler(async function (req, res) {
-      let {ledger, seqNo} = req.params
-      let {format} = req.query
+      let { ledger, seqNo } = req.params
+      let { format } = req.query
       format = format || 'original'
       const networkId = getNetworkId(req, res)
       let parsedSeqNo
       try {
         parsedSeqNo = parseInt(seqNo)
       } catch (e) {
-        res.status(400).send({message: `seqNo must be number`})
+        res.status(400).send({ message: `seqNo must be number` })
       }
       const storage = await ledgerStorageManager.getStorage(networkId, ledger)
       let tx
@@ -130,17 +129,17 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
     validate(
       {
         query: {
-          filterTxNames: Joi.array().items(Joi.string()).required(),
+          filterTxNames: Joi.array().items(Joi.string()).required()
         }
       }
     ),
     asyncHandler(async function (req, res) {
       const parts = url.parse(req.url, true)
-      const {ledger} = req.params
+      const { ledger } = req.params
       const networkId = getNetworkId(req, res)
-      const {filterTxNames} = parts.query
+      const { filterTxNames } = parts.query
       const txCount = await ledgerStorageManager.getStorage(networkId, ledger).getTxCount(urlQueryTxNamesToEsQuery(filterTxNames))
-      res.status(200).send({txCount})
+      res.status(200).send({ txCount })
     }))
 
   return app

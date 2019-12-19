@@ -1,47 +1,43 @@
 {
   "name": "indyscan-daemon",
-  "version": "2.2.1",
+  "version": "3.0.0",
   "author": "Patrik Staš",
   "license": "ISC",
-  "description": "Application scanning Hyperledger Indy blockchain for new transactions and further processing.",
+  "description": "Application scanning Hyperledger Indy blockchain for fetching and processing transactions.",
   "main": "srcc/index.js",
   "scripts": {
     "lint": "standard",
     "lint:fix": "standard --fix",
-    "dev": "cross-env ENVIRONMENT=localhost NODE_ENV=development nodemon ./src/index.js --exec node",
-    "dev:sovrin": "cross-env ENVIRONMENT=localhost-sovrin NODE_ENV=development nodemon ./src/index.js --exec node",
-    "start": "cross-env ENVIRONMENT=localhost NODE_ENV=production node ./src/index.js",
-    "start:sovrin": "cross-env ENVIRONMENT=localhost-sovrin NODE_ENV=production node ./src/index.js",
+    "start": "cross-env NODE_ENV=production node ./src/index.js",
+    "start:locahost": "cross-env ENVIRONMENT=localhost node ./src/index.js",
     "test:unit": "jest test/unit",
     "test:integration": "cross-env CLEAN_HYDRATE_CLEAN=true jest test/integration",
-    "localhost:startmongo": "docker run -d -p 27017:27017 -v ~/indyscan/mongo-dev:/data/db --name dev-indyscan-mongo mongo:3.4.18",
     "networks:list": "ls ~/.indy_client/pool",
     "networks:add:localhost": "bash genesis/localhost/setup.sh",
-    "networks:add:sovrin": "bash genesis/sovrin/setup.sh",
+    "networks:add:sovrin": "bash setup.sh",
     "elastic:delete:sovrin": "bash delete-es-indices.sh"
   },
   "dependencies": {
     "geoip-lite": "^1.3.8",
     "@elastic/elasticsearch": "^7.4.0",
     "dotenv": "^7.0.0",
-    "indy-sdk": "1.11.1",
+    "indy-sdk": "1.13.0",
     "indyscan-storage": "file:../indyscan-storage",
-    "indyscan-txtype": "file:../indyscan-txtype",
     "joi": "^14.3.1",
-    "mongodb": "^3.1.10",
     "sleep-promise": "^8.0.1",
     "util": "^0.11.1",
     "uuid": "^3.3.2",
     "winston": "^3.2.1",
-    "write": "^1.0.3"
+    "write": "^1.0.3",
+    "cross-env": "^5.2.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.15",
     "canonical-json": "0.0.4",
-    "cross-env": "^5.2.0",
     "jest": "^24.8.0",
     "jest-cli": "^24.8.0",
     "nodemon": "^1.19.1",
-    "standard": "^12.0.1"
+    "standard": "^12.0.1",
+    "mongodb": "^3.1.10"
   }
 }

@@ -41,9 +41,7 @@ RUN cd /tmp && \
     make install && \
     rm -rf /tmp/libsodium-1.0.14
 
-ARG uid=1000
-RUN groupadd -g $uid indy && \
-    useradd -r -u $uid -g indy indy
+RUN groupadd -g 1000 indy && useradd -r -u 1000 -g indy indy
 
 WORKDIR /home/indy
 RUN chown -R indy:indy /home/indy
@@ -61,26 +59,30 @@ RUN cd "/home/indy/indy-sdk" && git checkout "${INDYSDK_REVISION}"
 RUN cargo build --release --manifest-path=/home/indy/indy-sdk/libindy/Cargo.toml
 USER root
 RUN mv /home/indy/indy-sdk/libindy/target/release/*.so /usr/lib
-USER indy
 
 FROM ubuntu:16.04
-USER root
-COPY --from=BASE /var/lib/dpkg/info /var/lib/dpkg/info
-COPY --from=BASE /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu
-COPY --from=BASE /usr/local /usr/local
-COPY --from=BASE /usr/lib/libindy.so /usr/lib/libindy.so
 
 RUN apt-get update && \
     apt-get install -y \
       libssl-dev \
       apt-transport-https \
-      ca-certificates \
-      curl
+      ca-certificates
 
-RUN apt-get update && apt-get install -y curl
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
-RUN apt-get install -y nodejs
+RUN useradd -ms /bin/bash -u 1000 indy
+USER indy
+
+WORKDIR /home/indy
+COPY --from=BASE /var/lib/dpkg/info /var/lib/dpkg/info
+COPY --from=BASE /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu
+COPY --from=BASE /usr/local /usr/local
+
+COPY --from=BASE /usr/lib/libindy.so /usr/lib/libindy.so
+
+LABEL org.label-schema.schema-version="1.0"
+LABEL org.label-schema.name="indysdk"
+LABEL org.label-schema.version="${INDY_VERSION}"
 
 USER indy
+
 
 

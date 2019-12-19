@@ -1,6 +1,6 @@
 import React from 'react'
 import './TxDisplay.scss'
-import { GridRow, Item, Label, List, Icon, Popup, Button } from 'semantic-ui-react'
+import { GridRow, Item, Label, List } from 'semantic-ui-react'
 import { renderAsBadges } from '../Common'
 import {
   converTxDataBasicToHumanReadable,
@@ -9,7 +9,7 @@ import {
   secondsToDhms
 } from '../../txtools'
 
-function renderKeyValuePair (key, value, keyValueId, color='red') {
+function renderKeyValuePair (key, value, keyValueId, color = 'red') {
   return (
     <List.Item key={keyValueId}>
       <Label color={color} horizontal>
@@ -49,9 +49,8 @@ function calculateTimeSinceTx (time) {
 
 function renderTimeAgoText (txnTimeIso8601) {
   if (txnTimeIso8601 === undefined) {
-    return "Genesis"
+    return 'Genesis'
   } else return calculateTimeSinceTx(txnTimeIso8601)
-
 }
 
 const TxDisplay = ({ txIndyscan, txLedger }) => {

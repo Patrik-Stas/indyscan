@@ -1,0 +1,44 @@
+{
+  "auditPath": [
+    "3otHH387ddGNMLYia3nANMGwW3ECoDwoDBmpC348sTso",
+    "AKi6Ng8wTyTav3Eg1Nd5rFrNJHeu39vN4FQKTA9Lyp4c",
+    "AW97HbDHmPwdM35zqSpvBnWC21b7iLYdj2SXhseg6DPb",
+    "DaAGv3MDWXQ9wmc2vWkirRHfrhAwdRze6HojBZ8vdEcc",
+    "J68bWffzHWDNJQfTeAdsUwYT7aEZm2fDYyxuWA4AWLcB",
+    "8mvQAFAXpMzK3sC7rtVQ2nb9iFAtMgfFX6E7ezWoftRo",
+    "9Hn1iJN3BSNfadCCbRHgbFU4otwDUSbnBUh45SCwfPcg"
+  ],
+  "ledgerSize": 25149,
+  "reqSignature": {
+    "type": "ED25519",
+    "values": [
+      {
+        "from": "7wetNy5AJpHfXvhTx4okZokSw5mcrgWgVZ8jJ3WHgrmd",
+        "value": "SeNBUGtter46GKngeB9dhoVycccW1oUuFdKW6tjNVdyGHJuxfFBSccuTCaUrayQEvmfvsq88BSf3ARmVhN5ju4K"
+      }
+    ]
+  },
+  "rootHash": "5X1Xp2TXVPv5hk2sJYKKhT2z6j2UDcSnjn6kG2wbQTkH",
+  "txn": {
+    "data": {
+      "data": {
+        "action": "complete",
+        "version": "1.1.60"
+      },
+      "signature": "53fhqEhkvvHSnGixYbecdRUraJgu4sky8hDARejRxNxnGMN4hWeMiNRxC4aaoM28PpRkeD8daXNiHnpFNSE6JrQP"
+    },
+    "metadata": {
+      "digest": "45dd2c094e94c398f62058e7d028131ea7ea6dc6ded39c3d0b32863f294fdf8e",
+      "from": "7wetNy5AJpHfXvhTx4okZokSw5mcrgWgVZ8jJ3WHgrmd",
+      "payloadDigest": "1ab5ec1b1a2d888ac9a42b191ccd1e4017553a95835039ad17c0df441085785a",
+      "reqId": 1573491991425089
+    },
+    "protocolVersion": 2,
+    "type": "110"
+  },
+  "txnMetadata": {
+    "seqNo": 25149,
+    "txnTime": 1573491991
+  },
+  "ver": "1"
+}

@@ -1,12 +1,12 @@
 /* eslint-env jest */
 require('jest')
-const {getTxs} = require('../../src')
-const {getTxCount} = require('../../src')
-const {getNetwork} = require('../../src')
-const {getTx} = require('../../src')
-const {getNetworks} = require('../../src')
-const {getDefaultNetwork} = require('../../src')
-const {loadEnvVariables} = require('./config-loader')
+const { getTxs } = require('../../src')
+const { getTxCount } = require('../../src')
+const { getNetwork } = require('../../src')
+const { getTx } = require('../../src')
+const { getNetworks } = require('../../src')
+const { getDefaultNetwork } = require('../../src')
+const { loadEnvVariables } = require('./config-loader')
 
 loadEnvVariables()
 
@@ -19,8 +19,7 @@ This works under assumption you have configured api for at least 1 network with 
 TODO: We could improve the test suite by preloading some test dataset into ES along with required API configuration to have deterministic testsuite
  */
 describe('basic api test suite', () => {
-
-  function basicNetworkValidation(network) {
+  function basicNetworkValidation (network) {
     expect(network).toBeDefined()
     expect(network.id).toBeDefined()
     expect(network.aliases).toBeDefined()
@@ -29,7 +28,7 @@ describe('basic api test suite', () => {
     expect(network.ui.description).toBeDefined()
   }
 
-  function basicOriginalTxValidation(tx) {
+  function basicOriginalTxValidation (tx) {
     expect(tx.rootHash).toBeDefined()
     expect(tx.auditPath).toBeDefined()
     expect(tx.txn).toBeDefined()
@@ -37,7 +36,7 @@ describe('basic api test suite', () => {
     expect(tx.txnMetadata).toBeDefined()
   }
 
-  function basicIndyscanTxValidation(tx) {
+  function basicIndyscanTxValidation (tx) {
     expect(tx.rootHash).toBeDefined()
     expect(tx.auditPath).toBeDefined()
     expect(tx.txn).toBeDefined()
@@ -47,7 +46,6 @@ describe('basic api test suite', () => {
     expect(tx.subledger).toBeDefined()
     expect(tx.meta).toBeDefined()
   }
-
 
   it('should get default network', async () => {
     const defaultNetwork = await getDefaultNetwork(process.env.API_URL)
@@ -185,7 +183,7 @@ describe('basic api test suite', () => {
     expect(Array.isArray(txs)).toBeTruthy()
     for (const tx of txs) {
       expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/J4N1K1SEB8uY2muwmecY5q/))
-      expect(tx.indyscan.txn.typeName).toBe("NYM")
+      expect(tx.indyscan.txn.typeName).toBe('NYM')
     }
   })
 
@@ -197,7 +195,7 @@ describe('basic api test suite', () => {
     expect(txs.length).toBe(2)
     for (const tx of txs) {
       expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/J4N1K1SEB8uY2muwmecY5q/))
-      expect(tx.indyscan.txn.typeName).toBe("NYM")
+      expect(tx.indyscan.txn.typeName).toBe('NYM')
     }
   })
 
@@ -208,7 +206,7 @@ describe('basic api test suite', () => {
     expect(Array.isArray(txs)).toBeTruthy()
     for (const tx of txs) {
       expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/J4N1K1SEB8uY2muwmecY5q/))
-      expect(tx.indyscan.txn.typeName).toBe("ATTRIB")
+      expect(tx.indyscan.txn.typeName).toBe('ATTRIB')
     }
   })
 })

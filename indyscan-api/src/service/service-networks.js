@@ -1,6 +1,6 @@
 const logger = require('../logging/logger-main')
 
-function createNetworkManager (networkConfigs=[]) {
+function createNetworkManager (networkConfigs = []) {
   let configs = []
 
   for (const networkConfig of networkConfigs) {
@@ -27,9 +27,8 @@ function createNetworkManager (networkConfigs=[]) {
     config.ui.priority = config.ui.priority || 1
     config.ui.description = config.ui.description || `Hyperledger Indy network ${config.id}.`
     configs.push(config)
-    configs.sort((a, b) => a.ui.priority < b.ui.priority)[0]
+    configs.sort((a, b) => a.ui.priority < b.ui.priority)
   }
-
 
   function getNetworkConfig (networkIdOrAlias) {
     for (const network of configs) {
@@ -44,7 +43,7 @@ function createNetworkManager (networkConfigs=[]) {
     return configs
   }
 
-  function getHighestPrirorityNetwork() {
+  function getHighestPrirorityNetwork () {
     if (configs.length === 0) {
       throw Error(`No networks found.`)
     }

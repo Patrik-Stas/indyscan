@@ -8,10 +8,8 @@ const {
   getConfigTxNames,
   txTypeToSubledgerName,
   subledgerIdToName,
-  subledgerNameToId,
+  subledgerNameToId
 } = require('./src/types')
-
-const { createEsTxTransform } = require('./src/transformation/transform-tx')
 
 module.exports = {
   txNameToTxCode,
@@ -23,6 +21,5 @@ module.exports = {
   getConfigTxNames,
   txTypeToSubledgerName,
   subledgerIdToName,
-  subledgerNameToId,
-  createEsTxTransform
+  subledgerNameToId
 }
