@@ -1,20 +1,37 @@
-FROM node:12.14.0-alpine3.9
+FROM node:12.14.0-alpine3.9 as BUILD
 
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh
 
-WORKDIR /usr/src/app
+RUN apk add -y make
+RUN apk add -y g++
+RUN apk add -y python
 
-COPY package*.json ./
-RUN npm install
+WORKDIR /usr/src/app/indyscan-txtype
+COPY indyscan-txtype ./
+RUN npm install --only=prod
 
-COPY . .
-RUN npm run build
+WORKDIR /usr/src/app/indyscan-storage
+COPY indyscan-storage ./
+RUN npm install --only=prod
 
-ENV ES_URL ${ES_URL:-"http://elasticsearch-indyscan"}
+WORKDIR /usr/src/app/indyscan-api
+COPY indyscan-api/package*.json ./
+RUN npm install --only=prod
+COPY indyscan-api ./
+
+FROM node:12.14.0-alpine3.9 as PRODUCTION
+
+RUN apk update && apk upgrade
+COPY --from=BUILD /usr/src/app/indyscan-txtype /usr/src/app/indyscan-txtype
+COPY --from=BUILD /usr/src/app/indyscan-storage /usr/src/app/indyscan-storage
+COPY --from=BUILD /usr/src/app/indyscan-api /usr/src/app/indyscan-api
+WORKDIR /usr/src/app/indyscan-api
+
+ENV ES_URL ${ES_URL}
 ENV PORT ${PORT:-"3707"}
-ENV NETWORKS_CONFIG_PATH ${NETWORKS_CONFIG_PATH:-"./config-networks/localhost-sovrin.json"}
-ENV LOG_LEVEL ${LOG_LEVEL:-"debug"}
+ENV NETWORKS_CONFIG_PATH ${NETWORKS_CONFIG_PATH:-"./config-networks/localhost.json"}
+ENV LOG_LEVEL ${LOG_LEVEL:-"info"}
 ENV LOG_HTTP_REQUESTS ${LOG_HTTP_REQUESTS:-"false"}
 ENV LOG_HTTP_RESPONSES ${LOG_HTTP_RESPONSES:-"false"}
 
