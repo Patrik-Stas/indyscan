@@ -8,7 +8,6 @@
     "PORT" : 3707,
     "LOG_LEVEL": "debug",
     "LOG_HTTP_REQUESTS" : true,
-    "LOG_HTTP_RESPONSES" : true,
-    "NETWORKS_CONFIG_PATH": "./config-networks/localhost-sovrin.json"
+    "LOG_HTTP_RESPONSES" : true
   }
 }
