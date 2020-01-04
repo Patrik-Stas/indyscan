@@ -1,59 +1,66 @@
 function extractClassDataNym (txIndyscan) {
-  let display = {}
-  display['Target DID'] = txIndyscan.txn.data.dest
-  display['Role change'] = txIndyscan.txn.data.roleName
-  display['Verkey'] = txIndyscan.txn.data.verkey
-  display['Alias'] = txIndyscan.txn.data.alias
-  display['Endpoint'] = txIndyscan.txn.data.endpoint
-  display['Last Updated'] = txIndyscan.txn.data.lastUpdated
-  if (!display['Endpoint'] && !display['Last Updated'] && txIndyscan.txn.data.raw) {
-    display['Raw'] = txIndyscan.txn.data.raw
-  }
-  return display
+  return [
+    {priority: 5, label: 'Target DID', value: txIndyscan.txn.data.dest},
+    {priority: 5, label: 'Role change', value: txIndyscan.txn.data.roleName},
+    {priority: 5, label: 'Verkey', value: txIndyscan.txn.data.verkey},
+    {priority: 5, label: 'Alias', value: txIndyscan.txn.data.alias},
+    {priority: 5, label: 'Endpoint', value: txIndyscan.txn.data.endpoint},
+    {priority: 1, label: 'Last Updated', value: txIndyscan.txn.data.lastUpdated},
+    {priority: 1, label: 'Raw', value: txIndyscan.txn.data.raw}
+  ]
 }
 
 function extractClassDataSchema (txIndyscan) {
-  let display = {}
-  display['Schema name'] = txIndyscan.txn.data.data.name
-  display['Schema version'] = txIndyscan.txn.data.data.version
-  display['Attributes'] = txIndyscan.txn.data.data.attr_names
-  return display
+  return [
+    {priority: 5, label: 'Schema name', value: txIndyscan.txn.data.data.name},
+    {priority: 5, label: 'Schema version', value: txIndyscan.txn.data.data.version},
+    {priority: 1, label: 'Attributes', value: txIndyscan.txn.data.data.attr_names}
+  ]
 }
 
 function extractClassDataClaimDef (txIndyscan) {
-  let display = {}
-  display['Schema name'] = txIndyscan.txn.data.refSchemaName
-  display['Schema version'] = txIndyscan.txn.data.refSchemaVersion
-  display['Schema ID'] = txIndyscan.txn.data.refSchemaId
-  display['Schema author DID'] = txIndyscan.txn.data.refSchemaFrom
-  display['Schema seqNo'] = txIndyscan.txn.data.refSchemaTxnSeqno
-  display['Schema create time'] = txIndyscan.txn.data.refSchemaTxnTime
-  display['Attributes'] = txIndyscan.txn.data.refSchemaAttributes
-  return display
+  return [
+    {priority: 5, label: 'Schema name', value: txIndyscan.txn.data.refSchemaName},
+    {priority: 5, label: 'Schema version', value: txIndyscan.txn.data.refSchemaVersion},
+    {priority: 1, label: 'Schema ID', value: txIndyscan.txn.data.refSchemaId},
+    {priority: 1, label: 'Schema author DID', value: txIndyscan.txn.data.refSchemaFrom},
+    {priority: 1, label: 'Schema seqNo', value: txIndyscan.txn.data.refSchemaTxnSeqno},
+    {priority: 1, label: 'Schema create time', value: txIndyscan.txn.data.refSchemaTxnTime},
+    {priority: 1, label: 'Attributes', value: txIndyscan.txn.data.refSchemaAttributes}
+  ]
 }
 
 function extractClassDataNode (txIndyscan) {
-  let display = {}
-  let { data } = txIndyscan.txn.data
-  display['Destination'] = txIndyscan.txn.data.dest
-  display['Alias'] = txIndyscan.txn.data.data.alias
+  let display = [
+    {priority: 1, label: 'Destination', value: txIndyscan.txn.data.dest},
+    {priority: 1, label: 'Alias', value: txIndyscan.txn.data.data.alias}
+  ]
+  let {data} = txIndyscan.txn.data
   if (data.client_ip) {
-    display['Client'] = `${data.client_ip}:${data.client_port}`
+    display.push({priority: 1, label: 'Client', value: `${data.client_ip}:${data.client_port}`})
   }
   if (data.client_ip_geo) {
-    display['Client location'] = `${data.client_ip_geo.country}, ${data.client_ip_geo.region}, ${data.client_ip_geo.city}`
+    display.push({
+      priority: 1,
+      label: 'Client location',
+      value: `${data.client_ip_geo.country}, ${data.client_ip_geo.region}, ${data.client_ip_geo.city}`
+    })
   }
   if (data.node_ip) {
-    display['Node'] = `${data.node_ip}:${data.node_port}`
+    display.push({priority: 1, label: 'Node', value: `${data.node_ip}:${data.node_port}`})
   }
   if (data.client_ip_geo) {
-    display['Node location'] = `${data.node_ip_geo.country}, ${data.node_ip_geo.region}, ${data.node_ip_geo.city}`
+    display.push({
+      priority: 1,
+      label: 'Node location',
+      value: `${data.node_ip_geo.country}, ${data.node_ip_geo.region}, ${data.node_ip_geo.city}`
+    })
   }
   return display
 }
 
 function empty (txIndyscan) {
-  return {}
+  return []
 }
 
 const txDataDescriptiveExtractors = {
@@ -77,11 +84,11 @@ const txDataDescriptiveExtractors = {
 }
 
 export function extractTxDataBasic (txIndyscan) {
-  const { rootHash } = txIndyscan
-  const { typeName } = txIndyscan.txn
-  const { txnId, txnTime: txnTimeIso8601, seqNo } = txIndyscan.txnMetadata
+  const {rootHash} = txIndyscan
+  const {typeName} = txIndyscan.txn
+  const {txnId, txnTime: txnTimeIso8601, seqNo} = txIndyscan.txnMetadata
   const from = txIndyscan.txn.metadata ? txIndyscan.txn.metadata.from : 'not-available'
-  return { txnId, seqNo, txnTimeIso8601, typeName, rootHash, from }
+  return {txnId, seqNo, txnTimeIso8601, typeName, rootHash, from}
 }
 
 export function converTxDataBasicToHumanReadable (txDataBasic) {
@@ -98,10 +105,17 @@ export function converTxDataBasicToHumanReadable (txDataBasic) {
 /*
 The keys of this object are human-readable, may contain space. The keys differ per TX Type and even per individual transactions!
  */
-export function extractTxDataDetailsHumanReadable (txIndyscan) {
+export function extractTxDataDetailsHumanReadable (txIndyscan, minimalPriority = 0) {
   let typeName = txIndyscan.txn.typeName
   let extractTxDescriptiveData = txDataDescriptiveExtractors[typeName]
-  return (extractTxDescriptiveData) ? extractTxDescriptiveData(txIndyscan) : {}
+  let entries = (extractTxDescriptiveData) ? extractTxDescriptiveData(txIndyscan) : []
+  let result = {}
+  for (const entry of entries) {
+    if (entry.priority >= minimalPriority) {
+      result[entry.label] = entry.value
+    }
+  }
+  return result
 }
 
 export function secondsToDhms (seconds) {

@@ -1,19 +1,23 @@
-import { Label } from 'semantic-ui-react'
+import { Label, Item } from 'semantic-ui-react'
 
-export function renderAsBadges (id, data) {
+export function renderValuesAsBadges (id, data) {
   if (!data) {
     return
   }
-  let badgeValues = []
-  if (Array.isArray(data)) {
-    badgeValues = data
-  } else {
-    const keys = Object.keys(data)
-    badgeValues = keys.map(k => { return { [k]: data[k] } })
-  }
-  let badges = []
-  for (let i = 0; i < badgeValues.length; i++) {
-    badges.push(<Label key={`lalbel-${id}-${i}`}style={{ margin: 3 }}>{badgeValues[i]}</Label>)
-  }
-  return badges
+  let badgeValues = Object.values(data)
+  return badgeValues.map((value, i) => <Label key={`label-${id}-${i}`}style={{ margin: 3 }}>{value}</Label>)
 }
+
+export function renderKeyValuesAsBadges (id, keyValues, valueColor) {
+  if (!keyValues) {
+    return
+  }
+  let items = []
+  for (const [key, value] of Object.entries(keyValues)) {
+    if (value) {
+      items.push(<Label key={`label-${id}-${key}`} style={{margin: 3}}>{`${key}: `}<span style={{color:valueColor}}>{value}</span></Label>)
+    }
+  }
+  return items
+}
+

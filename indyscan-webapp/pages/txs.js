@@ -8,6 +8,7 @@ import Router from 'next/dist/lib/router'
 import { getBaseUrl } from '../routing'
 import Footer from '../components/Footer/Footer'
 import { getConfigTxNames, getDomainsTxNames, getPoolTxNames } from 'indyscan-txtype'
+import AwesomeDebouncePromise from 'awesome-debounce-promise'
 
 class Txs extends Component {
   updateUrl (baseUrl, network, ledger, page, pageSize, filterTxNames = '[]', search = null) {
@@ -42,9 +43,16 @@ class Txs extends Component {
     this.updateUrl(baseUrl, network, ledger, page, pageSize, JSON.stringify(newFilter), search)
   }
 
-  setSearch (newSearch) {
+  asyncFunctionDebounced = AwesomeDebouncePromise(
+    this.updateUrl,
+    200,
+    {},
+  );
+
+  async setSearch (newSearch) {
     const { baseUrl, network, ledger, page, pageSize, filterTxNames } = this.props
-    this.updateUrl(baseUrl, network, ledger, page, pageSize, JSON.stringify(filterTxNames), newSearch)
+    await this.asyncFunctionDebounced(baseUrl, network, ledger, page, pageSize, JSON.stringify(filterTxNames), newSearch)
+
   }
 
   static async getInitialProps ({ req, query }) {

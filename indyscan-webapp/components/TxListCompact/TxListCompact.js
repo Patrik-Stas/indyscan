@@ -11,7 +11,7 @@ class TxListCompact extends Component {
           <TableRow>
             <TableHeaderCell>TxNo</TableHeaderCell>
             <TableHeaderCell>Type</TableHeaderCell>
-            <TableHeaderCell>Timestamp</TableHeaderCell>
+            <TableHeaderCell>Timestamp UTC</TableHeaderCell>
             <TableHeaderCell>From DID</TableHeaderCell>
             <TableHeaderCell>TxID</TableHeaderCell>
           </TableRow>

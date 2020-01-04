@@ -1,7 +1,7 @@
 import React from 'react'
 import './TxDisplay.scss'
 import { GridRow, Item, Label, List } from 'semantic-ui-react'
-import { renderAsBadges } from '../Common'
+import { renderValuesAsBadges } from '../Common'
 import {
   converTxDataBasicToHumanReadable,
   extractTxDataBasic,
@@ -15,7 +15,7 @@ function renderKeyValuePair (key, value, keyValueId, color = 'red') {
       <Label color={color} horizontal>
         {key}
       </Label>
-      {Array.isArray(value) ? renderAsBadges(key, value) : <Label>{value.toString().trim()}</Label>}
+      {Array.isArray(value) ? renderValuesAsBadges(key, value) : <Label>{value.toString().trim()}</Label>}
     </List.Item>
   )
 }

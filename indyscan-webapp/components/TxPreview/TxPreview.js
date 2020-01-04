@@ -2,7 +2,9 @@ import React, { Component } from 'react'
 import './TxPreview.scss'
 import { Item } from 'semantic-ui-react'
 import Link from 'next/link'
-import { extractTxDataBasic } from '../../txtools'
+import { extractTxDataBasic, extractTxDataDetailsHumanReadable } from '../../txtools'
+import top100 from '../palettes'
+import { renderKeyValuesAsBadges } from '../Common'
 
 const MAX_DID_LENTH = 25
 
@@ -15,7 +17,6 @@ class TxPreview extends Component {
     const fromDidDisplayed = from
       ? (from.length < MAX_DID_LENTH) ? from : `${from.substring(0, (MAX_DID_LENTH - 3))}...`
       : 'n/a'
-
     return (
       <Item style={{ marginBottom: '2em' }}>
         <Item.Image size='tiny'>

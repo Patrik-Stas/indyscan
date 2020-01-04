@@ -31,12 +31,6 @@ services:
     ports:
       - 9701-9708:9701-9708
 
-  foobar:
-    container_name: foobar
-    image: foobar:123
-    networks:
-      - indyscan
-
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
     container_name: elasticsearch
@@ -73,7 +67,7 @@ services:
       - 5601:5601
     depends_on:
       - elasticsearch
-
+#
   indyscan-daemon:
     restart: unless-stopped
     image: indyscan-daemon:3.0.0
