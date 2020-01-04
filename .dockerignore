@@ -9,10 +9,18 @@
 **/*.env
 **/docs
 **/tmp-indysdk
+**/nodemon.json
+**/tests
+**/jest.config.js
+**/.gitignore
+**/*.MD
+**/*.md
+**/*.sh
 
+
+./docs
 ./localhost
 ./start
-./start-aws
 ./ubuntu-libindy
 ./git
 ./es

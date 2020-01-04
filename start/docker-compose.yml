@@ -81,8 +81,8 @@ services:
       - indyscan
     environment:
       - LOG_LEVEL=info
-#      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-daemon/daemon-app-config/indypool_indyscan.json
-      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-daemon/app-config-docker/sovrin.json
+      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-daemon/app-config-docker/indypool_indyscan.json
+#      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-daemon/app-config-docker/sovrin.json
     volumes:
       - ./app-config-daemon/:/home/indyscan/indyscan-daemon/app-config-docker
 
@@ -97,8 +97,8 @@ services:
       - PORT=3708
       - LOG_HTTP_REQUESTS=true
       - LOG_HTTP_RESPONSES=true
-#      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-api/app-config-docker/localhost.json
-      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-api/app-config-docker/sovrin.json
+      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-api/app-config-docker/localhost.json
+#      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-api/app-config-docker/sovrin.json
     networks:
       - indyscan
       - esnet

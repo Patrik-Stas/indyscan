@@ -41,5 +41,3 @@ docker image ls "$IMAGE_TAG"
 
 echo "Indy Network genesis for this image:"
 docker run "$IMAGE_TAG" cat /var/lib/indy/sandbox/pool_transactions_genesis
-
-docker exec "indypool" cat /var/lib/indy/sandbox/pool_transactions_genesis

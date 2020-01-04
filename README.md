@@ -30,12 +30,13 @@ Following is for those who want to contribute or tweak the code. Here's how to s
 
 ## Structure
 ```
-- start/               - automation to startup IndyScan (and optionally IndyPool)
-- indyscan-api-client/        - http client to call indyscan api
-- indyscan-webapp/     - nextjs web app
-- indyscan-daemon/     - process looking for a new transactions
-- indyscan-storage/    - shared library for app and daemon
-- indyscan-txtype/     - shared library contaning information about indy tx types
+- start/               - automation to start scanned Indypool locally
+- indyscan-api/        - indyscan API for querying db-stored transactions
+- indyscan-api-client/ - http client to call indyscan api
+- indyscan-webapp/     - nextjs based UI running against indyscan-api 
+- indyscan-daemon/     - process searching for ledger transactions, storing them in a database
+- indyscan-storage/    - shared library for app and daemon - how to store and retrieve transactions in db
+- indyscan-txtype/     - shared library contaning domain knowledge about indy transactions
 - ubuntu-libindy/      - base docker image for daemon docker image
 - build-all.sh         - script to build all the code into docker images
 - docker-compose.yml   - for running indyscan locally in containers
