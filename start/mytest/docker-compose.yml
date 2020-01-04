@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  foobar:
+    container_name: foobar
+    image: foobar:123
+    networks:
+      - woo
+    ports:
+      - 3044:3044
+
+  comrade:
+    container_name: comrade
+    image: foobar:123
+    networks:
+      - woo
+
+networks:
+  woo:
+    name: woo
+    driver: bridge

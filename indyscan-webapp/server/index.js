@@ -65,7 +65,7 @@ async function startServer () {
 
       server.use(
         '/api',
-        proxy({ target: 'http://localhost:3708', changeOrigin: true })
+        proxy({ target: appConfig.INDYSCAN_API_URL, changeOrigin: true })
       )
 
       server.get('*', (req, res) => {

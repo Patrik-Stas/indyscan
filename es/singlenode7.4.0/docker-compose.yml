@@ -17,7 +17,7 @@ services:
     cap_add:
       - IPC_LOCK
     volumes:
-      - indyscan-es:/usr/share/elasticsearch/data
+      - indyscan-es-localhost:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
       - 9300:9300
@@ -33,5 +33,5 @@ services:
       - elasticsearch
 
 volumes:
-  indyscan-es:
+  indyscan-es-localhost:
     driver: local

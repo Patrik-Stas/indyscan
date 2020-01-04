@@ -16,7 +16,9 @@ COPY indyscan-txtype ./
 
 WORKDIR /usr/src/app/indyscan-webapp
 COPY indyscan-webapp ./
-RUN npm install --only=prod
+RUN npm install
+RUN npm run build
+RUN npm prune --production
 
 FROM node:12.14.0-alpine3.9 as PRODUCTION
 

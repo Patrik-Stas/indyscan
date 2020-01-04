@@ -56,4 +56,9 @@ LABEL org.label-schema.description="Application scanning Hyperledger Indy blockc
 LABEL org.label-schema.vcs-url="https://github.com/Patrik-Stas/indyscan"
 
 WORKDIR /home/indyscan/indyscan-daemon
+
+USER root
+RUN apt-get update && apt-get install -y curl
+USER indyscan
+
 CMD npm run start

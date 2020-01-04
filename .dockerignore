@@ -8,6 +8,7 @@
 **/test
 **/*.env
 **/docs
+**/tmp-indysdk
 
 ./localhost
 ./start

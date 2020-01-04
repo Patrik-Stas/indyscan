@@ -8,3 +8,4 @@ build-dockerhub.sh
 **/terraform.tfvars
 **/.terraform/
 dump/
+**/tmp-indysdk

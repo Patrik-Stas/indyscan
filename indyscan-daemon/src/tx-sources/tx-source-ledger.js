@@ -3,7 +3,7 @@ const logger = require('../logging/logger-main')
 const sleep = require('sleep-promise')
 
 async function createTxSourceLedger (sourceConfigData) {
-  let whoami = `LedgerResolver[${sourceConfigData.genesis}]`
+  let whoami = `LedgerResolver[${sourceConfigData.name}]`
   let client = null
   let isConnecting = false
   let consecutiveTxResolutionFailures

@@ -5,9 +5,20 @@ const { createTxResolve } = require('./tx-sources/tx-source-factory')
 const { createStorageFactory } = require('./tx-storages/tx-storage-factory')
 const { createConsumerSequential } = require('./consumers/consumer-sequential')
 
+// TODO: Setting up IndySKD logging here is causing seemmingly random crashes!
 // const indy = require('indy-sdk')
 // indy.setLogger(function (level, target, message, modulePath, file, line) {
-//   logger.debug(message)
+//   if (level === 1) {
+//     logger.error(`INDYSDK: ${message}`)
+//   } else if (level === 2) {
+//     logger.warn(`INDYSDK: ${message}`)
+//   } else if (level === 3) {
+//     logger.info(`INDYSDK: ${message}`)
+//   } else if (level === 4) {
+//     logger.debug(`INDYSDK: ${message}`)
+//   } else {
+//     logger.silly(`INDYSDK: ${message}`)
+//   }
 // })
 
 async function scanNetwork (scannerName, consumerConfig, sourceConfig, storageConfig, storageFactory) {
@@ -37,6 +48,7 @@ async function scanNetwork (scannerName, consumerConfig, sourceConfig, storageCo
 }
 
 async function run () {
+
   logger.info(`Starting using appConfig ${JSON.stringify(appConfig, null, 2)}.`)
   const storageFactory = await createStorageFactory()
   const scanConfigs = await processScanConfigFile(appConfig.NETWORKS_CONFIG_PATH)

@@ -5,6 +5,8 @@ const elasticsearch = require('@elastic/elasticsearch')
 const { buildRetryTxResolver, createIndyscanTransform } = require('indyscan-storage')
 const geoip = require('geoip-lite')
 const geoipLiteLookupIp = geoip.lookup.bind(geoip)
+const axios = require('axios')
+const sleep = require('sleep-promise')
 
 module.exports.createStorageFactory = async function createStorageFactory () {
   function createTxTransform (subledger, storageReadEs) {
@@ -32,7 +34,22 @@ module.exports.createStorageFactory = async function createStorageFactory () {
     return { storageReadEs, storageWriteEs }
   }
 
+  async function waitUntilElasticIsReady (esUrl) {
+    let agencyReady = false
+    while (!agencyReady) {
+      try {
+        await axios.get(`${esUrl}/_cat`)
+        agencyReady = true
+      } catch (e) {
+        logger.warn(`Waiting for ElasticSearch ${esUrl} to come up.`)
+        await sleep(2000)
+      }
+    }
+  }
+
   async function createEsStoragesForNetwork (urlEs, esIndex, exIndexReplicaCount) {
+    await waitUntilElasticIsReady(urlEs)
+
     const esClient = new elasticsearch.Client({ node: urlEs })
     logger.debug(`Creating ElasticSearch storages for network '${esIndex}'.`)
 
