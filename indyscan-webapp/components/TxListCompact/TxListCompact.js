@@ -13,7 +13,7 @@ class TxListCompact extends Component {
             <TableHeaderCell>Type</TableHeaderCell>
             <TableHeaderCell>Timestamp UTC</TableHeaderCell>
             <TableHeaderCell>From DID</TableHeaderCell>
-            <TableHeaderCell>TxID</TableHeaderCell>
+            <TableHeaderCell>Info</TableHeaderCell>
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -46,13 +46,12 @@ class Txs extends Component {
   asyncFunctionDebounced = AwesomeDebouncePromise(
     this.updateUrl,
     200,
-    {},
+    {}
   );
 
   async setSearch (newSearch) {
     const { baseUrl, network, ledger, page, pageSize, filterTxNames } = this.props
     await this.asyncFunctionDebounced(baseUrl, network, ledger, page, pageSize, JSON.stringify(filterTxNames), newSearch)
-
   }
 
   static async getInitialProps ({ req, query }) {

@@ -7,7 +7,7 @@
     "lint": "standard",
     "lint:fix": "standard --fix",
     "dev": "nodemon server/index.js",
-    "test": "jest tests",
+    "test:unit": "jest tests/unit",
     "build": "next build",
     "serve": "NODE_ENV=production node server/index.js",
     "serve:localhost": "node server/index.js"

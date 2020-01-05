@@ -97,9 +97,9 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, subledge
           'indyscan.txn.data.refSchemaFrom': { type: 'keyword' },
 
           // TX: pool NODE transaction
-          'indyscan.txn.data.data.client_ip': { type: 'text', "fields": { "raw": { "type": "keyword" }, "as_ip": { type: 'ip', "ignore_malformed": true } } },
+          'indyscan.txn.data.data.client_ip': { type: 'text', 'fields': { 'raw': { 'type': 'keyword' }, 'as_ip': { type: 'ip', 'ignore_malformed': true } } },
           'indyscan.txn.data.data.client_port': { type: 'integer' },
-          'indyscan.txn.data.data.node_ip': { type: 'text', "fields": { "raw": { "type": "keyword" }, "as_ip": { type: 'ip', "ignore_malformed": true } } },
+          'indyscan.txn.data.data.node_ip': { type: 'text', 'fields': { 'raw': { 'type': 'keyword' }, 'as_ip': { type: 'ip', 'ignore_malformed': true } } },
           'indyscan.txn.data.data.node_ip_text': { type: 'text' },
           'indyscan.txn.data.data.node_port': { type: 'integer' },
 

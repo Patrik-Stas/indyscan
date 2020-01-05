@@ -48,7 +48,6 @@ async function scanNetwork (scannerName, consumerConfig, sourceConfig, storageCo
 }
 
 async function run () {
-
   logger.info(`Starting using appConfig ${JSON.stringify(appConfig, null, 2)}.`)
   const storageFactory = await createStorageFactory()
   const scanConfigs = await processScanConfigFile(appConfig.NETWORKS_CONFIG_PATH)

@@ -1,4 +1,4 @@
-import { Label, Item } from 'semantic-ui-react'
+import { Label } from 'semantic-ui-react'
 
 export function renderValuesAsBadges (id, data) {
   if (!data) {
@@ -15,9 +15,8 @@ export function renderKeyValuesAsBadges (id, keyValues, valueColor) {
   let items = []
   for (const [key, value] of Object.entries(keyValues)) {
     if (value) {
-      items.push(<Label key={`label-${id}-${key}`} style={{margin: 3}}>{`${key}: `}<span style={{color:valueColor}}>{value}</span></Label>)
+      items.push(<Label key={`label-${id}-${key}`} style={{ margin: 3 }}>{`${key}: `}<span style={{ color: valueColor }}>{value}</span></Label>)
     }
   }
   return items
 }
-

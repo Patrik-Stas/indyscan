@@ -2,9 +2,7 @@ import React, { Component } from 'react'
 import './TxPreview.scss'
 import { Item } from 'semantic-ui-react'
 import Link from 'next/link'
-import { extractTxDataBasic, extractTxDataDetailsHumanReadable } from '../../txtools'
-import top100 from '../palettes'
-import { renderKeyValuesAsBadges } from '../Common'
+import { extractTxDataBasic } from '../../txtools'
 
 const MAX_DID_LENTH = 25
 

@@ -39,7 +39,6 @@ Following is for those who want to contribute or tweak the code. Here's how to s
 - indyscan-txtype/     - shared library contaning domain knowledge about indy transactions
 - ubuntu-libindy/      - base docker image for daemon docker image
 - build-all.sh         - script to build all the code into docker images
-- docker-compose.yml   - for running indyscan locally in containers
 ```
 
 ## Mongo
