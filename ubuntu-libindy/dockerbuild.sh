@@ -2,7 +2,7 @@
 SCRIPT_DIR_PATH=$(dirname "$0")
 
 INDYSDK_REPO_OWNER="hyperledger"
-INDYSDK_REVISION="v1.13.0"
+INDYSDK_REVISION="v1.14.1"
 NAME=""
 
 DOCKER_TAG="indyscan-indysdk:$INDYSDK_REVISION"

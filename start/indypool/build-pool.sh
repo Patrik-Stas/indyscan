@@ -16,7 +16,7 @@ if [ $? -ne 0 ]; then
 fi;
 
 if [ -z "$POOL_ADDRESS" ]; then
-  POOL_ADDRESS="indypool.indyscan"
+  POOL_ADDRESS="indyscan-indypool.indyscan"
   echo "Using default POOL_VERSION=${POOL_ADDRESS}"
 fi
 
@@ -25,7 +25,7 @@ if [ -z "$POOL_VERSION" ]; then
   echo "Using default POOL_VERSION=${POOL_VERSION}"
 fi
 
-IMAGE_TAG="indyscanpool:$POOL_ADDRESS-$POOL_VERSION"
+IMAGE_TAG="indy-pool:$POOL_ADDRESS-$POOL_VERSION"
 echo "This will build ${IMAGE_TAG}"
 echo "Do you want to continue? (y/n)"
 read yesno

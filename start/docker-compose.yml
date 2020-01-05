@@ -24,7 +24,7 @@ x-ui-logging:
 services:
   indyscan-indypool:
     container_name: indyscan-indypool
-    image: pstas/indyscanpool:indypool.indyscan-v1.14.1
+    image: pstas/indy-pool:indyscan-indypool.indyscan-v1.14.1
     logging: *es-logging
     networks:
       - indyscan
@@ -62,11 +62,11 @@ services:
     networks:
       - esnet
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch.esnet:9200
+      - ELASTICSEARCH_HOSTS=http://indyscan-elasticsearch.esnet:9200
     ports:
       - 5601:5601
     depends_on:
-      - elasticsearch
+      - indyscan-elasticsearch
 #
   indyscan-daemon:
     restart: unless-stopped
@@ -74,8 +74,8 @@ services:
     container_name: indyscan-daemon
     logging: *service-logging
     depends_on:
-      - elasticsearch
-      - indypool
+      - indyscan-elasticsearch
+      - indyscan-indypool
     networks:
       - esnet
       - indyscan
@@ -92,7 +92,7 @@ services:
     container_name: indyscan-api
     logging: *service-logging
     environment:
-      - ES_URL=http://elasticsearch.esnet:9200
+      - ES_URL=http://indyscan-elasticsearch.esnet:9200
       - LOG_LEVEL=info
       - PORT=3708
       - LOG_HTTP_REQUESTS=true

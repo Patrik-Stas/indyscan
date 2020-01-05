@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 
-LOCAL_SOURCE_TAG="indyscanpool:indypool.indyscan-v1.14.1"
+LOCAL_SOURCE_TAG="indy-pool:indyscan-indypool.indyscan-v1.14.1"
 REMOTE_TARGET_TAG_V="pstas/$LOCAL_SOURCE_TAG"
 
 echo -e "Will be pushing image $LOCAL_SOURCE_TAG:\n"

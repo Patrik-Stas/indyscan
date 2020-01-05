@@ -17,7 +17,7 @@
     "storageConfig": {
       "type": "elasticsearch",
       "data": {
-        "url": "http://elasticsearch.esnet:9200",
+        "url": "http://indyscan-elasticsearch.esnet:9200",
         "index": "txs-sovrin-mainnet",
         "replicas": 0
       }
@@ -41,7 +41,7 @@
     "storageConfig": {
       "type": "elasticsearch",
       "data": {
-        "url": "http://elasticsearch.esnet:9200",
+        "url": "http://indyscan-elasticsearch.esnet:9200",
         "index": "txs-sovrin-stagingnet",
         "replicas": 0
       }
@@ -65,7 +65,7 @@
     "storageConfig": {
       "type": "elasticsearch",
       "data": {
-        "url": "http://elasticsearch.esnet:9200",
+        "url": "http://indyscan-elasticsearch.esnet:9200",
         "index": "txs-sovrin-buildernet",
         "replicas": 0
       }
