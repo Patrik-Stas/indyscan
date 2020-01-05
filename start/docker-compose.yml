@@ -22,8 +22,8 @@ x-ui-logging:
   driver: json-file
 
 services:
-  indypool:
-    container_name: indypool
+  indyscan-indypool:
+    container_name: indyscan-indypool
     image: pstas/indyscanpool:indypool.indyscan-v1.14.1
     logging: *es-logging
     networks:
@@ -31,9 +31,9 @@ services:
     ports:
       - 9701-9708:9701-9708
 
-  elasticsearch:
+  indyscan-elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
-    container_name: elasticsearch
+    container_name: indyscan-elasticsearch
     logging: *es-logging
     networks:
       - esnet
@@ -55,8 +55,8 @@ services:
       - 9200:9200
       - 9300:9300
 
-  kibana:
-    container_name: kibana
+  indyscan-kibana:
+    container_name: indyscan-kibana
     image: docker.elastic.co/kibana/kibana:7.4.0
     logging: *es-logging
     networks:
@@ -127,7 +127,6 @@ networks:
   indyscan:
     name: indyscan
     driver: bridge
-
   esnet:
     name: esnet
     driver: bridge

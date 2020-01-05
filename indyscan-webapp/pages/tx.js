@@ -11,7 +11,7 @@ import {
 import JSONPretty from 'react-json-pretty'
 import top100 from '../components/palettes'
 import Link from 'next/link'
-import Router from 'next/dist/lib/router'
+import Router from 'next/router'
 import { getTxLinkData, getBaseUrl } from '../routing'
 import Footer from '../components/Footer/Footer'
 import toCanonicalJson from 'canonical-json'

@@ -4,15 +4,15 @@ import React, { Component } from 'react'
 import { getTxCount, getTxs } from 'indyscan-api-client'
 import PageHeader from '../components/PageHeader/PageHeader'
 import { Grid, GridColumn, GridRow, Pagination, Checkbox, Input, Icon } from 'semantic-ui-react'
-import Router from 'next/dist/lib/router'
 import { getBaseUrl } from '../routing'
 import Footer from '../components/Footer/Footer'
 import { getConfigTxNames, getDomainsTxNames, getPoolTxNames } from 'indyscan-txtype'
 import AwesomeDebouncePromise from 'awesome-debounce-promise'
+import Router from 'next/router'
 
 class Txs extends Component {
   updateUrl (baseUrl, network, ledger, page, pageSize, filterTxNames = '[]', search = null) {
-    let routerUrl = `${baseUrl}/txs?network=${network}&ledger=${ledger}&page=${page}&pageSize=${pageSize}&filterTxNames=${filterTxNames}`
+    let routerUrl = `/txs?network=${network}&ledger=${ledger}&page=${page}&pageSize=${pageSize}&filterTxNames=${filterTxNames}`
     let routerAs = `/txs/${network}/${ledger}?page=${page}&pageSize=${pageSize}&filterTxNames=${filterTxNames}`
     if (search) {
       routerUrl += `&search=${search}`
