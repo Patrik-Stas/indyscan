@@ -1,0 +1,54 @@
+{
+  "auditPath": [
+    "6P12yYTbxQkDAzQzDWpQMfnehBUr3Q8F4MnKF11eRTBZ",
+    "deaQ3nRnuKcUUVBdgWDVhZQXLnxtvXmHDX8zvGxFkYc",
+    "KKNgUA169dNdz1pGdfbf6K7vUAwVN7TcZQBXP2u9bDp",
+    "BsjBrEcN4B12DUBoywBukCcR4FNxLJco4brjyZee1BjY",
+    "CGrVK3ykc6FTh9u61ryY7ak1utkwq4K3pLhr6Ly3ud4y",
+    "ZB6S3Yk8hwXhtdXK2FY319pBmxgzYoxwHuhgtmFDXf9",
+    "HxQPDqHLj72xX9Aam7JgQCPgMege1RqMbh5vZMNriamY",
+    "HAgA973B1TsAjMH2q5ak7L8AhnF5o3urofCfFEWWkwCP",
+    "GjS83bEQfRXSfLiY9qcs7SaMDE3kxnfmpz4xgYSCh9Z7",
+    "B2e5Lev63eo4B4UYqi3BdFtDqVcLLzs6TapQ4Bd8bWVs",
+    "EmviEJYzYq4UsT7RvR2H8Ypb7mhKMabhz45LWasgERN"
+  ],
+  "ledgerSize": 79424,
+  "reqSignature": {
+    "type": "ED25519",
+    "values": [
+      {
+        "from": "3hzaM4LfEeoZ4wpx324Hjt",
+        "value": "4Hjg5XUuDf2Knso4MUiLAftvSpYFQsrTjLAVrVTg71GMrSPfBLVBd4PbcC2NjAp9QEHSSjdo97b96HResTX4Gaov"
+      },
+      {
+        "from": "Unt9GJDwjH4Gxc3ZNfuiEu",
+        "value": "2U8H294xZjSjfmnTU2PUCpCJaxxcupmJoEnFAQ72DuqEoD8r4vu7KYkK7Rehim1BjDJ7Gp7DdYxFoPU5gtwZHLuP"
+      }
+    ]
+  },
+  "rootHash": "9fev7YXV7XuRnbupXia52DkLexCfCnYeZHsfVMmJcEr7",
+  "txn": {
+    "data": {
+      "revocDefType": "CL_ACCUM",
+      "revocRegDefId": "Unt9GJDwjH4Gxc3ZNfuiEu:4:Unt9GJDwjH4Gxc3ZNfuiEu:3:CL:72982:tag1:CL_ACCUM:Tag2",
+      "value": {
+        "accum": "1 0000000000000000000000000000000000000000000000000000000000000000 1 0000000000000000000000000000000000000000000000000000000000000000 2 095E45DDF417D05FB10933FFC63D474548B7FFFF7888802F07FFFFFF7D07A8A8 1 0000000000000000000000000000000000000000000000000000000000000000 1 0000000000000000000000000000000000000000000000000000000000000000 1 0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    "metadata": {
+      "digest": "56066a0fd15801e2a2990e742f739f89f3fed881822dc46e0827316581b351f6",
+      "endorser": "3hzaM4LfEeoZ4wpx324Hjt",
+      "from": "Unt9GJDwjH4Gxc3ZNfuiEu",
+      "payloadDigest": "261d57a728d6c2db10e6f3c5a7d2e0c5648e3e8ca507175ae88a51871ba49ef3",
+      "reqId": 1574702258825688600
+    },
+    "protocolVersion": 2,
+    "type": "114"
+  },
+  "txnMetadata": {
+    "seqNo": 79424,
+    "txnId": "5:Unt9GJDwjH4Gxc3ZNfuiEu:4:Unt9GJDwjH4Gxc3ZNfuiEu:3:CL:72982:tag1:CL_ACCUM:Tag2",
+    "txnTime": 1574702261
+  },
+  "ver": "1"
+}

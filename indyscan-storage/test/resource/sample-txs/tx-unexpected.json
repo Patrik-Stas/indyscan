@@ -1,0 +1,39 @@
+{
+  "auditPath": [
+    "7g1gyfDcmwobXiyDjLGviZk94t1qLShMeGSUaBha21JC",
+    "EmviEJYzYq4UsT7RvR2H8Ypb7mhKMabhz45LWasgERN"
+  ],
+  "ledgerSize": 79524,
+  "reqSignature": {
+    "type": "ED25519",
+    "values": [
+      {
+        "from": "DkiCRWTKf9JfWobvpBBMqJ",
+        "value": "58uLqbk5ZVwT9cdkbE6KFRSEhtgWWi7uPLoKqRFDATetWDAKLVj6D6Gk6Rqg4uvB1s4jBqqqqqhQZzasjRwEUGEk"
+      }
+    ]
+  },
+  "rootHash": "4c5Q3ZXF3NSqAWp4VoSEgVH3sUtfz4Sg6fotecZLotnK",
+  "txn": {
+    "data": {
+      "dest": "DkiCRWTKf9JfWobvpBBMqJ",
+      "role": {
+        "NOT_EXPECTED_TO_FIND_OBJECT_VALUE_HERE": "foobar"
+      }
+    },
+    "metadata": {
+      "digest": "1081e066bad15fac68a20079019f3939df2cf3a30f6d0aded6b4c0a7109d3926",
+      "from": "DkiCRWTKf9JfWobvpBBMqJ",
+      "payloadDigest": "ec1a3ccecee22360d25f2feb267a8181781afc87358a83712590fdb6403e83dc",
+      "reqId": 1574868847868306000
+    },
+    "protocolVersion": 2,
+    "type": "100"
+  },
+  "txnMetadata": {
+    "seqNo": 79524,
+    "txnId": "DkiCRWTKf9JfWobvpBBMqJ:1:a46c629dd642fe32d14d5f54887ad15391d6701b41afc67d60d93525e3f15e7d",
+    "txnTime": 1574868847
+  },
+  "ver": "1"
+}

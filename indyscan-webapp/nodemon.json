@@ -2,5 +2,12 @@
   "verbose": true,
   "ignore": ["node_modules", ".next"],
   "watch": ["server/**/*", "index.js"],
-  "ext": "js json"
+  "ext": "js json",
+  "env": {
+    "INDYSCAN_API_URL": "http://localhost:3708",
+    "PORT" : 3707,
+    "LOG_LEVEL": "debug",
+    "LOG_HTTP_REQUESTS" : true,
+    "LOG_HTTP_RESPONSES" : true
+  }
 }

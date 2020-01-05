@@ -1,0 +1,10 @@
+[
+  {
+    "id": "indylocal",
+    "display": "IndyNetwork",
+    "es" : {
+      "index": "txs-indypool-indyscan"
+    },
+    "description": "Local docker Indy network."
+  }
+]

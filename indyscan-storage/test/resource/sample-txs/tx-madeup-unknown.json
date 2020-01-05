@@ -1,0 +1,21 @@
+{
+  "txn": {
+    "data": {
+      "dest": "7WhrDsysVnBZHtjwwFAzVSmyGA1jpnBbmqBgs4q9wk9g",
+      "foobar": "something"
+    },
+    "metadata": {
+      "digest": "0893f92c17af7bc5e4ecad64ab83a641c3e9e830cf96d7856ed4d813f7ea3e8c",
+      "from": "CwzYfKJZdnYJXAR2jtcbLY",
+      "payloadDigest": "cd7a228c2e3ffeead1ff98efde84ea9bb3c356053abf3f5b24a6e5b6b6b8b920",
+      "reqId": 1573249258771117600
+    },
+    "protocolVersion": 2,
+    "type": "424242"
+  },
+  "txnMetadata": {
+    "seqNo": 141,
+    "txnTime": 1573249259
+  },
+  "ver": "1"
+}

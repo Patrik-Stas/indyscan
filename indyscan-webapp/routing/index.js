@@ -1,5 +1,5 @@
 export function getTxLinkData (baseUrl, network, ledger, seqNo) {
-  const href = `${baseUrl}/tx?network=${network}&ledger=${ledger}&seqNo=${seqNo}`
+  const href = `/tx?network=${network}&ledger=${ledger}&seqNo=${seqNo}`
   const as = `/tx/${network}/${ledger}/${seqNo}`
   return { href, as }
 }
@@ -12,7 +12,7 @@ make calls like http://indyscan.io/api/foobar (http), which won't work, because 
 is actually at https://indyscan.io (https)
  */
 function getProtocol (req) {
-  return (req && req.headers['host'] === 'indyscan.io') ? 'https' : req.protocol
+  return (req && req.headers['host'] && req.headers['host'].match(/.*indyscan\.io/)) ? 'https' : req.protocol
 }
 
 export function getBaseUrl (req) {

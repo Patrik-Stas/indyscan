@@ -1,3 +1,22 @@
+## 3.0.0
+- Using `Elasticsearch` instead of `Mongo` for storage
+- `indyscan-daemon` is reading configuration file defining what and how to scan, instead of passing configuration
+  in environment variables.
+- `indysccan-daemon` main scanning loop simplified 
+- `indyscan-api` extracted out of `indyscan-webapp`
+- Before transactions are stored in storage, various expansions on this documents take place, depending on 
+  type of transaction. For example for `CLAIM_DEF` transactions, details about schema it is based on is added.
+- `indyscan-webapp` - the transaction view now does not only display raw ledger data, but alo easy to read
+  highlights about the transaction, depending on transactions type.
+- `indyscan-webapp` - the transactions list view contains fulltext search feature
+- `indyscan-webapp` - the transactions list view displays selection of important information about transaction 
+  instead of `roothash` 
+- `indyscan-webapp` - removed `stats` view. Can be expected to be added again in following 3.x.x versions.
+- updated from `Node 8` to `Node 12`
+- updated IndySDK to `1.14.1`
+- decreased `inyscan-webapp` docker image size from `869` to `290` mb
+- decreased `indyscan-daemon` docker image size from `3GB` to `1.3GB` (still terrible, help appreciated).
+ 
 ## 2.0.0
 ##### Daemon
 - Use refactored storage module

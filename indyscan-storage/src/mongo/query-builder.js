@@ -11,7 +11,6 @@ module.exports.txsQuery = function txsQuery () {
     setLimit,
     setFilter,
     setSort,
-    setProjection,
     setTransform,
     executeAgainst
   }
@@ -41,15 +40,10 @@ module.exports.txsQuery = function txsQuery () {
     return buildFunctions
   }
 
-  function setProjection (queryProjection) {
-    projection = queryProjection
-    return buildFunctions
-  }
-
   async function executeAgainst (collection) {
-    let finalProjection = (projection === null) ? {} : projection
+    let finalProjection = projection || {}
     finalProjection['_id'] = 0
-    let finalFilter = (filter === null) ? {} : filter
+    let finalFilter = filter || {}
     let result = collection.find(finalFilter, finalProjection)
     if (skip !== null) {
       result = result.skip(skip)

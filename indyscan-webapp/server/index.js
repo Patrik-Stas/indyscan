@@ -1,75 +1,48 @@
-const { createNetworkManager } = require('./networkManager')
+const logger = require('./logging/logger-main')
+const { appConfig } = require('./config')
 const express = require('express')
 const next = require('next')
-const initApiTxs = require('./api/txs.js')
-const initApiNetworks = require('./api/networks.js')
-const { createLedgerStorageManager } = require('indyscan-storage')
-const { loadV1Config, loadV2Config } = require('./config')
-const logger = require('./logging/logger-main')
-const url = require('url')
+const proxy = require('http-proxy-middleware')
+const { getDefaultNetwork } = require('indyscan-api-client')
+const { logRequests, logResponses } = require('./middleware')
 
-function loadConfig () {
-  if (process.env.INDY_NETWORKS_V2) {
-    return loadV2Config(process.env.INDY_NETWORKS_V2)
-  } else if (process.env.INDY_NETWORKS) {
-    return loadV1Config(process.env.INDY_NETWORKS)
-  } else {
-    throw Error(`Found no indy network configuration. Use INDY_NETWORKS and INDY_NETWORKS_V2 env variables to supply.`)
+function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLogging) {
+  if (enableRequestLogging) {
+    app.use(logRequests)
+  }
+  if (enableResponseLogging) {
+    app.use(logResponses)
   }
 }
 
-const networkConfig = loadConfig()
-const networkManager = createNetworkManager(networkConfig)
-
-logger.info(`Running indyscan webapp against following mongo databases: ${JSON.stringify(networkManager.getNetworkDbs())}`)
-logger.info(`Default network is id='${networkManager.getDefaultNetworkId()}'`)
-
-const URL_MONGO = process.env.URL_MONGO || 'mongodb://localhost:27017'
-logger.info(`Connecting to Mongo URL: ${URL_MONGO}`)
-
-const PORT = process.env.WEBAPP_PORT || 3000
-const dev = process.env.NODE_ENV !== 'production'
-const app = next({ dev })
-const handle = app.getRequestHandler()
-
 async function startServer () {
-  const ledgerStorageManager = await createLedgerStorageManager(URL_MONGO)
-  for (const network of networkManager.getNetworkDbs()) {
-    logger.debug(`Adding network '${network}' to ledger storage manager.`)
-    await ledgerStorageManager.addIndyNetwork(network)
-  }
+  const app = next({ dev: process.env.NODE_ENV !== 'production' })
+  const handle = app.getRequestHandler()
 
   app
     .prepare()
     .then(() => {
       const server = express()
-      const apiRouter = express.Router()
-      initApiTxs(apiRouter, ledgerStorageManager, networkManager)
-      initApiNetworks(apiRouter, networkManager)
+      setupLoggingMiddlleware(server, appConfig.LOG_HTTP_REQUESTS === 'true', appConfig.LOG_HTTP_RESPONSES === 'true')
 
-      server.use('/api/*', function (req, res, next) {
-        logger.debug(`----> Request: [${req.method}] ${req.originalUrl}`)
-        logger.debug(`----> Query: ${JSON.stringify(req.query)}`)
-        const parts = url.parse(req.url, true)
-        logger.info(`Url query parts: ${JSON.stringify(parts.query)}`)
-        next()
+      server.get('/', async (req, res) => {
+        logger.info('GET /')
+        let defaultNetwork
+        try {
+          defaultNetwork = await getDefaultNetwork(appConfig.INDYSCAN_API_URL)
+        } catch (err) {
+          return res.redirect(`/pending`)
+        }
+        return (defaultNetwork) ? res.redirect(`/home/${defaultNetwork.id}`) : res.redirect(`/pending`)
       })
 
-      server.use('/api', apiRouter)
-
-      server.get('/', (req, res) => {
-        logger.debug(`ROOT URL: /`)
-        res.redirect(`/home/${networkManager.getDefaultNetworkId()}`)
+      server.get('/home', async (req, res) => {
+        res.redirect(`lo`)
       })
 
       server.get('/version', (req, res) => {
         require('pkginfo')(module)
         return res.status(200).send({ version: module.exports.version })
-      })
-
-      server.get('/home', (req, res) => {
-        logger.debug(`ROOT URL: /`)
-        res.redirect(`/home/${networkManager.getDefaultNetworkId()}`)
       })
 
       server.get('/home/:network', (req, res) => {
@@ -90,13 +63,18 @@ async function startServer () {
         return app.render(req, res, '/tx', mergedQuery)
       })
 
+      server.use(
+        '/api',
+        proxy({ target: appConfig.INDYSCAN_API_URL, changeOrigin: true })
+      )
+
       server.get('*', (req, res) => {
         return handle(req, res)
       })
 
-      server.listen(PORT, err => {
+      server.listen(appConfig.PORT, err => {
         if (err) throw err
-        logger.info(`> Ready on ${PORT}`)
+        logger.info(`> Ready on ${appConfig.PORT}`)
       })
     })
     .catch(ex => {

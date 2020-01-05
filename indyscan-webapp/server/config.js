@@ -1,17 +1,24 @@
-// [{db:'SOVRIN_TESTNET', display:'SOVRIN STAGING NET', id: 'sovrin-staging-net', aliases:['SOVRIN_TESTNET']}]
+const logger = require('./logging/logger-main')
+const Joi = require('joi')
 
-function loadV1Config (configV1) {
-  const indyNetworks = configV1.split(',')
-  const configs = []
-  for (const indyNetwork of indyNetworks) {
-    configs.push({ id: indyNetwork, db: indyNetwork, display: indyNetwork })
-  }
-  return configs
+let appConfig = {
+  PORT: process.env.PORT,
+  INDYSCAN_API_URL: process.env.INDYSCAN_API_URL,
+  LOG_LEVEL: process.env.LOG_LEVEL,
+  LOG_HTTP_REQUESTS: process.env.LOG_HTTP_REQUESTS,
+  LOG_HTTP_RESPONSES: process.env.LOG_HTTP_RESPONSES
 }
 
-function loadV2Config (configV2) {
-  return JSON.parse(configV2)
-}
+logger.info(`Loaded configuration:\n${JSON.stringify(appConfig, null, 2)}`)
 
-module.exports.loadV1Config = loadV1Config
-module.exports.loadV2Config = loadV2Config
+const configValidation = Joi.object().keys({
+  PORT: Joi.number().integer().min(1025).max(65535).required(),
+  INDYSCAN_API_URL: Joi.string().uri().required(),
+  LOG_LEVEL: Joi.string().valid(['trace', 'debug', 'info', 'warn', 'error']).required(),
+  LOG_HTTP_REQUESTS: Joi.string().valid(['true', 'false']).required(),
+  LOG_HTTP_RESPONSES: Joi.string().valid(['true', 'false']).required()
+})
+
+Joi.validate(appConfig, configValidation, (err, ok) => { if (err) throw err })
+
+module.exports.appConfig = appConfig

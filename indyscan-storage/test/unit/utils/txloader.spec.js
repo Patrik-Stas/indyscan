@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
-import { importFileToStorage } from '../../../src/utils/txloader'
-import path from 'path'
+const { importFileToStorage } = require('../../../src/utils/txloader')
+const path = require('path')
 const RESOURCE_DIR = path.resolve(__dirname, '../../resource')
 
 function createsSimpleStorage () {
@@ -20,8 +20,8 @@ function createsSimpleStorage () {
 describe('basic storage test', () => {
   it('should build transaction filter by txType correctly', async () => {
     const storage = createsSimpleStorage()
-    await importFileToStorage(storage, `${RESOURCE_DIR}/txs-test/domain.json`)
+    await importFileToStorage(storage, `${RESOURCE_DIR}/txs-test/domain-mini.json`)
     expect(storage.txs[0].rootHash).toBe('Enejxy16re4eva1mehABWpswuaRRbZN1B9sPFHHthZvm')
-    expect(storage.txs.length).toBe(300)
+    expect(storage.txs.length).toBe(14)
   })
 })

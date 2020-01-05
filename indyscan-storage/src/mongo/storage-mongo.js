@@ -4,9 +4,8 @@ const { projectAvailableTimestamps } = require('../projections')
 const dotTransformer = keyTransform.createReplacementFunction('.', 'U+FF0E')
 const removeDotsFromKeys = keyTransform.recursiveJSONKeyTransform(dotTransformer)
 
-/*
- Implementation of IndyScan storage for particular network and ledger
- */
+// WARNING: Out of date as of version 3.0, won't work unless aligned with elastisearch storage API
+
 async function createStorageMongo (collection) {
   async function getTxCount (filter = {}) {
     if (Object.keys(filter) === 0) {
@@ -33,10 +32,10 @@ async function createStorageMongo (collection) {
   }
 
   async function getTxsTimestamps (skip = null, limit = null, filter = null, sort = { 'txnMetadata.seqNo': -1 }, projection = null) {
-    return getTxs(skip, limit, filter, sort, projection, projectAvailableTimestamps)
+    return getTxs(skip, limit, filter, sort, projectAvailableTimestamps)
   }
 
-  async function getTxsByQuery (txsQuery) {
+  async function _getTxsByQuery (txsQuery) {
     return txsQuery.executeAgainst(collection)
   }
 
@@ -44,10 +43,10 @@ async function createStorageMongo (collection) {
   Returns array of (by default all) transactions.
   By default are transactions sorted from latest (index 0) to the oldest (last index of result array)
    */
-  async function getTxs (skip = null, limit = null, filter = null, sort = null, projection = null, transform = null) {
+  async function getTxs (skip = null, limit = null, filter = null, sort = null, transform = null) {
     sort = (sort) || { 'txnMetadata.seqNo': -1 }
-    const q = txsQuery().setLimit(limit).setSkip(skip).setFilter(filter).setSort(sort).setProjection(projection).setTransform(transform)
-    return getTxsByQuery(q)
+    const q = txsQuery().setLimit(limit).setSkip(skip).setFilter(filter).setSort(sort).setTransform(transform)
+    return _getTxsByQuery(q)
   }
 
   async function findMaxSeqNo () {
@@ -76,7 +75,6 @@ async function createStorageMongo (collection) {
     getOldestTimestamp,
     getTxsTimestamps,
     getTxs,
-    getTxsByQuery,
     getTxCount,
     getTxBySeqNo
   }

@@ -1,0 +1,136 @@
+version: '3.7'
+
+x-es-logging:
+  &es-logging
+  options:
+    max-size: '300m'
+    max-file: '2'
+  driver: json-file
+
+x-standard-logging:
+  &service-logging
+  options:
+    max-size: '500m'
+    max-file: '3'
+  driver: json-file
+
+x-ui-logging:
+  &ui-logging
+  options:
+    max-size: '100m'
+    max-file: '3'
+  driver: json-file
+
+services:
+  indyscan-indypool:
+    container_name: indyscan-indypool
+    image: pstas/indy-pool:indyscan-indypool.indyscan-v1.14.1
+    logging: *es-logging
+    networks:
+      - indyscan
+    ports:
+      - 9701-9708:9701-9708
+
+  indyscan-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
+    container_name: indyscan-elasticsearch
+    logging: *es-logging
+    networks:
+      - esnet
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - indyscan-es:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  indyscan-kibana:
+    container_name: indyscan-kibana
+    image: docker.elastic.co/kibana/kibana:7.4.0
+    logging: *es-logging
+    networks:
+      - esnet
+    environment:
+      - ELASTICSEARCH_HOSTS=http://indyscan-elasticsearch.esnet:9200
+    ports:
+      - 5601:5601
+    depends_on:
+      - indyscan-elasticsearch
+#
+  indyscan-daemon:
+    restart: unless-stopped
+    image: pstas/indyscan-daemon:3.0.0
+    container_name: indyscan-daemon
+    logging: *service-logging
+    depends_on:
+      - indyscan-elasticsearch
+      - indyscan-indypool
+    networks:
+      - esnet
+      - indyscan
+    environment:
+      - LOG_LEVEL=info
+      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-daemon/app-config-docker/indypool_indyscan.json
+#      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-daemon/app-config-docker/sovrin.json
+    volumes:
+      - ./app-config-daemon/:/home/indyscan/indyscan-daemon/app-config-docker
+
+  indyscan-api:
+    restart: unless-stopped
+    image: pstas/indyscan-api:3.0.0
+    container_name: indyscan-api
+    logging: *service-logging
+    environment:
+      - ES_URL=http://indyscan-elasticsearch.esnet:9200
+      - LOG_LEVEL=info
+      - PORT=3708
+      - LOG_HTTP_REQUESTS=true
+      - LOG_HTTP_RESPONSES=true
+      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-api/app-config-docker/localhost.json
+#      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-api/app-config-docker/sovrin.json
+    networks:
+      - indyscan
+      - esnet
+    ports:
+      - 3708:3708
+    volumes:
+      - ./app-config-api/:/home/indyscan/indyscan-api/app-config-docker
+
+  indyscan-webapp:
+    restart: unless-stopped
+    image: pstas/indyscan-webapp:3.0.0
+    container_name: indyscan-webapp
+    logging: *ui-logging
+    environment:
+      - INDYSCAN_API_URL=http://indyscan-api.indyscan:3708
+      - PORT=3707
+      - LOG_LEVEL=warn
+      - LOG_HTTP_REQUESTS=false
+      - LOG_HTTP_RESPONSES=false
+    networks:
+      - indyscan
+    ports:
+      - 3707:3707
+
+networks:
+  indyscan:
+    name: indyscan
+    driver: bridge
+  esnet:
+    name: esnet
+    driver: bridge
+
+volumes:
+  indyscan-es:
+    driver: local

@@ -1,6 +1,4 @@
-FROM ubuntu:16.04
-
-ARG uid=1000
+FROM ubuntu:16.04 as BASE
 
 RUN apt-get update && \
     apt-get install -y \
@@ -26,9 +24,6 @@ RUN apt-get update && \
       unzip \
       jq
 
-# install nodejs and npm
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
-RUN apt-get install -y nodejs
 
 RUN pip3 install -U \
 	pip \
@@ -39,42 +34,55 @@ RUN pip3 install -U \
 	deb-pkg-tools
 
 RUN cd /tmp && \
-    curl https://download.libsodium.org/libsodium/releases/libsodium-1.0.18.tar.gz | tar -xz && \
-    cd /tmp/libsodium-1.0.18 && \
+   curl https://download.libsodium.org/libsodium/releases/old/unsupported/libsodium-1.0.14.tar.gz | tar -xz && \
+    cd /tmp/libsodium-1.0.14 && \
     ./configure --disable-shared && \
     make && \
     make install && \
-    rm -rf /tmp/libsodium-1.0.18
+    rm -rf /tmp/libsodium-1.0.14
 
-RUN apt-get update && apt-get install openjdk-8-jdk -y
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
-RUN apt-get update && apt-get install -y maven
-
-RUN apt-get install -y zip
-
-RUN useradd -ms /bin/bash -u $uid indy
-USER indy
-
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain 1.35.0
-ENV PATH /home/indy/.cargo/bin:$PATH
+RUN groupadd -g 1000 indy && useradd -r -u 1000 -g indy indy
 
 WORKDIR /home/indy
-
-ARG INDY_VERSION
-RUN git clone "https://github.com/hyperledger/indy-sdk.git" "./indy-sdk"
-
-RUN cd "/home/indy/indy-sdk" && git checkout "tags/$INDY_VERSION"
-
-RUN cd "/home/indy/indy-sdk/libindy" && cargo build --release
-USER root
-RUN cp "/home/indy/indy-sdk/libindy/target/release/libindy.so" "/usr/lib/libindy.so"
+RUN chown -R indy:indy /home/indy
 USER indy
 
-RUN rm -r "/home/indy/indy-sdk"
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain 1.36.0
+ENV PATH /home/indy/.cargo/bin:$PATH
+
+ARG INDYSDK_REVISION
+ARG INDYSDK_REPO
+
+RUN git clone "${INDYSDK_REPO}" "./indy-sdk"
+RUN cd "/home/indy/indy-sdk" && git checkout "${INDYSDK_REVISION}"
+
+RUN cargo build --release --manifest-path=/home/indy/indy-sdk/libindy/Cargo.toml
+USER root
+RUN mv /home/indy/indy-sdk/libindy/target/release/*.so /usr/lib
+
+FROM ubuntu:16.04
+
+RUN apt-get update && \
+    apt-get install -y \
+      libssl-dev \
+      apt-transport-https \
+      ca-certificates
+
+RUN useradd -ms /bin/bash -u 1000 indy
+USER indy
+
+WORKDIR /home/indy
+COPY --from=BASE /var/lib/dpkg/info /var/lib/dpkg/info
+COPY --from=BASE /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu
+COPY --from=BASE /usr/local /usr/local
+
+COPY --from=BASE /usr/lib/libindy.so /usr/lib/libindy.so
 
 LABEL org.label-schema.schema-version="1.0"
-LABEL org.label-schema.name="libindy"
-
+LABEL org.label-schema.name="indysdk"
 LABEL org.label-schema.version="${INDY_VERSION}"
 
-CMD /bin/bash
+USER indy
+
+
+

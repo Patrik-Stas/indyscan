@@ -1,0 +1,28 @@
+[
+  {
+    "name": "sovrin-main",
+    "consumerConfig": {
+      "type": "sequential",
+      "data": {
+        "preset": "FAST",
+        "timeoutOnSuccess": 123,
+        "jitterRatio": 0
+      }
+    },
+    "sourceConfig": {
+      "type": "ledger",
+      "data": {
+        "name": "SOVRIN_MAINNET",
+        "genesisReference": "./genesis/SOVRIN_MAINNET.txn"
+      }
+    },
+    "storageConfig": {
+      "type": "elasticsearch",
+      "data": {
+        "index": "txs-sovrin-mainnet",
+        "replicas": 2,
+        "url": "http://localhost.io:9200"
+      }
+    }
+  }
+]

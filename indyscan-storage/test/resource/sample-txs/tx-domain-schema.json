@@ -1,0 +1,71 @@
+{
+  "auditPath": [
+    "EgZGF9ppv3ZYmWjm9nHiWtJieYLzvwfZLXwKKeTTB7zT",
+    "Gt86EjjQKVAXEPU7nhcitnEmdhjDctnDJPsdimWSykDA",
+    "HRxju2xGC2XPK7wm45NKdz2JntJsusP2dgomkRC62sP6",
+    "GcMJQzo38az51VYGZY8rYC8eN7nyR8cuyiHhNZRHpLub",
+    "9C38naSmZ2hqnq7yjwj75qED3L8AkmjrUUjqWRecddLS",
+    "B2e5Lev63eo4B4UYqi3BdFtDqVcLLzs6TapQ4Bd8bWVs",
+    "EmviEJYzYq4UsT7RvR2H8Ypb7mhKMabhz45LWasgERN"
+  ],
+  "ledgerSize": 74631,
+  "multi_signature": {
+    "participants": [
+      "regioit01",
+      "DigiCert-Node",
+      "Absa",
+      "dativa_validator",
+      "Swisscom",
+      "lab10",
+      "sovrin.sicpa.com",
+      "trusted_you",
+      "SovrinNode",
+      "EBPI-validation-node",
+      "cynjanode"
+    ],
+    "signature": "RN4VzhaMTxUKePSsucJ2sLhmWe4ckHPQJheud6GDu6aBJFNoNLKaZoyyQ5pGjyJnSU878aBuND2xBfp1o32FiWu5aMcr6E9c3SAaAA9HsfFu9ppSP7hyrXridgfgbMVG7JtiX84QNrjmH7WMwmStC7QYLDtH9ep99oAMxWUPDMNiYo",
+    "value": {
+      "ledger_id": 1,
+      "pool_state_root_hash": "HNxHwTWsadJeLfCTkjtM5rzkePcvwvjKXWGsD5o9T5wB",
+      "state_root_hash": "ApBsA4JhwpnUmBFkFA3QCvr2dTKUryfbie3hVzii1kyM",
+      "timestamp": 1571048985,
+      "txn_root_hash": "C5MN5GMXLs5DFQDRwVYF9uEsBFJByWmSvHkkwL62qfPs"
+    }
+  },
+  "reqSignature": {
+    "type": "ED25519",
+    "values": [
+      {
+        "from": "GJw3XR52kQEWY44vNojmyH",
+        "value": "TZ14EDwCnwQxg88Z3Hdyb9kHR1iTyvirEYSio8ZNj1wRCxqQtuuGHjWqr3VJh4wA5Jw9CdEZtdFabLjMuPq2YpQ"
+      }
+    ]
+  },
+  "rootHash": "C5MN5GMXLs5DFQDRwVYF9uEsBFJByWmSvHkkwL62qfPs",
+  "txn": {
+    "data": {
+      "data": {
+        "attr_names": [
+          "bank_account_number",
+          "bank_account_type"
+        ],
+        "name": "demo_credential_3",
+        "version": "808.118.467"
+      }
+    },
+    "metadata": {
+      "digest": "b4b45861da30047476b2106ce08c56ce20f346204e315f3fdb696a2de5c365a8",
+      "from": "GJw3XR52kQEWY44vNojmyH",
+      "payloadDigest": "810a6894df0b0527df5e39f177d6b5e3da7a764dc08a2e3d75a69e955b3fd72e",
+      "reqId": 1571048973774631400
+    },
+    "protocolVersion": 2,
+    "type": "101"
+  },
+  "txnMetadata": {
+    "seqNo": 74631,
+    "txnId": "GJw3XR52kQEWY44vNojmyH:2:demo_credential_3:808.118.467",
+    "txnTime": 1571048985
+  },
+  "ver": "1"
+}

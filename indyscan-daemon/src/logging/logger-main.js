@@ -1,6 +1,5 @@
 const winston = require('winston')
 const { createLogger } = require('./logger-builder')
-const appConfig = require('../config')
-createLogger('main', appConfig.LOG_LEVEL)
+createLogger('main', process.env.LOG_LEVEL, true, true, true)
 
 module.exports = winston.loggers.get('main')

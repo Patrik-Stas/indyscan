@@ -1,0 +1,59 @@
+{
+  "auditPath": [
+    "CeBpFwWLNd6VaZhRqbn4jvgZYeomKhsrXJwSPgSK3mnx",
+    "858opcc1fMDqeTbDbJ715rSCAhYhKxfYAQBdzbMv8gWa",
+    "E6ibSXiTPiuzMFxtVkx7fmdxGfjpFyoCVET7Mx1sfYK9",
+    "D5QczK7H3tcgkDukV4DFBVJgZ7T9xE6fjNwuY1s1UzGA"
+  ],
+  "ledgerSize": 140,
+  "reqSignature": {
+    "type": "ED25519",
+    "values": [
+      {
+        "from": "4TMD8bT757JqBnmoCiNCc3",
+        "value": "22Ja2ewAcqdyyXqUXYhipQUwimssXGugpp9pxv9TD1MDfHaRLgt2EJxG9MnuvWjVRTsnMtB6Uczx82rxQGbsYTNb"
+      },
+      {
+        "from": "EYgRs2kDvAyrz2wb4iSXzv",
+        "value": "672NfpQkYAHmcuCpSyoGqNoQ1TmjDUbEpf7at3q1y5J26BXHzBy3vU7xmfCFe79CgjqmL6nmdXvUY4mzTmD8RoSr"
+      },
+      {
+        "from": "MRuYsA2u8WVvZtsUV1EAgY",
+        "value": "3n5rRZfZZcaqfTwxFVZ6jj5afavnXrtzmwEfi6YRFtDonYYmEgZq7tWunMjywAEfXUHFxQ4hsHgHW68Szn3CkEuC"
+      },
+      {
+        "from": "RBZP9Gx6n7VH2EMLWzX7TQ",
+        "value": "LhNXz6CHpjokipsGriuzBtF8YjEbx4hZBwMdyobM2rSDScfZdwanujH3m4yWvvbd6B6Uei8TPksJMSaQUas58VH"
+      }
+    ]
+  },
+  "rootHash": "8AqFqTaG6C2RLAaVZQEasoYHjFdeLvwLPod2hBBZvN6F",
+  "txn": {
+    "data": {
+      "auth_action": "EDIT",
+      "auth_type": "1",
+      "constraint": {
+        "constraint_id": "ROLE",
+        "need_to_be_owner": false,
+        "role": "0",
+        "sig_count": 3
+      },
+      "field": "role",
+      "new_value": "2",
+      "old_value": "0"
+    },
+    "metadata": {
+      "digest": "6abd3cdd4ed379017690e1163f3810328930050b2d258ebe67c532a2b4210ffc",
+      "from": "MRuYsA2u8WVvZtsUV1EAgY",
+      "payloadDigest": "99613b9bb9c680e7109197589fcdd26ca0d0c109597ab63ef7b76468a239feb7",
+      "reqId": 1574115540576214000
+    },
+    "protocolVersion": 2,
+    "type": "120"
+  },
+  "txnMetadata": {
+    "seqNo": 140,
+    "txnTime": 1574115612
+  },
+  "ver": "1"
+}

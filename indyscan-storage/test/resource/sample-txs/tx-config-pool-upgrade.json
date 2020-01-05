@@ -1,0 +1,60 @@
+{
+  "auditPath": [
+    "8afQ28jMhgdyqTYFWNFa1ZbVeXWig4wXY6HkH3Spj43M",
+    "DaAGv3MDWXQ9wmc2vWkirRHfrhAwdRze6HojBZ8vdEcc",
+    "J68bWffzHWDNJQfTeAdsUwYT7aEZm2fDYyxuWA4AWLcB",
+    "8mvQAFAXpMzK3sC7rtVQ2nb9iFAtMgfFX6E7ezWoftRo",
+    "9Hn1iJN3BSNfadCCbRHgbFU4otwDUSbnBUh45SCwfPcg"
+  ],
+  "ledgerSize": 25123,
+  "reqSignature": {
+    "type": "ED25519",
+    "values": [
+      {
+        "from": "4TMD8bT757JqBnmoCiNCc3",
+        "value": "3g6isCuRrp564JR8J9oGBhB9EhSCoE5UGynwQ2FKCgr1SZHrnxj86JqQDzBfQGE8PbNPrZhCbsfqpSzF3ALJmaB9"
+      }
+    ]
+  },
+  "rootHash": "ErFCrRDnXN854UhPsShLsh5posJaDpdNd3PfqEBspgZK",
+  "txn": {
+    "data": {
+      "action": "start",
+      "force": true,
+      "name": "StagingNetUpgrade20191111",
+      "package": "sovrin",
+      "reinstall": false,
+      "schedule": {
+        "5mYsynpwzx3muLWYP5ZmqWK8oZtP5k7xj5w85NDKJSM6": "2019-11-11T10:05:00.555000-07:00",
+        "7vruXjaKFp2t1WrsMTcVZuNQtmn35yimDrN7THYwcPof": "2019-11-11T10:05:01.555000-07:00",
+        "7wetNy5AJpHfXvhTx4okZokSw5mcrgWgVZ8jJ3WHgrmd": "2019-11-11T10:05:02.555000-07:00",
+        "AM8oxRuxRyKvJoLRtAEBBPMXzpMqTtm9yQDenMkS76JQ": "2019-11-11T10:05:03.555000-07:00",
+        "AQoViW7aucuvi8SC9QWur6u14ppmVvtMvduigy51NeCv": "2019-11-11T10:05:04.555000-07:00",
+        "B3x2KTn46sZmajraNm9oh6EUWnZWC5yQTrJAUifwDWRV": "2019-11-11T10:05:05.555000-07:00",
+        "BLu5t8JVbpHrRrocSx1HtMqJC8xruDLisaYZMZverkBs": "2019-11-11T10:05:06.555000-07:00",
+        "BUKQ26j7hqkW2bdQsoxHACyS1n7gCrHeYxLR4yaoWCr": "2019-11-11T10:05:07.555000-07:00",
+        "C8H9SzkM6NrfYB1jD6dMCmdBKXvcCgGZpvwD47xGdJFQ": "2019-11-11T10:05:08.555000-07:00",
+        "F15n4nPZcnzDJJMNSZK8yNaeodi1PjZyDs83r4KC75hy": "2019-11-11T10:05:09.555000-07:00",
+        "GfczFDBo6wCK7bwZA2dtTmEf5xGzZEDeELMP34bS9y1B": "2019-11-11T10:05:10.555000-07:00",
+        "UZH61eLH3JokEwjMWQoCMwB3PMD6zRBvG6NCv5yVwXz": "2019-11-11T10:05:11.555000-07:00",
+        "j2JLXyTCAMuHSRqZ7eB2JCXSpPniDFUsyT5MJcGAjUG": "2019-11-11T10:05:12.555000-07:00"
+      },
+      "sha256": "87bff21ddbea954a02aea7ddd0c475a8475f6b2af94869c791dabb31210fdcd3",
+      "timeout": 15,
+      "version": "1.1.60"
+    },
+    "metadata": {
+      "digest": "167d9a2e44edd4d4f0e3a73097d545a9305620460a4cbf0da71f3fd45b45e5cb",
+      "from": "4TMD8bT757JqBnmoCiNCc3",
+      "payloadDigest": "685e7eb60315932c0751929cd17d0cd37a2f4e13203155fdd716a79c7e228de1",
+      "reqId": 1573482201352742000
+    },
+    "protocolVersion": 2,
+    "type": "109"
+  },
+  "txnMetadata": {
+    "seqNo": 25123,
+    "txnTime": 1573482204
+  },
+  "ver": "1"
+}

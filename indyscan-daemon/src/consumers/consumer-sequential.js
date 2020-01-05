@@ -1,110 +1,163 @@
-const { rightPad } = require('../logging/logutil')
-
-const { createTimerLock } = require('../scan-timer')
-
+const { createTimerLock } = require('../time/scan-timer')
+const util = require('util')
 const logger = require('../logging/logger-main')
+const { runWithTimer } = require('../time/util')
 
-function createConsumerSequential (txEmitter, indyscanStorage, network, subledger, timerConfig) {
-  const logPrefix = `ConsumerSequential/${network}/${subledger} : `
-  const { periodMs, unavailableTimeoutMs, jitterRatio } = timerConfig
+function createConsumerSequential (resolveTx, storageRead, storageWrite, network, subledger, sequentialConsumerConfigData) {
+  const whoami = `ConsumerSequential/${network}/${subledger} : `
+  const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } =
+    sequentialConsumerConfigData
+  if (timeoutOnSuccess === undefined ||
+    timeoutOnTxIngestionError === undefined ||
+    timeoutOnLedgerResolutionError === undefined ||
+    timeoutOnTxNoFound === undefined ||
+    jitterRatio === undefined) {
+    throw Error(`${whoami} Invalid sequential consumer config: ${JSON.stringify(sequentialConsumerConfigData, null, 2)}`)
+  }
 
   let processedTxCount = 0
   let requestCycleCount = 0
   let txNotAvailableCount = 0
-  let txResolutionErrorCount = 0
   let cycleExceptionCount = 0
-
-  let enabled = true
 
   const timerLock = createTimerLock()
 
-  async function filterTxs (txRequestId, txNetwork, txSubledger, txSeqNo, txRequester, tx) {
-    const shouldBeProcessed = (
-      network === txNetwork &&
-      subledger === txSubledger &&
-      _desiredSeqNo === txSeqNo
+  let enabled = true
+  let desiredSeqNo
+
+  let processesDuration = {}
+
+  function processDurationResult (processId, duration) {
+    if (processesDuration[processId] === undefined) {
+      processesDuration[processId] = []
+    }
+    processesDuration[processId].push(duration)
+    if (processesDuration[processId].length > 10) {
+      processesDuration[processId].shift()
+    }
+  }
+
+  function getAverage (list) {
+    let sum = list.reduce((a, b) => a + b, 0)
+    return sum / list.length || 0
+  }
+
+  function getAverageDurations () {
+    let avgDurations = {}
+    for (const [processName, durations] of Object.entries(processesDuration)) {
+      avgDurations[processName] = getAverage(durations)
+    }
+    return avgDurations
+  }
+
+  async function tryConsumeNextTransaction () {
+    logger.info(`${whoami} Cycle '${requestCycleCount}' starts.`)
+    try {
+      logger.info(`${whoami} Average durations ${JSON.stringify(getAverageDurations(), null, 2)}`)
+    } catch (e) {
+      logger.warn(`${whoami} Error evaluating average durations. ${e.message} ${e.stack}`)
+    }
+
+    // find out what do we need
+    let desiredSeqNo
+    try {
+      desiredSeqNo = await storageRead.findMaxSeqNo() + 1
+    } catch (e) {
+      timerLock.addBlockTime(60 * 1000, jitterRatio)
+      logger.info(`${whoami} Cycle '${requestCycleCount}' failed to find out what's the next required seqNo.`)
+      return
+    }
+
+    // get it
+    let tx
+    try {
+      logger.info(`${whoami}  Cycle '${requestCycleCount}' submitting tx request seqNo='${desiredSeqNo}'.`)
+      tx = await resolveTxAndMeasureTime(subledger, desiredSeqNo)
+    } catch (e) {
+      cycleExceptionCount++
+      timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
+      logger.error(`${whoami} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${e.message} ${e.stack}`)
+      return
+    }
+
+    // if we have it, save it
+    if (tx) {
+      try {
+        await addTxAndMeasureTime(tx)
+        processedTxCount++
+        timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
+        logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}.`)
+        logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}: ${JSON.stringify(tx)}.`)
+      } catch (e) {
+        cycleExceptionCount++
+        timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
+        logger.error(`${whoami} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${e.message} ${e.stack} \n ${util.inspect(e, false, 10)}`)
+      }
+    } else {
+      txNotAvailableCount++
+      timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
+      logger.info(`${whoami} Cycle '${requestCycleCount}' found that tx ${desiredSeqNo} does not exist.`)
+    }
+  }
+
+  async function resolveTxAndMeasureTime (subledger, desiredSeqNo) {
+    return runWithTimer(
+      async () => resolveTx(subledger, desiredSeqNo),
+      (duration) => processDurationResult('tx-resolution', duration)
     )
-    if (!shouldBeProcessed) {
-      logger.debug(`${logPrefix} Filtering transaction request result: requestId='${txRequestId}' txNetwork='${txNetwork}' txNubledger='${txSubledger}' txSeqN=${txSeqNo}, txRequester='${txRequester}')`)
-    }
-    return shouldBeProcessed
   }
 
-  txEmitter.onTxResolved(processTx, filterTxs)
-  txEmitter.onTxNotAvailable(delayNextOnNotAvailable, filterTxs)
-  txEmitter.onResolutionError(delayNextOnFailedResolution, filterTxs)
-
-  let _desiredSeqNo
-  async function getDesiredSeqNo () {
-    if (_desiredSeqNo === undefined) {
-      _desiredSeqNo = (await indyscanStorage.findMaxSeqNo()) + 1
-    }
-    return _desiredSeqNo
+  async function addTxAndMeasureTime (tx) {
+    return runWithTimer(
+      async () => storageWrite.addTx(tx),
+      (duration) => processDurationResult('tx-storagewrite', duration)
+    )
   }
 
-  async function delayNextOnNotAvailable (requestId, network, subledger, seqNo, requester) {
-    logger.info(`${logPrefix} Tx seqno=${seqNo} does not yet exist.`)
-    txNotAvailableCount++
-    timerLock.addBlockTime(unavailableTimeoutMs, jitterRatio)
-  }
-
-  async function delayNextOnFailedResolution (requestId, network, subledger, seqNo, requester) {
-    logger.error(`${logPrefix} Tx seqno=${seqNo} failed to resolve.`)
-    txResolutionErrorCount++
-    timerLock.addBlockTime(unavailableTimeoutMs, jitterRatio)
-  }
-
-  async function processTx (requestId, network, subledger, seqNo, requester, tx) {
-    await indyscanStorage.addTx(tx)
-    _desiredSeqNo++
-    processedTxCount++
-    logger.info(rightPad(`${logPrefix} processed new tx. `, 70, ' ') + `Details: network='${network}' subledger='${subledger}' seqNo='${seqNo}' requester='${requester}'.`)
-    logger.debug(`${JSON.stringify(tx)}`)
+  async function tryConsumeNextTransactionAndWait () {
+    await runWithTimer(
+      tryConsumeNextTransaction,
+      (duration) => processDurationResult('consumption-iteration-active', duration)
+    )
+    await timerLock.waitTillUnlock()
   }
 
   async function consumptionCycle () {
-    while (true) {
+    while (enabled) { // eslint-disable-line
       try {
-        logger.debug(`${logPrefix} Cycle '${requestCycleCount}' starts.`)
-        if (!enabled) {
-          logger.warn(`${logPrefix} Cycle '${requestCycleCount}' discovered consumer was disabled. Terminating cycle now.`)
-          break
-        }
-        logger.debug(`${logPrefix} Cycle '${requestCycleCount}' will wait '${timerLock.getMsTillUnlock()}' ms before it requests tx.`)
-        await timerLock.waitTillUnlock()
-        timerLock.addBlockTime(periodMs, jitterRatio)
-        const seqNo = await getDesiredSeqNo()
-        logger.info(`${logPrefix}  Cycle '${requestCycleCount}' submitting tx request network='${network}' subledger='${subledger}' seqNo='${seqNo}'.`)
-        txEmitter.submitTxRequest(network, subledger, seqNo, logPrefix)
-        logger.debug(`${logPrefix} Cycle '${requestCycleCount}' finished.`)
+        await runWithTimer(
+          tryConsumeNextTransactionAndWait,
+          (duration) => processDurationResult('consumption-iteration-full', duration)
+        )
+      } catch (e) {
+        logger.error(`${whoami} FATAL Error. Unhandled error propagated to consumption loop. ${e.message} ${e.stack}. Stopping this consumer.`)
+        enabled = false
+      } finally {
         requestCycleCount++
-      } catch (error) {
-        cycleExceptionCount++
-        logger.error(`${logPrefix} Cycle '${requestCycleCount}' thrown error.`)
-        logger.error(error.stack)
-        timerLock.addBlockTime(unavailableTimeoutMs, jitterRatio)
       }
     }
   }
 
+  function start () {
+    logger.info(`${whoami}: Starting ...`)
+    enabled = true
+    consumptionCycle()
+  }
+
+  function stop () {
+    logger.info(`${whoami}: Stopping ...`)
+    enabled = false
+  }
+
   function info () {
     return {
-      consumerName: logPrefix,
-      desiredSeqNo: _desiredSeqNo,
+      consumerName: whoami,
+      desiredSeqNo,
       processedTxCount,
       requestCycleCount,
       txNotAvailableCount,
       cycleExceptionCount
     }
-  }
-
-  function start () {
-    logger.info(`${logPrefix}: Starting`)
-    consumptionCycle()
-  }
-
-  function stop () {
-    enabled = false
   }
 
   return {
