@@ -30,12 +30,14 @@ function createStorageReadEs (esClient, esIndex, subledgerName, logger) {
 
   async function getTxCount (query) {
     query = query ? esAndFilters(subledgerTxsQuery, query) : subledgerTxsQuery
-    const { body } = await esClient.search({
+    let request = {
       index: esIndex,
-      filter_path: 'hits.total',
       body: { query }
-    })
-    return body.hits.total.value
+    }
+    logger.debug(`${whoami} Submitting count txs request: ${JSON.stringify(request, null, 2)}`)
+    const { body } = await esClient.count(request)
+    logger.debug(`${whoami} Received count txs response: ${JSON.stringify(body, null, 2)}`)
+    return body.count
   }
 
   async function _getTxBySeqNo (seqNo) {

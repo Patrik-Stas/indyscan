@@ -1,7 +1,6 @@
 /* eslint-env jest */
 const { createIndyscanTransform } = require('../../../../src/transformation/transform-tx')
 const txPoolUpgrade = require('../../../resource/sample-txs/tx-config-pool-upgrade')
-const txPoolUpgradeCorrupted = require('../../../resource/sample-txs/tx-config-pool-upgrade-corrupted')
 
 let esTransform = createIndyscanTransform((seqno) => { throw Error(`Domain tx lookup seqno=${seqno} was not expected.`) })
 

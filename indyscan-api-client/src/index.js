@@ -32,14 +32,14 @@ async function getDefaultNetwork (baseUrl) {
   return returnNullFor404(axiosCall)
 }
 
-async function getTxCount (baseUrl, network, ledger, filterTxNames = []) {
-  const query = qs.stringify({ filterTxNames: JSON.stringify(filterTxNames) })
+async function getTxCount (baseUrl, network, ledger, filterTxNames = [], search) {
+  const query = qs.stringify({ search, filterTxNames: JSON.stringify(filterTxNames) })
   let res = await getRequest(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs/stats/count?${query}`)
   return res.txCount
 }
 
-async function getTxs (baseUrl, network, ledger, fromRecentTx, toRecentTx, filterTxNames = [], format = 'original', search) {
-  const query = qs.stringify({ fromRecentTx, toRecentTx, format, filterTxNames: JSON.stringify(filterTxNames), search })
+async function getTxs (baseUrl, network, ledger, skip, size, filterTxNames = [], format = 'original', search, sortFromRecent) {
+  const query = qs.stringify({ sortFromRecent, skip, size, format, filterTxNames: JSON.stringify(filterTxNames), search })
   return getRequest(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs?${query}`)
 }
 

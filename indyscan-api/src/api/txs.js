@@ -6,6 +6,8 @@ const url = require('url')
 const indyscanStorage = require('indyscan-storage')
 const { esFullTextsearch } = require('indyscan-storage/src/es/es-query-builder')
 const { esTxFilters } = indyscanStorage
+const logger = require('../logging/logger-main')
+const util = require('util')
 
 function initTxsApi (app, ledgerStorageManager, networkManager) {
   function getNetworkId (req, res) {
@@ -26,30 +28,6 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
     }
   }
 
-  function getTxRange (fromRecentTx, toRecentTx) {
-    if (fromRecentTx !== undefined && fromRecentTx !== null) {
-      if (typeof fromRecentTx === 'string') {
-        fromRecentTx = parseInt(fromRecentTx)
-      }
-    } else {
-      fromRecentTx = 0
-    }
-    if (toRecentTx !== undefined && toRecentTx !== null) {
-      if (typeof toRecentTx === 'string') {
-        toRecentTx = parseInt(toRecentTx)
-      }
-    } else {
-      toRecentTx = 10
-    }
-    if (Math.abs(fromRecentTx - toRecentTx) > 150) {
-      throw Error(`Request transaction range too big.`)
-    }
-    return {
-      skip: Math.min(fromRecentTx, toRecentTx),
-      size: Math.max(fromRecentTx, toRecentTx) - Math.min(fromRecentTx, toRecentTx)
-    }
-  }
-
   app.get('/api/networks/:networkRef/ledgers/:ledger/txs',
     validate(
       {
@@ -66,26 +44,39 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
       const parts = url.parse(req.url, true)
       const networkId = getNetworkId(req, res)
       let { ledger } = req.params
-      let { fromRecentTx, toRecentTx, filterTxNames, search, format } = parts.query
-      let { skip, size } = getTxRange(fromRecentTx, toRecentTx)
+      let { skip, size, filterTxNames, search, format, sortFromRecent } = parts.query
+      skip = skip || 0
+      size = size || 50
+      // let { skip, size } = getTxRange(fromRecentTx, toRecentTx)
       let txTypeQuery = urlQueryTxNamesToEsQuery(filterTxNames)
       let searchQuery = search ? esFullTextsearch(search) : null
+      let finalQuery = esAndFilters(txTypeQuery, searchQuery)
       let txs
-      switch (format) {
-        case 'original':
-          txs = await ledgerStorageManager.getStorage(networkId, ledger).getTxs(skip, size, esAndFilters(txTypeQuery, searchQuery))
-          break
-        case 'full':
-          txs = await ledgerStorageManager.getStorage(networkId, ledger).getFullTxs(skip, size, esAndFilters(txTypeQuery, searchQuery))
-          break
-        case 'indyscan':
-          txs = (await ledgerStorageManager.getStorage(networkId, ledger).getFullTxs(skip, size, esAndFilters(txTypeQuery, searchQuery)))
-            .map(tx => tx.indyscan)
-          break
-        default:
-          throw Error('This should be unreachable code.')
+      console.log(`sortFromRecent =${sortFromRecent} type ${typeof sortFromRecent}`)
+      let sort = (sortFromRecent === 'true' || sortFromRecent === undefined || sortFromRecent === null)
+        ? { 'indyscan.txnMetadata.seqNo': { 'order': 'desc' } }
+        : { 'indyscan.txnMetadata.seqNo': { 'order': 'asc' } }
+      try {
+        switch (format) {
+          case 'original':
+            txs = await ledgerStorageManager.getStorage(networkId, ledger).getTxs(skip, size, finalQuery, sort)
+            break
+          case 'full':
+            txs = await ledgerStorageManager.getStorage(networkId, ledger).getFullTxs(skip, size, finalQuery, sort)
+            break
+          case 'indyscan':
+            txs = (await ledgerStorageManager.getStorage(networkId, ledger).getFullTxs(skip, size, finalQuery, sort))
+              .map(tx => tx.indyscan)
+            break
+          default:
+            res.status(500).send({ message: 'Reached supposedly unreachable.' })
+        }
+        res.status(200).send(txs)
+      } catch (e) {
+        logger.error(`Problem fetching transactions networkId=${networkId} ledger=${ledger} query=${JSON.stringify(finalQuery)}`)
+        logger.error(util.inspect(e))
+        res.status(500).send()
       }
-      res.status(200).send(txs)
     }))
 
   app.get('/api/networks/:networkRef/ledgers/:ledger/txs/:seqNo',
@@ -137,9 +128,18 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
       const parts = url.parse(req.url, true)
       const { ledger } = req.params
       const networkId = getNetworkId(req, res)
-      const { filterTxNames } = parts.query
-      const txCount = await ledgerStorageManager.getStorage(networkId, ledger).getTxCount(urlQueryTxNamesToEsQuery(filterTxNames))
-      res.status(200).send({ txCount })
+      const { filterTxNames, search } = parts.query
+      let txTypeQuery = urlQueryTxNamesToEsQuery(filterTxNames)
+      let searchQuery = search ? esFullTextsearch(search) : null
+      let finalQuery = esAndFilters(txTypeQuery, searchQuery)
+      try {
+        const txCount = await ledgerStorageManager.getStorage(networkId, ledger).getTxCount(finalQuery)
+        res.status(200).send({ txCount })
+      } catch (e) {
+        logger.error(`Problem counting transactions networkId=${networkId} ledger=${ledger} query=${JSON.stringify(finalQuery)}`)
+        logger.error(util.inspect(e))
+        res.status(500).send()
+      }
     }))
 
   return app
