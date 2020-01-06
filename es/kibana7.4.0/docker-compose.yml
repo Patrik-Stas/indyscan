@@ -1,0 +1,14 @@
+version: '3.7'
+
+services:
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.4.0
+    environment:
+      - ELASTICSEARCH_HOSTS=http://host.docker.internal:9200
+    ports:
+      - 5601:5601
+
+volumes:
+  indyscan-es-localhost:
+    driver: local

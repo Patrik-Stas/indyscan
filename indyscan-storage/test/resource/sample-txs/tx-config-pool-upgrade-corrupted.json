@@ -1,0 +1,70 @@
+{
+  "auditPath": [
+    "HQgjcwesh7PV6wr8gWWUUH2cjbsCdLcsbUJFos9UdkLN",
+    "7jFHTyfrTNmdpVNscqLVHiGxQdF7BQ3jgsLi2h3wkNbz",
+    "D182T9sMpsi6USMrE7JznHyGuX1ACpp7Xt4coTXJHpuK",
+    "2cVkUrRLr5nr4h5nqFGWyTf6CSTp2qmmK7HDbmGkk17X",
+    "8mvQAFAXpMzK3sC7rtVQ2nb9iFAtMgfFX6E7ezWoftRo",
+    "9Hn1iJN3BSNfadCCbRHgbFU4otwDUSbnBUh45SCwfPcg"
+  ],
+  "reqSignature": {
+    "type": "ED25519",
+    "values": [
+      {
+        "from": "4TMD8bT757JqBnmoCiNCc3",
+        "value": "RP9QzYDEURAwm2mSpYxj85sSQWqmCoXMfpHsPmfVeNyxg97A7WnwsPniZgPpWdaP7id2gxvRYGVaUuRfv1iXSJi"
+      },
+      {
+        "from": "6feBTywcmJUriqqnGc1zSJ",
+        "value": "XDKFwN5xtEnT6JEmgvrEoiqeoSV4K68ohcjFSCv9NrXNakVCvHcLEvQjQZLHVak6hVE1oQZ5zFZjoCwTnpx6haJ"
+      },
+      {
+        "from": "Kv2YdE5KGgdruMGW6p5w4b",
+        "value": "212UP7QYvV6SUPMJeRLdoSqgHnPCJj2U4gjPD29htzFKsCtpCBWGPe7pZkgEiGuJaE1pKgPYsxqZctgjKagi9iNE"
+      }
+    ]
+  },
+  "rootHash": "GnGeKgESxMggmvxwiG74hktcJ5S8zZmQtnzkvd8XDbtC",
+  "txn": {
+    "data": {
+      "action": "start",
+      "force": true,
+      "name": "StagingNetUpgrade20190715",
+      "package": "sovrin",
+      "reinstall": false,
+      "schedule": {
+        "5mYsynpwzx3muLWYP5ZmqWK8oZtP5k7xj5w85NDKJSM6": "2019-07-15T10:07:00.555000-06:00",
+        "7vruXjaKFp2t1WrsMTcVZuNQtmn35yimDrN7THYwcPof": "2019-07-15T10:13:00.555000-06:00",
+        "7wetNy5AJpHfXvhTx4okZokSw5mcrgWgVZ8jJ3WHgrmd": "2019-07-15T10:15:00.555000-06:00",
+        "99UgWzvjVvhDHfd16V62VFdQEKn8Vk5fuMP2t1d6xx4w": "2019-07-15T10:31:00.555000-06:00",
+        "AM8oxRuxRyKvJoLRtAEBBPMXzpMqTtm9yQDenMkS76JQ": "2019-07-15T10:25:00.555000-06:00",
+        "AQoViW7aucuvi8SC9QWur6u14ppmVvtMvduigy51NeCv": "2019-07-15T10:27:00.555000-06:00",
+        "AcaN2zJ1vkQyEvmi2EyUMLzvzczQRvarNPjR2CbtNFAX": "2019-07-15T10:09:00.555000-06:00",
+        "B3x2KTn46sZmajraNm9oh6EUWnZWC5yQTrJAUifwDWRV": "2019-07-15T10:33:00.555000-06:00",
+        "BLu5t8JVbpHrRrocSx1HtMqJC8xruDLisaYZMZverkBs": "2019-07-15T10:11.555000-06:00",
+        "BUKQ26j7hqkW2bdQsoxHACyS1n7gCrHeYxLR4yaoWCr": "2019-07-15T10:29:00.555000-06:00",
+        "C8H9SzkM6NrfYB1jD6dMCmdBKXvcCgGZpvwD47xGdJFQ": "2019-07-15T10:21:00.555000-06:00",
+        "F15n4nPZcnzDJJMNSZK8yNaeodi1PjZyDs83r4KC75hy": "2019-07-15T10:17:00.555000-06:00",
+        "GfczFDBo6wCK7bwZA2dtTmEf5xGzZEDeELMP34bS9y1B": "2019-07-15T10:19:00.555000-06:00",
+        "UZH61eLH3JokEwjMWQoCMwB3PMD6zRBvG6NCv5yVwXz": "2019-07-15T10:05:00.555000-06:00",
+        "j2JLXyTCAMuHSRqZ7eB2JCXSpPniDFUsyT5MJcGAjUG": "2019-07-15T10:23:00.555000-06:00"
+      },
+      "sha256": "87bff21ddbea954a02aea7ddd0c475a8475f6b2af94869c791dabb31210fdcd3",
+      "timeout": 15,
+      "version": "1.1.50"
+    },
+    "metadata": {
+      "digest": "3945166a506715b687a0121dda2a74d22252c4c05ed8e78488bb4b192f6043ca",
+      "from": "Kv2YdE5KGgdruMGW6p5w4b",
+      "payloadDigest": "8601bd2fffd455891c372cd4c07c04ee42c5895f7ea0f92cf772a6d0a226fde8",
+      "reqId": 1562955508668192000
+    },
+    "protocolVersion": 2,
+    "type": "109"
+  },
+  "txnMetadata": {
+    "seqNo": 24933,
+    "txnTime": 1562968039
+  },
+  "ver": "1"
+}
