@@ -109,6 +109,10 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, subledge
           'indyscan.txn.data.data.node_ip_geo.location': { type: 'geo_point' },
           'indyscan.txn.data.data.node_ip_geo.eu': { type: 'boolean' },
 
+          // config POOL UPGRADE
+          'indyscan.txn.data.schedule.scheduleKey': { type: 'keyword' },
+          'indyscan.txn.data.schedule.scheduleTime': { type: 'date', format: "strict_date_optional_time||epoch_millis||yyyy-MM-dd'T'HH:mm:ss.SSSZZ||yyyy-MM-dd'T'HH:mm.SSSZZ", 'ignore_malformed': true },
+
           // TX: domain AUTHOR_AGREEMENT_AML
           'indyscan.txn.data.aml.at_submission': { type: 'text', analyzer: 'english' },
           'indyscan.txn.data.aml.click_agreement': { type: 'text', analyzer: 'english' },

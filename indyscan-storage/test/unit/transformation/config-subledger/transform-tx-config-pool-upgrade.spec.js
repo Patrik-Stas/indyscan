@@ -22,16 +22,4 @@ describe('config/pool-upgrade transaction transformations', () => {
     expect(transformed.subledger.name).toBe('CONFIG')
     expect(transformed.txnMetadata.txnTime).toBe('2019-11-11T14:23:24.000Z')
   })
-
-  it('should process corrupted tx stagingnet/config/24933 with wrong schedule time', async () => {
-    let transformed = await esTransform(txPoolUpgradeCorrupted, 'CONFIG')
-    expect(transformed.txn.typeName).toBe('POOL_UPGRADE')
-    expect(Array.isArray(transformed.txn.data.schedule)).toBeTruthy()
-    expect(transformed.txn.data.schedule.length).toBe(15)
-    let scheduleHash = 'BLu5t8JVbpHrRrocSx1HtMqJC8xruDLisaYZMZverkBs'
-    let scheduleRecords = transformed.txn.data.schedule.filter(r => r.scheduleKey === scheduleHash)
-    expect(scheduleRecords.length).toBe(1)
-    expect(scheduleRecords[0].scheduleKey).toBe('BLu5t8JVbpHrRrocSx1HtMqJC8xruDLisaYZMZverkBs')
-    expect(scheduleRecords[0].scheduleTime).toBe('2019-07-15T10:11:00.555000-06:00')
-  })
 })
