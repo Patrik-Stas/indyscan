@@ -35,7 +35,7 @@ class TxListItem extends Component {
           <ReactTooltip />
           <p data-tip={description}>{typeName}</p>
         </TableCell>
-        <TableCell>{`${(new Date(txnTimeIso8601)).toLocaleString('en-GB')}`}</TableCell>
+        <TableCell>{`${(txnTimeIso8601 ? new Date(txnTimeIso8601) : 'Genesis tx').toLocaleString('en-GB')}`}</TableCell>
         <TableCell>{from}</TableCell>
         <TableCell>{renderKeyValuesAsBadges(seqNo, filteredData, palette[2])}</TableCell>
       </TableRow>

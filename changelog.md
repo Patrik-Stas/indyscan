@@ -1,3 +1,11 @@
+## 3.1.1
+- Display "Genesis Tx" instead of "Invalid date" in UI if timestamp is not present on tx.
+- Fix UI error when reverse order is enabled together with TX type filter
+- Adjust ES mapping to be more tolerant toward "scheduleTime" format in POOL_UPGRADE transaction
+- Prettier UI
+- Display transaction count given currently selected filter/search in UI
+- Cap pagination to max 500 pages given default page size of 50
+
 ## 3.0.0
 - Using `Elasticsearch` instead of `Mongo` for storage
 - `indyscan-daemon` is reading configuration file defining what and how to scan, instead of passing configuration

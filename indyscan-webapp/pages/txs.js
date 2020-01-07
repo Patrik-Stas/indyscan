@@ -46,7 +46,7 @@ class Txs extends Component {
   flipSortFromRecent () {
     const { baseUrl, network, ledger, page, pageSize, filterTxNames, search, sortFromRecent } = this.props
     const sortFromRecentNew = sortFromRecent === 'true' ? 'false' : 'true'
-    this.updateUrl(baseUrl, network, ledger, page, pageSize, filterTxNames, search, sortFromRecentNew)
+    this.updateUrl(baseUrl, network, ledger, page, pageSize, JSON.stringify(filterTxNames), search, sortFromRecentNew)
   }
 
   asyncFunctionDebounced = AwesomeDebouncePromise(
