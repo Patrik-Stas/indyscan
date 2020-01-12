@@ -1,0 +1,152 @@
+{
+  "environment": {
+    "ES_NETWORK": "sovrin-mainnet"
+  },
+  "comment": {
+    "description": {
+      "1": "This is sample daemon configuration for reading data out of old Elasticsearch index, running it though",
+      "2": "a transformation processor and storing in new Elasticsearch index. It will do so for all 3 subledgers."
+    }
+  },
+  "sources": [
+    {
+      "id": "es-txs-$ES_NETWORK-domain",
+      "type": "elasticsearch",
+      "params": {
+        "url": "$URL_ELASTICSEARCH",
+        "subledger": "domain",
+        "index": "txs-$ES_NETWORK-domain"
+      }
+    },
+    {
+      "id": "es-txs-$ES_NETWORK-config",
+      "type": "elasticsearch",
+      "params": {
+        "url": "$ URL_ELASTICSEARCH",
+        "subledger": "config",
+        "index": "txs-$ES_NETWORK-config"
+      }
+    },
+    {
+      "id": "es-txs-$ES_NETWORK-pool",
+      "type": "elasticsearch",
+      "params": {
+        "url": "$URL_ELASTICSEARCH",
+        "subledger": "pool",
+        "index": "txs-$ES_NETWORK-pool"
+      }
+    },
+    {
+      "id": "es-txs-$ES_NETWORK-domain-reindex",
+      "type": "elasticsearch",
+      "params": {
+        "url": "$URL_ELASTICSEARCH",
+        "subledger": "domain",
+        "index": "txs-$ES_NETWORK-domain-reindex"
+      }
+    },
+    {
+      "id": "es-txs-$ES_NETWORK-config-reindex",
+      "type": "elasticsearch",
+      "params": {
+        "url": "$URL_ELASTICSEARCH",
+        "subledger": "config",
+        "index": "txs-$ES_NETWORK-config-reindex"
+      }
+    },
+    {
+      "id": "es-txs-$ES_NETWORK-pool-reindex",
+      "type": "elasticsearch",
+      "params": {
+        "url": "$URL_ELASTICSEARCH",
+        "subledger": "pool",
+        "index": "txs-$ES_NETWORK-pool-reindex"
+      }
+    }
+  ],
+  "destinations": [
+    {
+      "id": "destination.es-txs-$ES_NETWORK-domain-reindex",
+      "type": "elasticsearch",
+      "params": {
+        "url": "$URL_ELASTICSEARCH",
+        "index": "txs-$ES_NETWORK-domain-reindex",
+        "subledger": "domain",
+        "replicas": 2
+      }
+    },
+    {
+      "id": "destination.es-txs-$ES_NETWORK-config-reindex",
+      "type": "elasticsearch",
+      "params": {
+        "url": "$URL_ELASTICSEARCH",
+        "index": "txs-$ES_NETWORK-config-reindex",
+        "subledger": "config",
+        "replicas": 2
+      }
+    },
+    {
+      "id": "destination.es-txs-$ES_NETWORK-pool-reindex",
+      "type": "elasticsearch",
+      "params": {
+        "url": "$URL_ELASTICSEARCH",
+        "index": "txs-$ES_NETWORK-pool-reindex",
+        "subledger": "pool",
+        "replicas": 2
+      }
+    }
+  ],
+  "iterators": [
+    {
+      "id": "iterator.domain-reindex",
+      "type": "guided-iterator",
+      "params": {
+        "source": "source.es-txs-$ES_NETWORK-domain",
+        "sourceSeqNoGuidance": "source.es-txs-$ES_NETWORK-domain-reindex"
+      }
+    },
+    {
+      "id": "iterator.config-reindex",
+      "type": "guided-iterator",
+      "params": {
+        "source": "source.es-txs-$ES_NETWORK-config",
+        "sourceSeqNoGuidance": "source.es-txs-$ES_NETWORK-config-reindex"
+      }
+    },
+    {
+      "id": "iterator.domain-pool",
+      "type": "guided-iterator",
+      "params": {
+        "source": "source.es-txs-$ES_NETWORK-pool",
+        "sourceSeqNoGuidance": "source.es-txs-$ES_NETWORK-pool-reindex"
+      }
+    }
+  ],
+  "processors": [
+      {
+        "id": "processor.tx-expand.sovmain",
+        "type": "expansion",
+        "params": {
+          "sourceDomainLookups": "source.es-txs-$ES_NETWORK-domain-reindex"
+        }
+      }
+  ],
+  "pipelines": [
+    {
+      "id": "$ES_NETWORK",
+      "params": {
+        "iterator": "iterator.old-es-guided-by-new-index",
+        "destination": "es-txs-$ES_NETWORK-domain-reindex",
+        "timing" : {
+          "timeoutOnSuccess": 1000,
+          "timeoutOnIteratorError": 5000,
+          "timeoutOnTxNotAvailable": 4000,
+          "jitterRatio": 0.4
+        }
+      }
+    }
+  ]
+}
+
+
+
