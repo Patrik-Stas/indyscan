@@ -13,28 +13,7 @@
       "interface": "SOURCE",
       "impl": "ledger",
       "params": {
-        "id": "source.$INDY_NETWORK.domain",
-        "subledger": "domain",
-        "name": "SOVRIN_MAINNET",
-        "genesisReference": "./genesis/SOVRIN_MAINNET.txn"
-      }
-    },
-    {
-      "interface": "SOURCE",
-      "impl": "ledger",
-      "params": {
-        "id": "source.$INDY_NETWORK.config",
-        "subledger": "config",
-        "name": "SOVRIN_MAINNET",
-        "genesisReference": "./genesis/SOVRIN_MAINNET.txn"
-      }
-    },
-    {
-      "interface": "SOURCE",
-      "impl": "ledger",
-      "params": {
-        "id": "source.$INDY_NETWORK.pool",
-        "subledger": "pool",
+        "id": "source.$INDY_NETWORK",
         "name": "SOVRIN_MAINNET",
         "genesisReference": "./genesis/SOVRIN_MAINNET.txn"
       }
@@ -43,87 +22,31 @@
       "interface": "SOURCE",
       "impl": "elasticsearch",
       "params": {
-        "id": "source.target.$INDY_NETWORK.domain",
+        "id": "source.target.$INDY_NETWORK",
         "url": "$URL_ELASTICSEARCH",
-        "subledger": "domain",
-        "index": "txs-$INDY_NETWORK-domain"
-      }
-    },
-    {
-      "interface": "SOURCE",
-      "impl": "elasticsearch",
-      "params": {
-        "id": "source.target.$INDY_NETWORK.config",
-        "url": "$URL_ELASTICSEARCH",
-        "subledger": "config",
-        "index": "txs-$INDY_NETWORK-config"
-      }
-    },
-    {
-      "interface": "SOURCE",
-      "impl": "elasticsearch",
-      "params": {
-        "id": "source.target.$INDY_NETWORK.pool",
-        "url": "$URL_ELASTICSEARCH",
-        "subledger": "pool",
-        "index": "txs-$INDY_NETWORK-pool"
+        "indexDomain": "txs-$INDY_NETWORK-domain",
+        "indexPool": "txs-$INDY_NETWORK-pool",
+        "indexConfig": "txs-$INDY_NETWORK-config"
       }
     },
     {
       "interface": "TARGET",
       "impl": "elasticsearch",
       "params": {
-        "id": "target.$INDY_NETWORK.domain",
+        "id": "target.$INDY_NETWORK",
         "url": "$URL_ELASTICSEARCH",
-        "subledger": "domain",
-        "index": "txs-$INDY_NETWORK-domain"
-      }
-    },
-    {
-      "interface": "TARGET",
-      "impl": "elasticsearch",
-      "params": {
-        "id": "target.$INDY_NETWORK.config",
-        "url": "$URL_ELASTICSEARCH",
-        "subledger": "config",
-        "index": "txs-$INDY_NETWORK-config"
-      }
-    },
-    {
-      "interface": "TARGET",
-      "impl": "elasticsearch",
-      "params": {
-        "id": "target.$INDY_NETWORK.pool",
-        "url": "$URL_ELASTICSEARCH",
-        "subledger": "pool",
-        "index": "txs-$INDY_NETWORK-pool"
+        "indexDomain": "txs-$INDY_NETWORK-domain",
+        "indexPool": "txs-$INDY_NETWORK-pool",
+        "indexConfig": "txs-$INDY_NETWORK-config"
       }
     },
     {
       "interface": "ITERATOR",
-      "impl": "guided-iterator",
+      "impl": "guided-network-iterator",
       "params": {
-        "id": "iterator.$INDY_NETWORK.domain",
-        "source": "source.$INDY_NETWORK.domain",
-        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK.domain"
-      }
-    },
-    {
-      "interface": "ITERATOR",
-      "impl": "guided-iterator",
-      "params": {
-        "id": "iterator.$INDY_NETWORK.config",
-        "source": "source.$INDY_NETWORK.config",
-        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK.config"
-      }
-    },
-    {
-      "interface": "ITERATOR",
-      "impl": "guided-iterator",
-      "params": {
-        "id": "iterator.$INDY_NETWORK.pool",
-        "source": "source.$INDY_NETWORK.pool",
-        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK.pool"
+        "id": "iterator.$INDY_NETWORK",
+        "source": "source.$INDY_NETWORK",
+        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK"
       }
     },
     {
@@ -131,7 +54,7 @@
       "impl": "expansion",
       "params": {
         "id": "processor.expansion.$INDY_NETWORK",
-        "sourceDomainLookups": "source.target.$INDY_NETWORK.domain"
+        "sourceLookups": "source.target.$INDY_NETWORK"
       }
     },
     {
@@ -139,9 +62,10 @@
       "impl": "sequential",
       "params": {
         "id": "pipeline.$INDY_NETWORK.domain",
-        "iterator": "iterator.$INDY_NETWORK.domain",
+        "subledger": "domain",
+        "iterator": "iterator.$INDY_NETWORK",
         "processor": "processor.expansion.$INDY_NETWORK",
-        "target": "target.$INDY_NETWORK.domain",
+        "target": "target.$INDY_NETWORK",
         "timing": {
           "timeoutOnSuccess": 1000,
           "timeoutOnIteratorError": 5000,
@@ -155,9 +79,10 @@
       "impl": "sequential",
       "params": {
         "id": "pipeline.$INDY_NETWORK.config",
-        "iterator": "iterator.$INDY_NETWORK.config",
+        "subledger": "config",
+        "iterator": "iterator.$INDY_NETWORK",
         "processor": "processor.expansion.$INDY_NETWORK",
-        "target": "target.$INDY_NETWORK.config",
+        "target": "target.$INDY_NETWORK",
         "timing": {
           "timeoutOnSuccess": 1000,
           "timeoutOnIteratorError": 5000,
@@ -171,9 +96,10 @@
       "impl": "sequential",
       "params": {
         "id": "pipeline.$INDY_NETWORK.pool",
-        "iterator": "iterator.$INDY_NETWORK.pool",
+        "subledger": "pool",
+        "iterator": "iterator.$INDY_NETWORK",
         "processor": "processor.expansion.$INDY_NETWORK",
-        "target": "target.$INDY_NETWORK.pool",
+        "target": "target.$INDY_NETWORK",
         "timing": {
           "timeoutOnSuccess": 1000,
           "timeoutOnIteratorError": 5000,
