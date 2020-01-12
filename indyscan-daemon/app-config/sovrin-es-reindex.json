@@ -8,136 +8,176 @@
       "2": "a transformation processor and storing in new Elasticsearch index. It will do so for all 3 subledgers."
     }
   },
-  "sources": [
+  "objects": [
     {
-      "id": "es-txs-$ES_NETWORK-domain",
-      "type": "elasticsearch",
+      "interface": "SOURCE",
+      "impl": "elasticsearch",
       "params": {
+        "id": "source.$INDY_NETWORK.domain",
         "url": "$URL_ELASTICSEARCH",
         "subledger": "domain",
-        "index": "txs-$ES_NETWORK-domain"
+        "index": "txs-$INDY_NETWORK-domain"
       }
     },
     {
-      "id": "es-txs-$ES_NETWORK-config",
-      "type": "elasticsearch",
+      "interface": "SOURCE",
+      "impl": "elasticsearch",
       "params": {
-        "url": "$ URL_ELASTICSEARCH",
+        "id": "source.$INDY_NETWORK.config",
+        "url": "$URL_ELASTICSEARCH",
         "subledger": "config",
-        "index": "txs-$ES_NETWORK-config"
+        "index": "txs-$INDY_NETWORK-config"
       }
     },
     {
-      "id": "es-txs-$ES_NETWORK-pool",
-      "type": "elasticsearch",
+      "interface": "SOURCE",
+      "impl": "elasticsearch",
       "params": {
+        "id": "source.$INDY_NETWORK.pool",
         "url": "$URL_ELASTICSEARCH",
         "subledger": "pool",
-        "index": "txs-$ES_NETWORK-pool"
+        "index": "txs-$INDY_NETWORK-pool"
       }
     },
     {
-      "id": "es-txs-$ES_NETWORK-domain-reindex",
-      "type": "elasticsearch",
+      "interface": "SOURCE",
+      "impl": "ledger",
       "params": {
+        "id": "source.target.$INDY_NETWORK.domain",
         "url": "$URL_ELASTICSEARCH",
         "subledger": "domain",
-        "index": "txs-$ES_NETWORK-domain-reindex"
+        "index": "txs-$INDY_NETWORK-domain-reindex"
       }
     },
     {
-      "id": "es-txs-$ES_NETWORK-config-reindex",
-      "type": "elasticsearch",
+      "interface": "SOURCE",
+      "impl": "ledger",
       "params": {
+        "id": "source.target.$INDY_NETWORK.config",
         "url": "$URL_ELASTICSEARCH",
         "subledger": "config",
-        "index": "txs-$ES_NETWORK-config-reindex"
+        "index": "txs-$INDY_NETWORK-config-reindex"
       }
     },
     {
-      "id": "es-txs-$ES_NETWORK-pool-reindex",
-      "type": "elasticsearch",
+      "interface": "SOURCE",
+      "impl": "ledger",
       "params": {
+        "id": "source.target.$INDY_NETWORK.pool",
         "url": "$URL_ELASTICSEARCH",
         "subledger": "pool",
-        "index": "txs-$ES_NETWORK-pool-reindex"
+        "index": "txs-$INDY_NETWORK-pool-reindex"
       }
-    }
-  ],
-  "destinations": [
+    },
     {
-      "id": "destination.es-txs-$ES_NETWORK-domain-reindex",
-      "type": "elasticsearch",
+      "interface": "TARGET",
+      "impl": "elasticsearch",
       "params": {
+        "id": "target.$INDY_NETWORK.domain",
         "url": "$URL_ELASTICSEARCH",
-        "index": "txs-$ES_NETWORK-domain-reindex",
+        "index": "txs-$INDY_NETWORK-domain-reindex",
         "subledger": "domain",
         "replicas": 2
       }
     },
     {
-      "id": "destination.es-txs-$ES_NETWORK-config-reindex",
-      "type": "elasticsearch",
+      "interface": "TARGET",
+      "impl": "elasticsearch",
       "params": {
+        "id": "target.$INDY_NETWORK.config",
         "url": "$URL_ELASTICSEARCH",
-        "index": "txs-$ES_NETWORK-config-reindex",
+        "index": "txs-$INDY_NETWORK-config-reindex",
         "subledger": "config",
         "replicas": 2
       }
     },
     {
-      "id": "destination.es-txs-$ES_NETWORK-pool-reindex",
-      "type": "elasticsearch",
+      "interface": "TARGET",
+      "impl": "elasticsearch",
       "params": {
+        "id": "target.$INDY_NETWORK.pool",
         "url": "$URL_ELASTICSEARCH",
-        "index": "txs-$ES_NETWORK-pool-reindex",
+        "index": "txs-$INDY_NETWORK-pool-reindex",
         "subledger": "pool",
         "replicas": 2
       }
-    }
-  ],
-  "iterators": [
+    },
     {
-      "id": "iterator.domain-reindex",
-      "type": "guided-iterator",
+      "interface": "ITERATOR",
+      "impl": "guided-iterator",
       "params": {
-        "source": "source.es-txs-$ES_NETWORK-domain",
-        "sourceSeqNoGuidance": "source.es-txs-$ES_NETWORK-domain-reindex"
+        "id": "iterator.$INDY_NETWORK.domain",
+        "source": "source.$INDY_NETWORK.domain",
+        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK.domain"
       }
     },
     {
-      "id": "iterator.config-reindex",
-      "type": "guided-iterator",
+      "interface": "ITERATOR",
+      "impl": "guided-iterator",
       "params": {
-        "source": "source.es-txs-$ES_NETWORK-config",
-        "sourceSeqNoGuidance": "source.es-txs-$ES_NETWORK-config-reindex"
+        "id": "iterator.$INDY_NETWORK.config",
+        "source": "source.$INDY_NETWORK.config",
+        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK.config"
       }
     },
     {
-      "id": "iterator.domain-pool",
-      "type": "guided-iterator",
+      "interface": "ITERATOR",
+      "impl": "guided-iterator",
       "params": {
-        "source": "source.es-txs-$ES_NETWORK-pool",
-        "sourceSeqNoGuidance": "source.es-txs-$ES_NETWORK-pool-reindex"
+        "id": "iterator.$INDY_NETWORK.pool",
+        "source": "source.$INDY_NETWORK.pool",
+        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK.pool"
       }
-    }
-  ],
-  "processors": [
-      {
-        "id": "processor.tx-expand.sovmain",
-        "type": "expansion",
-        "params": {
-          "sourceDomainLookups": "source.es-txs-$ES_NETWORK-domain-reindex"
+    },
+    {
+      "interface": "PROCESSOR",
+      "impl": "expansion",
+      "params": {
+        "id": "processor.expansion.$INDY_NETWORK",
+        "sourceDomainLookups": "source.target.$INDY_NETWORK.domain"
+      }
+    },
+    {
+      "interface": "PIPELINE",
+      "impl": "sequential",
+      "params": {
+        "id": "pipeline.$INDY_NETWORK.domain",
+        "iterator": "iterator.$INDY_NETWORK.domain",
+        "processor": "processor.expansion.$INDY_NETWORK",
+        "target": "target.$INDY_NETWORK.domain",
+        "timing": {
+          "timeoutOnSuccess": 1000,
+          "timeoutOnIteratorError": 5000,
+          "timeoutOnTxNotAvailable": 4000,
+          "jitterRatio": 0.4
         }
       }
-  ],
-  "pipelines": [
+    },
     {
-      "id": "$ES_NETWORK",
+      "interface": "PIPELINE",
+      "impl": "sequential",
       "params": {
-        "iterator": "iterator.old-es-guided-by-new-index",
-        "destination": "es-txs-$ES_NETWORK-domain-reindex",
-        "timing" : {
+        "id": "pipeline.$INDY_NETWORK.config",
+        "iterator": "iterator.$INDY_NETWORK.config",
+        "processor": "processor.expansion.$INDY_NETWORK",
+        "target": "target.$INDY_NETWORK.config",
+        "timing": {
+          "timeoutOnSuccess": 1000,
+          "timeoutOnIteratorError": 5000,
+          "timeoutOnTxNotAvailable": 4000,
+          "jitterRatio": 0.4
+        }
+      }
+    },
+    {
+      "interface": "PIPELINE",
+      "impl": "sequential",
+      "params": {
+        "id": "pipeline.$INDY_NETWORK.pool",
+        "iterator": "iterator.$INDY_NETWORK.pool",
+        "processor": "processor.expansion.$INDY_NETWORK",
+        "target": "target.$INDY_NETWORK.pool",
+        "timing": {
           "timeoutOnSuccess": 1000,
           "timeoutOnIteratorError": 5000,
           "timeoutOnTxNotAvailable": 4000,
@@ -147,6 +187,3 @@
     }
   ]
 }
-
-
-
