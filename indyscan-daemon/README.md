@@ -51,3 +51,46 @@ The `source.data` specifies data source details for given `source.type`. For `so
 `genesis` value will be utilized. The `genesis` value must be path pointing to indy network genesis file
 which will be from then on used for connecting to ledger identtified as `name` (it will be
 added to `~/.indy-client/pool/` ). The path must be relative to path of the configuration file itself.
+
+
+# sources (core)
+getTx(seqNo) -> tx in some format
+
+# destinations (core)
+addTx(seqNo, data)
+
+# processor
+process(tx) -> transformed
+-------
++ source (lookups)
+
+# iterator
+getTx()
+-------
++ source (txs)
++ source (guidance)
+
+#pipeline
+start()
+stop()
+info()
+------
++ iterator
++ processor
++ destination
+
+
+let src = daemonFactory.getSource(id)
+let iterator = daemonFactory.getIter(idIter)
+
+
+- each entity will have its ID
+- entities are resolvable by ID
+- certain conventions will be in place - you can declare source and it will be convention to postifx it with name of subledger
+- the config author need to assure injected objects have correct interface / make sense to combine
+- constructions order:
+1. sources
+2. destinations
+3. transformations
+4. iterators
+5. pipelines
