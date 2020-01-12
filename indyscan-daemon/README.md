@@ -16,19 +16,23 @@ how to inject these into dependent objects.
 
 The daemon recognizes several basic interfaces:
 ### Source interface
-Defined as single function
+Defined as:
 ```
-async getTx(seqNo, format=original)
+async getTx(subledger, seqNo, format=original)
+getSupportedFormats()
 ```
-which returns a transaction in certain format from a source. Different implementations might return from different
-sources. 
+- The `getTx` returns a transaction for some network, specified by seqNo within a subledgeer. 
+The returned transaction is returned specified format. If no format is specified, 'original' format is used,
+representing the format of transactions as returned from the ledger.
+Different implementations of this interface might return from different sources - ledger, files, databases, etc.
+
+ 
 #### Source interface implementation: Ledger
 Returns transactions from ledger for specific Indy network and its particular subledger. 
 Constructor requires following arguments
 ```json
 {
-    "id": "source.sovmain.domain",
-    "subledger": "domain",
+    "id": "source.sovmain",
     "name": "SOVRIN_MAINNET",
     "genesisReference": "./genesis/SOVRIN_MAINNET.txn"
 }
@@ -39,17 +43,18 @@ Returns transactions from ES for specific Indy network and its particular subled
 Constructor requires following arguments
 ```json
 {
-    "id": "source.target.sovmain.config",
+    "id": "source.target.sovmain",
     "url": "https://localhost:9200",
-    "subledger": "config",
-    "index": "txs-sovmain-config"
+    "indexDomain": "txs-sovmain-domain",
+    "indexPool": "txs-sovmain-pool",
+    "indexConfig": "txs-sovmain-config"
 }
 ```
 
 ### Target interface
 Defined as single function
 ```
-async addTx(seqNo, data)
+async addTxData(subledger, seqNo, data)
 ```
 which stores or sends data associated with a transaction to some datastore or destination.
 #### Target interface implementation: Elasticsearch
@@ -58,7 +63,7 @@ TODO: add text here
 ### Iterator interface 
 Defined as single function
 ```
-async getTx(format=original) -> 
+async getTx(subledger, format=original) -> 
 ```
 which eventually returns some transaction for processing.
 
