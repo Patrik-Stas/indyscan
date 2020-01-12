@@ -1,6 +1,6 @@
 {
   "environment": {
-    "ES_NETWORK": "sovrin-mainnet"
+    "INDY_NETWORK": "sovrin-mainnet"
   },
   "comment": {
     "description": {
@@ -13,30 +13,12 @@
       "interface": "SOURCE",
       "impl": "elasticsearch",
       "params": {
-        "id": "source.$INDY_NETWORK.domain",
+        "id": "source.$INDY_NETWORK",
         "url": "$URL_ELASTICSEARCH",
         "subledger": "domain",
-        "index": "txs-$INDY_NETWORK-domain"
-      }
-    },
-    {
-      "interface": "SOURCE",
-      "impl": "elasticsearch",
-      "params": {
-        "id": "source.$INDY_NETWORK.config",
-        "url": "$URL_ELASTICSEARCH",
-        "subledger": "config",
-        "index": "txs-$INDY_NETWORK-config"
-      }
-    },
-    {
-      "interface": "SOURCE",
-      "impl": "elasticsearch",
-      "params": {
-        "id": "source.$INDY_NETWORK.pool",
-        "url": "$URL_ELASTICSEARCH",
-        "subledger": "pool",
-        "index": "txs-$INDY_NETWORK-pool"
+        "indexDomain": "txs-$INDY_NETWORK-domain",
+        "indexPool": "txs-$INDY_NETWORK-pool",
+        "indexConfig": "txs-$INDY_NETWORK-config"
       }
     },
     {
@@ -44,89 +26,29 @@
       "impl": "ledger",
       "params": {
         "id": "source.target.$INDY_NETWORK.domain",
-        "url": "$URL_ELASTICSEARCH",
-        "subledger": "domain",
-        "index": "txs-$INDY_NETWORK-domain-reindex"
-      }
-    },
-    {
-      "interface": "SOURCE",
-      "impl": "ledger",
-      "params": {
-        "id": "source.target.$INDY_NETWORK.config",
-        "url": "$URL_ELASTICSEARCH",
-        "subledger": "config",
-        "index": "txs-$INDY_NETWORK-config-reindex"
-      }
-    },
-    {
-      "interface": "SOURCE",
-      "impl": "ledger",
-      "params": {
-        "id": "source.target.$INDY_NETWORK.pool",
-        "url": "$URL_ELASTICSEARCH",
-        "subledger": "pool",
-        "index": "txs-$INDY_NETWORK-pool-reindex"
+        "networkName": "SOVRIN_MAINNET",
+        "networkGenesisRef": "$CFGPATH/genesis/SOVRIN_MAINNET.txn"
       }
     },
     {
       "interface": "TARGET",
       "impl": "elasticsearch",
       "params": {
-        "id": "target.$INDY_NETWORK.domain",
+        "id": "target.$INDY_NETWORK",
         "url": "$URL_ELASTICSEARCH",
-        "index": "txs-$INDY_NETWORK-domain-reindex",
-        "subledger": "domain",
-        "replicas": 2
-      }
-    },
-    {
-      "interface": "TARGET",
-      "impl": "elasticsearch",
-      "params": {
-        "id": "target.$INDY_NETWORK.config",
-        "url": "$URL_ELASTICSEARCH",
-        "index": "txs-$INDY_NETWORK-config-reindex",
-        "subledger": "config",
-        "replicas": 2
-      }
-    },
-    {
-      "interface": "TARGET",
-      "impl": "elasticsearch",
-      "params": {
-        "id": "target.$INDY_NETWORK.pool",
-        "url": "$URL_ELASTICSEARCH",
-        "index": "txs-$INDY_NETWORK-pool-reindex",
-        "subledger": "pool",
-        "replicas": 2
+        "replicas": 2,
+        "indexDomain": "txs-$INDY_NETWORK-domain-reindex",
+        "indexPool": "txs-$INDY_NETWORK-pool-reindex",
+        "indexConfig": "txs-$INDY_NETWORK-config-reindex"
       }
     },
     {
       "interface": "ITERATOR",
       "impl": "guided-iterator",
       "params": {
-        "id": "iterator.$INDY_NETWORK.domain",
-        "source": "source.$INDY_NETWORK.domain",
-        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK.domain"
-      }
-    },
-    {
-      "interface": "ITERATOR",
-      "impl": "guided-iterator",
-      "params": {
-        "id": "iterator.$INDY_NETWORK.config",
-        "source": "source.$INDY_NETWORK.config",
-        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK.config"
-      }
-    },
-    {
-      "interface": "ITERATOR",
-      "impl": "guided-iterator",
-      "params": {
-        "id": "iterator.$INDY_NETWORK.pool",
-        "source": "source.$INDY_NETWORK.pool",
-        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK.pool"
+        "id": "iterator.$INDY_NETWORK",
+        "source": "source.$INDY_NETWORK",
+        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK"
       }
     },
     {
