@@ -8,6 +8,77 @@
 `NETWORKS_CONFIG_PATH` - Absolute or scanner process pwd relative path to configuration file. 
 Default: `./app-config/localhost.json`
 
+# Configuration 4.0.0+
+In version 4.0.0 was introduced new configuration format for daemon. This daemon is very explicit and much
+more verbose than older format, but also much more expressive and flexible. The configuration format in 4.0.0
+basically gives instructions to a small custom dependency inject engine how to build out various object and
+how to inject these into dependent objects. 
+
+The daemon recognizes several basic interfaces:
+### Source interface
+Defined as single function
+```
+async getTx(seqNo, format=original)
+```
+which returns a transaction in certain format from a source. Different implementations might return from different
+sources. 
+#### Source interface implementation: Ledger
+Returns transactions from ledger for specific Indy network and its particular subledger. 
+Constructor requires following arguments
+```json
+{
+    "id": "source.sovmain.domain",
+    "subledger": "domain",
+    "name": "SOVRIN_MAINNET",
+    "genesisReference": "./genesis/SOVRIN_MAINNET.txn"
+}
+```
+
+#### Source interface implementation: Elasticsearch 
+Returns transactions from ES for specific Indy network and its particular subledger. 
+Constructor requires following arguments
+```json
+{
+    "id": "source.target.sovmain.config",
+    "url": "https://localhost:9200",
+    "subledger": "config",
+    "index": "txs-sovmain-config"
+}
+```
+
+### Target interface
+Defined as single function
+```
+async addTx(seqNo, data)
+```
+which stores or sends data associated with a transaction to some datastore or destination.
+#### Target interface implementation: Elasticsearch
+TODO: add text here
+
+### Iterator interface 
+Defined as single function
+```
+async getTx(format=original) -> 
+```
+which eventually returns some transaction for processing.
+
+### Processor interface
+Defined as single function
+```
+async process(tx) -> transformed
+```
+which takes a transaction as parameter and returns some sort of mapped data.
+
+
+### Pipeline inteface
+
+```
+start()
+stop()
+info()
+```
+
+
 # Configuration : Application Configuration file
 This file specifies list of scanning tasks to do. Each task has name, can have certain options and must
 specify source and target, Source is where the data is taken from. Target is where the read data is stored.
@@ -54,26 +125,22 @@ added to `~/.indy-client/pool/` ). The path must be relative to path of the conf
 
 
 # sources (core)
-getTx(seqNo) -> tx in some format
+
 
 # destinations (core)
-addTx(seqNo, data)
 
 # processor
-process(tx) -> transformed
+
 -------
 + source (lookups)
 
 # iterator
-getTx()
+
 -------
 + source (txs)
 + source (guidance)
 
 #pipeline
-start()
-stop()
-info()
 ------
 + iterator
 + processor
