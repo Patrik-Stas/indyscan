@@ -2,7 +2,7 @@
   "environment": {
     "INDY_NETWORK": "sovrin-mainnet"
   },
-  "comment": {
+  "comments": {
     "description": {
       "1": "This is sample daemon configuration for reading data out of old Elasticsearch index, running it though",
       "2": "a transformation processor and storing in new Elasticsearch index. It will do so for all 3 subledgers."
@@ -27,7 +27,7 @@
       "params": {
         "id": "source.target.$INDY_NETWORK.domain",
         "networkName": "SOVRIN_MAINNET",
-        "networkGenesisRef": "$CFGPATH/genesis/SOVRIN_MAINNET.txn"
+        "networkGenesisRef": "$CFGDIR/genesis/SOVRIN_MAINNET.txn"
       }
     },
     {
