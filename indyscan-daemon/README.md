@@ -10,11 +10,26 @@ Default: `./app-config/localhost.json`
 
 # Configuration 4.0.0+
 In version 4.0.0 was introduced new configuration format for daemon. This daemon is 
-more verbose than the older format, but also more expressive and flexible. The configuration format in 4.0.0
-basically gives instructions to a small custom dependency inject engine how to build out various object and
-how to inject these into dependent objects. 
+more verbose than the older format, but also more expressive and flexible.
 
-The daemon recognizes several basic interfaces:
+## Configuration file evaluation
+Configuration file contains 3 main sections: `environment`, `comments` and `objects`.
+- Section `environment` is object containing key-values. The `objects` section can contain references to the keys 
+  defined here in order to access the values behind them.
+- Section `comments` is ignored.
+- Section `objects` defined how should be application objects composed at runtime.
+
+
+## `Objects` section
+There are 5 types of interfaces which can be wired up together. Each interface can have various implementations you 
+can pick.
+Interfaces:
+- `source`, implementations: [`soure-ledger`, `source-elasticsearch`]
+- `target`, implementations: [`target-elasticsearch`]
+- `processor`, implementations: [`processor-expansion`]
+- `iterator`, implementations: [`iterator-guided`]
+- `pipeline`, implementations: [`pipeline-sequential`]
+
 ### `source` interface
 Defined as:
 ```
@@ -36,16 +51,23 @@ transactions are returned from the ledger.
 - Different implementations of this interface might return from different data sources - ledger, files, databases, etc.
 
  
-#### `source` interface implementation: `source-edger`
+#### `source` interface implementation: `source-ledger`
 Returns transactions directly querying the ledger on demand. 
 Constructor requires following arguments:
 ```json
 {
     "id": "source.sovmain",
-    "name": "SOVRIN_MAINNET",
-    "genesisReference": "./genesis/SOVRIN_MAINNET.txn"
+    "networkName": "SOVRIN_MAINNET",
+    "networkGenesisPath": "/home/ubuntu/SOVRIN_MAINNET.txn"
 }
 ```
+- If ledger already exists on the host system identified as `networkName`, its genesis file will be the one
+ used for connecting to Indy network and value of `networkGenesisPath` will be ignored.
+- If ledger `netoworkName` is unknown to the host system, it will be created using file `networkGenesisPath`.
+  The path can be absolute or relative to the PWD of the running process. To make things easier, there's a special
+  macro `"$CFGDIR"` which will be evaluated as a path to directory containing the processed configuration file. 
+  This is useful, because you  can put genesis files into a subdirectory of your config file and reference them. 
+  Example of using this: `"networkGenesisPath": "$CFGDIR/genesis/SOVRIN_MAINNET.txn"`.
 
 #### `source` interface implementation: `source-elasticsearch` 
 Returns transactions stored in Elasticsearch. Supports `original` and `expanded` formats. The `expanded` format
@@ -177,9 +199,12 @@ Constructor requires following arguments:
     }
 }
 ```
+
 Whereas 
 - `subledger` - specifies the subledger this pipeline is processing
-- `timing` - specifies timeouts between individual pipeline runs, depending on various events
+- `timing` - specifies timeouts between individual pipeline runs, depending on various events. You can either set up
+  timeout values yourself or use preset by supplying one of following strings as value: `SLOW`, `MEDIUM`, `FAST`, 
+  `TURBO`.
 - `iterator` - is ID of object implementing `iterator` interface. First stage of the pipeline begins here. 
   If iterator returns `undefined`, ie. no transaction is yet available, the pipeline will retry again after 
   `timeoutOnTxNoFound`ms. If an error occurs, the run is aborted and next pipeline run will run after 
@@ -192,22 +217,4 @@ Whereas
 
 If during the pipeline run an except
 
-
-# Configuration : Application Configuration file
-TODO: take care of this paragraph
-
-This file specifies list of scanning tasks to do. Each task has name, can have certain options and must
-specify source and target, Source is where the data is taken from. Target is where the read data is stored.
-
-Only `ledger` source is currently supported and only `elasticsearch` is supported target. 
-
-- The `scanning` object defined how should the `scanning` be performed. Right now only 1 option `mode` is 
-available. These are allowed mode values: `SLOW`, `MEDIUM`, `FAST`, `TURBO`
-- The `source` object defines what's the source of transactions. Currently only `type` of `ledger` is supported.
-The `source.data` specifies data source details for given `source.type`. For `source.type: ledger`, the 
-`source.data` must specify `name`. If ledger with given `name` exists in `~/.indy-client/pool/`, the 
-`genesis` option will be ignored. If no ledger with given `name` exists in `~/.indy-client/pool/`, the 
-`genesis` value will be utilized. The `genesis` value must be path pointing to indy network genesis file
-which will be from then on used for connecting to ledger identtified as `name` (it will be
-added to `~/.indy-client/pool/` ). The path must be relative to path of the configuration file itself.
 

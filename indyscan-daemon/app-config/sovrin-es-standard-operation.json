@@ -2,7 +2,7 @@
   "environment": {
     "$INDY_NETWORK": "sovrin-mainnet"
   },
-  "comment": {
+  "comments": {
     "description": {
       "1": "This is sample daemon configuration for reading data out from Ledger and writing it to Elasticsearch, ",
       "2": "starting from lowest seqNo found in Elasticsearch (per subledger)."
@@ -15,7 +15,7 @@
       "params": {
         "id": "source.$INDY_NETWORK",
         "name": "SOVRIN_MAINNET",
-        "genesisReference": "./genesis/SOVRIN_MAINNET.txn"
+        "genesisReference": "$CFGDIR/genesis/SOVRIN_MAINNET.txn"
       }
     },
     {
