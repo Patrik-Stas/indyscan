@@ -44,8 +44,8 @@
       "interface": "ITERATOR",
       "impl": "guided-network-iterator",
       "params": {
-        "id": "iterator.$INDY_NETWORK",
-        "source": "source.$INDY_NETWORK",
+        "id": "@@iterator.$INDY_NETWORK",
+        "source": "@@source.$INDY_NETWORK",
         "sourceSeqNoGuidance": "source.target.$INDY_NETWORK"
       }
     },
@@ -54,7 +54,7 @@
       "impl": "expansion",
       "params": {
         "id": "processor.expansion.$INDY_NETWORK",
-        "sourceLookups": "source.target.$INDY_NETWORK"
+        "sourceLookups": "@@source.target.$INDY_NETWORK"
       }
     },
     {
@@ -63,9 +63,9 @@
       "params": {
         "id": "pipeline.$INDY_NETWORK.domain",
         "subledger": "domain",
-        "iterator": "iterator.$INDY_NETWORK",
-        "processor": "processor.expansion.$INDY_NETWORK",
-        "target": "target.$INDY_NETWORK",
+        "iterator": "@@iterator.$INDY_NETWORK",
+        "processor": "@@processor.expansion.$INDY_NETWORK",
+        "target": "@@target.$INDY_NETWORK",
         "timing": "FAST"
       }
     },
@@ -75,9 +75,9 @@
       "params": {
         "id": "pipeline.$INDY_NETWORK.config",
         "subledger": "config",
-        "iterator": "iterator.$INDY_NETWORK",
-        "processor": "processor.expansion.$INDY_NETWORK",
-        "target": "target.$INDY_NETWORK",
+        "iterator": "@@iterator.$INDY_NETWORK",
+        "processor": "@@processor.expansion.$INDY_NETWORK",
+        "target": "@@target.$INDY_NETWORK",
         "timing": {
           "timeoutOnSuccess": 1000,
           "timeoutOnIteratorError": 5000,
@@ -92,9 +92,9 @@
       "params": {
         "id": "pipeline.$INDY_NETWORK.pool",
         "subledger": "pool",
-        "iterator": "iterator.$INDY_NETWORK",
-        "processor": "processor.expansion.$INDY_NETWORK",
-        "target": "target.$INDY_NETWORK",
+        "iterator": "@@iterator.$INDY_NETWORK",
+        "processor": "@@processor.expansion.$INDY_NETWORK",
+        "target": "@@target.$INDY_NETWORK",
         "timing": "FAST"
       }
     }

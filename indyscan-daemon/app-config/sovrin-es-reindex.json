@@ -47,8 +47,8 @@
       "impl": "guided-iterator",
       "params": {
         "id": "iterator.$INDY_NETWORK",
-        "source": "source.$INDY_NETWORK",
-        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK"
+        "source": "@@source.$INDY_NETWORK",
+        "sourceSeqNoGuidance": "@@source.target.$INDY_NETWORK"
       }
     },
     {
@@ -56,7 +56,7 @@
       "impl": "expansion",
       "params": {
         "id": "processor.expansion.$INDY_NETWORK",
-        "sourceDomainLookups": "source.target.$INDY_NETWORK.domain"
+        "sourceDomainLookups": "@@source.target.$INDY_NETWORK.domain"
       }
     },
     {
@@ -64,9 +64,9 @@
       "impl": "sequential",
       "params": {
         "id": "pipeline.$INDY_NETWORK.domain",
-        "iterator": "iterator.$INDY_NETWORK.domain",
-        "processor": "processor.expansion.$INDY_NETWORK",
-        "target": "target.$INDY_NETWORK.domain",
+        "iterator": "@@iterator.$INDY_NETWORK.domain",
+        "processor": "@@processor.expansion.$INDY_NETWORK",
+        "target": "@@target.$INDY_NETWORK.domain",
         "timing": {
           "timeoutOnSuccess": 1000,
           "timeoutOnIteratorError": 5000,
@@ -80,9 +80,9 @@
       "impl": "sequential",
       "params": {
         "id": "pipeline.$INDY_NETWORK.config",
-        "iterator": "iterator.$INDY_NETWORK.config",
-        "processor": "processor.expansion.$INDY_NETWORK",
-        "target": "target.$INDY_NETWORK.config",
+        "iterator": "@@iterator.$INDY_NETWORK.config",
+        "processor": "@@processor.expansion.$INDY_NETWORK",
+        "target": "@@target.$INDY_NETWORK.config",
         "timing": {
           "timeoutOnSuccess": 1000,
           "timeoutOnIteratorError": 5000,
@@ -96,9 +96,9 @@
       "impl": "sequential",
       "params": {
         "id": "pipeline.$INDY_NETWORK.pool",
-        "iterator": "iterator.$INDY_NETWORK.pool",
-        "processor": "processor.expansion.$INDY_NETWORK",
-        "target": "target.$INDY_NETWORK.pool",
+        "iterator": "@@iterator.$INDY_NETWORK.pool",
+        "processor": "@@processor.expansion.$INDY_NETWORK",
+        "target": "@@target.$INDY_NETWORK.pool",
         "timing": {
           "timeoutOnSuccess": 1000,
           "timeoutOnIteratorError": 5000,
