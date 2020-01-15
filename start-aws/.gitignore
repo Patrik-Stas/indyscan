@@ -1,0 +1,5 @@
+tmp/
+.terraform/
+terraform.tfstate*
+terraform.tfvars
+.idea/
