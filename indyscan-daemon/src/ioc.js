@@ -1,20 +1,22 @@
 let appObjects = {}
 
-function interpolateConfiguration(configuration) {
-  for (const key of Object.keys(configuration)) {
-    if (key.match(/@.*/)) {
-      let objectId = configuration[key]
-      let object = appObjects[objectId]
-      if (!object) {
-        throw Error(`Failed to resolve object ${objectId}`)
-      }
+const interfaces = {
+  SOURCE: "SOURCE",
+  TARGET: "TARGET",
+  ITERATOR: "ITERATOR",
+  PROCESSOR: "PROCESSOR",
+  PIPELINE: "PIPELINE",
+}
 
-    }
+const implementations = {
+  "SOURCE" : {
+    "LEDGER": require('./sources/source-ledger'),
+    "ELASTICSEARCH": require('./sources/source-elasticsearch')
   }
 }
 
-function registerTxSource(configuration) {
-
+function registerTxSource(objectConfigs) {
+  for (const objectConfig of objectConfigs)
 }
 
 function registerTxDestination(configuration) {
@@ -34,11 +36,8 @@ function registerTxPipeline(configuration) {
 }
 
 function processConfiguration(daemonConfiguration) {
-  const {sources, destinations, iterators, processors, pipelines} = daemonConfiguration
-  registerTxSource(sources)
-  registerTxDestination(destinations)
-  registerTxProcessor(processors)
-  registerTxIterator(iterators)
-  registerTxPipeline(pipelines)
+  const {objects} = daemonConfiguration
+  let sources = objects.filter(o=>o.interface === 'SOURCE')
+
 }
 
