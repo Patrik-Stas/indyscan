@@ -1,0 +1,159 @@
+name: CI
+
+on: [push]
+
+jobs:
+  lint-and-test-storage:
+    runs-on: ubuntu-16.04
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v1
+    - name: Branch name
+      run: echo running on branch ${GITHUB_REF##*/}
+    - name: Install dependencies
+      run: |
+        echo "Installing indyscan-storage"
+        (cd indyscan-storage && npm install)
+    - name: Linter
+      run: |
+        echo "Linting indyscan-storage"
+        (cd indyscan-storage && npm run lint)
+    - name: Unit tests
+      run: |
+        echo "Unit testing indyscan-storage"
+        (cd indyscan-storage && npm run test:unit)
+
+  lint-and-test-txtype:
+    runs-on: ubuntu-16.04
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+      - name: Branch name
+        run: echo running on branch ${GITHUB_REF##*/}
+      - name: Install dependencies
+        run: |
+          echo "Installing indyscan-txtype"
+          (cd indyscan-txtype && npm install)
+      - name: Linter
+        run: |
+          echo "Linting indyscan-txtype"
+          (cd indyscan-txtype && npm run lint)
+      - name: Unit tests
+        run: |
+          echo "Unit testing indyscan-txtype"
+          (cd indyscan-txtype && npm run test:unit)
+
+  lint-and-test-api-client:
+    runs-on: ubuntu-16.04
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+      - name: Branch name
+        run: echo running on branch ${GITHUB_REF##*/}
+      - name: Install dependencies
+        run: |
+          echo "Installing indyscan-api-client"
+          (cd indyscan-api-client && npm install)
+      - name: Linter
+        run: |
+          echo "Linting indyscan-api-client"
+          (cd indyscan-api-client && npm run lint)
+      - name: Unit tests
+        run: |
+          echo "Unit testing indyscan-ap-client"
+          (cd indyscan-api-client && npm run test:unit)
+
+
+  lint-and-test-api:
+    runs-on: ubuntu-16.04
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+      - name: Branch name
+        run: echo running on branch ${GITHUB_REF##*/}
+      - name: Install dependencies
+        run: |
+          echo "Installing indyscan-storage"
+          (cd indyscan-storage && npm install)
+          echo "Installing indyscan-txtype"
+          (cd indyscan-txtype && npm install)
+          echo "Installing indyscan-api"
+          (cd indyscan-api && npm install)
+      - name: Linter
+        run: |
+          echo "Linting indyscan-api"
+          (cd indyscan-api && npm run lint)
+      - name: Unit tests
+        run: |
+          echo "Unit testing indyscan-api"
+          (cd indyscan-api && npm run test:unit)
+
+  lint-and-test-webapp:
+    runs-on: ubuntu-16.04
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+      - name: Branch name
+        run: echo running on branch ${GITHUB_REF##*/}
+      - name: Install dependencies
+        run: |
+          echo "Installing indyscan-webapp"
+          (cd indyscan-webapp && npm install)
+      - name: Linter
+        run: |
+          echo "Linting indyscan-webapp"
+          (cd indyscan-webapp && npm run lint)
+      - name: Unit tests
+        run: |
+          echo "Unit testing indyscan-webapp"
+          (cd indyscan-webapp && npm run test:unit)
+
+  build-nextjs-webapp:
+    runs-on: ubuntu-16.04
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+      - name: Branch name
+        run: echo running on branch ${GITHUB_REF##*/}
+      - name: Install dependencies
+        run: |
+          echo "Installing indyscan-webapp"
+          (cd indyscan-webapp && npm install)
+      - name: Build nextjs
+        run: |
+          echo "Building nextjs indyscan-webapp"
+          (cd indyscan-webapp && npm run build)
+
+  build-docker-api:
+    runs-on: ubuntu-16.04
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+      - name: Building docker image
+        run: |
+          echo "Building docker for indyscan-api"
+          (cd indyscan-api && yes | ./dockerbuild.sh)
+
+  build-docker-webapp:
+    runs-on: ubuntu-16.04
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+      - name: Building docker image
+        run: |
+          echo "Building docker for indyscan-webapp"
+          (cd indyscan-webapp && yes | ./dockerbuild.sh)
+
+  build-docker-daemon:
+    runs-on: ubuntu-16.04
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+      - name: Building docker image
+        run: |
+          echo "Building base docker image for indyscan-daemon"
+          (cd ubuntu-libindy && yes | ./dockerbuild.sh)
+          echo "Building docker for indyscan-daemon"
+          (cd indyscan-daemon && yes | ./dockerbuild.sh)
+
+
