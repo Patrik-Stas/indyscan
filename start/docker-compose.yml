@@ -24,7 +24,7 @@ x-ui-logging:
 services:
   indyscan-indypool:
     container_name: indyscan-indypool
-    image: pstas/indy-pool:indyscan-indypool.indyscan-v1.14.1
+    image: ${INDYSCAN_INDYPOOL_IMAGE:-pstas/indy-pool:indyscan-indypool.indyscan-v1.14.1}
     logging: *es-logging
     networks:
       - indyscan
@@ -32,7 +32,7 @@ services:
       - 9701-9708:9701-9708
 
   indyscan-elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
+    image: ${INDYSCAN_ELASTICSEARCH_IMAGE:-docker.elastic.co/elasticsearch/elasticsearch:7.4.0}
     container_name: indyscan-elasticsearch
     logging: *es-logging
     networks:
@@ -57,7 +57,7 @@ services:
 
   indyscan-kibana:
     container_name: indyscan-kibana
-    image: docker.elastic.co/kibana/kibana:7.4.0
+    image: ${INDYSCAN_KIBANA_IMAGE:-docker.elastic.co/kibana/kibana:7.4.0}
     logging: *es-logging
     networks:
       - esnet
@@ -70,7 +70,7 @@ services:
 #
   indyscan-daemon:
     restart: unless-stopped
-    image: pstas/indyscan-daemon:3.1.1
+    image: ${INDYSCAN_DAEMON_IMAGE:-pstas/indyscan-daemon:3.1.1}
     container_name: indyscan-daemon
     logging: *service-logging
     depends_on:
@@ -81,14 +81,13 @@ services:
       - indyscan
     environment:
       - LOG_LEVEL=info
-      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-daemon/app-config-docker/indypool_indyscan.json
-#      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-daemon/app-config-docker/sovrin.json
+      - NETWORKS_CONFIG_PATH=${INDYSCAN_DAEMON_CONFIG_PATH:-/home/indyscan/indyscan-daemon/app-config-docker/indypool_indyscan.json}
     volumes:
       - ./app-config-daemon/:/home/indyscan/indyscan-daemon/app-config-docker
 
   indyscan-api:
     restart: unless-stopped
-    image: pstas/indyscan-api:3.1.1
+    image: ${INDYSCAN_API_IMAGE:-pstas/indyscan-api:3.1.1}
     container_name: indyscan-api
     logging: *service-logging
     environment:
@@ -97,8 +96,7 @@ services:
       - PORT=3708
       - LOG_HTTP_REQUESTS=true
       - LOG_HTTP_RESPONSES=true
-      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-api/app-config-docker/localhost.json
-#      - NETWORKS_CONFIG_PATH=/home/indyscan/indyscan-api/app-config-docker/sovrin.json
+      - NETWORKS_CONFIG_PATH=${INDYSCAN_API_CONFIG_PATH:-/home/indyscan/indyscan-api/app-config-docker/localhost.json}
     networks:
       - indyscan
       - esnet
@@ -109,7 +107,7 @@ services:
 
   indyscan-webapp:
     restart: unless-stopped
-    image: pstas/indyscan-webapp:3.1.1
+    image: ${INDYSCAN_WEBAPP_IMAGE:-pstas/indyscan-webapp:3.1.1}
     container_name: indyscan-webapp
     logging: *ui-logging
     environment:

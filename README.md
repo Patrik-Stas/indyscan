@@ -1,4 +1,4 @@
-# Indyscan
+    # Indyscan
 ### Hyperledger Indy Transaction explorer
 
 
@@ -14,9 +14,13 @@ Indyscan for Sovrin public blockchain is deployed @ [https://indyscan.io](https:
 ![](docs/indyscan.png)
 
 
-# Start with Docker
+# Start locally in localhost
 The easiest way to get started with indy. Follow [this](start) to startup locally Indypool with Indyscan
 attached out of the box.  
+
+# Start in AWS
+Second option is running in AWS. Follow [this](start-aws) to startup Indypool with Indyscan
+attached out of the box in AWS.
 
 # Custom deployments or running on host
 If
@@ -25,11 +29,12 @@ If
 - you want to deploy Indyscan on intranet
 you will find useful more info about the individual services you need and how to configure them.
 Before you dig in, try to dig into docker configuration provided [here](start) for running on localhost 
-and you might just figure small modification you need to do for your use case. 
+ you might just figure small modification you need to do for your use case. 
 
 ## Structure
 ```
 - start/               - automation to start scanned Indypool locally
+- start-aws/           - automation to start scanned Indypool in AWS
 - indyscan-api/        - indyscan API for querying db-stored transactions
 - indyscan-api-client/ - http client to call indyscan api
 - indyscan-webapp/     - nextjs based UI running against indyscan-api 
@@ -37,7 +42,9 @@ and you might just figure small modification you need to do for your use case.
 - indyscan-storage/    - shared library for app and daemon - how to store and retrieve transactions in db
 - indyscan-txtype/     - shared library contaning domain knowledge about indy transactions
 - ubuntu-libindy/      - base docker image for daemon docker image
-- build-all.sh         - script to build all the code into docker images
+- indypool-client/     - small project for verifying connectivity to an indy ledger
+- dev/                 - scripts useful during development
+- dokcer-build-all.sh  - script to build all the code into docker images
 ```
 
 ## Indyscan daemon
