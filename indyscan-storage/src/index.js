@@ -7,7 +7,7 @@ const { createStorageWriteFs } = require('./fs/storage-write-fs')
 const mongoTxFilters = require('./mongo/filter-builder')
 const esTxFilters = require('./es/es-query-builder')
 const { buildRetryTxResolver } = require('./utils/retry-resolve')
-const { createIndyscanTransform } = require('./transformation/transform-tx')
+const { createIndyscanTransform } = require('../../indyscan-daemon/src/processors/transformation/transform-tx')
 
 module.exports = {
   createIndyscanTransform,

@@ -1,7 +1,7 @@
 /* eslint-env jest */
-const { createIndyscanTransform } = require('../../../../src/transformation/transform-tx')
-const txSchemaDef = require('../../../resource/sample-txs/tx-domain-schema')
-const txCredDef = require('../../../resource/sample-txs/tx-domain-creddef')
+const { createIndyscanTransform } = require('../../../../src/processors/transformation/transform-tx')
+const txSchemaDef = require('indyscan-storage/test/resource/sample-txs/tx-domain-schema')
+const txCredDef = require('indyscan-storage/test/resource/sample-txs/tx-domain-creddef')
 const _ = require('lodash')
 
 let esTransform

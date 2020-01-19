@@ -11,7 +11,7 @@
       "type": "ledger",
       "data": {
         "name": "INDYPOOL_INDYSCAN",
-        "genesisReference": "./genesis/INDYPOOL_INDYSCAN.txn"
+        "genesisPath": "./genesis/INDYPOOL_INDYSCAN.txn"
       }
     },
     "storageConfig": {

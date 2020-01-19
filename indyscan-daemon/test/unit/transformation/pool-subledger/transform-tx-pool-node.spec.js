@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const { createIndyscanTransform } = require('../../../../src/transformation/transform-tx')
-const txNode = require('../../../resource/sample-txs/tx-pool-node')
+const { createIndyscanTransform } = require('../../../../src/processors/transformation/transform-tx')
+const txNode = require('indyscan-storage/test/resource/sample-txs/tx-pool-node')
 const _ = require('lodash')
 const geoip = require('geoip-lite')
 

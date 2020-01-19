@@ -11,7 +11,7 @@
       "type": "ledger",
       "data": {
         "name": "SOVRIN_MAINNET",
-        "genesisReference": "./genesis/SOVRIN_MAINNET.txn"
+        "genesisPath": "./genesis/SOVRIN_MAINNET.txn"
       }
     },
     "storageConfig": {
@@ -35,7 +35,7 @@
       "type": "ledger",
       "data": {
         "name": "SOVRIN_STAGINGNET",
-        "genesisReference": "./genesis/SOVRIN_STAGINGNET.txn"
+        "genesisPath": "./genesis/SOVRIN_STAGINGNET.txn"
       }
     },
     "storageConfig": {
@@ -59,7 +59,7 @@
       "type": "ledger",
       "data": {
         "name": "SOVRIN_BUILDERNET",
-        "genesisReference": "./genesis/SOVRIN_BUILDERNET.txn"
+        "genesisPath": "./genesis/SOVRIN_BUILDERNET.txn"
       }
     },
     "storageConfig": {

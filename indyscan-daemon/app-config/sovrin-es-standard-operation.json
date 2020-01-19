@@ -15,7 +15,7 @@
       "params": {
         "id": "source.$INDY_NETWORK",
         "name": "SOVRIN_MAINNET",
-        "genesisReference": "$CFGDIR/genesis/SOVRIN_MAINNET.txn"
+        "genesisPath": "$CFGDIR/genesis/SOVRIN_MAINNET.txn"
       }
     },
     {

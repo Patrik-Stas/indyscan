@@ -1,7 +1,7 @@
 /* eslint-env jest */
-const { createIndyscanTransform } = require('../../../../src/transformation/transform-tx')
-const txAuthorAgreement = require('../../../resource/sample-txs/tx-config-txn-author-agreement')
-const txAuthorAgreementAml = require('../../../resource/sample-txs/tx-config-txn-author-agreement-aml')
+const { createIndyscanTransform } = require('../../../../src/processors/transformation/transform-tx')
+const txAuthorAgreement = require('indyscan-storage/test/resource/sample-txs/tx-config-txn-author-agreement')
+const txAuthorAgreementAml = require('indyscan-storage/test/resource/sample-txs/tx-config-txn-author-agreement-aml')
 const _ = require('lodash')
 
 let esTransform = createIndyscanTransform((seqno) => { throw Error(`Domain tx lookup seqno=${seqno} was not expected.`) })

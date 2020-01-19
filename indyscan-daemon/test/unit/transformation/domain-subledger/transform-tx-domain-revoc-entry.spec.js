@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const { createIndyscanTransform } = require('../../../../src/transformation/transform-tx')
-const txRevocEntry = require('../../../resource/sample-txs/tx-domain-revoc-reg-entry')
+const { createIndyscanTransform } = require('../../../../src/processors/transformation/transform-tx')
+const txRevocEntry = require('indyscan-storage/test/resource/sample-txs/tx-domain-revoc-reg-entry')
 const _ = require('lodash')
 
 let esTransform = createIndyscanTransform((seqno) => { throw Error(`Domain tx lookup seqno=${seqno} was not expected.`) })

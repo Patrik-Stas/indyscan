@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 const rimraf = require('rimraf')
-const { createIndyscanTransform } = require('indyscan-storage/src/transformation/transform-tx')
+const { createIndyscanTransform } = require('indyscan-daemon/src/processors/transformation/transform-tx')
 const txSchemaDef = require('../resource/sample-txs/tx-domain-schema')
 
 function writeToFiles (targetDir, originalFilename, originalTx, transformedTx) {

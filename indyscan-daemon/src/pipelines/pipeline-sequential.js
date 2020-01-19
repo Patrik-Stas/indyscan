@@ -1,19 +1,42 @@
-const { createTimerLock } = require('../time/scan-timer')
+const {createTimerLock} = require('../time/scan-timer')
 const util = require('util')
 const logger = require('../logging/logger-main')
-const { runWithTimer } = require('../time/util')
+const {resolvePreset} = require('../config/presets-consumer')
+const {runWithTimer} = require('../time/util')
 
-function createConsumerSequential (resolveTx, storageRead, storageWrite, network, subledger, sequentialConsumerConfigData) {
-  const whoami = `ConsumerSequential/${network}/${subledger} : `
-  const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } =
-    sequentialConsumerConfigData
-  if (timeoutOnSuccess === undefined ||
-    timeoutOnTxIngestionError === undefined ||
-    timeoutOnLedgerResolutionError === undefined ||
-    timeoutOnTxNoFound === undefined ||
-    jitterRatio === undefined) {
-    throw Error(`${whoami} Invalid sequential consumer config: ${JSON.stringify(sequentialConsumerConfigData, null, 2)}`)
+function getExpandedTimingConfig (providedTimingSetup) {
+  let presetData
+  if (!providedTimingSetup || (typeof providedTimingSetup !== 'string')) {
+    presetData = getDefaultPreset()
+  } else {
+    presetData = resolvePreset(providedTimingSetup) || getDefaultPreset()
   }
+  return Object.assign(presetData, expendedStorageConfig.data)
+}
+
+function validateTimingConfig (timingConfig) {
+  const {timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio} = timingConfig
+  if (timeoutOnSuccess === undefined) {
+    throw Error(`Timing config is missing 'timeoutOnSuccess'.`)
+  }
+  if (timeoutOnTxIngestionError === undefined) {
+    throw Error(`Timing config is missing 'timeoutOnTxIngestionError'.`)
+  }
+  if (timeoutOnLedgerResolutionError === undefined) {
+    throw Error(`Timing config is missing 'timeoutOnLedgerResolutionError'.`)
+  }
+  if (timeoutOnTxNoFound === undefined) {
+    throw Error(`Timing config is missing 'timeoutOnTxNoFound'.`)
+  }
+  if (jitterRatio === undefined) {
+    throw Error(`Timing config is missing 'jitterRatio'.`)
+  }
+}
+
+// TODO: processor not used
+function createPipelineSequential ({id, subledger, iterator, processor, target, timing = undefined}) {
+  timing = getExpandedTimingConfig(timing)
+  validateTimingConfig(timing)
 
   let processedTxCount = 0
   let requestCycleCount = 0
@@ -51,32 +74,32 @@ function createConsumerSequential (resolveTx, storageRead, storageWrite, network
   }
 
   async function tryConsumeNextTransaction () {
-    logger.info(`${whoami} Cycle '${requestCycleCount}' starts.`)
+    logger.info(`${id} Cycle '${requestCycleCount}' starts.`)
     try {
-      logger.info(`${whoami} Average durations ${JSON.stringify(getAverageDurations(), null, 2)}`)
+      logger.info(`${id} Average durations ${JSON.stringify(getAverageDurations(), null, 2)}`)
     } catch (e) {
-      logger.warn(`${whoami} Error evaluating average durations. ${e.message} ${e.stack}`)
+      logger.warn(`${id} Error evaluating average durations. ${e.message} ${e.stack}`)
     }
 
     // find out what do we need
     let desiredSeqNo
     try {
-      desiredSeqNo = await storageRead.findMaxSeqNo() + 1
+      desiredSeqNo = await iterator.findMaxSeqNo() + 1
     } catch (e) {
       timerLock.addBlockTime(60 * 1000, jitterRatio)
-      logger.info(`${whoami} Cycle '${requestCycleCount}' failed to find out what's the next required seqNo.`)
+      logger.info(`${id} Cycle '${requestCycleCount}' failed to find out what's the next required seqNo.`)
       return
     }
 
     // get it
     let tx
     try {
-      logger.info(`${whoami}  Cycle '${requestCycleCount}' submitting tx request seqNo='${desiredSeqNo}'.`)
+      logger.info(`${id}  Cycle '${requestCycleCount}' submitting tx request seqNo='${desiredSeqNo}'.`)
       tx = await resolveTxAndMeasureTime(subledger, desiredSeqNo)
     } catch (e) {
       cycleExceptionCount++
       timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
-      logger.error(`${whoami} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${e.message} ${e.stack}`)
+      logger.error(`${id} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${e.message} ${e.stack}`)
       return
     }
 
@@ -86,17 +109,17 @@ function createConsumerSequential (resolveTx, storageRead, storageWrite, network
         await addTxAndMeasureTime(tx)
         processedTxCount++
         timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
-        logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}.`)
-        logger.info(`${whoami} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}: ${JSON.stringify(tx)}.`)
+        logger.info(`${id} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}.`)
+        logger.info(`${id} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}: ${JSON.stringify(tx)}.`)
       } catch (e) {
         cycleExceptionCount++
         timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
-        logger.error(`${whoami} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${e.message} ${e.stack} \n ${util.inspect(e, false, 10)}`)
+        logger.error(`${id} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${e.message} ${e.stack} \n ${util.inspect(e, false, 10)}`)
       }
     } else {
       txNotAvailableCount++
       timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
-      logger.info(`${whoami} Cycle '${requestCycleCount}' found that tx ${desiredSeqNo} does not exist.`)
+      logger.info(`${id} Cycle '${requestCycleCount}' found that tx ${desiredSeqNo} does not exist.`)
     }
   }
 
@@ -109,7 +132,7 @@ function createConsumerSequential (resolveTx, storageRead, storageWrite, network
 
   async function addTxAndMeasureTime (tx) {
     return runWithTimer(
-      async () => storageWrite.addTx(tx),
+      async () => target.addTx(tx),
       (duration) => processDurationResult('tx-storagewrite', duration)
     )
   }
@@ -130,7 +153,7 @@ function createConsumerSequential (resolveTx, storageRead, storageWrite, network
           (duration) => processDurationResult('consumption-iteration-full', duration)
         )
       } catch (e) {
-        logger.error(`${whoami} FATAL Error. Unhandled error propagated to consumption loop. ${e.message} ${e.stack}. Stopping this consumer.`)
+        logger.error(`${id} FATAL Error. Unhandled error propagated to consumption loop. ${e.message} ${e.stack}. Stopping this consumer.`)
         enabled = false
       } finally {
         requestCycleCount++
@@ -139,19 +162,19 @@ function createConsumerSequential (resolveTx, storageRead, storageWrite, network
   }
 
   function start () {
-    logger.info(`${whoami}: Starting ...`)
+    logger.info(`${id}: Starting ...`)
     enabled = true
     consumptionCycle()
   }
 
   function stop () {
-    logger.info(`${whoami}: Stopping ...`)
+    logger.info(`${id}: Stopping ...`)
     enabled = false
   }
 
   function info () {
     return {
-      consumerName: whoami,
+      consumerName: id,
       desiredSeqNo,
       processedTxCount,
       requestCycleCount,
@@ -160,11 +183,16 @@ function createConsumerSequential (resolveTx, storageRead, storageWrite, network
     }
   }
 
+  function getObjectId () {
+    return id
+  }
+
   return {
+    getObjectId,
     start,
     stop,
     info
   }
 }
 
-module.exports.createConsumerSequential = createConsumerSequential
+module.exports.createPipelineSequential = createPipelineSequential

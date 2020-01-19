@@ -11,7 +11,7 @@
       "type": "ledger",
       "data": {
         "name": "LOCALHOST_INDYSCAN",
-        "genesisReference": "./genesis/LOCALHOST_INDYSCAN.txn"
+        "genesisPath": "./genesis/LOCALHOST_INDYSCAN.txn"
       }
     },
     "storageConfig": {

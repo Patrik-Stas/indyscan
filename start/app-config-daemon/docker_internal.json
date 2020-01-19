@@ -11,7 +11,7 @@
       "type": "ledger",
       "data": {
         "name": "DOCKER_INTERNAL",
-        "genesisReference": "./genesis/DOCKER_INTERNAL.txn"
+        "genesisPath": "./genesis/DOCKER_INTERNAL.txn"
       }
     },
     "storageConfig": {

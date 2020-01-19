@@ -23,7 +23,7 @@ describe('daemon configuration testsuite', () => {
     expect(scanConfig.sourceConfig.type).toBe('ledger')
     expect(scanConfig.sourceConfig.data).toBeDefined()
     expect(scanConfig.sourceConfig.data.name).toBe('SOVRIN_MAINNET')
-    expect(scanConfig.sourceConfig.data.genesisReference).toBe('./genesis/SOVRIN_MAINNET.txn')
+    expect(scanConfig.sourceConfig.data.genesisPath).toBe('./genesis/SOVRIN_MAINNET.txn')
     expect(scanConfig.sourceConfig.data.genesisPath).toMatch(/indyscan-daemon\/test\/resource\/\.\/genesis\/SOVRIN_MAINNET.txn/)
 
     expect(scanConfig.storageConfig).toBeDefined()
@@ -75,7 +75,7 @@ describe('daemon configuration testsuite', () => {
 
     expect(scanConfig.sourceConfig).toBeDefined()
     expect(scanConfig.sourceConfig.type).toBe('ledger')
-    expect(scanConfig.sourceConfig.data.genesisReference).toBe('./genesis/SOVRIN_MAINNET.txn')
+    expect(scanConfig.sourceConfig.data.genesisPath).toBe('./genesis/SOVRIN_MAINNET.txn')
     expect(scanConfig.sourceConfig.data.genesisPath).toMatch(/indyscan-daemon\/test\/resource\/\.\/genesis\/SOVRIN_MAINNET.txn/)
 
     expect(scanConfig.storageConfig).toBeDefined()

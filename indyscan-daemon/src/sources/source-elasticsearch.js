@@ -1,17 +1,42 @@
 const logger = require('../logging/logger-main')
-const sleep = require('sleep-promise')
 
-async function createSourceElasticsearch ({esUrl, subledger, index }) {
-  let whoami = `Source.ElasticSearch[${JSON.stringify({esUrl, subledger, index})}]`
+async function createSourceElasticsearch ({id, url, indexDomain, indexPool, indexConfig}) {
+  const esClient = new elasticsearch.Client({node: url})
+  const storageReadDomain = createStorageReadEs(esClient, indexDomain, 'domain', logger)
+  const storageReadPool = createStorageReadEs(esClient, indexPool, 'pool', logger)
+  const storageReadConfig = createStorageReadEs(esClient, indexConfig, 'config', logger)
 
-  const esClient = new elasticsearch.Client({ node: esUrl })
-  const storageRead = createStorageReadEs(esClient, esIndex, subledger, logger)
-
-  async function txResolve (seqNo) {
-    storageRead.getTxBySeqNo(seqNo)
+  function resolveEsReadStorage (subledger) {
+    if (format === 'domain') {
+      return storageReadDomain
+    } else if (format === 'pool') {
+      return storageReadPool
+    } else if (format === 'config') {
+      return storageReadConfig
+    } else {
+      throw Error(`Unknown subledger ${subledger}`)
+    }
   }
 
-  return txResolve
+  async function getTx (subledger, seqNo, format = 'original') {
+    storageRead = resolveEsReadStorage(subledger)
+    return storageRead.getTxBySeqNo(seqNo, format)
+  }
+
+  async function getHighestSeqno (subledger) {
+    storageRead = resolveEsReadStorage(subledger)
+    return storageRead.findMaxSeqNo(seqNo)
+  }
+
+  function getObjectId() {
+    return id
+  }
+
+  return {
+    getObjectId,
+    getTx,
+    getHighestSeqno
+  }
 }
 
-module.exports.createTxResolverLedger = createSourceElasticsearch
+module.exports.createSourceElasticsearch = createSourceElasticsearch

@@ -2,8 +2,7 @@ const { createIndyClient } = require('../indy/indyclient')
 const logger = require('../logging/logger-main')
 const sleep = require('sleep-promise')
 
-async function createTxSourceLedger ({name, genesisPath, subledger}) {
-  let whoami = `LedgerResolver[${sourceConfigData.name}]`
+async function createSourceLedger ({id, name, genesisPath= undefined}) {
   let client = null
   let isConnecting = false
   let consecutiveTxResolutionFailures
@@ -13,7 +12,7 @@ async function createTxSourceLedger ({name, genesisPath, subledger}) {
       isConnecting = true
       client = await createIndyClient(name, genesisPath)
     } catch (e) {
-      throw Error(`${whoami} Failed to create client for network client. Details: ${e.message} ${e.stack}.`)
+      throw Error(`${id} Failed to create client for network client. Details: ${e.message} ${e.stack}.`)
     } finally {
       isConnecting = false
     }
@@ -23,17 +22,20 @@ async function createTxSourceLedger ({name, genesisPath, subledger}) {
     try {
       await reconnect()
     } catch (err) {
-      logger.error(`${whoami} Indy Network connection problem. Will try later. Error: ${err.message} ${err.stack}`)
+      logger.error(`${id} Indy Network connection problem. Will try later. Error: ${err.message} ${err.stack}`)
     }
   }
 
   await tryReconnect()
 
-  async function txResolve (seqNo) {
+  async function getTx (subledger, seqNo, format = 'original') {
+    if (format !== 'original') {
+      throw Error(`Only "original" format is supported by "ledger" source.`)
+    }
     let waitingForConnection = 0
     while (isConnecting) { // eslint-disable-line
       if (waitingForConnection > 10 * 1000) {
-        throw Error(`${whoami} No connection available, reconnection in the process. Try later.`)
+        throw Error(`${id} No connection available, reconnection in the process. Try later.`)
       }
       await sleep(100)
       waitingForConnection += 100
@@ -49,17 +51,29 @@ async function createTxSourceLedger ({name, genesisPath, subledger}) {
         consecutiveTxResolutionFailures = 0
         await reconnect()
         try {
-          return client.getTx(subledger, seqNo)
+            return client.getTx(subledger, seqNo)
         } catch (err) {
-          throw Error(`${whoami} Problem getting tx ${sourceConfigData.genesis}/${subledger}/${seqNo} after successful network reconnection has been done.`)
+          throw Error(`${id} Problem getting tx ${sourceConfigData.genesis}/${subledger}/${seqNo} after successful network reconnection has been done.`)
         }
       } else {
-        throw Error(`${whoami} Problem getting tx ${sourceConfigData.genesis}/${subledger}/${seqNo}. Resolver consecutive failure count: ${consecutiveTxResolutionFailures}`)
+        throw Error(`${id} Problem getting tx ${sourceConfigData.genesis}/${subledger}/${seqNo}. Resolver consecutive failure count: ${consecutiveTxResolutionFailures}`)
       }
     }
   }
 
-  return txResolve
+  function getHighestSeqno() {
+    throw Error('Function getHighestSeqno is not implemented for ledger source. Not expected to be used.')
+  }
+
+  function getObjectId() {
+    return id
+  }
+
+  return {
+    getObjectId,
+    getTx,
+    getHighestSeqno
+  }
 }
 
-module.exports.createTxResolverLedger = createTxSourceLedger
+module.exports.createSourceLedger = createSourceLedger

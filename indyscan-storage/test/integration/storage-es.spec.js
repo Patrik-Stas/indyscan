@@ -4,7 +4,7 @@ const sleep = require('sleep-promise')
 const path = require('path')
 const { buildRetryTxResolver } = require('../../src/utils/retry-resolve')
 const { importFileToStorage } = require('../../src/utils/txloader')
-const { createIndyscanTransform } = require('../../src/transformation/transform-tx')
+const { createIndyscanTransform } = require('../../../indyscan-daemon/src/processors/transformation/transform-tx')
 const {
   esAndFilters, esFilterAboveSeqNo, esFilterBelowSeqNo,
   esFilterByTxTypeNames,
