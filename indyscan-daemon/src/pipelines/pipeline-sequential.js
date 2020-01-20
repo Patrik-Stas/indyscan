@@ -38,6 +38,9 @@ function createPipelineSequential ({id, subledger, iterator, processor, target, 
   timing = getExpandedTimingConfig(timing)
   validateTimingConfig(timing)
 
+  // TODO
+  // make sure the target is initialized by processor's instructions somehow
+
   let processedTxCount = 0
   let requestCycleCount = 0
   let txNotAvailableCount = 0
@@ -99,11 +102,18 @@ function createPipelineSequential ({id, subledger, iterator, processor, target, 
     } catch (e) {
       cycleExceptionCount++
       timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
-      logger.error(`${id} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${e.message} ${e.stack}`)
+      logger.error(`${id} Cycle '${requestCycleCount}' failed to resolve tx ${desiredSeqNo}. Details: ${e.message} ${e.stack}`)
       return
     }
 
-    // if we have it, save it
+    // process it
+    try {
+      let procssedTx = await processor.process(tx)
+    } catch (e) {
+      logger.error(`${id} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${e.message} ${e.stack}`)
+    }
+
+    // save it
     if (tx) {
       try {
         await addTxAndMeasureTime(tx)
@@ -114,7 +124,7 @@ function createPipelineSequential ({id, subledger, iterator, processor, target, 
       } catch (e) {
         cycleExceptionCount++
         timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
-        logger.error(`${id} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${e.message} ${e.stack} \n ${util.inspect(e, false, 10)}`)
+        logger.error(`${id} Cycle '${requestCycleCount}' failed to store tx ${desiredSeqNo}. Details: ${e.message} ${e.stack} \n ${util.inspect(e, false, 10)}`)
       }
     } else {
       txNotAvailableCount++

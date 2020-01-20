@@ -35,6 +35,104 @@ Note, sometimes one transaction can trigger 2 didstate changes - writing a new D
 - create new `didstate` record, tracking state of this new DID
 - modify `didstate` of the transaction author DID - we need to append information about created did to `created_dids`
 
+# Storage model #1 - index per network/subledger
+- Option 1: have 1 index per network/subledger for all types of transaction formats. Any interpretation of transaction
+would then be stored there. 
+### Pros: 
+- whenever we'd query transaction by any of its interpretations, whatever transaction set we'd receive, 
+we'd also have optionally access to the other interpretations. 
+### Cons:
+- We will have to start doing updates instead of plain appends, so the data no longer will be strictly immutable, 
+increasing risk of bugs. 
+
+### Pros again:
+-  The only allowed mutability to an existing document would be *adding a new format* - adding a new representation 
+of given transaction. But we'd never mutate existing representations. The way we could manage index/processor 
+modifications could then work by creating new format. Example:
+- first version expansion format is called `expansion-v1.0` 
+- we make change to the expansion, version it `expansion-v2.0`
+- Old pipelines can keep running
+- We can start new pipeline which will iterate `original` format, use new version of processor and do appends as
+ `expansion-v2.0` format. Once we catch up with top of the ledger, we can switch to new expansion version and
+ delete the old one. 
+ 
+### State tracking
+Here's example how storage model #1 can look like with state tracking format proposal.
+```json
+{
+  "meta": {
+     "seqNo": "5000",
+     "subledger": "domain"
+  },
+  "original-v1.0.0": {},
+  "expansion-v1.0.0": {
+    "txTypeName": "NYM"
+  },
+  "didstate": {
+     "meta": {
+         "processTime": "2949512355"
+     },
+     "data" : [
+      {
+          "previousSeqNo": "4000",
+          "did": "4u7h0r4u7h0r4u7h0r",
+          "didState": {
+              "parentDid": "g3n35154u7h0r",
+              "parentDidAlias": "GenesisAuthor",
+              "alias": "DidAuthorJohn",
+              "verkey": "abcdefg",
+              "agency": "http://john.agent",
+              "role": "TRUSTEE",
+              "createdDids": [ 
+                 { "seqNo": 5000, "did": "n3wd1dn3wd1d", "verkey": "foofoo", "role": "MONITOR" } 
+              ]
+            },
+          "action" : {
+             "type": "DID-WRITE",
+              "delta": [
+                 { "createdDids": 
+                    { "added": 
+                      { "seqNo": 5000, "did": "n3wd1dn3wd1d", "verkey": "foofoo", "role": "MONITOR" } 
+                    }
+                }
+             ]
+          }
+     },
+     {
+         "did": "n3wd1dn3wd1d",
+         "didState": {
+            "parentDid": "4u7h0r4u7h0r4u7h0r",
+            "parentDidAlias": "DidAuthorJohn",
+            "verkey": "foofoo",
+            "role": "MONITOR",
+            "createdDids": [ ]
+          },
+         "action" : {
+            "type": "DID-CREATED"
+         }
+      }
+    ]
+  }
+}
+```
+ 
+
+# Storage model #2 - index network/subledger/format
+Second option would be store state in separate index with its own mapping. 
+
+### Pros: 
+No document udpates at all which is kind of nice property.
+
+### Cons:
+- Whenever we retrieve tx set within some format, we would have to make many queries to get transactions from
+the other formats.
+
+### Thoughs:
+- How would we do processor updates? If we add new format, we would have to create a new index for it.
+
+
+
+# Processor error handling
 Another thing to consider is exceptions throw in processing stage. It's either:
 1. bug in code and retrying to process given tx will always give the same err - if it's not critical part of 
 code, it might sense to fake the processing as success but leaving error info inside the processed tx itself.
@@ -44,6 +142,7 @@ type of failure is unacceptable, we should keep blocking he pipeline
 
 In case 1 we add err metadata to processed output
 In case 2,3 we can throw Error and rely on retries of layer above.
+
 
 # ES:
 - `sovrin_network_didstate`
