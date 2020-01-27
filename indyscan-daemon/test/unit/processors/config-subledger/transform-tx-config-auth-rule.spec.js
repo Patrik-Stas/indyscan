@@ -1,16 +1,16 @@
 /* eslint-env jest */
-const { createIndyscanTransform } = require('../../../../src/processors/transformation/transform-tx')
 const txAuthRule = require('indyscan-storage/test/resource/sample-txs/tx-config-auth-rule')
 const _ = require('lodash')
+const {createProcessorExpansion} = require('../../../../src/processors/processor-expansion')
 
-let esTransform = createIndyscanTransform((seqno) => { throw Error(`Domain tx lookup seqno=${seqno} was not expected.`) })
+let processor = createProcessorExpansion({id:'foo', sourceLookups: undefined})
 
 const CONFIG_LEDGER_ID = '2'
 
 describe('config/auth-rule transaction transformations', () => {
   it('should add typeName and subledger for config AUTH_RULE transaction', async () => {
     const tx = _.cloneDeep(txAuthRule)
-    let transformed = await esTransform(tx, 'CONFIG')
+    let transformed = await processor.transformTx(tx, 'CONFIG')
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txAuthRule)) // check passed tx was not modified
     expect(transformed.txn.typeName).toBe('AUTH_RULE')
     expect(transformed.subledger.code).toBe(CONFIG_LEDGER_ID)

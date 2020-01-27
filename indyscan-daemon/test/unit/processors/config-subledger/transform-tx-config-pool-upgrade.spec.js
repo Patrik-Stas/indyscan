@@ -1,14 +1,14 @@
 /* eslint-env jest */
-const { createIndyscanTransform } = require('../../../../src/processors/transformation/transform-tx')
 const txPoolUpgrade = require('indyscan-storage/test/resource/sample-txs/tx-config-pool-upgrade')
+const {createProcessorExpansion} = require('../../../../src/processors/processor-expansion')
 
-let esTransform = createIndyscanTransform((seqno) => { throw Error(`Domain tx lookup seqno=${seqno} was not expected.`) })
+let processor = createProcessorExpansion({id:'foo', sourceLookups: undefined})
 
 const CONFIG_LEDGER_ID = '2'
 
 describe('config/pool-upgrade transaction transformations', () => {
   it('should not modify config POOL_UPGRADE transaction', async () => {
-    let transformed = await esTransform(txPoolUpgrade, 'CONFIG')
+    let transformed = await processor.transformTx(txPoolUpgrade, 'CONFIG')
     expect(transformed.txn.typeName).toBe('POOL_UPGRADE')
     expect(Array.isArray(transformed.txn.data.schedule)).toBeTruthy()
     expect(transformed.txn.data.schedule.length).toBe(13)

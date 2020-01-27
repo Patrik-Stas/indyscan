@@ -1,20 +1,20 @@
 /* eslint-env jest */
-const { createIndyscanTransform } = require('../../../src/processors/transformation/transform-tx')
 const txUnknown = require('indyscan-storage/test/resource/sample-txs/tx-madeup-unknown')
 const _ = require('lodash')
+const {createIndyscanTransform} = require('indyscan-storage')
 
-let esTransform = createIndyscanTransform((seqno) => { throw Error(`Domain tx lookup seqno=${seqno} was not expected.`) })
+let processor = createIndyscanTransform((seqno) => { throw Error(`Domain tx lookup seqno=${seqno} was not expected.`) })
 
 describe('unrecognized transaction transformations', () => {
   it('should not modify original argument', async () => {
     const tx = _.cloneDeep(txUnknown)
-    await esTransform(tx)
+    await processor.transformTx(tx)
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txUnknown))
   })
 
   it('should process unrecognized type of transaction and set typeName and ledger to UNKNOWN', async () => {
     const tx = _.cloneDeep(txUnknown)
-    let transformed = await esTransform(tx)
+    let transformed = await processor.transformTx(tx)
     expect(transformed.txn.typeName).toBe('UNKNOWN')
     expect(transformed.subledger.code).toBe('UNKNOWN')
     expect(transformed.subledger.name).toBe('UNKNOWN')
@@ -24,7 +24,7 @@ describe('unrecognized transaction transformations', () => {
 
   it('should process unrecognized type of transaction and return unmodified data', async () => {
     const tx = _.cloneDeep(txUnknown)
-    let transformed = await esTransform(tx)
+    let transformed = await processor.transformTx(tx)
     expect(transformed.txn.protocolVersion).toBe(2)
     expect(transformed.txn.type).toBe('424242')
     expect(transformed.txnMetadata.txnTime).toBe('2019-11-08T21:40:59.000Z')
@@ -37,7 +37,7 @@ describe('unrecognized transaction transformations', () => {
 
   it('should not modify original argument', async () => {
     const tx = _.cloneDeep(txUnknown)
-    await esTransform(tx)
+    await processor.transformTx(tx)
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txUnknown))
   })
 })

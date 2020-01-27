@@ -1,16 +1,16 @@
 /* eslint-env jest */
-const { createIndyscanTransform } = require('../../../../src/processors/transformation/transform-tx')
 const txSchemaDef = require('indyscan-storage/test/resource/sample-txs/tx-domain-schema')
 const _ = require('lodash')
+const {createProcessorExpansion} = require('../../../../src/processors/processor-expansion')
 
-let esTransform = createIndyscanTransform((seqno) => { throw Error(`Domain tx lookup seqno=${seqno} was not expected.`) })
+let processor = createProcessorExpansion({id:'foo', sourceLookups: undefined})
 
 const DOMAIN_LEDGER_ID = '1'
 
 describe('domain/schema transaction transformations', () => {
   it('should add typeName and subledger for domain SCHEMA transaction', async () => {
     const tx = _.cloneDeep(txSchemaDef)
-    let transformed = await esTransform(tx, 'DOMAIN')
+    let transformed = await processor.transformTx(tx, 'DOMAIN')
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txSchemaDef))
     expect(transformed.txn.typeName).toBe('SCHEMA')
     expect(transformed.subledger.code).toBe(DOMAIN_LEDGER_ID)

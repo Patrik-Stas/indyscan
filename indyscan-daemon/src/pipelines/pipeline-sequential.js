@@ -33,7 +33,6 @@ function validateTimingConfig (timingConfig) {
   }
 }
 
-// TODO: processor not used
 function createPipelineSequential ({id, subledger, iterator, processor, target, timing = undefined}) {
   timing = getExpandedTimingConfig(timing)
   validateTimingConfig(timing)

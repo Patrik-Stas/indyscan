@@ -1,16 +1,16 @@
 /* eslint-env jest */
-const { createIndyscanTransform } = require('../../../src/processors/transformation/transform-tx')
 const txUnexpected = require('indyscan-storage/test/resource/sample-txs/tx-unexpected')
 const _ = require('lodash')
+const {createProcessorExpansion} = require('../../../src/processors/processor-expansion')
 
-let esTransform = createIndyscanTransform((seqno) => { throw Error(`Domain tx lookup seqno=${seqno} was not expected.`) })
+let processor = createProcessorExpansion({id:'foo', sourceLookups: undefined})
 
 const DOMAIN_LEDGER_ID = '1'
 
 describe('failing tx-specific transformations', () => {
   it('should capture transform error information in meta', async () => {
     const tx = _.cloneDeep(txUnexpected)
-    let transformed = await esTransform(tx)
+    let transformed = await processor.transformTx(tx)
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txUnexpected))
     expect(transformed.meta).toBeDefined()
     expect(transformed.meta.transformError).toBeDefined()
@@ -20,7 +20,7 @@ describe('failing tx-specific transformations', () => {
 
   it('should set shared transformation fields even if txType specific transformation fails', async () => {
     const tx = _.cloneDeep(txUnexpected)
-    let transformed = await esTransform(tx)
+    let transformed = await processor.transformTx(tx)
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txUnexpected))
     expect(transformed.meta.transformError).toBeDefined()
     expect(transformed.txnMetadata.txnTime).toBe('2019-11-27T15:34:07.000Z')
@@ -31,7 +31,7 @@ describe('failing tx-specific transformations', () => {
 
   it('should preserve original tx data if txType specific transformation fails', async () => {
     const tx = _.cloneDeep(txUnexpected)
-    let transformed = await esTransform(tx)
+    let transformed = await processor.transformTx(tx)
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txUnexpected))
     expect(transformed.meta.transformError).toBeDefined()
     expect(transformed.txnMetadata.txnTime).toBe('2019-11-27T15:34:07.000Z')

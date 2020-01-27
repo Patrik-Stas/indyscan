@@ -1,18 +1,16 @@
 /* eslint-env jest */
-const { createIndyscanTransform } = require('../../../../src/processors/transformation/transform-tx')
 const txNode = require('indyscan-storage/test/resource/sample-txs/tx-pool-node')
 const _ = require('lodash')
-const geoip = require('geoip-lite')
+const {createProcessorExpansion} = require('../../../../src/processors/processor-expansion')
 
-const geoipLiteLookupIp = geoip.lookup.bind(geoip)
-let esTransform = createIndyscanTransform((seqno) => { throw Error(`Domain tx lookup seqno=${seqno} was not expected.`) }, geoipLiteLookupIp)
+let processor = createProcessorExpansion({id:'foo', sourceLookups: undefined})
 
 const POOL_LEDGER_ID = '0'
 
 describe('pool/node transaction transformations', () => {
   it('should add typeName and subledger for pool NODE transaction', async () => {
     const tx = _.cloneDeep(txNode)
-    let transformed = await esTransform(tx, 'POOL')
+    let transformed = await processor.transformTx(tx, 'POOL')
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txNode))
     expect(transformed.txn.typeName).toBe('NODE')
     expect(transformed.subledger.code).toBe(POOL_LEDGER_ID)

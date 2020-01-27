@@ -1,16 +1,16 @@
 /* eslint-env jest */
-const { createIndyscanTransform } = require('../../../../src/processors/transformation/transform-tx')
+const {createProcessorExpansion} = require('../../../../src/processors/processor-expansion')
 const txNodeUpgrade = require('indyscan-storage/test/resource/sample-txs/tx-config-node-upgrade')
 const _ = require('lodash')
 
-let esTransform = createIndyscanTransform((seqno) => { throw Error(`Domain tx lookup seqno=${seqno} was not expected.`) })
+let processor = createProcessorExpansion({id:'foo', sourceLookups: undefined})
 
 const CONFIG_LEDGER_ID = '2'
 
 describe('config/node-upgrade transaction transformations', () => {
   it('should andd typeName and subledger for config NODE_UPGRADE transaction', async () => {
     const tx = _.cloneDeep(txNodeUpgrade)
-    let transformed = await esTransform(tx, 'CONFIG')
+    let transformed = await processor.transformTx(tx, 'CONFIG')
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txNodeUpgrade)) // check passed tx was not modified
     expect(transformed.txn.typeName).toBe('NODE_UPGRADE')
     expect(transformed.subledger.code).toBe(CONFIG_LEDGER_ID)

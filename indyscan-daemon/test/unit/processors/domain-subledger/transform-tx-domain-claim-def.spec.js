@@ -1,26 +1,20 @@
 /* eslint-env jest */
-const { createIndyscanTransform } = require('../../../../src/processors/transformation/transform-tx')
 const txSchemaDef = require('indyscan-storage/test/resource/sample-txs/tx-domain-schema')
 const txCredDef = require('indyscan-storage/test/resource/sample-txs/tx-domain-creddef')
 const _ = require('lodash')
+const {createSourceMemory} = require('../../source-memory')
+const {createProcessorExpansion} = require('../../../../src/processors/processor-expansion')
 
-let esTransform
-beforeAll(() => {
-  esTransform = createIndyscanTransform((seqno) => {
-    if (seqno === 74631) {
-      return txSchemaDef
-    } else {
-      throw Error(`Mock for tx ${seqno} was not prepared.`)
-    }
-  })
-})
+let txSource = createSourceMemory({id:'inmem-mock'})
+txSource.addTx('domain', 74631, 'original', txSchemaDef)
+let processor = createProcessorExpansion({id:'foo', sourceLookups: txSource})
 
 const DOMAIN_LEDGER_ID = '1'
 
 describe('domain/claim-def transaction transformations', () => {
   it('should transform domain CLAIM_DEF transaction', async () => {
     const tx = _.cloneDeep(txCredDef)
-    let transformed = await esTransform(tx, 'DOMAIN')
+    let transformed = await processor.transformTx(tx)
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txCredDef))
     expect(transformed.txn.typeName).toBe('CLAIM_DEF')
     expect(transformed.txn.data.refSchemaTxnSeqno).toBe(74631)

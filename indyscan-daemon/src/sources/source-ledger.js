@@ -61,7 +61,7 @@ async function createSourceLedger ({id, name, genesisPath= undefined}) {
     }
   }
 
-  function getHighestSeqno() {
+  function getHighestSeqno(_subledger) {
     throw Error('Function getHighestSeqno is not implemented for ledger source. Not expected to be used.')
   }
 
