@@ -16,7 +16,7 @@ at `~/.indy_client/pool`.
 
 One last step before it all clicks. If you look at genesis file for this 
 network (`~/.indy_client/pool/INYPOOL_INDYSCAN/INYPOOL_INDYSCAN.txn`), the nodes have are using address
-`indypool.indyscan`. But in reality, we want to connect to the indy pool running in docker, available at 
+`indyscan-indypool.indyscan`. But in reality, we want to connect to the indy pool running in docker, available at 
 on our host at address `127.0.0.1`. 
 
 To fix this:
