@@ -52,8 +52,7 @@ services:
     volumes:
       - indyscan-es:/usr/share/elasticsearch/data
     ports:
-      - 9200:9200
-      - 9300:9300
+      - ${INDYSCAN_ELASTICSEARCH_PORT:-9200}:9200
 
   indyscan-kibana:
     container_name: indyscan-kibana
@@ -64,7 +63,7 @@ services:
     environment:
       - ELASTICSEARCH_HOSTS=http://indyscan-elasticsearch.esnet:9200
     ports:
-      - 5601:5601
+      - ${INDYSCAN_KIBANA_PORT:-5601}:5601
     depends_on:
       - indyscan-elasticsearch
 #
@@ -101,7 +100,7 @@ services:
       - indyscan
       - esnet
     ports:
-      - 3708:3708
+      - ${INDYSCAN_API_PORT:-3708}:3708
     volumes:
       - ./app-config-api/:/home/indyscan/indyscan-api/app-config-docker
 
@@ -119,7 +118,7 @@ services:
     networks:
       - indyscan
     ports:
-      - 3707:3707
+      - ${INDYSCAN_WEBAPP_PORT:-3707}:3707
 
 networks:
   indyscan:
