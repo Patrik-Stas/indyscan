@@ -6,9 +6,12 @@ up:
 	make logs
 
 down:
-	docker-compose -f docker-compose.yml down
+	docker-compose -f docker-compose.yml down --remove-orphans
+
+destroy:
+	docker-compose -f docker-compose.yml down --remove-orphans --volumes
 
 new:
-	docker-compose -f docker-compose.yml down --remove-orphans --volumes && \
+	make destroy && \
 	docker-compose -f docker-compose.yml up -d && \
 	make logs

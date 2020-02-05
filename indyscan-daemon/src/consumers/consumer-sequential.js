@@ -95,7 +95,7 @@ function createConsumerSequential (resolveTx, storageRead, storageWrite, network
       }
     } else {
       txNotAvailableCount++
-      timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
+      timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
       logger.info(`${whoami} Cycle '${requestCycleCount}' found that tx ${desiredSeqNo} does not exist.`)
     }
   }
@@ -119,6 +119,7 @@ function createConsumerSequential (resolveTx, storageRead, storageWrite, network
       tryConsumeNextTransaction,
       (duration) => processDurationResult('consumption-iteration-active', duration)
     )
+    logger.info(`${whoami} Next iteration starts at least after ${timerLock.getMsTillUnlock()}ms.`)
     await timerLock.waitTillUnlock()
   }
 
