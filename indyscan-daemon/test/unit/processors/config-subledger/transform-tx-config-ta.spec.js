@@ -2,9 +2,9 @@
 const txAuthorAgreement = require('indyscan-storage/test/resource/sample-txs/tx-config-txn-author-agreement')
 const txAuthorAgreementAml = require('indyscan-storage/test/resource/sample-txs/tx-config-txn-author-agreement-aml')
 const _ = require('lodash')
-const {createIndyscanTransform} = require('indyscan-storage')
+const {createProcessorExpansion} = require('../../../../src/processors/processor-expansion')
 
-let processor = createIndyscanTransform((seqno) => { throw Error(`Domain tx lookup seqno=${seqno} was not expected.`) })
+let processor = createProcessorExpansion({id:'foo', sourceLookups: undefined})
 
 const CONFIG_LEDGER_ID = '2'
 

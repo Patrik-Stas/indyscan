@@ -5,7 +5,8 @@ const INTERFACE = "SOURCE"
 
 const IMPLEMENTATIONS = {
   ledger: "ledger",
-  elasticsearch: "elasticsearch"
+  elasticsearch: "elasticsearch",
+  inmem: "inmem"
 }
 
 function buildSourceFactory() {

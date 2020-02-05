@@ -1,9 +1,9 @@
 /* eslint-env jest */
 const txUnknown = require('indyscan-storage/test/resource/sample-txs/tx-madeup-unknown')
 const _ = require('lodash')
-const {createIndyscanTransform} = require('indyscan-storage')
+const {createProcessorExpansion} = require('../../../src/processors/processor-expansion')
 
-let processor = createIndyscanTransform((seqno) => { throw Error(`Domain tx lookup seqno=${seqno} was not expected.`) })
+let processor = createProcessorExpansion({id:'foo', sourceLookups: undefined})
 
 describe('unrecognized transaction transformations', () => {
   it('should not modify original argument', async () => {

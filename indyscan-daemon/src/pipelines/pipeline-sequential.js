@@ -127,7 +127,7 @@ function createPipelineSequential ({id, subledger, iterator, processor, target, 
       }
     } else {
       txNotAvailableCount++
-      timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
+      timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
       logger.info(`${id} Cycle '${requestCycleCount}' found that tx ${desiredSeqNo} does not exist.`)
     }
   }

@@ -9,7 +9,6 @@ const IMPLEMENTATIONS = {
 function buildSourceFactory() {
   async function buildImplementation (sourceConfig) {
     logger.debug(`Creating source from config: ${JSON.stringify(sourceConfig)}`)
-    assertInterface(sourceConfig)
     const {impl, data} = sourceConfig
     if ( impl === IMPLEMENTATIONS.sequential) {
       return createPipelineSequential(data)

@@ -2,7 +2,7 @@
 const txSchemaDef = require('indyscan-storage/test/resource/sample-txs/tx-domain-schema')
 const txCredDef = require('indyscan-storage/test/resource/sample-txs/tx-domain-creddef')
 const _ = require('lodash')
-const {createSourceMemory} = require('../../source-memory')
+const {createSourceMemory} = require('../../../../src/sources/source-memory')
 const {createProcessorExpansion} = require('../../../../src/processors/processor-expansion')
 
 let txSource = createSourceMemory({id:'inmem-mock'})
