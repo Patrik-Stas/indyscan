@@ -69,7 +69,7 @@ services:
 #
   indyscan-daemon:
     restart: unless-stopped
-    image: ${INDYSCAN_DAEMON_IMAGE:-pstas/indyscan-daemon:3.1.1}
+    image: ${INDYSCAN_DAEMON_IMAGE:-pstas/indyscan-daemon:3.1.2}
     container_name: indyscan-daemon
     logging: *service-logging
     depends_on:
@@ -86,7 +86,7 @@ services:
 
   indyscan-api:
     restart: unless-stopped
-    image: ${INDYSCAN_API_IMAGE:-pstas/indyscan-api:3.1.1}
+    image: ${INDYSCAN_API_IMAGE:-pstas/indyscan-api:3.1.2}
     container_name: indyscan-api
     logging: *service-logging
     environment:
@@ -106,7 +106,7 @@ services:
 
   indyscan-webapp:
     restart: unless-stopped
-    image: ${INDYSCAN_WEBAPP_IMAGE:-pstas/indyscan-webapp:3.1.1}
+    image: ${INDYSCAN_WEBAPP_IMAGE:-pstas/indyscan-webapp:3.1.2}
     container_name: indyscan-webapp
     logging: *ui-logging
     environment:
