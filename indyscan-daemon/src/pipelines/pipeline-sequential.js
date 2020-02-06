@@ -1,6 +1,7 @@
 const {createTimerLock} = require('../time/scan-timer')
 const util = require('util')
 const logger = require('../logging/logger-main')
+const {getDefaultPreset} = require('../config/presets-consumer')
 const {resolvePreset} = require('../config/presets-consumer')
 const {runWithTimer} = require('../time/util')
 
@@ -11,7 +12,7 @@ function getExpandedTimingConfig (providedTimingSetup) {
   } else {
     presetData = resolvePreset(providedTimingSetup) || getDefaultPreset()
   }
-  return Object.assign(presetData, expendedStorageConfig.data)
+  return Object.assign(presetData, providedTimingSetup)
 }
 
 function validateTimingConfig (timingConfig) {
@@ -33,9 +34,10 @@ function validateTimingConfig (timingConfig) {
   }
 }
 
-function createPipelineSequential ({id, subledger, iterator, processor, target, timing = undefined}) {
+function createPipelineSequential ({id, subledger, iterator, requestTxFormat, processor, target, timing = undefined}) {
   timing = getExpandedTimingConfig(timing)
   validateTimingConfig(timing)
+  const {timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio} = timing
 
   // TODO
   // make sure the target is initialized by processor's instructions somehow
@@ -48,7 +50,6 @@ function createPipelineSequential ({id, subledger, iterator, processor, target, 
   const timerLock = createTimerLock()
 
   let enabled = true
-  let desiredSeqNo
 
   let processesDuration = {}
 
@@ -83,65 +84,83 @@ function createPipelineSequential ({id, subledger, iterator, processor, target, 
       logger.warn(`${id} Error evaluating average durations. ${e.message} ${e.stack}`)
     }
 
-    // find out what do we need
-    let desiredSeqNo
-    try {
-      desiredSeqNo = await iterator.findMaxSeqNo() + 1
-    } catch (e) {
-      timerLock.addBlockTime(60 * 1000, jitterRatio)
-      logger.info(`${id} Cycle '${requestCycleCount}' failed to find out what's the next required seqNo.`)
-      return
-    }
-
     // get it
-    let tx
+    let txData, txMeta
     try {
-      logger.info(`${id}  Cycle '${requestCycleCount}' submitting tx request seqNo='${desiredSeqNo}'.`)
-      tx = await resolveTxAndMeasureTime(subledger, desiredSeqNo)
+      logger.info(`${id}  Cycle '${requestCycleCount}' requesting next transaction.`)
+      let {tx, meta} = await getNextTxTimed(subledger, requestTxFormat)
+      txData = tx
+      txMeta = meta
     } catch (e) {
       cycleExceptionCount++
       timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
-      logger.error(`${id} Cycle '${requestCycleCount}' failed to resolve tx ${desiredSeqNo}. Details: ${e.message} ${e.stack}`)
+      logger.error(`${id} Cycle '${requestCycleCount}' failed to resolve next tx. Details: ${e.message} ${e.stack}`)
+      return
+    }
+
+    if (!txMeta || !txMeta.subledger || !txMeta.seqNo || !txMeta.format) {
+      logger.error(`${id} Stopping pipeline on critical error. Iterator did not return sufficient meta information`
+        + `about tx. Meta ${JSON.stringify(txMeta)}`)
+      stop()
+      return
+    }
+
+    // was available?
+    if (!txData) {
+      txNotAvailableCount++
+      timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
+      logger.warn(`${id} Cycle '${requestCycleCount}' was trying to get transaction ${JSON.stringify(txMeta)} but it's not available.`)
       return
     }
 
     // process it
+    let txDataProcessed, txDataProcessedFormat
     try {
-      let procssedTx = await processor.process(tx)
+      let {processedTx, format} = await processor.processTx(txData)
+      txDataProcessed = processedTx
+      txDataProcessedFormat = format
     } catch (e) {
-      logger.error(`${id} Cycle '${requestCycleCount}' failed to process tx ${desiredSeqNo}. Details: ${e.message} ${e.stack}`)
+      logger.error(`${id} Stopping pipeline as cycle '${requestCycleCount}' critically failed to process tx `
+        + `${JSON.stringify(txMeta)}. Details: ${e.message} ${e.stack}`)
+      stop()
+      return
     }
 
-    // save it
-    if (tx) {
-      try {
-        await addTxAndMeasureTime(tx)
-        processedTxCount++
-        timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
-        logger.info(`${id} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}.`)
-        logger.info(`${id} Cycle '${requestCycleCount}' processed tx ${desiredSeqNo}: ${JSON.stringify(tx)}.`)
-      } catch (e) {
-        cycleExceptionCount++
-        timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
-        logger.error(`${id} Cycle '${requestCycleCount}' failed to store tx ${desiredSeqNo}. Details: ${e.message} ${e.stack} \n ${util.inspect(e, false, 10)}`)
-      }
-    } else {
-      txNotAvailableCount++
-      timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
-      logger.info(`${id} Cycle '${requestCycleCount}' found that tx ${desiredSeqNo} does not exist.`)
+    if (!txDataProcessed) {
+      logger.error(`${id} Stopping pipeline on critical error. Processor did not return any data.`
+        + `Input transaction ${JSON.stringify(txMeta)}: ${JSON.stringify(txData)}`)
+      stop()
+      return
+    }
+    if (!txDataProcessedFormat) {
+      logger.error(`${id} Stopping pipeline on critical error. Processor did format of its output txData.`)
+      stop()
+      return
+    }
+
+    try {
+      await addTxTimed(txMeta.subledger, txMeta.seqNo, txDataProcessedFormat, txDataProcessed)
+      processedTxCount++
+      timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
+      logger.info(`${id} Cycle '${requestCycleCount}' processed tx ${JSON.stringify(txMeta)}.`)
+    } catch (e) {
+      cycleExceptionCount++
+      timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
+      logger.error(`${id} Cycle '${requestCycleCount}' failed to store tx ${JSON.stringify(txMeta)}. `
+        + `Details: ${e.message} ${e.stack} \n ${util.inspect(e, false, 10)}`)
     }
   }
 
-  async function resolveTxAndMeasureTime (subledger, desiredSeqNo) {
+  async function getNextTxTimed (subledger, format) {
     return runWithTimer(
-      async () => resolveTx(subledger, desiredSeqNo),
+      async () => iterator.getNextTx(subledger, format),
       (duration) => processDurationResult('tx-resolution', duration)
     )
   }
 
-  async function addTxAndMeasureTime (tx) {
+  async function addTxTimed (subledger, seqNo, format, txData) {
     return runWithTimer(
-      async () => target.addTx(tx),
+      async () => target.addTxData(subledger, seqNo, format, txData),
       (duration) => processDurationResult('tx-storagewrite', duration)
     )
   }
@@ -184,7 +203,6 @@ function createPipelineSequential ({id, subledger, iterator, processor, target, 
   function info () {
     return {
       consumerName: id,
-      desiredSeqNo,
       processedTxCount,
       requestCycleCount,
       txNotAvailableCount,

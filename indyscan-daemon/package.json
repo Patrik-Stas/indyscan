@@ -11,6 +11,7 @@
     "start": "cross-env NODE_ENV=production node ./src/index.js",
     "start:locahost": "cross-env ENVIRONMENT=localhost node ./src/index.js",
     "test:unit": "jest test/unit",
+    "test:unit:pipeline": "jest test/unit/pipelines",
     "test:integration": "cross-env CLEAN_HYDRATE_CLEAN=true jest test/integration",
     "networks:list": "ls ~/.indy_client/pool",
     "networks:add:localhost": "bash genesis/localhost/setup.sh",

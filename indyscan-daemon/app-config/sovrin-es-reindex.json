@@ -65,6 +65,7 @@
       "params": {
         "id": "pipeline.$INDY_NETWORK.domain",
         "iterator": "@@iterator.$INDY_NETWORK.domain",
+        "requestTxFormat": "original",
         "processor": "@@processor.expansion.$INDY_NETWORK",
         "target": "@@target.$INDY_NETWORK.domain",
         "timing": {
@@ -81,6 +82,7 @@
       "params": {
         "id": "pipeline.$INDY_NETWORK.config",
         "iterator": "@@iterator.$INDY_NETWORK.config",
+        "requestTxFormat": "original",
         "processor": "@@processor.expansion.$INDY_NETWORK",
         "target": "@@target.$INDY_NETWORK.config",
         "timing": {
@@ -97,6 +99,7 @@
       "params": {
         "id": "pipeline.$INDY_NETWORK.pool",
         "iterator": "@@iterator.$INDY_NETWORK.pool",
+        "requestTxFormat": "original",
         "processor": "@@processor.expansion.$INDY_NETWORK",
         "target": "@@target.$INDY_NETWORK.pool",
         "timing": {

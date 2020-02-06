@@ -46,9 +46,9 @@ async function createTargetElasticsearch({id, url, indexDomain, indexPool, index
     }
   }
 
-  async function addTx (subledger, seqNo) {
+  async function addTxData (subledger, seqNo) {
     let storageWrite = resolveStorage(subledger)
-    return storageWrite.addTx(seqNo)
+    return storageWrite.addTxData(seqNo)
   }
 
   function getObjectId() {
@@ -57,7 +57,7 @@ async function createTargetElasticsearch({id, url, indexDomain, indexPool, index
 
   return {
     getObjectId,
-    addTx,
+    addTxData,
   }
 }
 

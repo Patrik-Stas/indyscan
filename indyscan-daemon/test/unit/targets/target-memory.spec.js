@@ -9,12 +9,12 @@ let target = createTargetMemory({id: 'inmem-target', dataspace})
 
 describe('basic inmemory target testsuite', () => {
   it('should store various formats for multiple ledgers', async () => {
-    target.addTx('domain', 1, 'format-foo', {foo: 'foo1'})
-    target.addTx('pool', 1, 'format-pool', {pool: 'pooldata'})
-    target.addTx('config', 1, 'format-config', {config: 'configdata'})
-    target.addTx('domain', 1, 'format-bar', {bar: 'bar-data'})
-    target.addTx('domain', 2, 'format-foo', {foo: 'foo2'})
-    target.addTx('domain', 4, 'format-foo', {foo: 'foo4'})
+    target.addTxData('domain', 1, 'format-foo', {foo: 'foo1'})
+    target.addTxData('pool', 1, 'format-pool', {pool: 'pooldata'})
+    target.addTxData('config', 1, 'format-config', {config: 'configdata'})
+    target.addTxData('domain', 1, 'format-bar', {bar: 'bar-data'})
+    target.addTxData('domain', 2, 'format-foo', {foo: 'foo2'})
+    target.addTxData('domain', 4, 'format-foo', {foo: 'foo4'})
 
     let expectedData = {
       'domain': {

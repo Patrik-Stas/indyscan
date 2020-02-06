@@ -19,7 +19,7 @@ function createTargetMemory ({id, dataspace}) {
     throw Error(`Dataspace needs to have field 'pool'`)
   }
 
-  function addTx(subledger, seqNo, format, txData) {
+  function addTxData(subledger, seqNo, format, txData) {
     subledger = subledger.toLowerCase()
     format = format.toLowerCase()
     if (!checkNested(dataspace, subledger, seqNo)) {
@@ -40,7 +40,7 @@ function createTargetMemory ({id, dataspace}) {
 
   return {
     getObjectId,
-    addTx
+    addTxData
   }
 }
 

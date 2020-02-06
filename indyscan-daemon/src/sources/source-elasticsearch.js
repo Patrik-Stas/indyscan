@@ -18,7 +18,7 @@ async function createSourceElasticsearch ({id, url, indexDomain, indexPool, inde
     }
   }
 
-  async function getTx (subledger, seqNo, format = 'original') {
+  async function getTxData (subledger, seqNo, format = 'original') {
     storageRead = resolveEsReadStorage(subledger)
     return storageRead.getTxBySeqNo(seqNo, format)
   }
@@ -34,7 +34,7 @@ async function createSourceElasticsearch ({id, url, indexDomain, indexPool, inde
 
   return {
     getObjectId,
-    getTx,
+    getTxData,
     getHighestSeqno
   }
 }

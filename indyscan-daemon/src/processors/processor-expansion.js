@@ -12,7 +12,7 @@ const geoipLiteLookupIp = geoip.lookup.bind(geoip)
 
 function createProcessorExpansion ({id, sourceLookups}) {
   let resolveDomainTxBySeqNo = async (seqNo) => {
-    return await sourceLookups.getTx('domain', seqNo, 'original')
+    return await sourceLookups.getTxData('domain', seqNo, 'original')
   }
 
   function noop (tx) {
@@ -43,7 +43,7 @@ function createProcessorExpansion ({id, sourceLookups}) {
   Should never throw. If tx specific transformation fails, this informmation will be captured in result object under
   "transformed.meta.transformError" object with fields "message" and "stack"
    */
-  async function transformTx (tx) {
+  async function processTx (tx) {
     if (!tx) {
       throw Error('tx argument not defined')
     }
@@ -52,30 +52,30 @@ function createProcessorExpansion ({id, sourceLookups}) {
     const txnTypeName = txTypeToTxName(txnType) || 'UNKNOWN'
     const subledgerName = txTypeToSubledgerName(txnType) || 'UNKNOWN'
     const subledgerCode = subledgerNameToId(subledgerName) || 'UNKNOWN'
-    let transformed = _.cloneDeep(tx)
+    let processed = _.cloneDeep(tx)
 
     // genesis txs do not have time
-    if (transformed.txnMetadata && transformed.txnMetadata.txnTime) {
-      let epochMiliseconds = transformed.txnMetadata.txnTime * 1000
-      transformed.txnMetadata.txnTime = new Date(epochMiliseconds).toISOString()
+    if (processed.txnMetadata && processed.txnMetadata.txnTime) {
+      let epochMiliseconds = processed.txnMetadata.txnTime * 1000
+      processed.txnMetadata.txnTime = new Date(epochMiliseconds).toISOString()
     }
-    transformed.txn.typeName = txnTypeName
-    transformed.subledger = {
+    processed.txn.typeName = txnTypeName
+    processed.subledger = {
       code: subledgerCode,
       name: subledgerName
     }
-    transformed.meta = {}
+    processed.meta = {}
 
     try {
       const transform = txTransforms[txnTypeName]
-      transformed = await transform(transformed)
+      processed = await transform(processed)
     } catch (err) {
-      transformed.meta.transformError = {
+      processed.meta.transformError = {
         message: err.message,
         stack: err.stack
       }
     }
-    return transformed
+    return {processedTx: processed, format: "indyscan" }
   }
 
   function getEsDomainMappings() {
@@ -173,7 +173,7 @@ function createProcessorExpansion ({id, sourceLookups}) {
   }
 
     return {
-    transformTx,
+    processTx,
     getEsLegacyAllInOneMappings
   }
 }

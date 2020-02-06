@@ -10,11 +10,11 @@ const DOMAIN_LEDGER_ID = '1'
 describe('domain/revoc-entry transaction transformations', () => {
   it('should add typeName and subledger for domain REVOC_REG_ENTRY transaction', async () => {
     const tx = _.cloneDeep(txRevocEntry)
-    let transformed = await processor.transformTx(tx, 'DOMAIN')
+    const {processedTx}  = await processor.processTx(tx, 'DOMAIN')
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txRevocEntry))
-    expect(transformed.txn.typeName).toBe('REVOC_REG_ENTRY')
-    expect(transformed.subledger.code).toBe(DOMAIN_LEDGER_ID)
-    expect(transformed.subledger.name).toBe('DOMAIN')
-    expect(transformed.txnMetadata.txnTime).toBe('2019-11-25T17:17:41.000Z')
+    expect(processedTx.txn.typeName).toBe('REVOC_REG_ENTRY')
+    expect(processedTx.subledger.code).toBe(DOMAIN_LEDGER_ID)
+    expect(processedTx.subledger.name).toBe('DOMAIN')
+    expect(processedTx.txnMetadata.txnTime).toBe('2019-11-25T17:17:41.000Z')
   })
 })

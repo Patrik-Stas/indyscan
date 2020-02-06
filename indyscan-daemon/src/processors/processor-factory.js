@@ -3,7 +3,8 @@ const logger = require('../logging/logger-main')
 const INTERFACE = "PROCESSOR"
 
 const IMPLEMENTATIONS = {
-  expansion: "expansion"
+  expansion: "expansion",
+  noop: "noop"
 }
 
 function buildSourceFactory() {

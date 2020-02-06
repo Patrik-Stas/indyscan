@@ -19,7 +19,7 @@ function createSourceMemory ({id, dataspace}) {
     throw Error(`Dataspace needs to have field 'pool'`)
   }
 
-  function getTx (subledger, seqNo, format = 'original') {
+  function getTxData (subledger, seqNo, format = 'original') {
     subledger = subledger.toLowerCase()
     format = format.toLowerCase()
     if (!checkNested(dataspace, subledger, seqNo, format)) {
@@ -42,7 +42,7 @@ function createSourceMemory ({id, dataspace}) {
 
   return {
     getObjectId,
-    getTx,
+    getTxData,
     getHighestSeqno
   }
 }

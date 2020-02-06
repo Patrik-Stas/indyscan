@@ -1,23 +1,4 @@
 /* eslint-env jest */
-const { createPipelineSequential } = require('../../../src/pipelines/pipeline-sequential')
-const { createStorageReadFs, createStorageWriteFs } = require('indyscan-storage')
-const sleep = require('sleep-promise')
-const uuid = require('uuid')
-
-const network = 'network-unittest'
-
-let consumer
-let storageRead
-let storageWrite
-const txResolve = async (subledger, seqNo) => {
-  return new Promise(function (resolve, reject) {
-    resolve({
-      network,
-      subledger,
-      txnMetadata: { seqNo }
-    })
-  })
-}
 
 // const createTxResolverWithError = () => {
 //   let errCount = 0
@@ -38,15 +19,45 @@ const txResolve = async (subledger, seqNo) => {
 //   }
 // }
 
+const {createPipelineSequential} = require('../../../src/pipelines/pipeline-sequential')
+const {createProcessorNoop} = require('../../../src/processors/processor-noop')
+const {createTargetMemory} = require('../../../src/targets/target-memory')
+const {createIteratorGuided} = require('../../../src/iterators/iterator-guided')
+const {createSourceMemory} = require('../../../src/sources/source-memory')
+const sleep = require('sleep-promise')
+
+const TX_FORMAT_IN = 'format-foo'
+const TX_FORMAT_OUT = 'format-bar'
+
+let dataspace1 = {
+  'domain': {
+    '1': {[TX_FORMAT_IN]: {'foo': 'foo-data1'}, 'format-bar': {'bar': 'bar-data1'}},
+    '2': {[TX_FORMAT_IN]: {'foo': 'foo-data2'}},
+    '3': {[TX_FORMAT_IN]: {'foo': 'foo-data3'}, 'format-bar': {'bar': 'bar-data3'}},
+    '4': {[TX_FORMAT_IN]: {'foo': 'foo-data4'}}
+  },
+  'pool': {
+    '1': {[TX_FORMAT_IN]: {'pool': 'pooldata'}}
+  },
+  'config': {
+    '1': {'format-config': {'config': 'configdata'}}
+  }
+}
+
+let dataspace2 = {
+  domain: {},
+  pool: {},
+  config: {}
+}
+
+let sourceLedgerSim = createSourceMemory({id: 'ledger-source-simulation', dataspace: dataspace1})
+let sourceDbSim = createSourceMemory({id: 'db-source-simulation', dataspace: dataspace2})
+let targetDbSim = createTargetMemory({id: 'db-target-simulation', dataspace: dataspace2})
+let noopProcessor = createProcessorNoop({id: 'noop-processorr', format: TX_FORMAT_OUT})
+
 describe('ledger tx resolution', () => {
   beforeAll(async () => {
     jest.setTimeout(1000 * 60)
-  })
-
-  beforeEach(async () => {
-    const storageName = `storage-unittests/${uuid.v4()}`
-    storageRead = await createStorageReadFs(storageName)
-    storageWrite = await createStorageWriteFs(storageName)
   })
 
   it('should store 4 transactions', async () => {
@@ -54,21 +65,44 @@ describe('ledger tx resolution', () => {
       timeoutOnSuccess: 300,
       timeoutOnTxIngestionError: 6000,
       timeoutOnLedgerResolutionError: 6000,
-      timeoutOnTxNoFound: 2000,
+      timeoutOnTxNoFound: 6000,
       jitterRatio: 0
     }
-    consumer = createPipelineSequential({
-      id:'test-domain',
+    let iteratorGuided = createIteratorGuided({
+      id: 'test-iterator',
+      source: sourceLedgerSim,
+      sourceSeqNoGuidance: sourceDbSim
+    })
+    let pipeline = createPipelineSequential({
+      id: 'test-domain',
       subledger: 'domain',
-      processor: processorExpansion,
-      target: targetMem2,
+      iterator: iteratorGuided,
+      requestTxFormat: TX_FORMAT_IN,
+      processor: noopProcessor,
+      target: targetDbSim,
       timing: sequentialConsumerConfig
     })
-    consumer.start()
+    pipeline.start()
     await sleep(1000)
-    consumer.stop()
-    await sleep(10)
-    expect(await storageRead.getTxCount()).toBe(4)
+    pipeline.stop()
+
+    let txData1 = await sourceDbSim.getTxData('domain', 1, TX_FORMAT_OUT)
+    expect(txData1['foo']).toBe('foo-data1')
+
+    let txData2 = await sourceDbSim.getTxData('domain', 2, TX_FORMAT_OUT)
+    expect(txData2['foo']).toBe('foo-data2')
+
+    let txData3 = await sourceDbSim.getTxData('domain', 3, TX_FORMAT_OUT)
+    expect(txData3['foo']).toBe('foo-data3')
+
+    let txData4 = await sourceDbSim.getTxData('domain', 4, TX_FORMAT_OUT)
+    expect(txData4['foo']).toBe('foo-data4')
+
+    let txData5 = await sourceDbSim.getTxData('domain', 5, TX_FORMAT_OUT)
+    expect(txData5).toBeUndefined()
+
+    let txData1WrongFormat = await sourceDbSim.getTxData('domain', 1, TX_FORMAT_IN)
+    expect(txData1WrongFormat).toBeUndefined()
   })
   //
   // it('should timeout and only store 2 transactions', async () => {
@@ -87,35 +121,4 @@ describe('ledger tx resolution', () => {
   //   expect(await storageRead.getTxCount()).toBe(2)
   // })
 
-  // it('two sequential consumers with different timings for different subledger on common network should be independent', async () => {
-  //   const storage1Name = `storage-unittests/${uuid.v4()}`
-  //   const storage2Name = `storage-unittests/${uuid.v4()}`
-  //   const storageRead1 = await createStorageReadFs(storage1Name)
-  //   const storageWrite1 = await createStorageWriteFs(storage1Name)
-  //   const storageRead2 = await createStorageReadFs(storage2Name)
-  //   const storageWrite2 = await createStorageWriteFs(storage2Name)
-  //   const timerConfig1 = {
-  //     timeoutOnSuccess: 300,
-  //     timeoutOnTxIngestionError: 1000,
-  //     timeoutOnLedgerResolutionError: 1000,
-  //     timeoutOnTxNoFound: 1000,
-  //     jitterRatio: 0
-  //   }
-  //   const timerConfig2 = {
-  //     timeoutOnSuccess: 1000,
-  //     timeoutOnTxIngestionError: 1000,
-  //     timeoutOnLedgerResolutionError: 1000,
-  //     timeoutOnTxNoFound: 1000,
-  //     jitterRatio: 0
-  //   }
-  //   let consumer1 = createConsumerSequential(txResolve, storageRead1, storageWrite1, network, 'domain-foo', timerConfig1)
-  //   let consumer2 = createConsumerSequential(txResolve, storageRead2, storageWrite2, network, 'domain-bar', timerConfig2)
-  //   consumer1.start()
-  //   consumer2.start()
-  //   await sleep(1400)
-  //   consumer1.stop()
-  //   consumer2.stop()
-  //   expect(await storageRead1.getTxCount()).toBe(5)
-  //   expect(await storageRead2.getTxCount()).toBe(2)
-  // })
 })

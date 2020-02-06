@@ -28,7 +28,7 @@ async function createSourceLedger ({id, name, genesisPath= undefined}) {
 
   await tryReconnect()
 
-  async function getTx (subledger, seqNo, format = 'original') {
+  async function getTxData (subledger, seqNo, format = 'original') {
     if (format !== 'original') {
       throw Error(`Only "original" format is supported by "ledger" source.`)
     }
@@ -71,7 +71,7 @@ async function createSourceLedger ({id, name, genesisPath= undefined}) {
 
   return {
     getObjectId,
-    getTx,
+    getTxData,
     getHighestSeqno
   }
 }

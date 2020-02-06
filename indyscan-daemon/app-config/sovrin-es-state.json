@@ -1,110 +1,105 @@
 {
-  "configmacros": {
-    "NETWORK" : "sovrin-mainnet"
+  "environment": {
+    "$INDY_NETWORK": "sovrin-mainnet"
   },
-  "sources": [
-    {
-      "id": "es-txs-%NETWORK%-domain",
-      "type": "elasticsearch",
-      "data": {
-        "url": "$URL_ELASTICSEARCH",
-        "index": "txs-%NETWORK%-domain"
-      }
-    },
-    {
-      "id": "es-txs-%NETWORK%-config",
-      "type": "elasticsearch",
-      "data": {
-        "url": "$URL_ELASTICSEARCH",
-        "index": "txs-%NETWORK%-config"
-      }
-    },
-    {
-      "id": "es-txs-%NETWORK%-pool",
-      "type": "elasticsearch",
-      "data": {
-        "url": "$URL_ELASTICSEARCH",
-        "index": "txs-%NETWORK%-pool"
-      }
-    },
-
-
-    {
-      "id": "es-txs-%NETWORK%-domain-reindex",
-      "type": "elasticsearch",
-      "data": {
-        "url": "$URL_ELASTICSEARCH",
-        "index": "txs-%NETWORK%-domain-reindex"
-      }
-    },
-    {
-      "id": "es-txs-%NETWORK%-config-reindex",
-      "type": "elasticsearch",
-      "data": {
-        "url": "$URL_ELASTICSEARCH",
-        "index": "txs-%NETWORK%-config-reindex"
-      }
-    },
-    {
-      "id": "es-txs-%NETWORK%-pool-reindex",
-      "type": "elasticsearch",
-      "data": {
-        "url": "$URL_ELASTICSEARCH",
-        "index": "txs-%NETWORK%-pool-reindex"
-      }
+  "comments": {
+    "description": {
+      "1": "This is sample daemon configuration for reading data out from Ledger and writing it to Elasticsearch, ",
+      "2": "starting from lowest seqNo found in Elasticsearch (per subledger)."
     }
-  ],
-  "destinations": [
+  },
+  "objects": [
     {
-      "id": "es-txs-%NETWORK%-domain-reindex",
-      "type": "elasticsearch",
-      "data": {
-        "url": "$URL_ELASTICSEARCH",
-        "index": "txs-%NETWORK%-domain-reindex"
-      }
-    },
-    {
-      "id": "es-txs-%NETWORK%-config-reindex",
-      "type": "elasticsearch",
-      "data": {
-        "url": "$URL_ELASTICSEARCH",
-        "index": "txs-%NETWORK%-config-reindex"
+      "interface": "SOURCE",
+      "impl": "ledger",
+      "params": {
+        "id": "source.$INDY_NETWORK",
+        "name": "SOVRIN_MAINNET",
+        "genesisPath": "$CFGDIR/genesis/SOVRIN_MAINNET.txn"
       }
     },
     {
-      "id": "es-txs-%NETWORK%-pool-reindex",
-      "type": "elasticsearch",
-      "data": {
+      "interface": "SOURCE",
+      "impl": "elasticsearch",
+      "params": {
+        "id": "source.db.$INDY_NETWORK",
         "url": "$URL_ELASTICSEARCH",
-        "index": "txs-%NETWORK%-pool-reindex"
-      }
-    }
-  ],
-  "pipeline": {
-    "data": {
-      "timeoutOnSuccess": 1000,
-      "timeoutOnIteratorError": 5000,
-      "timeoutOnTxNotAvailable": 4000,
-      "jitterRatio": 0.4
-    },
-    "iterator": {
-      "type": "iterate-ledger-guided-by-storage",
-      "data": {
-        "source": "source.es-txs-%NETWORK%-domain",
-        "sourceSeqNoGuidance": "source.es-txs-%NETWORK%-domain-reindex"
+        "indexDomain": "txs-$INDY_NETWORK-domain",
+        "indexPool": "txs-$INDY_NETWORK-pool",
+        "indexConfig": "txs-$INDY_NETWORK-config"
       }
     },
-    "processing": [
-      {
-        "type": "expansion",
-        "data": {
-          "sourceRevLookups": "source.es-txs-%NETWORK%-domain-reindex"
+    {
+      "interface": "TARGET",
+      "impl": "elasticsearch",
+      "params": {
+        "id": "target.$INDY_NETWORK",
+        "url": "$URL_ELASTICSEARCH",
+        "indexDomain": "txs-$INDY_NETWORK-domain",
+        "indexPool": "txs-$INDY_NETWORK-pool",
+        "indexConfig": "txs-$INDY_NETWORK-config"
+      }
+    },
+    {
+      "interface": "ITERATOR",
+      "impl": "guided-network-iterator",
+      "params": {
+        "id": "@@iterator.$INDY_NETWORK",
+        "source": "@@source.$INDY_NETWORK",
+        "sourceSeqNoGuidance": "source.db.$INDY_NETWORK"
+      }
+    },
+    {
+      "interface": "PROCESSOR",
+      "impl": "didstate",
+      "params": {
+        "id": "processor.didstate.$INDY_NETWORK",
+        "sourceLookups": "@@source.db.$INDY_NETWORK"
+      }
+    },
+    {
+      "interface": "PIPELINE",
+      "impl": "sequential",
+      "params": {
+        "id": "pipeline.$INDY_NETWORK.domain",
+        "subledger": "domain",
+        "iterator": "@@iterator.$INDY_NETWORK",
+        "requestTxFormat": "original",
+        "processor": "@@processor.didstate.$INDY_NETWORK",
+        "target": "@@target.$INDY_NETWORK",
+        "timing": "FAST"
+      }
+    },
+    {
+      "interface": "PIPELINE",
+      "impl": "sequential",
+      "params": {
+        "id": "pipeline.$INDY_NETWORK.config",
+        "subledger": "config",
+        "iterator": "@@iterator.$INDY_NETWORK",
+        "requestTxFormat": "original",
+        "processor": "@@processor.didstate.$INDY_NETWORK",
+        "target": "@@target.$INDY_NETWORK",
+        "timing": {
+          "timeoutOnSuccess": 1000,
+          "timeoutOnIteratorError": 5000,
+          "timeoutOnTxNotAvailable": 4000,
+          "jitterRatio": 0.4
         }
       }
-    ],
-    "destination": "es-txs-%NETWORK%-domain-reindex"
-  }
+    },
+    {
+      "interface": "PIPELINE",
+      "impl": "sequential",
+      "params": {
+        "id": "pipeline.$INDY_NETWORK.pool",
+        "subledger": "pool",
+        "iterator": "@@iterator.$INDY_NETWORK",
+        "requestTxFormat": "original",
+        "processor": "@@processor.didstate.$INDY_NETWORK",
+        "target": "@@target.$INDY_NETWORK",
+        "timing": "FAST"
+      }
+    }
+  ]
 }
-
-
-

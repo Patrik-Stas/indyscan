@@ -10,40 +10,47 @@ const DOMAIN_LEDGER_ID = '1'
 describe('common transformations', () => {
   it('should not modify original argument object', async () => {
     const tx = _.cloneDeep(txAttribRoleSteward)
-    await processor.transformTx(tx)
+    await processor.processTx(tx)
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txAttribRoleSteward))
+  })
+
+  it('should return format "indyscan"', async () => {
+    const tx = _.cloneDeep(txAttribRoleSteward)
+    const {processedTx, format}  = await processor.processTx(tx)
+    expect(format).toBe('indyscan')
+    expect(processedTx).toBeDefined()
   })
 
   it('should set typeName', async () => {
     const tx = _.cloneDeep(txAttribRoleSteward)
-    let transformed = await processor.transformTx(tx)
+    const {processedTx}  = await processor.processTx(tx)
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txAttribRoleSteward))
-    expect(transformed.txn.typeName).toBe('ATTRIB')
+    expect(processedTx.txn.typeName).toBe('ATTRIB')
   })
 
   it('should convert txnMetadata.txnTime to ISO8601', async () => {
     const tx = _.cloneDeep(txAttribRoleSteward)
-    let transformed = await processor.transformTx(tx)
-    expect(transformed.txnMetadata.txnTime).toBe('2019-11-27T15:34:07.000Z')
+    const {processedTx}  = await processor.processTx(tx)
+    expect(processedTx.txnMetadata.txnTime).toBe('2019-11-27T15:34:07.000Z')
   })
 
   it('should set subledger.code and subledger.name', async () => {
     const tx = _.cloneDeep(txAttribRoleSteward)
-    let transformed = await processor.transformTx(tx)
-    expect(transformed.subledger.code).toBe(DOMAIN_LEDGER_ID)
-    expect(transformed.subledger.name).toBe('DOMAIN')
+    const {processedTx}  = await processor.processTx(tx)
+    expect(processedTx.subledger.code).toBe(DOMAIN_LEDGER_ID)
+    expect(processedTx.subledger.name).toBe('DOMAIN')
   })
 
   it('should have added root meta field', async () => {
     const tx = _.cloneDeep(txAttribRoleSteward)
-    let transformed = await processor.transformTx(tx)
-    expect(transformed.meta).toBeDefined()
+    const {processedTx}  = await processor.processTx(tx)
+    expect(processedTx.meta).toBeDefined()
   })
 
   it('should throw if tx argument is undefined', async () => {
     let threw
     try {
-      await processor.transformTx(undefined)
+      await processor.processTx(undefined)
     } catch (err) {
       threw = true
     }
@@ -53,7 +60,7 @@ describe('common transformations', () => {
   it('should throw if tx argument is null', async () => {
     let threw
     try {
-      await processor.transformTx(null)
+      await processor.processTx(null)
     } catch (err) {
       threw = true
     }
@@ -63,7 +70,7 @@ describe('common transformations', () => {
   it('should throw if tx argument is empty object', async () => {
     let threw
     try {
-      await processor.transformTx({})
+      await processor.processTx({})
     } catch (err) {
       threw = true
     }
