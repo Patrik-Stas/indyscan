@@ -1,7 +1,9 @@
 const logger = require('../logging/logger-main')
+const {createStorageReadEs} = require('indyscan-storage')
+const { Client } = require('@elastic/elasticsearch')
 
 async function createSourceElasticsearch ({id, url, indexDomain, indexPool, indexConfig}) {
-  const esClient = new elasticsearch.Client({node: url})
+  const esClient = new Client({node: url})
   const storageReadDomain = createStorageReadEs(esClient, indexDomain, 'domain', logger)
   const storageReadPool = createStorageReadEs(esClient, indexPool, 'pool', logger)
   const storageReadConfig = createStorageReadEs(esClient, indexConfig, 'config', logger)

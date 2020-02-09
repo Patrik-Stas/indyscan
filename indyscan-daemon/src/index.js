@@ -1,5 +1,7 @@
 const { envConfig } = require('./config/env')
 const logger = require('./logging/logger-main')
+const {bootstrapApp} = require('./ioc')
+const {appConfigToObjectsConfig} = require('./config/network-config-processor')
 const {loadAppConfigFromFile} = require('./config/network-config-processor')
 const { processScanConfigFile } = require('./config/network-config-processor')
 

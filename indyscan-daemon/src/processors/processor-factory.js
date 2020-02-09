@@ -7,12 +7,12 @@ const IMPLEMENTATIONS = {
   noop: "noop"
 }
 
-function buildSourceFactory() {
+function buildProcessorFactory() {
   async function buildImplementation (sourceConfig) {
     logger.debug(`Creating source from config: ${JSON.stringify(sourceConfig)}`)
-    const {impl, data} = sourceConfig
+    const {impl, params} = sourceConfig
     if (impl === IMPLEMENTATIONS.expansion) {
-      return createProcessorExpansion(data)
+      return createProcessorExpansion(params)
     } else {
       throw Error(`Unknown ${INTERFACE} implementation: ${impl}. Supported: ${JSON.stringify(Object.values(IMPLEMENTATIONS))}`)
     }
@@ -28,4 +28,4 @@ function buildSourceFactory() {
   }
 }
 
-module.exports.buildSourceFactory = buildSourceFactory
+module.exports.buildProcessorFactory = buildProcessorFactory

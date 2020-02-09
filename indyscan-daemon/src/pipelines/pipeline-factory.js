@@ -1,4 +1,5 @@
 const logger = require('../logging/logger-main')
+const {createPipelineSequential} = require('./pipeline-sequential')
 
 const INTERFACE = "PIPELINE"
 
@@ -6,12 +7,12 @@ const IMPLEMENTATIONS = {
   sequential: "sequential"
 }
 
-function buildSourceFactory() {
+function buildPipelineFactory() {
   async function buildImplementation (sourceConfig) {
     logger.debug(`Creating source from config: ${JSON.stringify(sourceConfig)}`)
-    const {impl, data} = sourceConfig
+    const {impl, params} = sourceConfig
     if ( impl === IMPLEMENTATIONS.sequential) {
-      return createPipelineSequential(data)
+      return createPipelineSequential(params)
     } else {
       throw Error(`Unknown source implementation: ${impl}. Supported: ${JSON.stringify(Object.values(IMPLEMENTATIONS))}`)
     }
@@ -27,4 +28,4 @@ function buildSourceFactory() {
   }
 }
 
-module.exports.buildSourceFactory = buildSourceFactory
+module.exports.buildPipelineFactory = buildPipelineFactory

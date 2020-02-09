@@ -1,4 +1,5 @@
 const logger = require('../logging/logger-main')
+const {createTargetElasticsearch} = require('./target-elasticsearch')
 
 const INTERFACE = "TARGET"
 
@@ -6,12 +7,12 @@ const IMPLEMENTATIONS = {
   elasticsearch: "elasticsearch"
 }
 
-function buildSourceFactory() {
+function buildTargetFactory() {
   async function buildImplementation (sourceConfig) {
     logger.debug(`Creating source from config: ${JSON.stringify(sourceConfig)}`)
-    const {impl, data} = sourceConfig
+    const {impl, params} = sourceConfig
     if (impl === IMPLEMENTATIONS.elasticsearch) {
-      return createTargetElasticsearch(data)
+      return createTargetElasticsearch(params)
     } else {
       throw Error(`Unknown source implementation: ${impl}. Supported: ${JSON.stringify(Object.values(IMPLEMENTATIONS))}`)
     }
@@ -27,4 +28,4 @@ function buildSourceFactory() {
   }
 }
 
-module.exports.buildSourceFactory = buildSourceFactory
+module.exports.buildTargetFactory = buildTargetFactory

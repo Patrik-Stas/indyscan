@@ -11,7 +11,19 @@ function esFilterByTxTypeNames (txNames) {
 function esFilterSubledgerName (subledgerName) {
   return {
     'term': {
-      'indyscan.subledger.name': subledgerName
+      'meta.subledger': {
+        'value': subledgerName
+      }
+    }
+  }
+}
+
+function esFilterBySeqNo (seqNo) {
+  return {
+    'term': {
+      'meta.seqNo': {
+        'value': seqNo
+      }
     }
   }
 }
@@ -24,20 +36,10 @@ function esFilterHasTimestamp () {
   }
 }
 
-function esFilterBySeqNo (seqNo) {
-  return {
-    'term': {
-      'indyscan.txnMetadata.seqNo': {
-        'value': seqNo
-      }
-    }
-  }
-}
-
 function esFilterAboveSeqNo (seqNo) {
   return {
     'range': {
-      'indyscan.txnMetadata.seqNo': {
+      'meta.seqNo': {
         'gte': seqNo
       }
     }
@@ -47,7 +49,7 @@ function esFilterAboveSeqNo (seqNo) {
 function esFilterBelowSeqNo (seqNo) {
   return {
     'range': {
-      'indyscan.txnMetadata.seqNo': {
+      'meta.seqNo': {
         'lt': seqNo
       }
     }

@@ -8,8 +8,8 @@ function createGeneralFactory (objectFactories) {
     if (!config.interface) {
       throw Error(`Config is missing interface specification: ${JSON.stringify(config)}`)
     }
-    if (!config.data) {
-      throw Error(`Config is missing construction data: ${JSON.stringify(config)}`)
+    if (!config.params) {
+      throw Error(`Config is missing construction data: ${JSON.stringify(config, null, 2)}`)
     }
   }
 
@@ -32,9 +32,9 @@ function createGeneralFactory (objectFactories) {
   }
 
   async function buildImplementation (objectConfig) {
-    validateObjectConfig(sourceConfig)
+    validateObjectConfig(objectConfig)
     const factory = selectRightFactory(objectConfig)
-    const object = factory.build(objectConfig)
+    const object = await factory.buildImplementation(objectConfig)
     logger.debug(`Successfully built object ${object.getObjectId()}`)
     return object
   }

@@ -1,4 +1,5 @@
 const logger = require('../logging/logger-main')
+const {createStorageWriteEs} = require('indyscan-storage')
 
 async function waitUntilElasticIsReady (esUrl) {
   let agencyReady = false
@@ -25,8 +26,6 @@ async function createTargetElasticsearch({id, url, indexDomain, indexPool, index
   logger.debug(`Created ElasticSearch storages for network '${esIndex}'.`)
 
   async function createWriteStorage (esClient, esIndex, exIndexReplicaCount, subledger, assureEsIndex) {
-  // const storageReadEs = createStorageReadEs(esClient, esIndex, subledger, logger)
-  // const transformTx = createTxTransform(subledger, storageReadEs)
   return createStorageWriteEs(esClient, esIndex, exIndexReplicaCount, subledger, assureEsIndex, false, transformTx, logger)
     .then(storage => { return storage })
     .catch(err => {
@@ -48,7 +47,7 @@ async function createTargetElasticsearch({id, url, indexDomain, indexPool, index
 
   async function addTxData (subledger, seqNo) {
     let storageWrite = resolveStorage(subledger)
-    return storageWrite.addTxData(seqNo)
+    return storageWrite.addTx(seqNo)
   }
 
   function getObjectId() {

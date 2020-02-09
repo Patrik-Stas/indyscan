@@ -1,3 +1,8 @@
+const {buildProcessorFactory} = require('./processors/processor-factory')
+const {buildPipelineFactory} = require('./pipelines/pipeline-factory')
+const {buildIteratorFactory} = require('./iterators/iterator-factory')
+const {buildTargetFactory} = require('./targets/target-factory')
+const {createGeneralFactory} = require('./factory')
 const {registerInstance, injectDependencies} = require('./di-container')
 const {buildSourceFactory} = require('./sources/source-factory')
 
@@ -10,8 +15,13 @@ const interfaces = {
 }
 
 const sourceFactory = buildSourceFactory()
-const factory = createGeneralFactory([sourceFactory])
-
+const targetFactory = buildTargetFactory()
+const iteratorFactory = buildIteratorFactory()
+const processorFactory = buildProcessorFactory()
+const pipelineFactory = buildPipelineFactory()
+const factory = createGeneralFactory(
+  [sourceFactory, targetFactory, iteratorFactory, processorFactory, pipelineFactory]
+)
 
 async function registerObject (objectInstance) {
   registerInstance(objectInstance.getObjectId(), objectInstance)
@@ -32,7 +42,7 @@ async function buildObjectInstances (objectConfigs) {
   return instances
 }
 
-async function injectDependenciesIntoConfigs(objectConfigs) {
+async function injectDependenciesIntoConfigs (objectConfigs) {
   for (const objectConfig of objectConfigs) {
     injectDependencies(objectConfig)
   }

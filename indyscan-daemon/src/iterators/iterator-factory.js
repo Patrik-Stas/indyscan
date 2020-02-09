@@ -7,12 +7,12 @@ const IMPLEMENTATIONS = {
   guided: 'guided'
 }
 
-function buildSourceFactory () {
+function buildIteratorFactory () {
   async function buildImplementation (sourceConfig) {
     logger.debug(`Creating iterator from config: ${JSON.stringify(sourceConfig)}`)
-    const {impl, data} = sourceConfig
+    const {impl, params} = sourceConfig
     if (impl === IMPLEMENTATIONS.guided) {
-      return createIteratorGuided(data)
+      return createIteratorGuided(params)
     } else {
       throw Error(`Unknown iterator implementation: ${impl}. Supported: ${JSON.stringify(Object.values(IMPLEMENTATIONS))}`)
     }
@@ -28,4 +28,4 @@ function buildSourceFactory () {
   }
 }
 
-module.exports.buildSourceFactory = buildSourceFactory
+module.exports.buildIteratorFactory = buildIteratorFactory
