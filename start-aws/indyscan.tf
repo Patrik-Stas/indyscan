@@ -80,7 +80,7 @@ resource "null_resource" "assure_software" {
   }
 }
 
-resource "null_resource" "provision_indyscan_scripts" {
+resource "null_resource" "provision_files" {
 
   connection {
     type = "ssh"
@@ -89,8 +89,13 @@ resource "null_resource" "provision_indyscan_scripts" {
     private_key = file(var.private_key_path)
   }
 
+  depends_on = [
+    null_resource.assure_software,
+    aws_route53_record.www
+  ]
+
   triggers = {
-    key = "reprovision-scripts-1"
+    key = var.trigger_reprovision_files
   }
 
   provisioner "file" {
@@ -102,22 +107,6 @@ resource "null_resource" "provision_indyscan_scripts" {
     inline = [
       "chmod -R +x indyscan/*.sh indyscan/**/*.sh",
     ]
-  }
-}
-
-resource "null_resource" "build_indypool_image" {
-
-  depends_on = [
-    null_resource.provision_indyscan_scripts,
-    null_resource.assure_software,
-    aws_route53_record.www
-  ]
-
-  connection {
-    type = "ssh"
-    user = "ubuntu"
-    host = aws_instance.indyscan.public_ip
-    private_key = file(var.private_key_path)
   }
 
   provisioner "remote-exec" {
@@ -136,11 +125,11 @@ resource "null_resource" "build_indypool_image" {
 resource "null_resource" "restart_docker" {
 
   depends_on = [
-    null_resource.build_indypool_image
+    null_resource.provision_files
   ]
 
   triggers = {
-    key = "restart-1"
+    key = var.trigger_restart_docker
   }
 
   connection {
@@ -153,7 +142,8 @@ resource "null_resource" "restart_docker" {
   provisioner "remote-exec" {
 
     inline = [
-      "cd ~/indyscan; docker-compose pull",
+      "ls ~",
+      "cd ~/indyscan; docker-compose pull --ignore-pull-failures",
       "export POOL_ADDRESS='${coalesce(var.dns_hostname, aws_instance.indyscan.public_ip)}'",
       "export INDYPOOL_IMAGE_TAG=\"indypool-$POOL_ADDRESS:latest\"",
       "echo \"INDYSCAN_INDYPOOL_IMAGE=indypool-$POOL_ADDRESS:latest\" > ~/indyscan/.env",
@@ -178,7 +168,7 @@ resource "null_resource" "restart_docker" {
 resource "null_resource" "provision_genesis_locally" {
 
   depends_on = [
-    null_resource.build_indypool_image
+    null_resource.provision_files
   ]
 
   provisioner "local-exec" {
