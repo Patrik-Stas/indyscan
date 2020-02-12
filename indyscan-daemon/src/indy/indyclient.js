@@ -68,8 +68,9 @@ async function createIndyClient (ledgerName, genesisPath = undefined) {
   async function getTx (subledgerName, seqNo) {
     const subledgerCode = LEDGER_NAME_TO_CODE[subledgerName.toLowerCase()]
     const getTx = await indy.buildGetTxnRequest(did, subledgerCode, seqNo)
-    logger.debug(`${whoami} Built GET_TX request: ${JSON.stringify(getTx)}`)
+    logger.debug(`${whoami} Ledger GET_TX request: ${JSON.stringify(getTx)}`)
     const tx = await indy.submitRequest(poolHandle, getTx)
+    logger.debug(`${whoami} Ledger GET_TX response: ${JSON.stringify(tx)}`)
     if (tx.op === 'REPLY') {
       if (tx.result.data) {
         return tx.result.data

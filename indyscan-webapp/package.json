@@ -1,6 +1,6 @@
 {
   "name": "indyscan-webapp",
-  "version": "3.1.2",
+  "version": "3.1.3",
   "description": "Web application to browse Hyperledger Indy blockchain transactions.",
   "main": "index.js",
   "scripts": {
