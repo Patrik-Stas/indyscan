@@ -107,7 +107,8 @@ resource "null_resource" "recreate_environment" {
   // wipe out existing files, destory existing environment
   provisioner "remote-exec" {
     inline = [
-      "cd $HOME/indyscan docker-compose down --volumes ||:", // since we cannot preserve ledger data, we have to also wipe out elasticsearch data
+      "set -x",
+      "cd $HOME/indyscan; docker-compose down --volumes ||:", // since we cannot preserve ledger data, we have to also wipe out elasticsearch data
       "yes | rm -r $HOME/indyscan ||:",
     ]
   }
@@ -120,6 +121,7 @@ resource "null_resource" "recreate_environment" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -x",
       "chmod -R +x indyscan/*.sh indyscan/**/*.sh",
     ]
   }
@@ -139,6 +141,7 @@ resource "null_resource" "recreate_environment" {
   // start up new environment
   provisioner "remote-exec" {
     inline = [
+      "set -x",
       "ls ~",
       "cd ~/indyscan; docker-compose pull --ignore-pull-failures",
       "export POOL_ADDRESS='${coalesce(var.dns_hostname, aws_instance.indyscan.public_ip)}'",
