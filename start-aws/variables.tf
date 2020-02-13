@@ -62,3 +62,12 @@ variable "trigger_restart_docker" {
 variable "trigger_reprovision_files" {
   default = "1"
 }
+
+variable "ssh_cidr_block" {
+  default = "0.0.0.0/0"
+}
+
+variable "custom_security_group_ids" {
+  type    = list(string)
+  default = []
+}

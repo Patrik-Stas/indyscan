@@ -3,12 +3,13 @@ resource "aws_instance" "indyscan" {
   instance_type = var.ec2_size
   availability_zone = var.availability_zone
   key_name = var.keypair_name
-  vpc_security_group_ids = [
+  vpc_security_group_ids = flatten([
     aws_security_group.Indyscan_General.id,
     aws_security_group.Indyscan_Services.id,
     aws_security_group.Indyscan_IndyPool_Client.id,
-    aws_security_group.Indyscan_IndyPool_Node.id
-  ]
+    aws_security_group.Indyscan_IndyPool_Node.id,
+    var.custom_security_group_ids
+  ])
 
   root_block_device {
     volume_size = "20"

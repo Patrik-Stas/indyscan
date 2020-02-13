@@ -154,7 +154,7 @@ resource "aws_security_group" "Indyscan_General" {
     to_port = 22
     protocol = "TCP"
     cidr_blocks = [
-      "0.0.0.0/0"
+      var.ssh_cidr_block
     ]
     description = "SSH Access"
   }
