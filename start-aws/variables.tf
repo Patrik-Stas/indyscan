@@ -55,11 +55,7 @@ variable "dns_hostname" {
   description = "(Optional) Example: 'dev.indypool.id'. VPC-wide Indyscan DNS A record. This URL will be also used in genesis file for this IndyPool. If not specified, pool will be Internet-public, accesible via public IP. "
 }
 
-variable "trigger_restart_docker" {
-  default = "1"
-}
-
-variable "trigger_reprovision_files" {
+variable "trigger_reset_environment" {
   default = "1"
 }
 

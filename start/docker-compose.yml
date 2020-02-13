@@ -30,6 +30,9 @@ services:
       - indyscan
     ports:
       - 9701-9708:9701-9708
+#    volumes:
+#    - indypool_logs:/var/log/indy/sandbox/:rw
+#    - indypool_ledger:/var/lib/indy/sandbox/data:rw # the problem is that it created directory as root and indy-node cannot write into it. Will have to modify the image first -we need to create this directory in its dockerfile
 
   indyscan-elasticsearch:
     image: ${INDYSCAN_ELASTICSEARCH_IMAGE:-docker.elastic.co/elasticsearch/elasticsearch:7.4.0}
@@ -131,3 +134,7 @@ networks:
 volumes:
   indyscan-es:
     driver: local
+#  indypool_logs:
+#    driver: local
+#  indypool_ledger:
+#    driver: local
