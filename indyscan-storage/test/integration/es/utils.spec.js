@@ -1,7 +1,6 @@
 /* eslint-env jest */
 const sleep = require('sleep-promise')
 const {upsertSubdocument} = require('../../../src/es/utils')
-const {updateDocument} = require('../../../src/es/utils')
 const {getDocument} = require('../../../src/es/utils')
 const {searchOneDocument} = require('../../../src/es/utils')
 const {createWinstonLoggerDummy} = require('../../../src/es/utils')

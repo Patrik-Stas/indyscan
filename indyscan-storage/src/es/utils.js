@@ -86,7 +86,6 @@ async function setMapping(esClient, esIndex, indexMappings) {
     body:
       indexMappings
   }
-  console.log(JSON.stringify(coreMappings))
   return esClient.indices.putMapping(coreMappings)
 }
 

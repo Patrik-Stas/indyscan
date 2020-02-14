@@ -46,12 +46,32 @@ describe('reading transaction formats from elasticsearch', () => {
     await sleep(1000) // takes time to index the stuff
 
     //act
-    let domainTx = await storageReadEs.getFullTxBySeqNo('domain', 1)
+    let domainTx = await storageReadEs.getOneTx('domain', 1)
 
     // assert
     console.log(JSON.stringify(domainTx))
     expect(JSON.stringify(domainTx.foo.data)).toBe(JSON.stringify({ "foodata": "fooval" }))
     expect(JSON.stringify(domainTx.bar.data)).toBe(JSON.stringify({ "bardata": "barval" }))
+  })
+
+  it('should retrieve transaction in particular format', async () => {
+    // arrange
+    const logger = createWinstonLoggerDummy()
+    const storageWriteEs = await createStorageWriteEs(esClient, index, 0, logger)
+    const storageReadEs = await createStorageReadEs(esClient, index, logger)
+    await storageWriteEs.addTx('domain', 1, 'foo', { "foodata": "foo-domain-1111" })
+    await storageWriteEs.addTx('domain', 1, 'bar', { "bardata": "bar-domain-1111" })
+
+    await sleep(1000) // takes time to index the stuff
+
+    //act
+    let fooTx = await storageReadEs.getOneTx('domain', 1, 'foo')
+    expect(fooTx).toBeDefined()
+    expect(fooTx.data.foodata).toBe("foo-domain-1111")
+
+    let barTx = await storageReadEs.getOneTx('domain', 1, 'bar')
+    expect(barTx).toBeDefined()
+    expect(barTx.data.bardata).toBe("bar-domain-1111")
   })
 
   it('should write transaction in various formats on various subledgers and retrieve them back one by one', async () => {
@@ -81,14 +101,14 @@ describe('reading transaction formats from elasticsearch', () => {
     await sleep(1000) // takes time to index the stuff
 
     //act
-    let domainTx1 = await storageReadEs.getFullTxBySeqNo('domain', 1)
-    let domainTx2 = await storageReadEs.getFullTxBySeqNo('domain', 2)
-    let domainTx3 = await storageReadEs.getFullTxBySeqNo('domain', 3)
-    let domainTx4 = await storageReadEs.getFullTxBySeqNo('domain', 4)
-    let configTx1 = await storageReadEs.getFullTxBySeqNo('config', 1)
-    let configTx2 = await storageReadEs.getFullTxBySeqNo('config', 2)
-    let configTx3 = await storageReadEs.getFullTxBySeqNo('config', 3)
-    let configTx4 = await storageReadEs.getFullTxBySeqNo('config', 4)
+    let domainTx1 = await storageReadEs.getOneTx('domain', 1)
+    let domainTx2 = await storageReadEs.getOneTx('domain', 2)
+    let domainTx3 = await storageReadEs.getOneTx('domain', 3)
+    let domainTx4 = await storageReadEs.getOneTx('domain', 4)
+    let configTx1 = await storageReadEs.getOneTx('config', 1)
+    let configTx2 = await storageReadEs.getOneTx('config', 2)
+    let configTx3 = await storageReadEs.getOneTx('config', 3)
+    let configTx4 = await storageReadEs.getOneTx('config', 4)
 
     // assert
     expect(JSON.stringify(domainTx1.foo.data)).toBe(JSON.stringify({ "foodata": "foo-domain-1111" }))
@@ -109,7 +129,6 @@ describe('reading transaction formats from elasticsearch', () => {
     expect(JSON.stringify(configTx4.foo.data)).toBe(JSON.stringify({ "foodata": "foo-config-4444" }))
     expect(JSON.stringify(configTx4.bar.data)).toBe(JSON.stringify({ "bardata": "bar-config-4444" }))
   })
-
 
   it('should retrieve range of transactions based on seqno', async () => {
     // arrange

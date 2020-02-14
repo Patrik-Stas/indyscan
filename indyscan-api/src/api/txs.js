@@ -105,10 +105,10 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
           tx = await storage.getTxBySeqNo(parsedSeqNo)
           break
         case 'full':
-          tx = await storage.getFullTxBySeqNo(parsedSeqNo)
+          tx = await storage.getOneTx(parsedSeqNo)
           break
         case 'indyscan':
-          tx = (await storage.getFullTxBySeqNo(parsedSeqNo)).indyscan
+          tx = (await storage.getOneTx(parsedSeqNo)).indyscan
           break
         default:
           throw Error('This should be unreachable code.')

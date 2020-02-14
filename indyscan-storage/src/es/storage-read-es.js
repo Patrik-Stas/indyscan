@@ -45,10 +45,21 @@ function createStorageReadEs (esClient, esIndex, logger) {
     return body.count
   }
 
-  async function getFullTxBySeqNo (subledger, seqNo) {
+  async function getOneTx (subledger, seqNo, format = undefined) {
     const subledgerTxsQuery = createSubledgerQuery(subledger)
     const query = esAndFilters(subledgerTxsQuery, esFilterBySeqNo(seqNo))
-    return searchOneDocument(esClient, esIndex, query)
+    const tx = await searchOneDocument(esClient, esIndex, query)
+    if (!tx) {
+      return undefined
+    }
+    if (format) {
+      let tmp = tx[format]
+      if (!tmp) {
+        return undefined
+      }
+      return tx[format]
+    }
+    return tx
   }
 
   /*
@@ -87,7 +98,7 @@ function createStorageReadEs (esClient, esIndex, logger) {
 
   return {
     findMaxSeqNo,
-    getFullTxBySeqNo,
+    getOneTx,
     getFullTxs,
     getTxCount,
   }
