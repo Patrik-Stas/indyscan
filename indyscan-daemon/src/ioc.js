@@ -1,27 +1,7 @@
-const {buildProcessorFactory} = require('./processors/processor-factory')
-const {buildPipelineFactory} = require('./pipelines/pipeline-factory')
-const {buildIteratorFactory} = require('./iterators/iterator-factory')
-const {buildTargetFactory} = require('./targets/target-factory')
-const {createGeneralFactory} = require('./factory')
+const {buildImplementation} = require('./factory')
 const {registerInstance, injectDependencies} = require('./di-container')
-const {buildSourceFactory} = require('./sources/source-factory')
-
-const interfaces = {
-  SOURCE: 'SOURCE',
-  TARGET: 'TARGET',
-  ITERATOR: 'ITERATOR',
-  PROCESSOR: 'PROCESSOR',
-  PIPELINE: 'PIPELINE',
-}
-
-const sourceFactory = buildSourceFactory()
-const targetFactory = buildTargetFactory()
-const iteratorFactory = buildIteratorFactory()
-const processorFactory = buildProcessorFactory()
-const pipelineFactory = buildPipelineFactory()
-const factory = createGeneralFactory(
-  [sourceFactory, targetFactory, iteratorFactory, processorFactory, pipelineFactory]
-)
+const logger = require('./logging/logger-main')
+const {interfaces} = require('./factory')
 
 async function registerObject (objectInstance) {
   registerInstance(objectInstance.getObjectId(), objectInstance)
@@ -36,7 +16,7 @@ async function registerObjects (objectInstances) {
 async function buildObjectInstances (objectConfigs) {
   let instances = []
   for (const objectConfig of objectConfigs) {
-    const objectInstance = await factory.buildImplementation(objectConfig)
+    const objectInstance = await buildImplementation(objectConfig)
     instances.push(objectInstance)
   }
   return instances
@@ -48,21 +28,27 @@ async function injectDependenciesIntoConfigs (objectConfigs) {
   }
 }
 
+async function injectBuildRegister(objectConfigs) {
+  logger.info(`Building object configs ${JSON.stringify(objectConfigs)}`)
+  await injectDependenciesIntoConfigs(objectConfigs)
+  logger.debug(`Object configs after DI: ${JSON.stringify(objectConfigs)}`)
+  let instances = await buildObjectInstances(objectConfigs)
+  logger.debug(`Built instances ${JSON.stringify(instances)}`)
+  await registerObjects(instances)
+  return instances
+}
+
 async function bootstrapApp (objectsConfig) {
-  let sourceConfigs = objectsConfig.filter(o => o.interface.toUpperCase() === interfaces.SOURCE)
-  // let configTargets = objectsConfig.filter(o => o.interface.toUpperCase() === interfaces.TARGET)
-  // let configIterators = objectsConfig.filter(o => o.interface.toUpperCase() === interfaces.ITERATOR)
-  // let configProcessors = objectsConfig.filter(o => o.interface.toUpperCase() === interfaces.PROCESSOR)
-  // let configPipelines = objectsConfig.filter(o => o.interface.toUpperCase() === interfaces.PIPELINE)
-  injectDependenciesIntoConfigs(sourceConfigs)
-  let sourceInstances = await buildObjectInstances(sourceConfigs)
-  await registerObjects(sourceInstances)
-  // await registerTxDestination(targets)
-  // await registerTxIterator(iterators)
-  // await registerTxProcessor(processors)
-  // await registerTxPipeline(pipelines)
-  let pipelineInstances = []
-  return pipelineInstances
+  const sourceConfigs = objectsConfig.filter(o => o.interface.toLowerCase() === interfaces.source)
+  const configTargets = objectsConfig.filter(o => o.interface.toLowerCase() === interfaces.target)
+  const configIterators = objectsConfig.filter(o => o.interface.toLowerCase() === interfaces.iterator)
+  const configProcessors = objectsConfig.filter(o => o.interface.toLowerCase() === interfaces.processor)
+  const configPipelines = objectsConfig.filter(o => o.interface.toLowerCase() === interfaces.pipeline)
+  await injectBuildRegister(sourceConfigs)
+  await injectBuildRegister(configTargets)
+  await injectBuildRegister(configIterators)
+  await injectBuildRegister(configProcessors)
+  return injectBuildRegister(configPipelines)
 }
 
 module.exports.bootstrapApp = bootstrapApp

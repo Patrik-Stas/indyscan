@@ -5,7 +5,7 @@ const {interfaces, implSource} = require('../factory')
 
 async function createSourceElasticsearch ({id, url, index}) {
   const esClient = new Client({node: url})
-  const storageRead = createStorageReadEs(esClient, indexDomain, logger)
+  const storageRead = createStorageReadEs(esClient, index, logger)
 
   async function getTxData (subledger, seqNo, format = 'original') {
     let originalTx = await storageRead.getOneTx(subledger, seqNo, format)

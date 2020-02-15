@@ -4,6 +4,7 @@ const logger = require('../logging/logger-main')
 const sleep = require('sleep-promise')
 
 async function createSourceLedger ({id, name, genesisPath= undefined}) {
+  logger.info(`----- SRC LEDGER: ${name}`)
   let client = null
   let isConnecting = false
   let consecutiveTxResolutionFailures
@@ -13,7 +14,7 @@ async function createSourceLedger ({id, name, genesisPath= undefined}) {
       isConnecting = true
       client = await createIndyClient(name, genesisPath)
     } catch (e) {
-      throw Error(`${id} Failed to create client for network client. Details: ${e.message} ${e.stack}.`)
+      throw Error(`${id} Failed to create indy client for network ${name}. Details: ${e.message} ${e.stack}.`)
     } finally {
       isConnecting = false
     }

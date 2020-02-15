@@ -30,10 +30,15 @@ function createIteratorGuided ({id, source, sourceSeqNoGuidance}) {
     return implIterator.guided
   }
 
+  function getObjectId() {
+    return id
+  }
+
   return {
     getNextTx,
     getInterfaceName,
-    getImplName
+    getImplName,
+    getObjectId
   }
 }
 

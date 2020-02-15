@@ -1,6 +1,7 @@
 {
   "environment": {
     "INDY_NETWORK": "LOCALHOST_INDYSCAN",
+    "TARGET_INDEX": "txs-localhost",
     "URL_ELASTICSEARCH": "http://localhost:9200"
   },
   "comments": {
@@ -10,7 +11,7 @@
   },
   "objects": [
     {
-      "interface": "SOURCE",
+      "interface": "Source",
       "impl": "ledger",
       "params": {
         "id": "source.$INDY_NETWORK",
@@ -19,30 +20,26 @@
       }
     },
     {
-      "interface": "SOURCE",
+      "interface": "Source",
       "impl": "elasticsearch",
       "params": {
         "id": "source.target.$INDY_NETWORK",
         "url": "$URL_ELASTICSEARCH",
-        "indexDomain": "txs-$INDY_NETWORK-domain",
-        "indexPool": "txs-$INDY_NETWORK-pool",
-        "indexConfig": "txs-$INDY_NETWORK-config"
+        "index": "$TARGET_INDEX"
       }
     },
     {
-      "interface": "TARGET",
+      "interface": "Target",
       "impl": "elasticsearch",
       "params": {
         "id": "target.$INDY_NETWORK",
         "url": "$URL_ELASTICSEARCH",
-        "indexDomain": "txs-$INDY_NETWORK-domain",
-        "indexPool": "txs-$INDY_NETWORK-pool",
-        "indexConfig": "txs-$INDY_NETWORK-config"
+        "index": "$TARGET_INDEX"
       }
     },
     {
-      "interface": "ITERATOR",
-      "impl": "guided-network-iterator",
+      "interface": "Iterator",
+      "impl": "guided",
       "params": {
         "id": "@@iterator.$INDY_NETWORK",
         "source": "@@source.$INDY_NETWORK",
@@ -50,7 +47,7 @@
       }
     },
     {
-      "interface": "PROCESSOR",
+      "interface": "Processor",
       "impl": "expansion",
       "params": {
         "id": "processor.expansion.$INDY_NETWORK",
@@ -58,7 +55,7 @@
       }
     },
     {
-      "interface": "PIPELINE",
+      "interface": "Pipeline",
       "impl": "sequential",
       "params": {
         "id": "pipeline.$INDY_NETWORK.domain",
@@ -71,7 +68,7 @@
       }
     },
     {
-      "interface": "PIPELINE",
+      "interface": "Pipeline",
       "impl": "sequential",
       "params": {
         "id": "pipeline.$INDY_NETWORK.config",
@@ -84,7 +81,7 @@
       }
     },
     {
-      "interface": "PIPELINE",
+      "interface": "Pipeline",
       "impl": "sequential",
       "params": {
         "id": "pipeline.$INDY_NETWORK.pool",

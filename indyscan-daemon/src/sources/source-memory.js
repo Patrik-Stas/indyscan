@@ -42,7 +42,6 @@ function createSourceMemory ({id, dataspace}) {
     return id
   }
 
-
   async function getInterfaceName() {
     return interfaces.source
   }

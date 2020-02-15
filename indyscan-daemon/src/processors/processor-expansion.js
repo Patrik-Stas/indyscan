@@ -193,11 +193,16 @@ function createProcessorExpansion ({id, sourceLookups}) {
     return implProcessor.expansion
   }
 
+  function getObjectId() {
+    return id
+  }
+
   return {
     processTx,
     initializeTarget,
     getInterfaceName,
     getImplName,
+    getObjectId
   }
 }
 

@@ -1,13 +1,16 @@
 const {interfaces, implTarget} = require('../factory')
 const logger = require('../logging/logger-main')
 const {createStorageWriteEs} = require('indyscan-storage')
+const sleep = require('sleep-promise')
+const axios = require('axios')
+const elasticsearch = require('@elastic/elasticsearch')
 
 async function waitUntilElasticIsReady (esUrl) {
-  let agencyReady = false
-  while (!agencyReady) {
+  let isReady = false
+  while (!isReady) {
     try {
       await axios.get(`${esUrl}/_cat`)
-      agencyReady = true
+      isReady = true
     } catch (e) {
       logger.warn(`Waiting for ElasticSearch ${esUrl} to come up.`)
       await sleep(2000)
@@ -15,51 +18,30 @@ async function waitUntilElasticIsReady (esUrl) {
   }
 }
 
-async function createTargetElasticsearch({id, url, indexDomain, indexPool, indexConfig}) {
+async function createTargetElasticsearch ({id, url, index, replicas = 0}) {
+  await waitUntilElasticIsReady(url)
+
   const esClient = new elasticsearch.Client({node: url})
-  await waitUntilElasticIsReady(urlEs)
-  const domainStoragePromise = createWriteStorage(esClient, esIndex, exIndexReplicaCount, 'DOMAIN', true)
-  const poolStoragePromise = createWriteStorage(esClient, esIndex, exIndexReplicaCount, 'POOL', false)
-  const configStoragePromise = createWriteStorage(esClient, esIndex, exIndexReplicaCount, 'CONFIG', false)
-
-  const [ storageWriteDomain, storageWritePool, storageWriteConfig ]
-    = await Promise.all([domainStoragePromise, poolStoragePromise, configStoragePromise])
-  logger.debug(`Created ElasticSearch storages for network '${esIndex}'.`)
-
-  async function createWriteStorage (esClient, esIndex, exIndexReplicaCount, subledger, assureEsIndex) {
-  return createStorageWriteEs(esClient, esIndex, exIndexReplicaCount, subledger, assureEsIndex, false, transformTx, logger)
-    .then(storage => { return storage })
-    .catch(err => {
-      logger.error(`Failed to create ES storage for index ${esIndex}: ${util.inspect(err, false, 10)} ${err.stack}`)
-      throw Error(`Failed to create ES storage for index ${esIndex}`)
-    })
-}
-  function resolveStorage (subledger) {
-    if (format === 'domain') {
-      return storageWriteDomain
-    } else if (format === 'pool') {
-      return storageWritePool
-    } else if (format === 'config') {
-      return storageWriteConfig
-    } else {
-      throw Error(`Unknown subledger ${subledger}`)
-    }
+  let storageWrite
+  try {
+    storageWrite = await createStorageWriteEs(esClient, index, replicas, logger)
+  } catch (err) {
+    throw Error(`Failed to create ES storage for index ${index}. Details: ${err.message} ${err.stack}`)
   }
 
   async function addTxData (subledger, seqNo) {
-    let storageWrite = resolveStorage(subledger)
     return storageWrite.addTx(seqNo)
   }
 
-  function getObjectId() {
+  function getObjectId () {
     return id
   }
 
-  async function getInterfaceName() {
+  async function getInterfaceName () {
     return interfaces.target
   }
 
-  async function getImplName() {
+  async function getImplName () {
     return implTarget.elasticsearch
   }
 

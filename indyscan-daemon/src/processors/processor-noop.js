@@ -29,11 +29,16 @@ function createProcessorNoop ({id, format}) {
     return implProcessor.noop
   }
 
+  function getObjectId() {
+    return id
+  }
+
   return {
     processTx,
     getFormatName,
     getInterfaceName,
-    getImplName
+    getImplName,
+    getObjectId
   }
 }
 
