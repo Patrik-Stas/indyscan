@@ -1,43 +1,42 @@
 const logger = require('../logging/logger-main')
 const {createStorageReadEs} = require('indyscan-storage')
 const { Client } = require('@elastic/elasticsearch')
+const {interfaces, implSource} = require('../factory')
 
-async function createSourceElasticsearch ({id, url, indexDomain, indexPool, indexConfig}) {
+async function createSourceElasticsearch ({id, url, index}) {
   const esClient = new Client({node: url})
-  const storageReadDomain = createStorageReadEs(esClient, indexDomain, 'domain', logger)
-  const storageReadPool = createStorageReadEs(esClient, indexPool, 'pool', logger)
-  const storageReadConfig = createStorageReadEs(esClient, indexConfig, 'config', logger)
-
-  function resolveEsReadStorage (subledger) {
-    if (format === 'domain') {
-      return storageReadDomain
-    } else if (format === 'pool') {
-      return storageReadPool
-    } else if (format === 'config') {
-      return storageReadConfig
-    } else {
-      throw Error(`Unknown subledger ${subledger}`)
-    }
-  }
+  const storageRead = createStorageReadEs(esClient, indexDomain, logger)
 
   async function getTxData (subledger, seqNo, format = 'original') {
-    storageRead = resolveEsReadStorage(subledger)
-    return storageRead.getTxBySeqNo(seqNo, format)
+    let originalTx = await storageRead.getOneTx(subledger, seqNo, format)
+    if (originalTx) {
+      return originalTx.data
+    }
+    return undefined
   }
 
   async function getHighestSeqno (subledger) {
-    storageRead = resolveEsReadStorage(subledger)
-    return storageRead.findMaxSeqNo(seqNo)
+    return storageRead.findMaxSeqNo(subledger)
   }
 
   function getObjectId() {
     return id
   }
 
+  function getInterfaceName() {
+    return interfaces.source
+  }
+
+  function getImplName() {
+    return implSource.elasticsearch
+  }
+
   return {
     getObjectId,
     getTxData,
-    getHighestSeqno
+    getHighestSeqno,
+    getInterfaceName,
+    getImplName
   }
 }
 

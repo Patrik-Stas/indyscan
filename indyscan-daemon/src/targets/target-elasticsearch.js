@@ -1,3 +1,4 @@
+const {interfaces, implTarget} = require('../factory')
 const logger = require('../logging/logger-main')
 const {createStorageWriteEs} = require('indyscan-storage')
 
@@ -54,9 +55,19 @@ async function createTargetElasticsearch({id, url, indexDomain, indexPool, index
     return id
   }
 
+  async function getInterfaceName() {
+    return interfaces.target
+  }
+
+  async function getImplName() {
+    return implTarget.elasticsearch
+  }
+
   return {
     getObjectId,
     addTxData,
+    getInterfaceName,
+    getImplName
   }
 }
 

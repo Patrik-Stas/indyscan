@@ -1,4 +1,5 @@
 const logger = require('../logging/logger-main')
+const {interfaces, implIterator} = require('../factory')
 
 function createIteratorGuided ({id, source, sourceSeqNoGuidance}) {
 
@@ -21,8 +22,18 @@ function createIteratorGuided ({id, source, sourceSeqNoGuidance}) {
     }
   }
 
+  async function getInterfaceName() {
+    return interfaces.iterator
+  }
+
+  async function getImplName() {
+    return implIterator.guided
+  }
+
   return {
-    getNextTx
+    getNextTx,
+    getInterfaceName,
+    getImplName
   }
 }
 

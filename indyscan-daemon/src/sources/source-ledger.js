@@ -1,3 +1,4 @@
+const {interfaces, implSource} = require('../factory')
 const { createIndyClient } = require('../indy/indyclient')
 const logger = require('../logging/logger-main')
 const sleep = require('sleep-promise')
@@ -69,10 +70,20 @@ async function createSourceLedger ({id, name, genesisPath= undefined}) {
     return id
   }
 
+  async function getInterfaceName() {
+    return interfaces.source
+  }
+
+  async function getImplName() {
+    return implSource.ledger
+  }
+
   return {
     getObjectId,
     getTxData,
-    getHighestSeqno
+    getHighestSeqno,
+    getInterfaceName,
+    getImplName
   }
 }
 

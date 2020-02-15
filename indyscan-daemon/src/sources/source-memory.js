@@ -1,3 +1,5 @@
+const {interfaces, implSource} = require('../factory')
+
 // https://stackoverflow.com/questions/2631001/test-for-existence-of-nested-javascript-object-key
 function checkNested(obj, level,  ...rest) {
   if (obj === undefined) return false
@@ -40,10 +42,21 @@ function createSourceMemory ({id, dataspace}) {
     return id
   }
 
+
+  async function getInterfaceName() {
+    return interfaces.source
+  }
+
+  async function getImplName() {
+    return implSource.memory
+  }
+
   return {
     getObjectId,
     getTxData,
-    getHighestSeqno
+    getHighestSeqno,
+    getInterfaceName,
+    getImplName
   }
 }
 

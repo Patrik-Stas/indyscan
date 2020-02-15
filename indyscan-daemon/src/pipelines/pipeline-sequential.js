@@ -4,6 +4,7 @@ const logger = require('../logging/logger-main')
 const {getDefaultPreset} = require('../config/presets-consumer')
 const {resolvePreset} = require('../config/presets-consumer')
 const {runWithTimer} = require('../time/util')
+const {interfaces, implPipeline} = require('../factory')
 
 function getExpandedTimingConfig (providedTimingSetup) {
   let presetData
@@ -214,11 +215,21 @@ function createPipelineSequential ({id, subledger, iterator, requestTxFormat, pr
     return id
   }
 
+  async function getInterfaceName() {
+    return interfaces.pipeline
+  }
+
+  async function getImplName() {
+    return implPipeline.sequential
+  }
+
   return {
     getObjectId,
     start,
     stop,
-    info
+    info,
+    getInterfaceName,
+    getImplName
   }
 }
 

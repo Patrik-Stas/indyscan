@@ -24,9 +24,7 @@
       "params": {
         "id": "source.db.$INDY_NETWORK",
         "url": "$URL_ELASTICSEARCH",
-        "indexDomain": "txs-$INDY_NETWORK-domain",
-        "indexPool": "txs-$INDY_NETWORK-pool",
-        "indexConfig": "txs-$INDY_NETWORK-config"
+        "index": "txs-$INDY_NETWORK"
       }
     },
     {
@@ -35,9 +33,7 @@
       "params": {
         "id": "target.$INDY_NETWORK",
         "url": "$URL_ELASTICSEARCH",
-        "indexDomain": "txs-$INDY_NETWORK-domain",
-        "indexPool": "txs-$INDY_NETWORK-pool",
-        "indexConfig": "txs-$INDY_NETWORK-config"
+        "index": "txs-$INDY_NETWORK"
       }
     },
     {

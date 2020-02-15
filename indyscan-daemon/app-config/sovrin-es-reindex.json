@@ -16,18 +16,17 @@
         "id": "source.$INDY_NETWORK",
         "url": "$URL_ELASTICSEARCH",
         "subledger": "domain",
-        "indexDomain": "txs-$INDY_NETWORK-domain",
-        "indexPool": "txs-$INDY_NETWORK-pool",
-        "indexConfig": "txs-$INDY_NETWORK-config"
+        "index": "txs-$INDY_NETWORK"
       }
     },
     {
       "interface": "SOURCE",
-      "impl": "ledger",
+      "impl": "elasticsearch",
       "params": {
-        "id": "source.target.$INDY_NETWORK.domain",
-        "networkName": "SOVRIN_MAINNET",
-        "networkGenesisRef": "$CFGDIR/genesis/SOVRIN_MAINNET.txn"
+        "id": "source.$INDY_NETWORK",
+        "url": "$URL_ELASTICSEARCH",
+        "subledger": "domain",
+        "index": "txs-$INDY_NETWORK-new"
       }
     },
     {
@@ -36,10 +35,8 @@
       "params": {
         "id": "target.$INDY_NETWORK",
         "url": "$URL_ELASTICSEARCH",
-        "replicas": 2,
-        "indexDomain": "txs-$INDY_NETWORK-domain-reindex",
-        "indexPool": "txs-$INDY_NETWORK-pool-reindex",
-        "indexConfig": "txs-$INDY_NETWORK-config-reindex"
+        "replicas": 1,
+        "index": "txs-$INDY_NETWORK-new"
       }
     },
     {
