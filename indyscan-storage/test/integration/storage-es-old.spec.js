@@ -1,4 +1,11 @@
 // /* eslint-env jest */
+
+describe('stub', () => {
+  it('stub', async () => {
+    expect(true).toBeTruthy()
+  })
+})
+
 // const { txNamesToTypes, txNameToTxCode } = require('indyscan-txtype')
 // const sleep = require('sleep-promise')
 // const path = require('path')

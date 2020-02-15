@@ -38,16 +38,16 @@ describe('basic es utils tests', () => {
   it('should create ES index if doesnt exist', async () => {
     await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
     let exists = await doesIndexExist(esClient, index)
-    expect(exists).toBeTruthy
+    expect(exists).toBeTruthy()
   })
 
   it('should be okay to call assureEsIndex repeatedly', async () => {
     await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
     let exists = await doesIndexExist(esClient, index)
-    expect(exists).toBeTruthy
+    expect(exists).toBeTruthy()
     await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
     let exists2 = await doesIndexExist(esClient, index)
-    expect(exists2).toBeTruthy
+    expect(exists2).toBeTruthy()
   })
 
   it('should search, find and return one document', async () => {

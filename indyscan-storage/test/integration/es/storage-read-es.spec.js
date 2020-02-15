@@ -49,7 +49,6 @@ describe('reading transaction formats from elasticsearch', () => {
     let domainTx = await storageReadEs.getOneTx('domain', 1)
 
     // assert
-    console.log(JSON.stringify(domainTx))
     expect(JSON.stringify(domainTx.foo.data)).toBe(JSON.stringify({ "foodata": "fooval" }))
     expect(JSON.stringify(domainTx.bar.data)).toBe(JSON.stringify({ "bardata": "barval" }))
   })

@@ -11,8 +11,6 @@
     "test": "jest test",
     "test:unit": "jest test/unit",
     "test:integration": "jest test/integration",
-    "test:integration:es": "jest test/integration/es/storage-es.spec.js",
-    "test:integration:mongo": "jest test/integration/storage-mongo.spec.js",
     "import-mongo": "npm run import-config && npm run import-domain && npm run import-pool",
     "import-config": "mongoimport --db IS_STOR_TEST --collection txs-config data/config.txs",
     "import-domain": "mongoimport --db IS_STOR_TEST --collection txs-domain data/domain.txs",
