@@ -21,32 +21,6 @@ const { processScanConfigFile } = require('./config/network-config-processor')
 //   }
 // })
 
-// async function scanNetwork (scannerName, consumerConfig, sourceConfig, storageConfig, storageFactory) {
-//   try {
-//     logger.info(`Initiating network scan for network '${scannerName}'.`)
-//     const {
-//       storageReadDomain, storageWriteDomain,
-//       storageReadPool, storageWritePool,
-//       storageReadConfig, storageWriteConfig
-//     } = await storageFactory.createStoragesForNetwork(storageConfig)
-//     let resolveTx = await createTxResolve(sourceConfig)
-//
-//     logger.debug(`Creating consumers for network '${scannerName}'.`)
-//     const consumerDomainSubledger = await createConsumerSequential(resolveTx, storageReadDomain, storageWriteDomain, scannerName, 'domain', consumerConfig.data)
-//     const consumerPoolSubledger = await createConsumerSequential(resolveTx, storageReadPool, storageWritePool, scannerName, 'pool', consumerConfig.data)
-//     const consumerConfigSubledger = await createConsumerSequential(resolveTx, storageReadConfig, storageWriteConfig, scannerName, 'config', consumerConfig.data)
-//
-//     logger.debug(`Starting consumers for network '${scannerName}'.`)
-//     consumerDomainSubledger.start()
-//     consumerPoolSubledger.start()
-//     consumerConfigSubledger.start()
-//   } catch (err) {
-//     logger.error(`Something when wrong initiating scanning for network '${scannerName}'. Details:`)
-//     logger.error(err.message)
-//     logger.error(err.stack)
-//   }
-// }
-
 async function run () {
   const appConfig = await loadAppConfigFromFile(envConfig.NETWORKS_CONFIG_PATH)
   logger.info(`Loaded app confing ${JSON.stringify(appConfig, null, 2)}.`)
