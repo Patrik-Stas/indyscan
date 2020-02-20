@@ -40,18 +40,18 @@ describe('integration for target elasticsearch', () => {
     await target.addTxData('pool', 123, 'format-bazz', {'foo': 'foo1-configd'})
 
     await sleep(1000)
-    //
-    // let tx1 = await source.getTxData('domain', 1, 'format-foo')
-    // expect(toCanonicalJson(tx1)).toBe(toCanonicalJson({idata: {'foo': 'foo1'}, imeta: {seqNo: 1, subledger: 'domain'}}))
-    //
-    // let h1 = await source.getHighestSeqno('domain')
-    // expect(h1).toBe(2)
-    //
-    // let h2 = await source.getHighestSeqno('domain', 'full')
-    // expect(h2).toBe(2)
-    //
-    // let h3 = await source.getHighestSeqno('domain', 'format-foo')
-    // expect(h3).toBe(2)
+
+    let tx1 = await source.getTxData('domain', 1, 'format-foo')
+    expect(toCanonicalJson(tx1)).toBe(toCanonicalJson({idata: {'foo': 'foo1'}, imeta: {seqNo: 1, subledger: 'domain'}}))
+
+    let h1 = await source.getHighestSeqno('domain')
+    expect(h1).toBe(2)
+
+    let h2 = await source.getHighestSeqno('domain', 'full')
+    expect(h2).toBe(2)
+
+    let h3 = await source.getHighestSeqno('domain', 'format-foo')
+    expect(h3).toBe(2)
 
     let h4 = await source.getHighestSeqno('domain', 'format-bar')
     expect(h4).toBe(1)
