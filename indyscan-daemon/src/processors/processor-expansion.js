@@ -1,19 +1,17 @@
-const logger = require('../logging/logger-main')
 const geoip = require('geoip-lite')
 const _ = require('lodash')
-const assert = require('assert')
-const {intializeEsTarget} = require('./target-inits')
-const {transformPoolUpgrade} = require('./expansion/config/pool-upgrade')
-const {createClaimDefTransform} = require('./expansion/domain/claim-def')
-const {createNodeTransform} = require('./expansion/pool/node')
-const {transformNymAttrib} = require('./expansion/domain/nym-attrib')
-const {txTypeToSubledgerName, txTypeToTxName, subledgerNameToId} = require('indyscan-txtype/src/types')
+const { intializeEsTarget } = require('./target-inits')
+const { transformPoolUpgrade } = require('./expansion/config/pool-upgrade')
+const { createClaimDefTransform } = require('./expansion/domain/claim-def')
+const { createNodeTransform } = require('./expansion/pool/node')
+const { transformNymAttrib } = require('./expansion/domain/nym-attrib')
+const { txTypeToTxName } = require('indyscan-txtype/src/types')
 
 const geoipLiteLookupIp = geoip.lookup.bind(geoip)
 
-function createProcessorExpansion ({id, sourceLookups}) {
+function createProcessorExpansion ({ id, sourceLookups }) {
   let resolveDomainTxBySeqNo = async (seqNo) => {
-    return await sourceLookups.getTxData('domain', seqNo, 'original')
+    return sourceLookups.getTxData('domain', seqNo, 'original')
   }
 
   function noop (tx) {
@@ -48,7 +46,7 @@ function createProcessorExpansion ({id, sourceLookups}) {
     if (!tx) {
       throw Error('tx argument not defined')
     }
-    const {txn, txnMetadata} = tx
+    const { txn, txnMetadata } = tx
     if (!txn || !txn.type) {
       throw Error(`txn.type was missing`)
     }
@@ -70,28 +68,27 @@ function createProcessorExpansion ({id, sourceLookups}) {
       const transform = txTransforms[txnTypeName]
       processed = await transform(processed)
     } catch (err) {
-      processed.indyscanmeta = {}
-      processed.indyscanmeta.transformError = {
+      processed.ierror = {
         message: err.message,
         stack: err.stack
       }
     }
-    return {processedTx: processed, format: 'indyscan'}
+    return { processedTx: processed, format: 'indyscan' }
   }
 
   function getEsDomainMappingFields () {
     return {
       // TX: NYM, ATTRIB
-      'txn.data.raw': {type: 'text'},
-      'txn.data.dest': {type: 'keyword'},
-      'txn.data.verkeyFull': {type: 'keyword'},
-      'txn.data.roleAction': {type: 'keyword'},
+      'txn.data.raw': { type: 'text' },
+      'txn.data.dest': { type: 'keyword' },
+      'txn.data.verkeyFull': { type: 'keyword' },
+      'txn.data.roleAction': { type: 'keyword' },
 
       // TX: CLAIM_DEF
-      'txn.data.refSchemaTxnSeqno': {type: 'integer'},
-      'txn.data.refSchemaTxnTime': {type: 'date', format: 'date_time'},
-      'txn.data.refSchemaVersion': {type: 'keyword'},
-      'txn.data.refSchemaFrom': {type: 'keyword'},
+      'txn.data.refSchemaTxnSeqno': { type: 'integer' },
+      'txn.data.refSchemaTxnTime': { type: 'date', format: 'date_time' },
+      'txn.data.refSchemaVersion': { type: 'keyword' },
+      'txn.data.refSchemaFrom': { type: 'keyword' }
 
     }
   }
@@ -101,28 +98,28 @@ function createProcessorExpansion ({id, sourceLookups}) {
       // TX: pool NODE transaction
       'txn.data.data.client_ip': {
         type: 'text',
-        'fields': {'raw': {'type': 'keyword'}, 'as_ip': {type: 'ip', 'ignore_malformed': true}}
+        'fields': { 'raw': { 'type': 'keyword' }, 'as_ip': { type: 'ip', 'ignore_malformed': true } }
       },
-      'txn.data.data.client_port': {type: 'integer'},
+      'txn.data.data.client_port': { type: 'integer' },
       'txn.data.data.node_ip': {
         type: 'text',
-        'fields': {'raw': {'type': 'keyword'}, 'as_ip': {type: 'ip', 'ignore_malformed': true}}
+        'fields': { 'raw': { 'type': 'keyword' }, 'as_ip': { type: 'ip', 'ignore_malformed': true } }
       },
-      'txn.data.data.node_ip_text': {type: 'text'},
-      'txn.data.data.node_port': {type: 'integer'},
+      'txn.data.data.node_ip_text': { type: 'text' },
+      'txn.data.data.node_port': { type: 'integer' },
 
       // TX: NODE tx geo information
-      'txn.data.data.client_ip_geo.location': {type: 'geo_point'},
-      'txn.data.data.client_ip_geo.eu': {type: 'boolean'},
-      'txn.data.data.node_ip_geo.location': {type: 'geo_point'},
-      'txn.data.data.node_ip_geo.eu': {type: 'boolean'},
+      'txn.data.data.client_ip_geo.location': { type: 'geo_point' },
+      'txn.data.data.client_ip_geo.eu': { type: 'boolean' },
+      'txn.data.data.node_ip_geo.location': { type: 'geo_point' },
+      'txn.data.data.node_ip_geo.eu': { type: 'boolean' }
     }
   }
 
   function getEsConfigMappingFields () {
     return {
       // config POOL UPGRADE
-      'txn.data.schedule.scheduleKey': {type: 'keyword'},
+      'txn.data.schedule.scheduleKey': { type: 'keyword' },
       'txn.data.schedule.scheduleTime': {
         type: 'date',
         format: 'strict_date_optional_time||epoch_millis||yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ||yyyy-MM-dd\'T\'HH:mm.SSSZZ',
@@ -130,27 +127,27 @@ function createProcessorExpansion ({id, sourceLookups}) {
       },
 
       // TX: domain AUTHOR_AGREEMENT_AML
-      'txn.data.aml.at_submission': {type: 'text', analyzer: 'english'},
-      'txn.data.aml.click_agreement': {type: 'text', analyzer: 'english'},
-      'txn.data.aml.for_session': {type: 'text', analyzer: 'english'},
-      'txn.data.aml.on_file': {type: 'text', analyzer: 'english'},
-      'txn.data.aml.product_eula': {type: 'text', analyzer: 'english'},
-      'txn.data.aml.service_agreement': {type: 'text', analyzer: 'english'},
-      'txn.data.aml.wallet_agreement': {type: 'text', analyzer: 'english'},
+      'txn.data.aml.at_submission': { type: 'text', analyzer: 'english' },
+      'txn.data.aml.click_agreement': { type: 'text', analyzer: 'english' },
+      'txn.data.aml.for_session': { type: 'text', analyzer: 'english' },
+      'txn.data.aml.on_file': { type: 'text', analyzer: 'english' },
+      'txn.data.aml.product_eula': { type: 'text', analyzer: 'english' },
+      'txn.data.aml.service_agreement': { type: 'text', analyzer: 'english' },
+      'txn.data.aml.wallet_agreement': { type: 'text', analyzer: 'english' },
 
       // TX: domain AUTHOR_AGREEMENT
-      'txn.data.text': {type: 'text', analyzer: 'english'}
+      'txn.data.text': { type: 'text', analyzer: 'english' }
     }
   }
 
   function getEsCommonMappingFields () {
     return {
       // Every tx
-      'txn.typeName': {type: 'keyword'},
-      'txn.metadata.from': {type: 'keyword'},
-      'txn.metadata.reqId': {type: 'keyword'},
-      'txn.data.data.blskey': {type: 'keyword'},
-      'txn.data.data.blskey_pop': {type: 'keyword'},
+      'txn.typeName': { type: 'keyword' },
+      'txn.metadata.from': { type: 'keyword' },
+      'txn.metadata.reqId': { type: 'keyword' },
+      'txn.data.data.blskey': { type: 'keyword' },
+      'txn.data.data.blskey_pop': { type: 'keyword' }
       // 'txn.protocolVersion': {type: 'keyword'},
       // 'meta.scanTime': {type: 'date', format: 'date_time'},
 
@@ -174,7 +171,8 @@ function createProcessorExpansion ({id, sourceLookups}) {
   }
 
   async function initializeTarget (target) {
-    if (target.getImplName() === 'elasticsearch') {
+    const targetImpl = target.getImplName()
+    if (targetImpl === 'elasticsearch') {
       await intializeEsTarget(target, getElasticsearchMappingDirectives())
     } else {
       throw Error(`Processor ${id} doesn't know how to initialize target implementation ${targetImpl}`)

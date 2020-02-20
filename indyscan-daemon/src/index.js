@@ -1,9 +1,8 @@
 const { envConfig } = require('./config/env')
 const logger = require('./logging/logger-main')
-const {bootstrapApp} = require('./ioc')
-const {appConfigToObjectsConfig} = require('./config/network-config-processor')
-const {loadAppConfigFromFile} = require('./config/network-config-processor')
-const { processScanConfigFile } = require('./config/network-config-processor')
+const { bootstrapApp } = require('./ioc')
+const { appConfigToObjectsConfig } = require('./config/network-config-processor')
+const { loadAppConfigFromFile } = require('./config/network-config-processor')
 
 // TODO: Setting up IndySKD logging here is causing seemmingly random crashes!
 // const indy = require('indy-sdk')
@@ -28,7 +27,6 @@ async function run () {
   logger.info(`Created objects config: ${JSON.stringify(objectsConfig, null, 2)}.`)
   let pipelines = await bootstrapApp(objectsConfig)
   logger.info(`Bootstrap finished! Create ${pipelines.length} pipelines.`)
-
 }
 
 run()

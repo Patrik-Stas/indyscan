@@ -1,7 +1,7 @@
-const {buildImplementation} = require('./factory')
-const {registerInstance, injectDependencies} = require('./di-container')
+const { buildImplementation } = require('./factory')
+const { registerInstance, injectDependencies } = require('./di-container')
 const logger = require('./logging/logger-main')
-const {interfaces} = require('./factory')
+const { interfaces } = require('./factory')
 
 async function registerObject (objectInstance) {
   registerInstance(objectInstance.getObjectId(), objectInstance)
@@ -28,7 +28,7 @@ async function injectDependenciesIntoConfigs (objectConfigs) {
   }
 }
 
-async function injectBuildRegister(objectConfigs) {
+async function injectBuildRegister (objectConfigs) {
   logger.info(`Building object configs ${JSON.stringify(objectConfigs)}`)
   await injectDependenciesIntoConfigs(objectConfigs)
   logger.debug(`Object configs after DI: ${JSON.stringify(objectConfigs)}`)
@@ -52,4 +52,3 @@ async function bootstrapApp (objectsConfig) {
 }
 
 module.exports.bootstrapApp = bootstrapApp
-

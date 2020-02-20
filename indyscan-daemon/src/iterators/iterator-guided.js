@@ -1,17 +1,15 @@
 const logger = require('../logging/logger-main')
-const {interfaces, implIterator} = require('../factory')
 
-function createIteratorGuided ({id, source, sourceSeqNoGuidance}) {
-
+function createIteratorGuided ({ id, source, sourceSeqNoGuidance }) {
   /*
   - Returns next transaction if available
   - Return undefined if no next transaction currently available
   - Throw if an error occurs
    */
-  async function getNextTx(subledger, format = 'original') {
+  async function getNextTx (subledger, format = 'original') {
     logger.debug(`${id} requested nextTx from subledger '${subledger}' in format '${format}'.`)
     const seqNo = await sourceSeqNoGuidance.getHighestSeqno(subledger) + 1
-    let tx = source.getTxData (subledger, seqNo, format)
+    let tx = source.getTxData(subledger, seqNo, format)
     return {
       meta: {
         subledger,
@@ -22,7 +20,7 @@ function createIteratorGuided ({id, source, sourceSeqNoGuidance}) {
     }
   }
 
-  function getObjectId() {
+  function getObjectId () {
     return id
   }
 

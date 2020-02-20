@@ -3,9 +3,7 @@ const { createProcessorExpansion } = require('../../../src/processors/processor-
 const txAttribRoleSteward = require('indyscan-storage/test/resource/sample-txs/tx-domain-attrib-role-steward')
 const _ = require('lodash')
 
-let processor = createProcessorExpansion({id:'foo', sourceLookups: undefined})
-
-const DOMAIN_LEDGER_ID = '1'
+let processor = createProcessorExpansion({ id: 'foo', sourceLookups: undefined })
 
 describe('common transformations', () => {
   it('should not modify original argument object', async () => {
@@ -16,21 +14,21 @@ describe('common transformations', () => {
 
   it('should return format "indyscan"', async () => {
     const tx = _.cloneDeep(txAttribRoleSteward)
-    const {processedTx, format}  = await processor.processTx(tx)
+    const { processedTx, format } = await processor.processTx(tx)
     expect(format).toBe('indyscan')
     expect(processedTx).toBeDefined()
   })
 
   it('should set typeName', async () => {
     const tx = _.cloneDeep(txAttribRoleSteward)
-    const {processedTx}  = await processor.processTx(tx)
+    const { processedTx } = await processor.processTx(tx)
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txAttribRoleSteward))
     expect(processedTx.txn.typeName).toBe('ATTRIB')
   })
 
   it('should convert txnMetadata.txnTime to ISO8601', async () => {
     const tx = _.cloneDeep(txAttribRoleSteward)
-    const {processedTx}  = await processor.processTx(tx)
+    const { processedTx } = await processor.processTx(tx)
     expect(processedTx.txnMetadata.txnTime).toBe('2019-11-27T15:34:07.000Z')
   })
 

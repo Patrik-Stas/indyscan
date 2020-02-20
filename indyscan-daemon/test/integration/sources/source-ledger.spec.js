@@ -1,6 +1,6 @@
 /* eslint-env jest */
 const toCanonicalJson = require('canonical-json')
-const {createSourceLedger} = require('../../../src/sources/source-ledger')
+const { createSourceLedger } = require('../../../src/sources/source-ledger')
 const path = require('path')
 
 describe('ledger tx resolution', () => {
@@ -39,7 +39,7 @@ describe('ledger tx resolution', () => {
     const tx = await mainnetSource.getTxData('pool', 5)
     const expectedTx = {
       type: '0',
-      metadata: {from: 'rckdVhnC5R5WvdtC83NQp'},
+      metadata: { from: 'rckdVhnC5R5WvdtC83NQp' },
       data:
         {
           dest: 'D9oXgXC3b6ms3bXxrUu6KqR65TGhmC1eu7SUUanPoF71',
@@ -66,7 +66,7 @@ describe('ledger tx resolution', () => {
     const tx = await mainnetSource.getTxData('config', 5)
     const expectedTx = {
       type: '110',
-      data: {data: {action: 'fail', version: '1.1.37'}},
+      data: { data: { action: 'fail', version: '1.1.37' } },
       metadata:
         {
           reqId: 1506438184944754,
@@ -74,7 +74,7 @@ describe('ledger tx resolution', () => {
           from: 'C8W35r9D2eubcrnAjyb4F3PC3vWQS1BHDg7UvDkvdV6Q'
         }
     }
-    const expectedMetadata = {seqNo: 5, txnTime: 1506438185}
+    const expectedMetadata = { seqNo: 5, txnTime: 1506438185 }
     expect(toCanonicalJson(tx.txn)).toBe(toCanonicalJson(expectedTx))
     expect(toCanonicalJson(tx.txnMetadata)).toBe(toCanonicalJson(expectedMetadata))
   })

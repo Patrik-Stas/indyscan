@@ -1,9 +1,8 @@
-const {interfaces, implSource} = require('../factory')
 const { createIndyClient } = require('../indy/indyclient')
 const logger = require('../logging/logger-main')
 const sleep = require('sleep-promise')
 
-async function createSourceLedger ({id, name, genesisPath= undefined}) {
+async function createSourceLedger ({ id, name, genesisPath = undefined }) {
   logger.info(`----- SRC LEDGER: ${name}`)
   let client = null
   let isConnecting = false
@@ -53,28 +52,28 @@ async function createSourceLedger ({id, name, genesisPath= undefined}) {
         consecutiveTxResolutionFailures = 0
         await reconnect()
         try {
-            return client.getTx(subledger, seqNo)
+          return client.getTx(subledger, seqNo)
         } catch (err) {
-          throw Error(`${id} Problem getting tx ${sourceConfigData.genesis}/${subledger}/${seqNo} after successful network reconnection has been done.`)
+          throw Error(`${id} Problem getting tx ${name}/${subledger}/${seqNo} after successful network reconnection has been done.`)
         }
       } else {
-        throw Error(`${id} Problem getting tx ${sourceConfigData.genesis}/${subledger}/${seqNo}. Resolver consecutive failure count: ${consecutiveTxResolutionFailures}`)
+        throw Error(`${id} Problem getting tx ${name}/${subledger}/${seqNo}. Resolver consecutive failure count: ${consecutiveTxResolutionFailures}`)
       }
     }
   }
 
-  function getHighestSeqno(_subledger) {
+  function getHighestSeqno (_subledger) {
     throw Error('Function getHighestSeqno is not implemented for ledger source. Not expected to be used.')
   }
 
-  function getObjectId() {
+  function getObjectId () {
     return id
   }
 
   return {
     getObjectId,
     getTxData,
-    getHighestSeqno,
+    getHighestSeqno
   }
 }
 

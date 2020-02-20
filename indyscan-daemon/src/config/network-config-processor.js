@@ -5,16 +5,16 @@ const logger = require('../logging/logger-main')
 async function loadAppConfigFromFile (scanConfigsPath) {
   const appConfigString = fs.readFileSync(scanConfigsPath)
   const appConfig = JSON.parse(appConfigString)
-  const {environment, objects} = appConfig
-  logger.debug(`Loaded app config from ${scanConfigsPath}.\n`
-    + `Parsed object environment: ${JSON.stringify(environment, null, 2)}\n`
-    + `Parsed app objects: ${JSON.stringify(objects, null, 2)}`)
+  const { environment, objects } = appConfig
+  logger.debug(`Loaded app config from ${scanConfigsPath}.\n` +
+    `Parsed object environment: ${JSON.stringify(environment, null, 2)}\n` +
+    `Parsed app objects: ${JSON.stringify(objects, null, 2)}`)
   environment.CFGDIR = path.dirname(scanConfigsPath)
-  return {environment, objects}
+  return { environment, objects }
 }
 
 function appConfigToObjectsConfig (rawAppConfig) {
-  const {environment, objects} = rawAppConfig
+  const { environment, objects } = rawAppConfig
   let strObjects = JSON.stringify(objects)
   for (const [key, value] of Object.entries(environment)) {
     let finalValue = process.env[key] ? process.env[key] : value

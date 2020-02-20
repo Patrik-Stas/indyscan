@@ -1,12 +1,12 @@
 /* eslint-env jest */
 const sleep = require('sleep-promise')
-const {indexExists} = require('../../../src/es/utils')
-const {upsertSubdocument} = require('../../../src/es/utils')
-const {getDocument} = require('../../../src/es/utils')
-const {searchOneDocument} = require('../../../src/es/utils')
-const {createWinstonLoggerDummy} = require('../../../src/es/utils')
-const {assureEsIndex} = require('../../../src/es/utils')
-const {Client} = require('@elastic/elasticsearch')
+const { indexExists } = require('../../../src/es/utils')
+const { upsertSubdocument } = require('../../../src/es/utils')
+const { getDocument } = require('../../../src/es/utils')
+const { searchOneDocument } = require('../../../src/es/utils')
+const { createWinstonLoggerDummy } = require('../../../src/es/utils')
+const { assureEsIndex } = require('../../../src/es/utils')
+const { Client } = require('@elastic/elasticsearch')
 
 const URL_ES = process.env.URL_ES || 'http://localhost:9200'
 let esClient
@@ -14,12 +14,12 @@ const index = 'storage-integration-assured-index'
 
 async function deleteIntegrationTestIndices () {
   try {
-    await esClient.indices.delete({index})
+    await esClient.indices.delete({ index })
   } catch (err) {} // the index probably doesn't exist, that's cool
 }
 
 beforeAll(async () => {
-  esClient = new Client({node: URL_ES})
+  esClient = new Client({ node: URL_ES })
 })
 
 beforeEach(async () => {
@@ -27,13 +27,11 @@ beforeEach(async () => {
   await deleteIntegrationTestIndices()
 })
 
-
 async function doesIndexExist (esClient, index) {
-  const existsResponse = await esClient.indices.exists({index})
-  const {body: indexExists} = existsResponse
+  const existsResponse = await esClient.indices.exists({ index })
+  const { body: indexExists } = existsResponse
   return indexExists
 }
-
 
 describe('basic es utils tests', () => {
   it('should create ES index if doesnt exist', async () => {
@@ -65,7 +63,7 @@ describe('basic es utils tests', () => {
     await esClient.index({
       id: 'foobar123',
       index,
-      body: {foo: {bar: 42, baz: 256}}
+      body: { foo: { bar: 42, baz: 256 } }
     })
     let query = {
       term: {
@@ -76,7 +74,7 @@ describe('basic es utils tests', () => {
     }
     await sleep(1000) // takes time to index the stuff
 
-    //act
+    // act
     let document = await searchOneDocument(esClient, index, query)
 
     // assert
@@ -87,8 +85,8 @@ describe('basic es utils tests', () => {
   it('should add new format representations of tx', async () => {
     let docId = 'wololooo'
     await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
-    await upsertSubdocument(esClient, index, docId, {format1: {a: 'a'}})
-    await upsertSubdocument(esClient, index, docId, {format2: {b: 'b'}})
+    await upsertSubdocument(esClient, index, docId, { format1: { a: 'a' } })
+    await upsertSubdocument(esClient, index, docId, { format2: { b: 'b' } })
     await sleep(1000) // takes time to index the stuff
     let doc = await getDocument(esClient, index, docId)
     expect(doc).toBeDefined()

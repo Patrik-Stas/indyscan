@@ -1,7 +1,7 @@
-const {esFilterContainsFormat} = require('./es-query-builder')
-const {SUBLEDGERS} = require('./consts')
-const {searchOneDocument} = require('./utils')
-const {esFilterSubledgerName, esAndFilters, esFilterBySeqNo} = require('./es-query-builder')
+const { esFilterContainsFormat } = require('./es-query-builder')
+const { SUBLEDGERS } = require('./consts')
+const { searchOneDocument } = require('./utils')
+const { esFilterSubledgerName, esAndFilters, esFilterBySeqNo } = require('./es-query-builder')
 const util = require('util')
 
 function createWinstonLoggerDummy () {
@@ -40,10 +40,10 @@ function createStorageReadEs (esClient, esIndex, logger) {
     query = query ? esAndFilters(subledgerTxsQuery, query) : subledgerTxsQuery
     let request = {
       index: esIndex,
-      body: {query}
+      body: { query }
     }
     logger.debug(`${whoami} Submitting count txs request: ${JSON.stringify(request, null, 2)}`)
-    const {body} = await esClient.count(request)
+    const { body } = await esClient.count(request)
     logger.debug(`${whoami} Received count txs response: ${JSON.stringify(body, null, 2)}`)
     return body.count
   }
@@ -63,15 +63,15 @@ function createStorageReadEs (esClient, esIndex, logger) {
       return undefined
     }
     if (format !== 'full') {
-      return !!tx.idata ? tx.idata[format] : undefined
+      return tx.idata ? tx.idata[format] : undefined
     }
     return tx
   }
 
-  async function executeEsSearch(searchRequest) {
+  async function executeEsSearch (searchRequest) {
     try {
       logger.debug(`${whoami} Submitting ES request ${JSON.stringify(searchRequest, null, 2)}`)
-      const {body} = await esClient.search(searchRequest)
+      const { body } = await esClient.search(searchRequest)
       logger.debug(`${whoami} Received ES response ${JSON.stringify(body, null, 2)}`)
       return body
     } catch (e) {
@@ -92,12 +92,12 @@ function createStorageReadEs (esClient, esIndex, logger) {
       : [createSubledgerQuery(subledger), esFilterContainsFormat(format)]
 
     query = query ? esAndFilters(...esQueriesArr, query) : esAndFilters(...esQueriesArr)
-    sort = sort || {'imeta.seqNo': {'order': 'desc'}}
+    sort = sort || { 'imeta.seqNo': { 'order': 'desc' } }
     const searchRequest = {
       from: skip,
       size: limit,
       index: esIndex,
-      body: {query, sort}
+      body: { query, sort }
     }
     let body = await executeEsSearch(searchRequest)
     let fullTxs = body.hits.hits.map(h => h['_source'])
@@ -106,7 +106,7 @@ function createStorageReadEs (esClient, esIndex, logger) {
       return fullTxs
     }
     return fullTxs
-      .map(fullTx => !!fullTx.idata ? fullTx.idata[format]: undefined)
+      .map(fullTx => fullTx.idata ? fullTx.idata[format] : undefined)
       .filter(formatTx => !!formatTx)
   }
 
@@ -116,7 +116,7 @@ function createStorageReadEs (esClient, esIndex, logger) {
       0,
       1,
       null,
-      {'imeta.seqNo': {'order': 'desc'}},
+      { 'imeta.seqNo': { 'order': 'desc' } },
       format
     )
     if (txs.length === 0) {
@@ -128,7 +128,7 @@ function createStorageReadEs (esClient, esIndex, logger) {
     findMaxSeqNo,
     getOneTx,
     getManyTxs,
-    getTxCount,
+    getTxCount
   }
 }
 

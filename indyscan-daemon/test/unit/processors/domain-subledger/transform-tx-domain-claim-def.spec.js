@@ -2,26 +2,24 @@
 const txSchemaDef = require('indyscan-storage/test/resource/sample-txs/tx-domain-schema')
 const txCredDef = require('indyscan-storage/test/resource/sample-txs/tx-domain-creddef')
 const _ = require('lodash')
-const {createTargetMemory} = require('../../../../src/targets/target-memory')
-const {createSourceMemory} = require('../../../../src/sources/source-memory')
-const {createProcessorExpansion} = require('../../../../src/processors/processor-expansion')
+const { createTargetMemory } = require('../../../../src/targets/target-memory')
+const { createSourceMemory } = require('../../../../src/sources/source-memory')
+const { createProcessorExpansion } = require('../../../../src/processors/processor-expansion')
 
 let dataspace = {
   domain: {},
   pool: {},
   config: {}
 }
-let txSource = createSourceMemory({id: 'inmem-mock', dataspace})
-let txTarget = createTargetMemory({id: 'inmem-mock', dataspace})
+let txSource = createSourceMemory({ id: 'inmem-mock', dataspace })
+let txTarget = createTargetMemory({ id: 'inmem-mock', dataspace })
 txTarget.addTxData('domain', 74631, 'original', txSchemaDef)
-let processor = createProcessorExpansion({id: 'foo', sourceLookups: txSource})
-
-const DOMAIN_LEDGER_ID = '1'
+let processor = createProcessorExpansion({ id: 'foo', sourceLookups: txSource })
 
 describe('domain/claim-def transaction transformations', () => {
   it('should transform domain CLAIM_DEF transaction', async () => {
     const tx = _.cloneDeep(txCredDef)
-    const {processedTx} = await processor.processTx(tx)
+    const { processedTx } = await processor.processTx(tx)
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txCredDef))
     expect(processedTx.txn.typeName).toBe('CLAIM_DEF')
     expect(processedTx.txn.data.refSchemaTxnSeqno).toBe(74631)
@@ -35,8 +33,6 @@ describe('domain/claim-def transaction transformations', () => {
     expect(processedTx.txn.data.refSchemaAttributes).toContain('bank_account_number')
     expect(processedTx.txn.data.refSchemaAttributes).toContain('bank_account_type')
     expect(processedTx.txn.data.data).toBeUndefined()
-    expect(processedTx.subledger.code).toBe(DOMAIN_LEDGER_ID)
-    expect(processedTx.subledger.name).toBe('DOMAIN')
     expect(processedTx.txnMetadata.txnTime).toBe('2019-10-14T10:30:24.000Z')
   })
 })

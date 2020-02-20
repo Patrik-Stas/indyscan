@@ -1,4 +1,4 @@
 module.exports = {
-  ... require('./src/types'),
-  ... require('./src/util')
+  ...require('./src/types'),
+  ...require('./src/util')
 }

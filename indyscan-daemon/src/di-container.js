@@ -2,8 +2,7 @@ const logger = require('./logging/logger-main')
 
 let instances = {}
 
-function registerInstance(id, instance)
-{
+function registerInstance (id, instance) {
   logger.info(`Registering instance '${id}'`)
   if (!instance) {
     throw Error(`Registering instance '${id}' but provided instance is null or undefined.`)
@@ -14,11 +13,11 @@ function registerInstance(id, instance)
   instances[id] = instance
 }
 
-function requestInstance(id) {
+function requestInstance (id) {
   return instances[id]
 }
 
-function injectDependencies(object) {
+function injectDependencies (object) {
   const injected = []
   for (const [key, value] of Object.entries(object)) {
     if (typeof value === 'string' && value.match(/^@@.*/)) {
@@ -28,7 +27,7 @@ function injectDependencies(object) {
         throw Error(`Found reference to dependency identified as '${dependencyId}' but no such object was registered.`)
       }
       object[key] = dependency
-      injected.push({[key]: value})
+      injected.push({ [key]: value })
     }
   }
   if (injected.length > 0) {
@@ -36,7 +35,7 @@ function injectDependencies(object) {
   }
 }
 
-function flushDiContainer() {
+function flushDiContainer () {
   instances = {}
 }
 

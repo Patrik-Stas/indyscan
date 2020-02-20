@@ -1,4 +1,4 @@
-const {parseSchemaId} = require('indyscan-txtype')
+const { parseSchemaId } = require('indyscan-txtype')
 
 function createClaimDefTransform (resolveDomainTxBySeqNo) {
   function extractSchemaTxInfo (originalTx) {

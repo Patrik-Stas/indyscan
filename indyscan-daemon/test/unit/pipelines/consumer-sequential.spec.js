@@ -19,11 +19,11 @@
 //   }
 // }
 
-const {createPipelineSequential} = require('../../../src/pipelines/pipeline-sequential')
-const {createProcessorNoop} = require('../../../src/processors/processor-noop')
-const {createTargetMemory} = require('../../../src/targets/target-memory')
-const {createIteratorGuided} = require('../../../src/iterators/iterator-guided')
-const {createSourceMemory} = require('../../../src/sources/source-memory')
+const { createPipelineSequential } = require('../../../src/pipelines/pipeline-sequential')
+const { createProcessorNoop } = require('../../../src/processors/processor-noop')
+const { createTargetMemory } = require('../../../src/targets/target-memory')
+const { createIteratorGuided } = require('../../../src/iterators/iterator-guided')
+const { createSourceMemory } = require('../../../src/sources/source-memory')
 const sleep = require('sleep-promise')
 
 const TX_FORMAT_IN = 'format-foo'
@@ -31,16 +31,16 @@ const TX_FORMAT_OUT = 'format-bar'
 
 let dataspace1 = {
   'domain': {
-    '1': {[TX_FORMAT_IN]: {'foo': 'foo-data1'}, 'format-bar': {'bar': 'bar-data1'}},
-    '2': {[TX_FORMAT_IN]: {'foo': 'foo-data2'}},
-    '3': {[TX_FORMAT_IN]: {'foo': 'foo-data3'}, 'format-bar': {'bar': 'bar-data3'}},
-    '4': {[TX_FORMAT_IN]: {'foo': 'foo-data4'}}
+    '1': { [TX_FORMAT_IN]: { 'foo': 'foo-data1' }, 'format-bar': { 'bar': 'bar-data1' } },
+    '2': { [TX_FORMAT_IN]: { 'foo': 'foo-data2' } },
+    '3': { [TX_FORMAT_IN]: { 'foo': 'foo-data3' }, 'format-bar': { 'bar': 'bar-data3' } },
+    '4': { [TX_FORMAT_IN]: { 'foo': 'foo-data4' } }
   },
   'pool': {
-    '1': {[TX_FORMAT_IN]: {'pool': 'pooldata'}}
+    '1': { [TX_FORMAT_IN]: { 'pool': 'pooldata' } }
   },
   'config': {
-    '1': {'format-config': {'config': 'configdata'}}
+    '1': { 'format-config': { 'config': 'configdata' } }
   }
 }
 
@@ -50,10 +50,10 @@ let dataspace2 = {
   config: {}
 }
 
-let sourceLedgerSim = createSourceMemory({id: 'ledger-source-simulation', dataspace: dataspace1})
-let sourceDbSim = createSourceMemory({id: 'db-source-simulation', dataspace: dataspace2})
-let targetDbSim = createTargetMemory({id: 'db-target-simulation', dataspace: dataspace2})
-let noopProcessor = createProcessorNoop({id: 'noop-processorr', format: TX_FORMAT_OUT})
+let sourceLedgerSim = createSourceMemory({ id: 'ledger-source-simulation', dataspace: dataspace1 })
+let sourceDbSim = createSourceMemory({ id: 'db-source-simulation', dataspace: dataspace2 })
+let targetDbSim = createTargetMemory({ id: 'db-target-simulation', dataspace: dataspace2 })
+let noopProcessor = createProcessorNoop({ id: 'noop-processorr', format: TX_FORMAT_OUT })
 
 describe('ledger tx resolution', () => {
   beforeAll(async () => {
@@ -120,5 +120,4 @@ describe('ledger tx resolution', () => {
   //   consumer.stop()
   //   expect(await storageRead.getTxCount()).toBe(2)
   // })
-
 })

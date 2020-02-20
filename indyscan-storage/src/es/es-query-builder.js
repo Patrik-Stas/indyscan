@@ -28,7 +28,6 @@ function esFilterBySeqNo (seqNo) {
   }
 }
 
-
 function esFilterContainsFormat (format) {
   return {
     'exists': {

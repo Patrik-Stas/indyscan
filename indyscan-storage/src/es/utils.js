@@ -1,4 +1,4 @@
-const util = require('util')
+// const util = require('util')
 
 function createWinstonLoggerDummy () {
   let logger = {}
@@ -10,18 +10,18 @@ function createWinstonLoggerDummy () {
   return logger
 }
 
-async function assureEsIndex(esClient, esIndex, replicaCount, logger) {
+async function assureEsIndex (esClient, esIndex, replicaCount, logger) {
   const exists = await indexExists(esClient, esIndex)
   if (!exists) {
     return createEsIndex(esClient, esIndex, replicaCount, logger)
   }
 }
 
-async function indexExists(esClient, index) {
-  const existsResponse = await esClient.indices.exists({index})
+async function indexExists (esClient, index) {
+  const existsResponse = await esClient.indices.exists({ index })
   const { body: indexExists } = existsResponse
   if (indexExists === undefined || indexExists === null) {
-    throw Error(`Can't figure out if index ${esIndex} exists in ES. ES Response: ${JSON.stringify(existsResponse)}.`)
+    throw Error(`Can't figure out if index ${index} exists in ES. ES Response: ${JSON.stringify(existsResponse)}.`)
   }
   return indexExists
 }
@@ -53,7 +53,8 @@ async function searchOneDocument (esClient, esIndex, query) {
     throw Error(`Invalid response from ElasticSearch: ${JSON.stringify(body)}`)
   }
   if (body.hits.hits.length > 1) {
-    throw Error(`Requested tx seqno ${seqNo} but ${body.hits.hits.length} documents were returned. Should only be 1.`)
+    throw Error(`Expected to find at most one document as result of query ${JSON.stringify(query)} but ` +
+      `${body.hits.hits.length} documents were returned.`)
   }
   if (body.hits.hits.length === 0) {
     return null
@@ -61,18 +62,18 @@ async function searchOneDocument (esClient, esIndex, query) {
   return body.hits.hits[0]['_source']
 }
 
-async function upsertSubdocument(esClient, esIndex, id, subdoc) {
+async function upsertSubdocument (esClient, esIndex, id, subdoc) {
   return esClient.update({
     index: esIndex,
     id,
     body: {
-      "doc": subdoc,
-      "doc_as_upsert" : true
+      'doc': subdoc,
+      'doc_as_upsert': true
     }
   })
 }
 
-async function getDocument(esClient, esIndex, id) {
+async function getDocument (esClient, esIndex, id) {
   let res = await esClient.get({
     index: esIndex,
     id
@@ -80,25 +81,24 @@ async function getDocument(esClient, esIndex, id) {
   return res.body._source
 }
 
-async function setMapping(esClient, esIndex, indexMappings) {
+async function setMapping (esClient, esIndex, indexMappings) {
   const coreMappings = {
     index: esIndex,
     body:
-      indexMappings
+    indexMappings
   }
   return esClient.indices.putMapping(coreMappings)
 }
 
-async function getMapping(esClient, esIndex) {
+async function getMapping (esClient, esIndex) {
   return esClient.indices.getMapping({
     index: esIndex
   })
 }
 
 async function deleteIndex (esClient, index) {
-  return esClient.indices.delete({index})
+  return esClient.indices.delete({ index })
 }
-
 
 module.exports.indexExists = indexExists
 module.exports.assureEsIndex = assureEsIndex
@@ -109,4 +109,3 @@ module.exports.upsertSubdocument = upsertSubdocument
 module.exports.getDocument = getDocument
 module.exports.setMapping = setMapping
 module.exports.getMapping = getMapping
-

@@ -1,10 +1,10 @@
 /* eslint-env jest */
 const sleep = require('sleep-promise')
-const {getMapping} = require('../../../src/es/utils')
-const {deleteIndex} = require('../../../src/es/utils')
-const {searchOneDocument} = require('../../../src/es/utils')
-const {createStorageWriteEs} = require('../../../src')
-const {Client} = require('@elastic/elasticsearch')
+const { getMapping } = require('../../../src/es/utils')
+const { deleteIndex } = require('../../../src/es/utils')
+const { searchOneDocument } = require('../../../src/es/utils')
+const { createStorageWriteEs } = require('../../../src')
+const { Client } = require('@elastic/elasticsearch')
 const toCanonicalJson = require('canonical-json')
 
 const URL_ES = process.env.URL_ES || 'http://localhost:9200'
@@ -18,7 +18,7 @@ async function deleteIntegrationTestIndices () {
 }
 
 beforeAll(async () => {
-  esClient = new Client({node: URL_ES})
+  esClient = new Client({ node: URL_ES })
 })
 
 beforeEach(async () => {
@@ -40,7 +40,7 @@ const imetaMapping = {
 describe('writing txdata to elasticsearch', () => {
   it('should write and find sample tx representation', async () => {
     let writeStorage = await createStorageWriteEs(esClient, index, 0)
-    await writeStorage.addTx('domain', 1, 'newformat', {what: 'ever1234', you: 'wish'})
+    await writeStorage.addTx('domain', 1, 'newformat', { what: 'ever1234', you: 'wish' })
     await sleep(1000)
     // assert
     const txBar = await searchOneDocument(esClient, index, {
@@ -51,9 +51,9 @@ describe('writing txdata to elasticsearch', () => {
       }
     })
     expect(toCanonicalJson(txBar)).toBe(toCanonicalJson({
-      imeta: {subledger: 'domain', seqNo: 1},
+      imeta: { subledger: 'domain', seqNo: 1 },
       idata: {
-        'newformat': {idata: {what: 'ever1234', you: 'wish'}, imeta: {subledger: 'domain', seqNo: 1}}
+        'newformat': { idata: { what: 'ever1234', you: 'wish' }, imeta: { subledger: 'domain', seqNo: 1 } }
       }
     }))
   })
@@ -63,8 +63,8 @@ describe('writing txdata to elasticsearch', () => {
     let writeStorage = await createStorageWriteEs(esClient, index, 0)
 
     // act
-    await writeStorage.addTx('domain', 1, 'format-foo', {what: 'ever1234', you: 'wish'})
-    await writeStorage.addTx('domain', 1, 'format-bar', {hello: 'world', world: 'hello'})
+    await writeStorage.addTx('domain', 1, 'format-foo', { what: 'ever1234', you: 'wish' })
+    await writeStorage.addTx('domain', 1, 'format-bar', { hello: 'world', world: 'hello' })
     await sleep(1000)
 
     // assert
@@ -76,10 +76,10 @@ describe('writing txdata to elasticsearch', () => {
       }
     })
     expect(toCanonicalJson(txBar)).toBe(toCanonicalJson({
-      imeta: {subledger: 'domain', seqNo: 1},
-      idata : {
-        'format-foo': {idata: {what: 'ever1234', you: 'wish'}, imeta: {subledger: 'domain', seqNo: 1}},
-        'format-bar': {idata: {world: 'hello', hello: 'world'}, imeta: {subledger: 'domain', seqNo: 1}}
+      imeta: { subledger: 'domain', seqNo: 1 },
+      idata: {
+        'format-foo': { idata: { what: 'ever1234', you: 'wish' }, imeta: { subledger: 'domain', seqNo: 1 } },
+        'format-bar': { idata: { world: 'hello', hello: 'world' }, imeta: { subledger: 'domain', seqNo: 1 } }
       }
     }))
   })
@@ -95,23 +95,23 @@ describe('writing txdata to elasticsearch', () => {
     // assert
     const mapping = await getMapping(esClient, testIndex)
     const expectedBody = toCanonicalJson({
-        [testIndex]: {
-          'mappings': {
-            'properties': {
-              'imeta': {
-                'properties': {
-                  'seqNo': {
-                    'type': 'integer'
-                  },
-                  'subledger': {
-                    'type': 'keyword'
-                  }
+      [testIndex]: {
+        'mappings': {
+          'properties': {
+            'imeta': {
+              'properties': {
+                'seqNo': {
+                  'type': 'integer'
+                },
+                'subledger': {
+                  'type': 'keyword'
                 }
-              },
+              }
             }
           }
         }
       }
+    }
     )
     expect(toCanonicalJson(mapping.body)).toBe(expectedBody)
   })
@@ -124,7 +124,7 @@ describe('writing txdata to elasticsearch', () => {
     } catch (e) {}
     let esStorage = await createStorageWriteEs(esClient, testIndex, 0)
     let mappingFoo = {
-      'aaa': {type: 'integer'}
+      'aaa': { type: 'integer' }
     }
     await sleep(1000)
 
@@ -135,34 +135,34 @@ describe('writing txdata to elasticsearch', () => {
     const mapping = await getMapping(esClient, testIndex)
 
     expect(toCanonicalJson(mapping.body)).toBe(toCanonicalJson({
-        [testIndex]: {
-          'mappings': {
-            'properties': {
-              idata: {
-                'properties': {
-                  'format-foo': {
-                    'properties': {
-                      'idata': {
-                        'properties': {
-                          'aaa': {
-                            'type': 'integer'
-                          }
+      [testIndex]: {
+        'mappings': {
+          'properties': {
+            idata: {
+              'properties': {
+                'format-foo': {
+                  'properties': {
+                    'idata': {
+                      'properties': {
+                        'aaa': {
+                          'type': 'integer'
                         }
-                      },
-                      imeta: imetaMapping
-                    }
-                  },
+                      }
+                    },
+                    imeta: imetaMapping
+                  }
                 }
-              },
-              imeta: imetaMapping
-            }
+              }
+            },
+            imeta: imetaMapping
           }
         }
       }
+    }
     ))
 
     let mappingBar = {
-      'bbb': {type: 'keyword'},
+      'bbb': { type: 'keyword' }
     }
     await sleep(1000)
 
@@ -172,42 +172,42 @@ describe('writing txdata to elasticsearch', () => {
     // assert
     const mappingNew = await getMapping(esClient, testIndex)
     expect(toCanonicalJson(mappingNew.body)).toBe(toCanonicalJson({
-        [testIndex]: {
-          'mappings': {
-            'properties': {
-              idata: {
-                'properties': {
-                  'format-foo': {
-                    'properties': {
-                      'idata': {
-                        'properties': {
-                          'aaa': {
-                            'type': 'integer'
-                          }
+      [testIndex]: {
+        'mappings': {
+          'properties': {
+            idata: {
+              'properties': {
+                'format-foo': {
+                  'properties': {
+                    'idata': {
+                      'properties': {
+                        'aaa': {
+                          'type': 'integer'
                         }
-                      },
-                      imeta: imetaMapping
-                    }
-                  },
-                  'format-bar': {
-                    'properties': {
-                      'idata': {
-                        'properties': {
-                          'bbb': {
-                            'type': 'keyword'
-                          }
+                      }
+                    },
+                    imeta: imetaMapping
+                  }
+                },
+                'format-bar': {
+                  'properties': {
+                    'idata': {
+                      'properties': {
+                        'bbb': {
+                          'type': 'keyword'
                         }
-                      },
-                      imeta: imetaMapping
-                    }
-                  },
+                      }
+                    },
+                    imeta: imetaMapping
+                  }
                 }
-              },
-              imeta: imetaMapping
-            }
+              }
+            },
+            imeta: imetaMapping
           }
         }
       }
+    }
     ))
 
     await deleteIndex(esClient, testIndex)
@@ -221,8 +221,8 @@ describe('writing txdata to elasticsearch', () => {
     } catch (e) {}
     let esStorage = await createStorageWriteEs(esClient, testIndex, 0)
     // act
-    await esStorage.setFormatMappings('format-foo', {'aaa': {type: 'integer'}})
-    await esStorage.setFormatMappings('format-foo', {'bbb': {type: 'keyword'}})
+    await esStorage.setFormatMappings('format-foo', { 'aaa': { type: 'integer' } })
+    await esStorage.setFormatMappings('format-foo', { 'bbb': { type: 'keyword' } })
 
     // assert
     const mappingNew = await getMapping(esClient, testIndex)
@@ -246,7 +246,7 @@ describe('writing txdata to elasticsearch', () => {
                     },
                     imeta: imetaMapping
                   }
-                },
+                }
               }
             },
             imeta: imetaMapping

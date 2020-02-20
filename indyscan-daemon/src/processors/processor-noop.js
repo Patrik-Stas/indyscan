@@ -1,30 +1,30 @@
-const {interfaces, implProcessor} = require('../factory')
+const { intializeEsTarget } = require('./target-inits')
 
-function createProcessorNoop ({id, format}) {
-
+function createProcessorNoop ({ id, format }) {
   async function processTx (tx) {
     if (!tx) {
       throw Error('tx argument not defined')
     }
     let processedTx = Object.assign({}, tx)
-    return {processedTx, format}
+    return { processedTx, format }
   }
 
   function getElasticsearchTargetMappings () {
     return {
-        "serialized": { type: 'text', index: false }
+      'serialized': { type: 'text', index: false }
     }
   }
 
   async function initializeTarget (target) {
-    if (target.getImplName() === 'elasticsearch') {
+    const targetImpl = target.getImplName()
+    if (targetImpl === 'elasticsearch') {
       await intializeEsTarget(target, getElasticsearchTargetMappings())
     } else {
       throw Error(`Processor ${id} doesn't know how to initialize target implementation ${targetImpl}`)
     }
   }
 
-  function getObjectId() {
+  function getObjectId () {
     return id
   }
 
@@ -34,6 +34,5 @@ function createProcessorNoop ({id, format}) {
     getObjectId
   }
 }
-
 
 module.exports.createProcessorNoop = createProcessorNoop

@@ -1,13 +1,13 @@
 const logger = require('./logging/logger-main')
-const {createPipelineSequential} = require('./pipelines/pipeline-sequential')
-const {createIteratorGuided} = require('./iterators/iterator-guided')
-const {createProcessorNoop} = require('./processors/processor-noop')
-const {createProcessorExpansion} = require('./processors/processor-expansion')
-const {createTargetMemory} = require('./targets/target-memory')
-const {createTargetElasticsearch} = require('./targets/target-elasticsearch')
-const {createSourceMemory} = require('./sources/source-memory')
-const {createSourceElasticsearch} = require('./sources/source-elasticsearch')
-const {createSourceLedger} = require('./sources/source-ledger')
+const { createPipelineSequential } = require('./pipelines/pipeline-sequential')
+const { createIteratorGuided } = require('./iterators/iterator-guided')
+const { createProcessorNoop } = require('./processors/processor-noop')
+const { createProcessorExpansion } = require('./processors/processor-expansion')
+const { createTargetMemory } = require('./targets/target-memory')
+const { createTargetElasticsearch } = require('./targets/target-elasticsearch')
+const { createSourceMemory } = require('./sources/source-memory')
+const { createSourceElasticsearch } = require('./sources/source-elasticsearch')
+const { createSourceLedger } = require('./sources/source-ledger')
 
 const interfaces = {
   'source': 'source',

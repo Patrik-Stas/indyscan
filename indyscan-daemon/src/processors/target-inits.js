@@ -1,4 +1,4 @@
-async function intializeEsTarget(target, processorMappings) {
+async function intializeEsTarget (targetElasticsearch, processorMappings) {
   await targetElasticsearch.setMappings(processorMappings)
 }
 

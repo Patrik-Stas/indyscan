@@ -1,14 +1,11 @@
-const {interfaces, implSource} = require('../factory')
-
 // https://stackoverflow.com/questions/2631001/test-for-existence-of-nested-javascript-object-key
-function checkNested(obj, level,  ...rest) {
+function checkNested (obj, level, ...rest) {
   if (obj === undefined) return false
   if (rest.length === 0 && obj.hasOwnProperty(level)) return true
   return checkNested(obj[level], ...rest)
 }
 
-function createSourceMemory ({id, dataspace}) {
-
+function createSourceMemory ({ id, dataspace }) {
   if (!dataspace.domain) {
     throw Error(`Dataspace needs to have field 'domain'`)
   }
@@ -30,7 +27,7 @@ function createSourceMemory ({id, dataspace}) {
     return dataspace[subledger][seqNo][format]
   }
 
-  function getHighestSeqno(subledger) {
+  function getHighestSeqno (subledger) {
     let seqNos = Object.keys(dataspace[subledger])
     if (seqNos.length === 0) {
       return 0
@@ -38,14 +35,14 @@ function createSourceMemory ({id, dataspace}) {
     return Math.max(...seqNos)
   }
 
-  function getObjectId() {
+  function getObjectId () {
     return id
   }
 
   return {
     getObjectId,
     getTxData,
-    getHighestSeqno,
+    getHighestSeqno
   }
 }
 

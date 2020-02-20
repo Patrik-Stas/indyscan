@@ -13,11 +13,11 @@ createEsTransformedTx - function taking 1 argument, a transaction as found on le
 logger (optional) - winston logger
  */
 
-const {SUBLEDGERS} = require('./consts')
-const {setMapping} = require('./utils')
-const {upsertSubdocument} = require('./utils')
-const {assureEsIndex} = require('./utils')
-const {createWinstonLoggerDummy} = require('./utils')
+const { SUBLEDGERS } = require('./consts')
+const { setMapping } = require('./utils')
+const { upsertSubdocument } = require('./utils')
+const { assureEsIndex } = require('./utils')
+const { createWinstonLoggerDummy } = require('./utils')
 
 async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger) {
   if (logger === undefined) {
@@ -28,8 +28,8 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger) 
   await assureEsIndex(esClient, esIndex, esReplicaCount, logger)
   await setMapping(esClient, esIndex, {
     'properties': {
-      'imeta.subledger': {type: 'keyword'},
-      'imeta.seqNo': {type: 'integer'}
+      'imeta.subledger': { type: 'keyword' },
+      'imeta.seqNo': { type: 'integer' }
     }
   })
 
@@ -37,12 +37,12 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger) 
 
   async function setFormatMappings (formatName, fieldMappings) {
     logger.info(`${whoami} Setting up mappings for ES Index ${esIndex}!`)
-    let esMappingDefinition = {properties: {}}
+    let esMappingDefinition = { properties: {} }
     for (let [field, fieldMapping] of Object.entries(fieldMappings)) {
       esMappingDefinition.properties[`idata.${formatName}.idata.${field}`] = fieldMapping
     }
-    esMappingDefinition.properties[`idata.${formatName}.imeta.subledger`] = {type: 'keyword'}
-    esMappingDefinition.properties[`idata.${formatName}.imeta.seqNo`] = {type: 'integer'}
+    esMappingDefinition.properties[`idata.${formatName}.imeta.subledger`] = { type: 'keyword' }
+    esMappingDefinition.properties[`idata.${formatName}.imeta.seqNo`] = { type: 'integer' }
     try {
       return await setMapping(esClient, esIndex, esMappingDefinition)
     } catch (e) {
