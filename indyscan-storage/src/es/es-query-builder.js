@@ -3,7 +3,7 @@ const txTypeUtils = require('indyscan-txtype')
 function esFilterByTxTypeNames (txNames) {
   return {
     'terms': {
-      'indyscan.txn.type': txTypeUtils.txNamesToTypes(txNames)
+      'idata.indyscan.txn.type': txTypeUtils.txNamesToTypes(txNames)
     }
   }
 }
@@ -11,7 +11,7 @@ function esFilterByTxTypeNames (txNames) {
 function esFilterSubledgerName (subledgerName) {
   return {
     'term': {
-      'meta.subledger': {
+      'imeta.subledger': {
         'value': subledgerName
       }
     }
@@ -21,9 +21,18 @@ function esFilterSubledgerName (subledgerName) {
 function esFilterBySeqNo (seqNo) {
   return {
     'term': {
-      'meta.seqNo': {
+      'imeta.seqNo': {
         'value': seqNo
       }
+    }
+  }
+}
+
+
+function esFilterContainsFormat (format) {
+  return {
+    'exists': {
+      'field': `idata.${format}`
     }
   }
 }
@@ -31,25 +40,25 @@ function esFilterBySeqNo (seqNo) {
 function esFilterHasTimestamp () {
   return {
     'exists': {
-      'field': 'indyscan.txnMetadata.txnTime'
+      'field': 'idata.indyscan.txnMetadata.txnTime'
     }
   }
 }
 
-function esFilterAboveSeqNo (seqNo) {
+function esFilterSeqNoGte (seqNo) {
   return {
     'range': {
-      'meta.seqNo': {
+      'imeta.seqNo': {
         'gte': seqNo
       }
     }
   }
 }
 
-function esFilterBelowSeqNo (seqNo) {
+function esFilterSeqNoLt (seqNo) {
   return {
     'range': {
-      'meta.seqNo': {
+      'imeta.seqNo': {
         'lt': seqNo
       }
     }
@@ -59,7 +68,7 @@ function esFilterBelowSeqNo (seqNo) {
 function esFilterTxnAfterTime (utime) {
   return {
     'range': {
-      'indyscan.txnMetadata.txnTime': {
+      'idata.indyscan.txnMetadata.txnTime': {
         'gte': new Date(utime * 1000).toISOString()
       }
     }
@@ -69,7 +78,7 @@ function esFilterTxnAfterTime (utime) {
 function esFilterTxnBeforeTime (utime) {
   return {
     'range': {
-      'indyscan.txnMetadata.txnTime': {
+      'idata.indyscan.txnMetadata.txnTime': {
         'lt': new Date(utime * 1000).toISOString()
       }
     }
@@ -101,8 +110,9 @@ module.exports.esFilterTxnAfterTime = esFilterTxnAfterTime
 module.exports.esFilterTxnBeforeTime = esFilterTxnBeforeTime
 module.exports.esFilterBySeqNo = esFilterBySeqNo
 module.exports.esFilterHasTimestamp = esFilterHasTimestamp
-module.exports.esFilterAboveSeqNo = esFilterAboveSeqNo
-module.exports.esFilterBelowSeqNo = esFilterBelowSeqNo
+module.exports.esFilterSeqNoGte = esFilterSeqNoGte
+module.exports.esFilterSeqNoLt = esFilterSeqNoLt
 module.exports.esAndFilters = esAndFilters
 module.exports.esOrFilters = esOrFilters
 module.exports.esFullTextsearch = esFullTextsearch
+module.exports.esFilterContainsFormat = esFilterContainsFormat

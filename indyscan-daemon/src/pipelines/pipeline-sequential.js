@@ -215,21 +215,11 @@ function createPipelineSequential ({id, subledger, iterator, requestTxFormat, pr
     return id
   }
 
-  async function getInterfaceName() {
-    return interfaces.pipeline
-  }
-
-  async function getImplName() {
-    return implPipeline.sequential
-  }
-
   return {
     getObjectId,
     start,
     stop,
     info,
-    getInterfaceName,
-    getImplName
   }
 }
 

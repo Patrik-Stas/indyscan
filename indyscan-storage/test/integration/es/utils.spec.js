@@ -1,5 +1,6 @@
 /* eslint-env jest */
 const sleep = require('sleep-promise')
+const {indexExists} = require('../../../src/es/utils')
 const {upsertSubdocument} = require('../../../src/es/utils')
 const {getDocument} = require('../../../src/es/utils')
 const {searchOneDocument} = require('../../../src/es/utils')
@@ -50,6 +51,14 @@ describe('basic es utils tests', () => {
     expect(exists2).toBeTruthy()
   })
 
+  it('expect index not to exist', async () => {
+    // act
+    let exists = await indexExists(esClient, 'nonexisting-index')
+
+    // assert
+    expect(exists).toBeFalsy()
+  })
+
   it('should search, find and return one document', async () => {
     // arrange
     await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
@@ -86,9 +95,4 @@ describe('basic es utils tests', () => {
     expect(doc.format1.a).toBe('a')
     expect(doc.format2.b).toBe('b')
   })
-
-  // it('should ', async () => {
-  //   await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
-  //   await getDocument(esClient, index, 'unknown-doc-id')
-  // })
 })

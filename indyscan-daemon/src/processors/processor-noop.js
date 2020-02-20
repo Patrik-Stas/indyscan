@@ -10,23 +10,18 @@ function createProcessorNoop ({id, format}) {
     return {processedTx, format}
   }
 
-  // TODO: add elasticsearch mapping inializer
-  function getEsOriginalFormatMapping() {
+  function getElasticsearchTargetMappings () {
     return {
-      "original": { type: 'text', index: false },
+        "serialized": { type: 'text', index: false }
     }
   }
 
-  async function getFormatName() {
-    return 'original'
-  }
-
-  async function getInterfaceName() {
-    return interfaces.processor
-  }
-
-  async function getImplName() {
-    return implProcessor.noop
+  async function initializeTarget (target) {
+    if (target.getImplName() === 'elasticsearch') {
+      await intializeEsTarget(target, getElasticsearchTargetMappings())
+    } else {
+      throw Error(`Processor ${id} doesn't know how to initialize target implementation ${targetImpl}`)
+    }
   }
 
   function getObjectId() {
@@ -35,9 +30,7 @@ function createProcessorNoop ({id, format}) {
 
   return {
     processTx,
-    getFormatName,
-    getInterfaceName,
-    getImplName,
+    initializeTarget,
     getObjectId
   }
 }

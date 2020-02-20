@@ -7,36 +7,22 @@ async function createSourceElasticsearch ({id, url, index}) {
   const esClient = new Client({node: url})
   const storageRead = createStorageReadEs(esClient, index, logger)
 
-  async function getTxData (subledger, seqNo, format = 'original') {
-    let originalTx = await storageRead.getOneTx(subledger, seqNo, format)
-    if (originalTx) {
-      return originalTx.data
-    }
-    return undefined
+  async function getTxData (subledger, seqNo, format = 'full') {
+    return await storageRead.getOneTx(subledger, seqNo, format)
   }
 
-  async function getHighestSeqno (subledger) {
-    return storageRead.findMaxSeqNo(subledger)
+  async function getHighestSeqno (subledger, format = 'full') {
+    return storageRead.findMaxSeqNo(subledger, format)
   }
 
   function getObjectId() {
     return id
   }
 
-  function getInterfaceName() {
-    return interfaces.source
-  }
-
-  function getImplName() {
-    return implSource.elasticsearch
-  }
-
   return {
     getObjectId,
     getTxData,
     getHighestSeqno,
-    getInterfaceName,
-    getImplName
   }
 }
 

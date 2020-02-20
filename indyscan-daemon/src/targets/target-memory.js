@@ -40,10 +40,6 @@ function createTargetMemory ({id, dataspace}) {
     return id
   }
 
-  async function getInterfaceName() {
-    return interfaces.target
-  }
-
   async function getImplName() {
     return implTarget.memory
   }
@@ -51,7 +47,6 @@ function createTargetMemory ({id, dataspace}) {
   return {
     getObjectId,
     addTxData,
-    getInterfaceName,
     getImplName
   }
 }

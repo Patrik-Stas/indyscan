@@ -62,10 +62,10 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
             txs = await ledgerStorageManager.getStorage(networkId, ledger).getTxs(skip, size, finalQuery, sort)
             break
           case 'full':
-            txs = await ledgerStorageManager.getStorage(networkId, ledger).getFullTxs(skip, size, finalQuery, sort)
+            txs = await ledgerStorageManager.getStorage(networkId, ledger).getManyTxs(skip, size, finalQuery, sort)
             break
           case 'indyscan':
-            txs = (await ledgerStorageManager.getStorage(networkId, ledger).getFullTxs(skip, size, finalQuery, sort))
+            txs = (await ledgerStorageManager.getStorage(networkId, ledger).getManyTxs(skip, size, finalQuery, sort))
               .map(tx => tx.indyscan)
             break
           default:

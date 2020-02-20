@@ -13,7 +13,7 @@ describe('stub', () => {
 // const { importFileToStorage } = require('../../src/utils/txloader')
 // const { createIndyscanTransform } = require('../../../indyscan-daemon/src/processors/transformation/transform-tx')
 // const {
-//   esAndFilters, esFilterAboveSeqNo, esFilterBelowSeqNo,
+//   esAndFilters, esFilterSeqNoGte, esFilterSeqNoLt,
 //   esFilterByTxTypeNames,
 //   esFilterTxnAfterTime,
 //   esFilterTxnBeforeTime
@@ -223,7 +223,7 @@ describe('stub', () => {
 //
 //
 //   it('should get transaction in seqNo range', async () => {
-//     const filter = esAndFilters(esFilterAboveSeqNo(200), esFilterBelowSeqNo(230))
+//     const filter = esAndFilters(esFilterSeqNoGte(200), esFilterSeqNoLt(230))
 //     const timestamps = await domainStorageRead.getTxs(0, 100, filter)
 //     expect(timestamps.length).toBe(30)
 //     expect(timestamps[0].txnMetadata.seqNo).toBe(229)
@@ -231,7 +231,7 @@ describe('stub', () => {
 //   })
 //
 //   it('should find schemas and credential definitions with field "License type"', async () => {
-//     const txs = await domainStorageRead.getFullTxs(0, 100, esFullTextsearch('License type'))
+//     const txs = await domainStorageRead.getManyTxs(0, 100, esFullTextsearch('License type'))
 //     expect(Array.isArray(txs)).toBeTruthy()
 //     expect(txs.length).toBeGreaterThanOrEqual(1)
 //     for (const tx of txs) {
@@ -241,7 +241,7 @@ describe('stub', () => {
 //   })
 //
 //   it('should find pool node transaction regard IP address "34.250.128.221"', async () => {
-//     const txs = await poolStorageRead.getFullTxs(0, 100, esFullTextsearch('34.250.128.221'))
+//     const txs = await poolStorageRead.getManyTxs(0, 100, esFullTextsearch('34.250.128.221'))
 //     expect(txs.length).toBeGreaterThanOrEqual(1)
 //     for (const tx of txs) {
 //       expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/34.250.128.221/i))
@@ -250,7 +250,7 @@ describe('stub', () => {
 //   })
 //
 //   it('should find nym transaction posted by DID TTQMzH5FkGdbHuSygCWsok', async () => {
-//     const txs = await domainStorageRead.getFullTxs(0, 100, esFullTextsearch('TTQMzH5FkGdbHuSygCWsok'))
+//     const txs = await domainStorageRead.getManyTxs(0, 100, esFullTextsearch('TTQMzH5FkGdbHuSygCWsok'))
 //     expect(txs.length).toBeGreaterThanOrEqual(1)
 //     for (const tx of txs) {
 //       expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/TTQMzH5FkGdbHuSygCWsok/))
@@ -261,7 +261,7 @@ describe('stub', () => {
 //   })
 //
 //   it('should find only NYM transactions posted by DID TTQMzH5FkGdbHuSygCWsok', async () => {
-//     const nymTxs = await domainStorageRead.getFullTxs(0, 100, esAndFilters(esFullTextsearch('TTQMzH5FkGdbHuSygCWsok'), esFilterByTxTypeNames(['NYM'])))
+//     const nymTxs = await domainStorageRead.getManyTxs(0, 100, esAndFilters(esFullTextsearch('TTQMzH5FkGdbHuSygCWsok'), esFilterByTxTypeNames(['NYM'])))
 //     expect(nymTxs.length).toBeGreaterThanOrEqual(1)
 //     for (const tx of nymTxs) {
 //       expect(tx.indyscan.txn.typeName).toBe('NYM')
@@ -270,7 +270,7 @@ describe('stub', () => {
 //   })
 //
 //   it('should find only ATTRIB transactions posted by DID PuUvfrkoq4r8zxdr3F7Qe9', async () => {
-//     const nymTxs = await domainStorageRead.getFullTxs(0, 100, esAndFilters(esFullTextsearch('PuUvfrkoq4r8zxdr3F7Qe9'), esFilterByTxTypeNames(['ATTRIB'])))
+//     const nymTxs = await domainStorageRead.getManyTxs(0, 100, esAndFilters(esFullTextsearch('PuUvfrkoq4r8zxdr3F7Qe9'), esFilterByTxTypeNames(['ATTRIB'])))
 //     expect(nymTxs.length).toBeGreaterThanOrEqual(1)
 //     for (const tx of nymTxs) {
 //       expect(tx.indyscan.txn.typeName).toBe('ATTRIB')
@@ -279,7 +279,7 @@ describe('stub', () => {
 //   })
 //
 //   it('should find only schemas and no claim_def which includes string "TranscriptSchema"', async () => {
-//     const txs = await domainStorageRead.getFullTxs(0, 100, esAndFilters(esFullTextsearch('TranscriptSchema'), esFilterByTxTypeNames(['SCHEMA'])))
+//     const txs = await domainStorageRead.getManyTxs(0, 100, esAndFilters(esFullTextsearch('TranscriptSchema'), esFilterByTxTypeNames(['SCHEMA'])))
 //     const schemaTxs = txs.filter(tx => tx.indyscan.txn.typeName === 'SCHEMA')
 //     expect(schemaTxs.length).toBeGreaterThanOrEqual(1)
 //     for (const tx of schemaTxs) {
@@ -291,7 +291,7 @@ describe('stub', () => {
 //   })
 //
 //   it('should find schemas with name "TranscriptSchema"', async () => {
-//     const txs = await domainStorageRead.getFullTxs(0, 100, esFullTextsearch('TranscriptSchema'))
+//     const txs = await domainStorageRead.getManyTxs(0, 100, esFullTextsearch('TranscriptSchema'))
 //     const schemaTxs = txs.filter(tx => tx.indyscan.txn.typeName === 'SCHEMA')
 //     expect(schemaTxs.length).toBeGreaterThanOrEqual(1)
 //     for (const tx of schemaTxs) {
@@ -301,7 +301,7 @@ describe('stub', () => {
 //   })
 //
 //   it('should find cred definitions referring to schema with name "TranscriptSchema"', async () => {
-//     const txs = await domainStorageRead.getFullTxs(0, 100, esFullTextsearch('TranscriptSchema'))
+//     const txs = await domainStorageRead.getManyTxs(0, 100, esFullTextsearch('TranscriptSchema'))
 //     expect(Array.isArray(txs)).toBeTruthy()
 //     const claimDefTxs = txs.filter(tx => tx.indyscan.txn.typeName === 'CLAIM_DEF')
 //     expect(claimDefTxs.length).toBeGreaterThanOrEqual(1)

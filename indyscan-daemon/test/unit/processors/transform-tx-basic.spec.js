@@ -34,19 +34,6 @@ describe('common transformations', () => {
     expect(processedTx.txnMetadata.txnTime).toBe('2019-11-27T15:34:07.000Z')
   })
 
-  it('should set subledger.code and subledger.name', async () => {
-    const tx = _.cloneDeep(txAttribRoleSteward)
-    const {processedTx}  = await processor.processTx(tx)
-    expect(processedTx.subledger.code).toBe(DOMAIN_LEDGER_ID)
-    expect(processedTx.subledger.name).toBe('DOMAIN')
-  })
-
-  it('should have added root meta field', async () => {
-    const tx = _.cloneDeep(txAttribRoleSteward)
-    const {processedTx}  = await processor.processTx(tx)
-    expect(processedTx.meta).toBeDefined()
-  })
-
   it('should throw if tx argument is undefined', async () => {
     let threw
     try {

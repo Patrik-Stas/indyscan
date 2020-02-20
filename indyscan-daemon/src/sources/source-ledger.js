@@ -71,20 +71,10 @@ async function createSourceLedger ({id, name, genesisPath= undefined}) {
     return id
   }
 
-  async function getInterfaceName() {
-    return interfaces.source
-  }
-
-  async function getImplName() {
-    return implSource.ledger
-  }
-
   return {
     getObjectId,
     getTxData,
     getHighestSeqno,
-    getInterfaceName,
-    getImplName
   }
 }
 

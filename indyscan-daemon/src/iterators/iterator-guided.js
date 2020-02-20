@@ -22,22 +22,12 @@ function createIteratorGuided ({id, source, sourceSeqNoGuidance}) {
     }
   }
 
-  async function getInterfaceName() {
-    return interfaces.iterator
-  }
-
-  async function getImplName() {
-    return implIterator.guided
-  }
-
   function getObjectId() {
     return id
   }
 
   return {
     getNextTx,
-    getInterfaceName,
-    getImplName,
     getObjectId
   }
 }

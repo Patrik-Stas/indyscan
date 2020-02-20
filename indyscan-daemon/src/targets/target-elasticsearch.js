@@ -29,27 +29,28 @@ async function createTargetElasticsearch ({id, url, index, replicas = 0}) {
     throw Error(`Failed to create ES storage for index ${index}. Details: ${err.message} ${err.stack}`)
   }
 
-  async function addTxData (subledger, seqNo) {
-    return storageWrite.addTx(seqNo)
+  async function addTxData (subledger, seqNo, format, txData) {
+    return storageWrite.addTx(subledger, seqNo, format, txData)
   }
 
   function getObjectId () {
     return id
   }
 
-  async function getInterfaceName () {
-    return interfaces.target
+  function getImplName () {
+    return implTarget.elasticsearch
   }
 
-  async function getImplName () {
-    return implTarget.elasticsearch
+  async function setMappings (indexMappings) {
+    logger.info(`${whoami} Setting up mappings for ES Index ${esIndex}!`)
+    return storageWrite.setFormatMappings(esClient, index, indexMappings)
   }
 
   return {
     getObjectId,
     addTxData,
-    getInterfaceName,
-    getImplName
+    setMappings, // target-elasticsearch specific
+    getImplName // just need this for processor to know whether this target should get ES mapping intialized
   }
 }
 

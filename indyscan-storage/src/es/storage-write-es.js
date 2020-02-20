@@ -13,6 +13,7 @@ createEsTransformedTx - function taking 1 argument, a transaction as found on le
 logger (optional) - winston logger
  */
 
+const {SUBLEDGERS} = require('./consts')
 const {setMapping} = require('./utils')
 const {upsertSubdocument} = require('./utils')
 const {assureEsIndex} = require('./utils')
@@ -25,39 +26,54 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger) 
   const whoami = `StorageWrite/${esIndex} : `
 
   await assureEsIndex(esClient, esIndex, esReplicaCount, logger)
-  await setMappings({
+  await setMapping(esClient, esIndex, {
     'properties': {
-      'meta.subledger': {type: 'keyword'},
-      'meta.seqNo': {type: 'integer'}
+      'imeta.subledger': {type: 'keyword'},
+      'imeta.seqNo': {type: 'integer'}
     }
   })
 
-  async function setMappings (indexMappings) {
+  const util = require('util')
+
+  async function setFormatMappings (formatName, fieldMappings) {
     logger.info(`${whoami} Setting up mappings for ES Index ${esIndex}!`)
-    return setMapping(esClient, esIndex, indexMappings)
+    let esMappingDefinition = {properties: {}}
+    for (let [field, fieldMapping] of Object.entries(fieldMappings)) {
+      esMappingDefinition.properties[`idata.${formatName}.idata.${field}`] = fieldMapping
+    }
+    esMappingDefinition.properties[`idata.${formatName}.imeta.subledger`] = {type: 'keyword'}
+    esMappingDefinition.properties[`idata.${formatName}.imeta.seqNo`] = {type: 'integer'}
+    try {
+      return await setMapping(esClient, esIndex, esMappingDefinition)
+    } catch (e) {
+      console.log(util.inspect(e, undefined, 10))
+    }
   }
 
-  function uppercaseSubledger (subledgerName) {
-    const knownSubledgers = ['DOMAIN', 'POOL', 'CONFIG']
-    const subledgerNameUpperCase = subledgerName.toUpperCase()
-    if (knownSubledgers.includes(subledgerNameUpperCase) === false) {
-      throw Error(`${whoami} Unknown subledger '${subledgerNameUpperCase}'. Known ledger = ${JSON.stringify(knownSubledgers)}`)
+  function lowercasedSubledger (subledgerName) {
+    const knownSubledgers = Object.values(SUBLEDGERS)
+    const lowerCased = subledgerName.toLowerCase()
+    if (knownSubledgers.includes(lowerCased) === false) {
+      throw Error(`${whoami} Unknown subledger '${lowerCased}'. Known ledgers = ${JSON.stringify(knownSubledgers)}`)
     }
-    return subledgerNameUpperCase
+    return lowerCased
   }
 
   async function addTx (subledger, seqNo, format, txData) {
-    subledger = uppercaseSubledger(subledger)
+    subledger = lowercasedSubledger(subledger)
     logger.debug(`${whoami} Storing for subledger:${subledger} seqno:${seqNo} in format:${format}. Data: ${JSON.stringify(txData, null, 2)}!`)
     const persistData = {
-      meta: {
+      imeta: {
         subledger,
         seqNo
       },
-      [format]: {
-        data: txData,
-        meta: {
-          updateTime: new Date().toISOString()
+      idata: {
+        [format]: {
+          imeta: {
+            subledger,
+            seqNo
+          },
+          idata: txData
         }
       }
     }
@@ -67,7 +83,7 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger) 
 
   return {
     addTx,
-    setMappings
+    setFormatMappings
   }
 }
 
