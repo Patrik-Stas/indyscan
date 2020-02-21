@@ -1,25 +1,19 @@
-const txTypeUtils = require('indyscan-txtype')
-
-function esFilterByTxTypeNames (txNames) {
-  return {
-    'terms': {
-      'indyscan.txn.type': txTypeUtils.txNamesToTypes(txNames)
-    }
-  }
-}
+// const txTypeUtils = require('indyscan-txtype')
+//
+// function esFilterByTxTypeNames (txNames) {
+//   return {
+//     'terms': {
+//       'idata.indyscan.txn.type': txTypeUtils.txNamesToTypes(txNames)
+//     }
+//   }
+// }
 
 function esFilterSubledgerName (subledgerName) {
   return {
     'term': {
-      'indyscan.subledger.name': subledgerName
-    }
-  }
-}
-
-function esFilterHasTimestamp () {
-  return {
-    'exists': {
-      'field': 'indyscan.txnMetadata.txnTime'
+      'imeta.subledger': {
+        'value': subledgerName
+      }
     }
   }
 }
@@ -27,27 +21,43 @@ function esFilterHasTimestamp () {
 function esFilterBySeqNo (seqNo) {
   return {
     'term': {
-      'indyscan.txnMetadata.seqNo': {
+      'imeta.seqNo': {
         'value': seqNo
       }
     }
   }
 }
 
-function esFilterAboveSeqNo (seqNo) {
+function esFilterContainsFormat (format) {
+  return {
+    'exists': {
+      'field': `idata.${format}`
+    }
+  }
+}
+
+function esFilterHasTimestamp () {
+  return {
+    'exists': {
+      'field': 'idata.indyscan.txnMetadata.txnTime'
+    }
+  }
+}
+
+function esFilterSeqNoGte (seqNo) {
   return {
     'range': {
-      'indyscan.txnMetadata.seqNo': {
+      'imeta.seqNo': {
         'gte': seqNo
       }
     }
   }
 }
 
-function esFilterBelowSeqNo (seqNo) {
+function esFilterSeqNoLt (seqNo) {
   return {
     'range': {
-      'indyscan.txnMetadata.seqNo': {
+      'imeta.seqNo': {
         'lt': seqNo
       }
     }
@@ -57,7 +67,7 @@ function esFilterBelowSeqNo (seqNo) {
 function esFilterTxnAfterTime (utime) {
   return {
     'range': {
-      'indyscan.txnMetadata.txnTime': {
+      'idata.indyscan.txnMetadata.txnTime': {
         'gte': new Date(utime * 1000).toISOString()
       }
     }
@@ -67,7 +77,7 @@ function esFilterTxnAfterTime (utime) {
 function esFilterTxnBeforeTime (utime) {
   return {
     'range': {
-      'indyscan.txnMetadata.txnTime': {
+      'idata.indyscan.txnMetadata.txnTime': {
         'lt': new Date(utime * 1000).toISOString()
       }
     }
@@ -94,13 +104,14 @@ function esAndFilters (...filters) {
 }
 
 module.exports.esFilterSubledgerName = esFilterSubledgerName
-module.exports.esFilterByTxTypeNames = esFilterByTxTypeNames
+// module.exports.esFilterByTxTypeNames = esFilterByTxTypeNames
 module.exports.esFilterTxnAfterTime = esFilterTxnAfterTime
 module.exports.esFilterTxnBeforeTime = esFilterTxnBeforeTime
 module.exports.esFilterBySeqNo = esFilterBySeqNo
 module.exports.esFilterHasTimestamp = esFilterHasTimestamp
-module.exports.esFilterAboveSeqNo = esFilterAboveSeqNo
-module.exports.esFilterBelowSeqNo = esFilterBelowSeqNo
+module.exports.esFilterSeqNoGte = esFilterSeqNoGte
+module.exports.esFilterSeqNoLt = esFilterSeqNoLt
 module.exports.esAndFilters = esAndFilters
 module.exports.esOrFilters = esOrFilters
 module.exports.esFullTextsearch = esFullTextsearch
+module.exports.esFilterContainsFormat = esFilterContainsFormat

@@ -1,3 +1,14 @@
+# 4.0.0
+- New configuration format for daemon. It enables much more flexibility specifying what operation shall the 
+daemon perform and how.
+- Redesigned Elasticsearch storage model. Transaction can now have arbitrary number of format representations.
+
+# 3.1.3
+- Update to IndySDK 1.14.2
+
+# 3.1.2
+- Fix bug waiting incorrect amount of time (too long) when no new transactions are available.
+
 ## 3.1.1
 - Display "Genesis Tx" instead of "Invalid date" in UI if timestamp is not present on tx.
 - Fix UI error when reverse order is enabled together with TX type filter

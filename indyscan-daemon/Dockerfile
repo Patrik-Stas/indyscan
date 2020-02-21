@@ -24,13 +24,9 @@ RUN apt-get install -y python
 USER indyscan
 
 WORKDIR /home/indyscan/indyscan-txtype
-COPY --chown=indyscan:indyscan indyscan-txtype/package*.json ./
-RUN npm install --only=prod
 COPY --chown=indyscan:indyscan indyscan-txtype ./
 
 WORKDIR /home/indyscan/indyscan-storage
-COPY --chown=indyscan:indyscan indyscan-storage/package*.json ./
-RUN npm install --only=prod
 COPY --chown=indyscan:indyscan indyscan-storage ./
 
 WORKDIR /home/indyscan/indyscan-daemon

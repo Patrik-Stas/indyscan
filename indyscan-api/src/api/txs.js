@@ -62,10 +62,10 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
             txs = await ledgerStorageManager.getStorage(networkId, ledger).getTxs(skip, size, finalQuery, sort)
             break
           case 'full':
-            txs = await ledgerStorageManager.getStorage(networkId, ledger).getFullTxs(skip, size, finalQuery, sort)
+            txs = await ledgerStorageManager.getStorage(networkId, ledger).getManyTxs(skip, size, finalQuery, sort)
             break
           case 'indyscan':
-            txs = (await ledgerStorageManager.getStorage(networkId, ledger).getFullTxs(skip, size, finalQuery, sort))
+            txs = (await ledgerStorageManager.getStorage(networkId, ledger).getManyTxs(skip, size, finalQuery, sort))
               .map(tx => tx.indyscan)
             break
           default:
@@ -105,10 +105,10 @@ function initTxsApi (app, ledgerStorageManager, networkManager) {
           tx = await storage.getTxBySeqNo(parsedSeqNo)
           break
         case 'full':
-          tx = await storage.getFullTxBySeqNo(parsedSeqNo)
+          tx = await storage.getOneTx(parsedSeqNo)
           break
         case 'indyscan':
-          tx = (await storage.getFullTxBySeqNo(parsedSeqNo)).indyscan
+          tx = (await storage.getOneTx(parsedSeqNo)).indyscan
           break
         default:
           throw Error('This should be unreachable code.')

@@ -33,7 +33,7 @@ Interfaces:
 ### `source` interface
 Defined as:
 ```
-async getTx(subledger, seqNo, format=original)
+async getTxData(subledger, seqNo, format=original)
 async getHighestSeqno(subledger)
 getSupportedFormats()
 ```
@@ -108,7 +108,7 @@ Constructor requires following arguments:
 ### `iterator` interface 
 Defined as single function
 ```
-async getTx(subledger, format=original) -> 
+async getNextTx(subledger, format=original) -> 
 ```
 which returns some transaction of specified subledger. 
 
@@ -128,10 +128,10 @@ determined as `sourceSeqNoGuidance.getHighestSeqno(subledger) + 1`.
 Performs certain data transformation on passed transaction. The processor implementations specify what format
 `txData` should be of.
 ```
-async process(txData) -> transformed
+async processTx(txData) -> {processedTx, format}}
 ```
 
-#### `processor` interface implementation: `processor-xpansion`
+#### `processor` interface implementation: `processor-expansion`
 Expects to be passed transaction in `original` format. Returns copy of data received, but possibly with additional
 fields added, depending on transaction type. 
 
@@ -188,6 +188,7 @@ Constructor requires following arguments:
     "id": "pipeline.$INDY_NETWORK.pool",
     "subledger": "pool",
     "iterator": "iterator.$INDY_NETWORK",
+    "requestTxFormat": "original",
     "processor": "processor.expansion.$INDY_NETWORK",
     "target": "target.$INDY_NETWORK",
     "timing": {

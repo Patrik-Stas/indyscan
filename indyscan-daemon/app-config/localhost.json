@@ -1,26 +1,98 @@
-[
-  {
-    "name": "localhost-indy",
-    "consumerConfig": {
-      "type": "sequential",
-      "data": {
-        "preset": "FAST"
+{
+  "environment": {
+    "INDY_NETWORK": "LOCALHOST_INDYSCAN",
+    "TARGET_INDEX": "txs-localhost",
+    "URL_ELASTICSEARCH": "http://localhost:9200"
+  },
+  "comments": {
+    "description": {
+      "1": "Standard operation from ledger to elasticsearch"
+    }
+  },
+  "objects": [
+    {
+      "interface": "Source",
+      "impl": "ledger",
+      "params": {
+        "id": "source.$INDY_NETWORK",
+        "name": "$INDY_NETWORK",
+        "genesisPath": "$CFGDIR/genesis/$INDY_NETWORK.txn"
       }
     },
-    "sourceConfig": {
-      "type": "ledger",
-      "data": {
-        "name": "LOCALHOST_INDYSCAN",
-        "genesisReference": "./genesis/LOCALHOST_INDYSCAN.txn"
+    {
+      "interface": "Source",
+      "impl": "elasticsearch",
+      "params": {
+        "id": "source.target.$INDY_NETWORK",
+        "url": "$URL_ELASTICSEARCH",
+        "index": "$TARGET_INDEX"
       }
     },
-    "storageConfig": {
-      "type": "elasticsearch",
-      "data": {
-        "url": "http://localhost:9200",
-        "index": "txs-localhost-indy",
-        "replicas": 0
+    {
+      "interface": "Target",
+      "impl": "elasticsearch",
+      "params": {
+        "id": "target.$INDY_NETWORK",
+        "url": "$URL_ELASTICSEARCH",
+        "index": "$TARGET_INDEX"
+      }
+    },
+    {
+      "interface": "Iterator",
+      "impl": "guided",
+      "params": {
+        "id": "@@iterator.$INDY_NETWORK",
+        "source": "@@source.$INDY_NETWORK",
+        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK"
+      }
+    },
+    {
+      "interface": "Processor",
+      "impl": "expansion",
+      "params": {
+        "id": "processor.expansion.$INDY_NETWORK",
+        "sourceLookups": "@@source.target.$INDY_NETWORK"
+      }
+    },
+    {
+      "interface": "Pipeline",
+      "impl": "sequential",
+      "params": {
+        "id": "pipeline.$INDY_NETWORK.domain",
+        "subledger": "domain",
+        "iterator": "@@iterator.$INDY_NETWORK",
+        "requestTxFormat": "original",
+        "processor": "@@processor.expansion.$INDY_NETWORK",
+        "target": "@@target.$INDY_NETWORK",
+        "timing": "FAST"
+      }
+    },
+    {
+      "interface": "Pipeline",
+      "impl": "sequential",
+      "params": {
+        "id": "pipeline.$INDY_NETWORK.config",
+        "subledger": "config",
+        "iterator": "@@iterator.$INDY_NETWORK",
+        "requestTxFormat": "original",
+        "processor": "@@processor.expansion.$INDY_NETWORK",
+        "target": "@@target.$INDY_NETWORK",
+        "timing": "MEDIUM"
+      }
+    },
+    {
+      "interface": "Pipeline",
+      "impl": "sequential",
+      "params": {
+        "id": "pipeline.$INDY_NETWORK.pool",
+        "subledger": "pool",
+        "iterator": "@@iterator.$INDY_NETWORK",
+        "requestTxFormat": "original",
+        "processor": "@@processor.expansion.$INDY_NETWORK",
+        "target": "@@target.$INDY_NETWORK",
+        "timing": "MEDIUM"
       }
     }
-  }
-]
+  ]
+}
+

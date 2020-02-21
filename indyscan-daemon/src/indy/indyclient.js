@@ -1,5 +1,6 @@
 const indy = require('indy-sdk')
 const logger = require('../logging/logger-main')
+const fs = require('fs')
 
 const LEDGER_NAME_TO_CODE = {
   'pool': '0',
@@ -7,8 +8,12 @@ const LEDGER_NAME_TO_CODE = {
   'config': '2'
 }
 
-async function registerLedger (poolName, genesisFilePath) {
-  await indy.createPoolLedgerConfig(poolName, { genesis_txn: genesisFilePath })
+async function registerLedger (ledgerName, genesisFilePath) {
+  if (!fs.lstatSync(genesisFilePath).isFile()) {
+    throw Error(`Was about to register ledger ${ledgerName} but provided genesis file path ${genesisFilePath}` +
+      `does not point to a file.`)
+  }
+  await indy.createPoolLedgerConfig(ledgerName, { genesis_txn: genesisFilePath })
 }
 
 async function getListOfRegisteredLedgers () {

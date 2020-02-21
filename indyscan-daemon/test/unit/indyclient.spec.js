@@ -9,7 +9,7 @@ describe('basic indy pool operations', () => {
     expect(isRecognized).toBeTruthy()
   })
 
-  it('should be unknown ledger', async () => {
+  it('should create ledger if doesnt exist', async () => {
     try {
       await indy.deletePoolLedgerConfig('abcdabcdabcd4bcdabcdabcd4bcdabcd')
     } catch (e) {}
@@ -18,5 +18,8 @@ describe('basic indy pool operations', () => {
     const RESOURCE_DIR = path.resolve(__dirname, '../resource')
     let isRecognized2 = await registerLedger('abcdabcdabcd4bcdabcdabcd4bcdabcd', `${RESOURCE_DIR}/pool_transactions_builder_genesis`)
     expect(isRecognized2).toBeFalsy()
+    try {
+      await indy.deletePoolLedgerConfig('abcdabcdabcd4bcdabcdabcd4bcdabcd')
+    } catch (e) {}
   })
 })

@@ -1,15 +1,9 @@
 cd "$(dirname $0)" || exit
-echo "Linting indyscan-api"
-(cd ../indyscan-api && npm run lint:fix)
-echo "Linting indyscan-ap-client"
-(cd ../indyscan-api-client && npm run lint:fix)
-echo "Linting indyscan-daemon"
-(cd ../indyscan-daemon && npm run lint:fix)
-echo "Linting indyscan-storage"
-(cd ../indyscan-storage && npm run lint:fix)
-echo "Linting indyscan-txtype"
-(cd ../indyscan-txtype && npm run lint:fix)
-echo "Linting indyscan-webapp"
-(cd ../indyscan-webapp && npm run lint:fix)
 
+TARGET_PROJECTS=("indyscan-storage" "indyscan-txtype" "indyscan-daemon" "indyscan-api" "indyscan-api-client" "indyscan-webapp")
 
+for project in "${TARGET_PROJECTS[@]}";
+do
+  echo "Installing $project"
+  cd "../$project" && run lint:fix
+done

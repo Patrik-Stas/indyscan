@@ -1,5 +1,5 @@
 {
-  "interface": "NETWORK_PIPELINE",
+  "interface": "NetworkPipeline",
   "impl": "sequential",
   "params": {
     "id": "pipeline.$INDY_NETWORK.domain",
