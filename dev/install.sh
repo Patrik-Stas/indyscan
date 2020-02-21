@@ -5,5 +5,5 @@ TARGET_PROJECTS=("indyscan-storage" "indyscan-txtype" "indyscan-daemon" "indysca
 for project in "${TARGET_PROJECTS[@]}";
 do
   echo "Installing $project"
-  cd "../$project" && run lint:fix
+  cd "../$project" && npm install
 done

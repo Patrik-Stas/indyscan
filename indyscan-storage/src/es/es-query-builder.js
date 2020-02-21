@@ -1,12 +1,12 @@
-const txTypeUtils = require('indyscan-txtype')
-
-function esFilterByTxTypeNames (txNames) {
-  return {
-    'terms': {
-      'idata.indyscan.txn.type': txTypeUtils.txNamesToTypes(txNames)
-    }
-  }
-}
+// const txTypeUtils = require('indyscan-txtype')
+//
+// function esFilterByTxTypeNames (txNames) {
+//   return {
+//     'terms': {
+//       'idata.indyscan.txn.type': txTypeUtils.txNamesToTypes(txNames)
+//     }
+//   }
+// }
 
 function esFilterSubledgerName (subledgerName) {
   return {
@@ -104,7 +104,7 @@ function esAndFilters (...filters) {
 }
 
 module.exports.esFilterSubledgerName = esFilterSubledgerName
-module.exports.esFilterByTxTypeNames = esFilterByTxTypeNames
+// module.exports.esFilterByTxTypeNames = esFilterByTxTypeNames
 module.exports.esFilterTxnAfterTime = esFilterTxnAfterTime
 module.exports.esFilterTxnBeforeTime = esFilterTxnBeforeTime
 module.exports.esFilterBySeqNo = esFilterBySeqNo
