@@ -3,7 +3,7 @@ const elasticsearch = require('@elastic/elasticsearch')
 const { createStorageReadEs } = require('indyscan-storage/src')
 
 /*
- Manages multiple IndyScan storages - groups together storages for different networks and subledgers
+ Manages multiple IndyScan storages - groups together storages for different networks
  */
 async function createLedgerStorageManager (esUrl) {
   let storages = {}
@@ -12,28 +12,17 @@ async function createLedgerStorageManager (esUrl) {
   let esClient = new elasticsearch.Client({ node: esUrl })
 
   async function addIndyNetwork (networkId, networkEsIndex) {
-    const [storageDomain, storagePool, storageConfig] = await Promise.all([
-      createStorageReadEs(esClient, networkEsIndex, 'DOMAIN', logger),
-      createStorageReadEs(esClient, networkEsIndex, 'POOL', logger),
-      createStorageReadEs(esClient, networkEsIndex, 'CONFIG', logger)
-    ])
-    storages[networkId] = {}
-    storages[networkId]['DOMAIN'] = storageDomain
-    storages[networkId]['POOL'] = storagePool
-    storages[networkId]['CONFIG'] = storageConfig
+    const storage = await createStorageReadEs(esClient, networkEsIndex, logger)
+    storages[networkId] = storage
   }
 
   function getAvailableNetworks () {
     return Object.keys(storages)
   }
 
-  function getStorage (networkId, subledgerName) {
-    const subledgerUppercased = subledgerName.toUpperCase()
+  function getStorage (networkId) {
     if (storages[networkId]) {
-      if (storages[networkId][subledgerUppercased]) {
-        return storages[networkId][subledgerUppercased]
-      }
-      throw Error(`Can't find ledger '${subledgerUppercased}' for network '${networkId}'.`)
+      return storages[networkId]
     }
     throw Error(`Can't find network '${networkId}'.`)
   }

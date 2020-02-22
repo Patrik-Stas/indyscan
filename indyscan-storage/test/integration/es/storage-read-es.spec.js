@@ -1,6 +1,6 @@
 /* eslint-env jest */
 const sleep = require('sleep-promise')
-const { esFilterSeqNoGte } = require('../../../src/es/es-query-builder')
+const { esFilterSeqNoGte, esFilterSeqNoLt } = require('../../../src/es/es-query-builder')
 const { deleteIndex } = require('../../../src/es/utils')
 const { createWinstonLoggerDummy } = require('../../../src/es/utils')
 const { createStorageReadEs } = require('../../../src/es/storage-read-es')
@@ -265,5 +265,34 @@ describe('reading transaction formats from elasticsearch', () => {
       idata: { foodata: 'foo-domain-3333', fooclass: 'BB' },
       imeta: { subledger: 'domain', seqNo: 3 }
     }))
+  })
+
+  it('should count transactions', async () => {
+    const logger = createWinstonLoggerDummy()
+    const storageWriteEs = await createStorageWriteEs(esClient, index, 0, logger)
+    const storageReadEs = await createStorageReadEs(esClient, index, logger)
+    await storageWriteEs.addTx('domain', 1, 'foo', { 'foodata': 'foo-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'foo', { 'foodata': 'foo-domain-2222' })
+    await storageWriteEs.addTx('domain', 3, 'foo', { 'foodata': 'foo-domain-3333' })
+    await storageWriteEs.addTx('domain', 4, 'foo', { 'foodata': 'foo-domain-4444' })
+    await storageWriteEs.addTx('domain', 1, 'bar', { 'bardata': 'bar-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'bar', { 'bardata': 'bar-domain-2222' })
+    await storageWriteEs.addTx('domain', 3, 'bar', { 'bardata': 'bar-domain-3333' })
+    await storageWriteEs.addTx('domain', 4, 'bar', { 'bardata': 'bar-domain-4444' })
+
+    await storageWriteEs.addTx('config', 1, 'foo', { 'foodata': 'foo-config-1111' })
+    await storageWriteEs.addTx('config', 2, 'foo', { 'foodata': 'foo-config-2222' })
+    await storageWriteEs.addTx('config', 3, 'foo', { 'foodata': 'foo-config-3333' })
+    await storageWriteEs.addTx('config', 4, 'foo', { 'foodata': 'foo-config-4444' })
+    await storageWriteEs.addTx('config', 5, 'bar', { 'bardata': 'bar-config-1111' })
+    await storageWriteEs.addTx('config', 6, 'bar', { 'bardata': 'bar-config-2222' })
+
+    await sleep(1000) // takes time to index the stuff
+
+    expect(await storageReadEs.getTxCount('domain')).toBe(4)
+    expect(await storageReadEs.getTxCount('config')).toBe(6)
+    expect(await storageReadEs.getTxCount('config', null)).toBe(6)
+    expect(await storageReadEs.getTxCount('config', [esFilterSeqNoGte(2), esFilterSeqNoLt(5)])).toBe(3)
+    expect(await storageReadEs.getTxCount('config', esFilterSeqNoLt(5))).toBe(4)
   })
 })

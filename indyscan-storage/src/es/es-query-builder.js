@@ -7,6 +7,7 @@
 //     }
 //   }
 // }
+const _ = require('lodash')
 
 function esFilterSubledgerName (subledgerName) {
   return {
@@ -94,14 +95,50 @@ function esFullTextsearch (text) {
 }
 
 function esOrFilters (...filters) {
-  let nonNullFilters = filters.filter(f => !!f)
-  return { 'bool': { 'should': [...nonNullFilters] } }
+  let finalQueries = _.concat(...filters).filter(f => !!f)
+  if (finalQueries.length === 0) {
+    return {}
+  }
+  return { 'bool': { 'should': [...finalQueries] } }
 }
 
 function esAndFilters (...filters) {
-  let nonNullFilters = filters.filter(f => !!f)
-  return { 'bool': { 'filter': [...nonNullFilters] } }
+  let finalQueries = _.concat(...filters).filter(f => !!f)
+  if (finalQueries.length === 0) {
+    return {}
+  }
+  return { 'bool': { 'filter': [...finalQueries] } }
 }
+
+//
+// function _toArrayOfQueries(query) {
+//   if (query === undefined || query === null) {
+//     return []
+//   }
+//   if (Array.isArray(query)) {
+//     return query
+//   }
+//   if (typeof query === 'object') {
+//     return [query]
+//   }
+//   throw Error(`Can't processes query ${JSON.stringify(query, null, 2)}.`)
+// }
+//
+// function toArrayOfQueries(...queries) {
+//   let final = queries.reduce((previous, current) => {
+//     console.log(`previous = ${JSON.stringify(previous)}`)
+//     console.log(`current = ${JSON.stringify(current)}`)
+//     if (current) {
+//       console.log('pushing current to previous')
+//       previous.push(_toArrayOfQueries(current))
+//     }
+//     console.log(`returning previous = ${JSON.stringify(previous)}`)
+//     return previous
+//   }, [])
+//   console.log(`FINAL`)
+//   console.log(JSON.stringify(final))
+//   return final.flat()
+// }
 
 module.exports.esFilterSubledgerName = esFilterSubledgerName
 // module.exports.esFilterByTxTypeNames = esFilterByTxTypeNames
@@ -115,3 +152,4 @@ module.exports.esAndFilters = esAndFilters
 module.exports.esOrFilters = esOrFilters
 module.exports.esFullTextsearch = esFullTextsearch
 module.exports.esFilterContainsFormat = esFilterContainsFormat
+// module.exports.toArrayOfQueries = toArrayOfQueries

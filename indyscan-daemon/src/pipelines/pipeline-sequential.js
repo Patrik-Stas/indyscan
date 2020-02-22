@@ -38,6 +38,7 @@ function createPipelineSequential ({ id, subledger, iterator, requestTxFormat, p
   timing = getExpandedTimingConfig(timing)
   validateTimingConfig(timing)
   const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timing
+  logger.info(`Pipeline ${id} using iterator ${iterator.getObjectId}`)
 
   // TODO
   // make sure the target is initialized by processor's instructions somehow

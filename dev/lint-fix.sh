@@ -4,6 +4,6 @@ TARGET_PROJECTS=("indyscan-storage" "indyscan-txtype" "indyscan-daemon" "indysca
 
 for project in "${TARGET_PROJECTS[@]}";
 do
-  echo "Installing $project"
-  cd "../$project" && run lint:fix
+  echo "Linting and fixing $project"
+  cd "../$project" && npm run lint:fix
 done

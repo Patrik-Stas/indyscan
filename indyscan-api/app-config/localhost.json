@@ -3,7 +3,7 @@
     "id": "indylocal",
     "display": "IndyNetwork",
     "es" : {
-      "index": "txs-sovrin-mainnet"
+      "index": "txs-localhost"
     },
     "description": "MainNet is live network for production use."
   }
