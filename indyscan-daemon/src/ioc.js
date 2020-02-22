@@ -22,16 +22,16 @@ async function buildObjectInstances (objectConfigs) {
   return instances
 }
 
-async function injectDependenciesIntoConfigs (objectConfigs) {
+function injectDependenciesIntoConfigs (objectConfigs) {
   for (const objectConfig of objectConfigs) {
     injectDependencies(objectConfig)
   }
 }
 
 async function injectBuildRegister (objectConfigs) {
-  logger.info(`Building object configs ${JSON.stringify(objectConfigs)}`)
-  await injectDependenciesIntoConfigs(objectConfigs)
-  logger.debug(`Object configs after DI: ${JSON.stringify(objectConfigs)}`)
+  logger.info(`Building object configs ${JSON.stringify(objectConfigs, null, 2)}`)
+  injectDependenciesIntoConfigs(objectConfigs)
+  logger.debug(`Object configs after DI: ${JSON.stringify(objectConfigs, null, 2)}`)
   let instances = await buildObjectInstances(objectConfigs)
   logger.debug(`Built instances ${JSON.stringify(instances)}`)
   await registerObjects(instances)

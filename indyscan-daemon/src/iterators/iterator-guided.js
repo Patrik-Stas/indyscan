@@ -9,14 +9,24 @@ function createIteratorGuided ({ id, source, sourceSeqNoGuidance }) {
   async function getNextTx (subledger, format = 'original') {
     logger.debug(`${id} requested nextTx from subledger '${subledger}' in format '${format}'.`)
     const seqNo = await sourceSeqNoGuidance.getHighestSeqno(subledger) + 1
-    let tx = source.getTxData(subledger, seqNo, format)
-    return {
-      meta: {
-        subledger,
-        seqNo,
-        format
-      },
-      tx
+    let tx = await source.getTxData(subledger, seqNo, format)
+    if (tx) {
+      return {
+        meta: {
+          subledger,
+          seqNo,
+          format
+        },
+        tx
+      }
+    } else {
+      return {
+        meta: {
+          subledger,
+          seqNo,
+          format
+        }
+      }
     }
   }
 

@@ -9,6 +9,6 @@
     "PORT" : 3708,
     "LOG_HTTP_REQUESTS" : true,
     "LOG_HTTP_RESPONSES" : true,
-    "NETWORKS_CONFIG_PATH": "./app-config/sovrin.json"
+    "NETWORKS_CONFIG_PATH": "./app-config/localhost.json"
   }
 }

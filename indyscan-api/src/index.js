@@ -11,6 +11,7 @@ const bodyParser = require('body-parser')
 const app = express()
 app.use(bodyParser.json())
 var pretty = require('express-prettify')
+const { createServiceTxs } = require('./service/service-txs')
 app.use(pretty({ query: 'pretty' }))
 
 function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLogging) {
@@ -36,23 +37,17 @@ function setupNetworkManager (networkConfigs) {
 
 async function setupStorageManager (networkConfigManager, esUrl) {
   const ledgerStorageManager = await createLedgerStorageManager(esUrl)
-  const storagePromises = []
   for (const networkConfig of networkConfigManager.getNetworkConfigs()) {
-    let storagePromise = ledgerStorageManager.addIndyNetwork(networkConfig.id, networkConfig.es.index)
-      .catch(err => {
-        logger.error(`Problem creating network storage manager for ${JSON.stringify(networkConfig.id)}. ` +
-          `Error: ${err.message} ${err.stack}`)
-      })
-    storagePromises.push(storagePromise)
+    await ledgerStorageManager.addIndyNetwork(networkConfig.id, networkConfig.es.index)
   }
-  await Promise.all(storagePromises)
   return ledgerStorageManager
 }
 
 async function startServer () {
   const networkConfigManager = setupNetworkManager(networksConfig)
   const ledgerStorageManager = await setupStorageManager(networkConfigManager, appConfig.ES_URL)
-  initApiTxs(app, ledgerStorageManager, networkConfigManager)
+  const serviceTxs = createServiceTxs(ledgerStorageManager)
+  initApiTxs(app, networkConfigManager, serviceTxs)
   initApiNetworks(app, networkConfigManager)
   setupLoggingMiddlleware(app, appConfig.LOG_HTTP_REQUESTS === 'true', appConfig.LOG_HTTP_RESPONSES === 'true')
 

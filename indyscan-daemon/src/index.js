@@ -26,7 +26,11 @@ async function run () {
   const objectsConfig = appConfigToObjectsConfig(appConfig)
   logger.info(`Created objects config: ${JSON.stringify(objectsConfig, null, 2)}.`)
   let pipelines = await bootstrapApp(objectsConfig)
-  logger.info(`Bootstrap finished! Create ${pipelines.length} pipelines.`)
+  logger.info(`Bootstrap finished! Created ${pipelines.length} pipelines.`)
+  for (const pipeline of pipelines) {
+    logger.info(`Starting pipeline ${pipeline.getObjectId()}`)
+    pipeline.start()
+  }
 }
 
 run()

@@ -41,9 +41,9 @@
       "interface": "Iterator",
       "impl": "guided",
       "params": {
-        "id": "@@iterator.$INDY_NETWORK",
+        "id": "iterator.$INDY_NETWORK",
         "source": "@@source.$INDY_NETWORK",
-        "sourceSeqNoGuidance": "source.target.$INDY_NETWORK"
+        "sourceSeqNoGuidance": "@@source.target.$INDY_NETWORK"
       }
     },
     {
@@ -64,7 +64,7 @@
         "requestTxFormat": "original",
         "processor": "@@processor.expansion.$INDY_NETWORK",
         "target": "@@target.$INDY_NETWORK",
-        "timing": "FAST"
+        "timing": "SLOW"
       }
     },
     {
@@ -77,7 +77,7 @@
         "requestTxFormat": "original",
         "processor": "@@processor.expansion.$INDY_NETWORK",
         "target": "@@target.$INDY_NETWORK",
-        "timing": "MEDIUM"
+        "timing": "SLOW"
       }
     },
     {
@@ -90,7 +90,7 @@
         "requestTxFormat": "original",
         "processor": "@@processor.expansion.$INDY_NETWORK",
         "target": "@@target.$INDY_NETWORK",
-        "timing": "MEDIUM"
+        "timing": "SLOW"
       }
     }
   ]

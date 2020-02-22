@@ -20,7 +20,9 @@ function requestInstance (id) {
 function injectDependencies (object) {
   const injected = []
   for (const [key, value] of Object.entries(object)) {
-    if (typeof value === 'string' && value.match(/^@@.*/)) {
+    if (typeof value === 'object') {
+      injectDependencies(value)
+    } else if (typeof value === 'string' && value.match(/^@@.*/)) {
       const dependencyId = value.substr(2)
       const dependency = requestInstance(dependencyId)
       if (!dependency) {
@@ -30,9 +32,7 @@ function injectDependencies (object) {
       injected.push({ [key]: value })
     }
   }
-  if (injected.length > 0) {
-    logger.info(`Injected dependencies ${JSON.stringify(injected)}. Final injected object: ${JSON.stringify(object)}`)
-  }
+  logger.info(`Injected dependencies ${JSON.stringify(injected)}. Final injected object: ${JSON.stringify(object)}`)
 }
 
 function flushDiContainer () {

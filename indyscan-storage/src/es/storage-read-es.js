@@ -17,7 +17,6 @@ function createWinstonLoggerDummy () {
 /*
 esClient - elasticsearch client
 esIndex - name of the index to read/write data from/to
-subledgerName - indy subledger managed by this storage client
 logger (optional) - winston logger
  */
 function createStorageReadEs (esClient, esIndex, logger) {
@@ -35,9 +34,8 @@ function createStorageReadEs (esClient, esIndex, logger) {
     return esFilterSubledgerName(lowerCased)
   }
 
-  async function getTxCount (subledger, query) {
-    const subledgerTxsQuery = createSubledgerQuery(subledger)
-    query = query ? esAndFilters(subledgerTxsQuery, query) : subledgerTxsQuery
+  async function getTxCount (subledger, queries = []) {
+    const query = esAndFilters(createSubledgerQuery(subledger), queries)
     let request = {
       index: esIndex,
       body: { query }
@@ -52,8 +50,15 @@ function createStorageReadEs (esClient, esIndex, logger) {
   If format specified, returns specified transaction is selected format if available, otherwise undefined.
   If format not specified, returns transaction if "full" format, which contains all available formats. Example:
   {
-     "format1" : { data: "foo" }
-     "format2" : { data: "FOO" }
+     "imeta" : {
+        "seqNo": 40,
+        "subledger": "domain"
+     },
+     "idata": {
+        "format1" : { data: "foo" }
+        "format2" : { data: "FOO" }
+     }
+   }
    */
   async function getOneTx (subledger, seqNo, format = 'full') {
     const subledgerTxsQuery = createSubledgerQuery(subledger)
@@ -86,12 +91,10 @@ function createStorageReadEs (esClient, esIndex, logger) {
   The individual transactions are in "full" format.
   Every format ha
    */
-  async function getManyTxs (subledger, skip, limit, query, sort, format = 'full') {
-    const esQueriesArr = (format === 'full')
-      ? [createSubledgerQuery(subledger)]
-      : [createSubledgerQuery(subledger), esFilterContainsFormat(format)]
-
-    query = query ? esAndFilters(...esQueriesArr, query) : esAndFilters(...esQueriesArr)
+  async function getManyTxs (subledger, skip, limit, queries, sort, format = 'full') {
+    const formatQuery = (format === 'full') ? null : esFilterContainsFormat(format)
+    const subledgerQuery = createSubledgerQuery(subledger)
+    const query = esAndFilters(subledgerQuery, formatQuery, queries)
     sort = sort || { 'imeta.seqNo': { 'order': 'desc' } }
     const searchRequest = {
       from: skip,
