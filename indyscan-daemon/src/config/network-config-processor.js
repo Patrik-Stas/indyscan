@@ -17,6 +17,9 @@ function appConfigToObjectsConfig (rawAppConfig) {
   const { environment, objects } = rawAppConfig
   let strObjects = JSON.stringify(objects)
   for (const [key, value] of Object.entries(environment)) {
+    // TODO: How can we use actual environment variables to interpolate object configurations
+    // TODO: Adjust standard operation configuration to start 3 pipelines for serializer processor
+    // TODO: have integration test that 2 pipelines (wwith different processor) operate independently and the data is mereged in ES.
     let finalValue = process.env[key] ? process.env[key] : value
     if (finalValue !== value) {
       logger.debug(`App config variable ${key} was overriden to have value ${finalValue} via supplied environment variable in runtime.`)

@@ -6,11 +6,12 @@ async function createSourceElasticsearch ({ id, url, index }) {
   const esClient = new Client({ node: url })
   const storageRead = createStorageReadEs(esClient, index, logger)
 
-  async function getTxData (subledger, seqNo, format = 'full') {
-    return storageRead.getOneTx(subledger, seqNo, format)
+  async function getTxData (subledger, seqNo, format) {
+    const { idata, imeta } = await storageRead.getOneTx(subledger, seqNo, format) // eslint-disable-line
+    return idata
   }
 
-  async function getHighestSeqno (subledger, format = 'full') {
+  async function getHighestSeqno (subledger, format) {
     return storageRead.findMaxSeqNo(subledger, format)
   }
 

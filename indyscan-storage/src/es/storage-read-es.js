@@ -67,10 +67,10 @@ function createStorageReadEs (esClient, esIndex, logger) {
     if (!tx) {
       return undefined
     }
-    if (format !== 'full') {
-      return tx.idata ? tx.idata[format] : undefined
+    if (format === 'full') {
+      return tx
     }
-    return tx
+    return tx.idata[format]
   }
 
   async function executeEsSearch (searchRequest) {

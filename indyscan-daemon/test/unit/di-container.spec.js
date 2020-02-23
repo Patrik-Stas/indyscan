@@ -18,6 +18,22 @@ describe('basic dependency injection', () => {
     expect(dependent.dependency.some).toBe('thing')
   })
 
+  it('should register and inject dependencies into array', async () => {
+    let thing1 = { some: 'thing1' }
+    registerInstance('id1', thing1)
+    let thing2 = { some: 'thing2' }
+    registerInstance('id2', thing2)
+
+    let dependent = {
+      a: 'b',
+      dependencies: ['@@id1', '@@id2']
+    }
+
+    injectDependencies(dependent)
+    expect(dependent.dependencies[0].some).toBe('thing1')
+    expect(dependent.dependencies[1].some).toBe('thing2')
+  })
+
   it('should require di-container in different scope and inject dependency', async () => {
     {
       const diContainer1 = require('../../src/di-container')

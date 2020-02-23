@@ -295,4 +295,33 @@ describe('reading transaction formats from elasticsearch', () => {
     expect(await storageReadEs.getTxCount('config', [esFilterSeqNoGte(2), esFilterSeqNoLt(5)])).toBe(3)
     expect(await storageReadEs.getTxCount('config', esFilterSeqNoLt(5))).toBe(4)
   })
+
+  it('should find maximal seqNo', async () => {
+    const logger = createWinstonLoggerDummy()
+    const storageWriteEs = await createStorageWriteEs(esClient, index, 0, logger)
+    const storageReadEs = await createStorageReadEs(esClient, index, logger)
+    await storageWriteEs.addTx('domain', 1, 'foo', { 'foodata': 'foo-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'foo', { 'foodata': 'foo-domain-2222' })
+    await storageWriteEs.addTx('domain', 3, 'foo', { 'foodata': 'foo-domain-3333' })
+    await storageWriteEs.addTx('domain', 1, 'bar', { 'bardata': 'bar-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'bar', { 'bardata': 'bar-domain-2222' })
+
+    await storageWriteEs.addTx('config', 1, 'foo', { 'foodata': 'foo-config-1111' })
+    await storageWriteEs.addTx('config', 2, 'foo', { 'foodata': 'foo-config-2222' })
+    await storageWriteEs.addTx('config', 3, 'foo', { 'foodata': 'foo-config-3333' })
+    await storageWriteEs.addTx('config', 4, 'foo', { 'foodata': 'foo-config-4444' })
+    await storageWriteEs.addTx('config', 5, 'foo', { 'foodata': 'foo-config-5555' })
+    await storageWriteEs.addTx('config', 6, 'foo', { 'foodata': 'foo-config-6666' })
+
+    await sleep(1000) // takes time to index the stuff
+
+    expect(await storageReadEs.findMaxSeqNo('domain')).toBe(3)
+    expect(await storageReadEs.findMaxSeqNo('domain', 'foo')).toBe(3)
+    expect(await storageReadEs.findMaxSeqNo('domain', 'bar')).toBe(2)
+    expect(await storageReadEs.findMaxSeqNo('domain', 'xxx')).toBe(0)
+    expect(await storageReadEs.findMaxSeqNo('config')).toBe(6)
+    expect(await storageReadEs.findMaxSeqNo('config', 'foo')).toBe(6)
+    expect(await storageReadEs.findMaxSeqNo('config', 'xxx')).toBe(0)
+    expect(await storageReadEs.findMaxSeqNo('pool')).toBe(0)
+  })
 })

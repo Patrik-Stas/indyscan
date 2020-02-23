@@ -1,8 +1,8 @@
 const logger = require('./logging/logger-main')
-const { createPipelineSequential } = require('./pipelines/pipeline-sequential')
+const { createWorkerRtw } = require('./workers/worker-rtw')
 const { createIteratorGuided } = require('./iterators/iterator-guided')
-const { createProcessorNoop } = require('./processors/processor-noop')
-const { createProcessorExpansion } = require('./processors/processor-expansion')
+const { createTransformerSerializer } = require('./transformers/transformer-serializer')
+const { createTransformerExpansion } = require('./transformers/transformer-expansion')
 const { createTargetMemory } = require('./targets/target-memory')
 const { createTargetElasticsearch } = require('./targets/target-elasticsearch')
 const { createSourceMemory } = require('./sources/source-memory')
@@ -12,9 +12,9 @@ const { createSourceLedger } = require('./sources/source-ledger')
 const interfaces = {
   'source': 'source',
   'target': 'target',
-  'processor': 'processor',
+  'transformer': 'transformer',
   'iterator': 'iterator',
-  'pipeline': 'pipeline'
+  'worker': 'worker'
 }
 
 const implSource = {
@@ -32,9 +32,9 @@ const implIterator = {
   'guided': 'guided'
 }
 
-const implProcessor = {
+const implTransformer = {
   'expansion': 'expansion',
-  'noop': 'noop'
+  'serializer': 'serializer'
 }
 
 const implPipeline = {
@@ -63,12 +63,12 @@ async function _buildImplementation (interfaceName, implementationName, objectCo
         default:
           throw Error(`Unknown ${interfaceName} implementation ${implementationName}`)
       }
-    case interfaces.processor:
+    case interfaces.transformer:
       switch (implementationName) {
-        case implProcessor.expansion:
-          return createProcessorExpansion(objectConfig)
-        case implProcessor.noop:
-          return createProcessorNoop(objectConfig)
+        case implTransformer.expansion:
+          return createTransformerExpansion(objectConfig)
+        case implTransformer.serializer:
+          return createTransformerSerializer(objectConfig)
         default:
           throw Error(`Unknown ${interfaceName} implementation ${implementationName}`)
       }
@@ -79,10 +79,10 @@ async function _buildImplementation (interfaceName, implementationName, objectCo
         default:
           throw Error(`Unknown ${interfaceName} implementation ${implementationName}`)
       }
-    case interfaces.pipeline:
+    case interfaces.worker:
       switch (implementationName) {
         case implPipeline.sequential:
-          return createPipelineSequential(objectConfig)
+          return createWorkerRtw(objectConfig)
         default:
           throw Error(`Unknown ${interfaceName} implementation ${implementationName}`)
       }
@@ -124,6 +124,6 @@ module.exports.buildImplementation = buildImplementation
 module.exports.interfaces = interfaces
 module.exports.implPipeline = implPipeline
 module.exports.implIterator = implIterator
-module.exports.implProcessor = implProcessor
+module.exports.implTransformer = implTransformer
 module.exports.implTarget = implTarget
 module.exports.implSource = implSource
