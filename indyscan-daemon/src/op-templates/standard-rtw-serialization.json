@@ -1,32 +1,26 @@
 {
-  "environment": {
-    "INDY_NETWORK": "sovrin-mainnet"
-  },
   "comments": {
     "description": {
-      "1": "This is sample daemon configuration for reading data out of old Elasticsearch index, running it though",
-      "2": "a transformation transformer and storing in new Elasticsearch index. It will do so for all 3 subledgers."
+      "1": "Standard operation from ledger to elasticsearch"
     }
   },
   "objects": [
     {
       "interface": "Source",
-      "impl": "elasticsearch",
+      "impl": "ledger",
       "params": {
         "id": "source.$INDY_NETWORK",
-        "url": "$URL_ELASTICSEARCH",
-        "subledger": "domain",
-        "index": "txs-$INDY_NETWORK"
+        "name": "$INDY_NETWORK",
+        "genesisPath": "$CFGDIR/genesis/$INDY_NETWORK.txn"
       }
     },
     {
       "interface": "Source",
       "impl": "elasticsearch",
       "params": {
-        "id": "source.$INDY_NETWORK",
+        "id": "source.target.$INDY_NETWORK",
         "url": "$URL_ELASTICSEARCH",
-        "subledger": "domain",
-        "index": "txs-$INDY_NETWORK-new"
+        "index": "$TARGET_INDEX"
       }
     },
     {
@@ -35,13 +29,12 @@
       "params": {
         "id": "target.$INDY_NETWORK",
         "url": "$URL_ELASTICSEARCH",
-        "replicas": 1,
-        "index": "txs-$INDY_NETWORK-new"
+        "index": "$TARGET_INDEX"
       }
     },
     {
       "interface": "Iterator",
-      "impl": "guided-iterator",
+      "impl": "guided",
       "params": {
         "id": "iterator.$INDY_NETWORK",
         "source": "@@source.$INDY_NETWORK",
@@ -53,7 +46,14 @@
       "impl": "expansion",
       "params": {
         "id": "transformer.expansion.$INDY_NETWORK",
-        "sourceDomainLookups": "@@source.target.$INDY_NETWORK.domain"
+        "sourceLookups": "@@source.target.$INDY_NETWORK"
+      }
+    },
+    {
+      "interface": "Transformer",
+      "impl": "serializer",
+      "params": {
+        "id": "transformer.serializer.$INDY_NETWORK"
       }
     },
     {
@@ -61,16 +61,12 @@
       "impl": "worker-rtw",
       "params": {
         "id": "worker-rtw.$INDY_NETWORK.domain",
-        "iterator": "@@iterator.$INDY_NETWORK.domain",
+        "subledger": "domain",
+        "iterator": "@@iterator.$INDY_NETWORK",
         "iteratorTxFormat": "original",
         "transformer": "@@transformer.expansion.$INDY_NETWORK",
-        "target": "@@target.$INDY_NETWORK.domain",
-        "timing": {
-          "timeoutOnSuccess": 1000,
-          "timeoutOnIteratorError": 5000,
-          "timeoutOnTxNotAvailable": 4000,
-          "jitterRatio": 0.4
-        }
+        "target": "@@target.$INDY_NETWORK",
+        "timing": "SLOW"
       }
     },
     {
@@ -78,16 +74,12 @@
       "impl": "worker-rtw",
       "params": {
         "id": "worker-rtw.$INDY_NETWORK.config",
-        "iterator": "@@iterator.$INDY_NETWORK.config",
+        "subledger": "config",
+        "iterator": "@@iterator.$INDY_NETWORK",
         "iteratorTxFormat": "original",
         "transformer": "@@transformer.expansion.$INDY_NETWORK",
-        "target": "@@target.$INDY_NETWORK.config",
-        "timing": {
-          "timeoutOnSuccess": 1000,
-          "timeoutOnIteratorError": 5000,
-          "timeoutOnTxNotAvailable": 4000,
-          "jitterRatio": 0.4
-        }
+        "target": "@@target.$INDY_NETWORK",
+        "timing": "SLOW"
       }
     },
     {
@@ -95,17 +87,14 @@
       "impl": "worker-rtw",
       "params": {
         "id": "worker-rtw.$INDY_NETWORK.pool",
-        "iterator": "@@iterator.$INDY_NETWORK.pool",
+        "subledger": "pool",
+        "iterator": "@@iterator.$INDY_NETWORK",
         "iteratorTxFormat": "original",
         "transformer": "@@transformer.expansion.$INDY_NETWORK",
-        "target": "@@target.$INDY_NETWORK.pool",
-        "timing": {
-          "timeoutOnSuccess": 1000,
-          "timeoutOnIteratorError": 5000,
-          "timeoutOnTxNotAvailable": 4000,
-          "jitterRatio": 0.4
-        }
+        "target": "@@target.$INDY_NETWORK",
+        "timing": "SLOW"
       }
     }
   ]
 }
+

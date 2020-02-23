@@ -1,9 +1,4 @@
 {
-  "environment": {
-    "INDY_NETWORK": "LOCALHOST_INDYSCAN",
-    "TARGET_INDEX": "txs-localhost",
-    "URL_ELASTICSEARCH": "http://localhost:9200"
-  },
   "comments": {
     "description": {
       "1": "Standard operation from ledger to elasticsearch"
@@ -16,7 +11,7 @@
       "params": {
         "id": "source.$INDY_NETWORK",
         "name": "$INDY_NETWORK",
-        "genesisPath": "$CFGDIR/genesis/$INDY_NETWORK.txn"
+        "genesisPath": "$GENESIS_DIR/$INDY_NETWORK.txn"
       }
     },
     {

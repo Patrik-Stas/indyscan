@@ -1,4 +1,4 @@
-const { envConfig } = require('./config/env')
+const { envConfig, getAppConfigNames, getAppConfigMap } = require('./config/env')
 const logger = require('./logging/logger-main')
 const { bootstrapApp } = require('./ioc')
 const { appConfigToObjectsConfig } = require('./config/network-config-processor')
@@ -21,16 +21,18 @@ const { loadAppConfigFromFile } = require('./config/network-config-processor')
 // })
 
 async function run () {
-  const appConfig = await loadAppConfigFromFile(envConfig.NETWORKS_CONFIG_PATH)
-  logger.info(`Loaded app confing ${JSON.stringify(appConfig, null, 2)}.`)
-  const objectsConfig = appConfigToObjectsConfig(appConfig)
-  logger.info(`Created objects config: ${JSON.stringify(objectsConfig, null, 2)}.`)
-  let pipelines = await bootstrapApp(objectsConfig)
-  logger.info(`Bootstrap finished! Created ${pipelines.length} pipelines.`)
-  for (const pipeline of pipelines) {
-    logger.info(`Starting pipeline ${pipeline.getObjectId()}`)
-    pipeline.start()
-  }
+  console.log(JSON.stringify(getAppConfigNames(), null, 2))
+  console.log(JSON.stringify(getAppConfigMap(), null, 2))
+  // const appConfig = await loadAppConfigFromFile(envConfig.NETWORKS_CONFIG_PATH)
+  // logger.info(`Loaded app confing ${JSON.stringify(appConfig, null, 2)}.`)
+  // const objectsConfig = appConfigToObjectsConfig(appConfig)
+  // logger.info(`Created objects config: ${JSON.stringify(objectsConfig, null, 2)}.`)
+  // let pipelines = await bootstrapApp(objectsConfig)
+  // logger.info(`Bootstrap finished! Created ${pipelines.length} pipelines.`)
+  // for (const pipeline of pipelines) {
+  //   logger.info(`Starting pipeline ${pipeline.getObjectId()}`)
+  //   pipeline.start()
+  // }
 }
 
 run()
