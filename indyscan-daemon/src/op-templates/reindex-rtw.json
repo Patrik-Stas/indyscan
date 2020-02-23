@@ -10,58 +10,58 @@
       "interface": "Source",
       "impl": "elasticsearch",
       "params": {
-        "id": "source.$INDY_NETWORK",
-        "url": "$URL_ELASTICSEARCH",
+        "id": "source.{{{INDY_NETWORK}}}",
+        "url": "{{{URL_ELASTICSEARCH}}}",
         "subledger": "domain",
-        "index": "txs-$INDY_NETWORK"
+        "index": "txs-{{{INDY_NETWORK}}}"
       }
     },
     {
       "interface": "Source",
       "impl": "elasticsearch",
       "params": {
-        "id": "source.$INDY_NETWORK",
-        "url": "$URL_ELASTICSEARCH",
+        "id": "source.{{{INDY_NETWORK}}}",
+        "url": "{{{URL_ELASTICSEARCH}}}",
         "subledger": "domain",
-        "index": "txs-$INDY_NETWORK-new"
+        "index": "txs-{{{INDY_NETWORK}}}-new"
       }
     },
     {
       "interface": "Target",
       "impl": "elasticsearch",
       "params": {
-        "id": "target.$INDY_NETWORK",
-        "url": "$URL_ELASTICSEARCH",
+        "id": "target.{{{INDY_NETWORK}}}",
+        "url": "{{{URL_ELASTICSEARCH}}}",
         "replicas": 1,
-        "index": "txs-$INDY_NETWORK-new"
+        "index": "txs-{{{INDY_NETWORK}}}-new"
       }
     },
     {
       "interface": "Iterator",
       "impl": "guided-iterator",
       "params": {
-        "id": "iterator.$INDY_NETWORK",
-        "source": "@@source.$INDY_NETWORK",
-        "sourceSeqNoGuidance": "@@source.target.$INDY_NETWORK"
+        "id": "iterator.{{{INDY_NETWORK}}}",
+        "source": "@@source.{{{INDY_NETWORK}}}",
+        "sourceSeqNoGuidance": "@@source.target.{{{INDY_NETWORK}}}"
       }
     },
     {
       "interface": "Transformer",
       "impl": "expansion",
       "params": {
-        "id": "transformer.expansion.$INDY_NETWORK",
-        "sourceDomainLookups": "@@source.target.$INDY_NETWORK.domain"
+        "id": "transformer.expansion.{{{INDY_NETWORK}}}",
+        "sourceDomainLookups": "@@source.target.{{{INDY_NETWORK}}}.domain"
       }
     },
     {
       "interface": "Worker",
       "impl": "worker-rtw",
       "params": {
-        "id": "worker-rtw.$INDY_NETWORK.domain",
-        "iterator": "@@iterator.$INDY_NETWORK.domain",
+        "id": "worker-rtw.{{{INDY_NETWORK}}}.domain",
+        "iterator": "@@iterator.{{{INDY_NETWORK}}}.domain",
         "iteratorTxFormat": "original",
-        "transformer": "@@transformer.expansion.$INDY_NETWORK",
-        "target": "@@target.$INDY_NETWORK.domain",
+        "transformer": "@@transformer.expansion.{{{INDY_NETWORK}}}",
+        "target": "@@target.{{{INDY_NETWORK}}}.domain",
         "timing": {
           "timeoutOnSuccess": 1000,
           "timeoutOnIteratorError": 5000,
@@ -74,11 +74,11 @@
       "interface": "Worker",
       "impl": "worker-rtw",
       "params": {
-        "id": "worker-rtw.$INDY_NETWORK.config",
-        "iterator": "@@iterator.$INDY_NETWORK.config",
+        "id": "worker-rtw.{{{INDY_NETWORK}}}.config",
+        "iterator": "@@iterator.{{{INDY_NETWORK}}}.config",
         "iteratorTxFormat": "original",
-        "transformer": "@@transformer.expansion.$INDY_NETWORK",
-        "target": "@@target.$INDY_NETWORK.config",
+        "transformer": "@@transformer.expansion.{{{INDY_NETWORK}}}",
+        "target": "@@target.{{{INDY_NETWORK}}}.config",
         "timing": {
           "timeoutOnSuccess": 1000,
           "timeoutOnIteratorError": 5000,
@@ -91,11 +91,11 @@
       "interface": "Worker",
       "impl": "worker-rtw",
       "params": {
-        "id": "worker-rtw.$INDY_NETWORK.pool",
-        "iterator": "@@iterator.$INDY_NETWORK.pool",
+        "id": "worker-rtw.{{{INDY_NETWORK}}}.pool",
+        "iterator": "@@iterator.{{{INDY_NETWORK}}}.pool",
         "iteratorTxFormat": "original",
-        "transformer": "@@transformer.expansion.$INDY_NETWORK",
-        "target": "@@target.$INDY_NETWORK.pool",
+        "transformer": "@@transformer.expansion.{{{INDY_NETWORK}}}",
+        "target": "@@target.{{{INDY_NETWORK}}}.pool",
         "timing": {
           "timeoutOnSuccess": 1000,
           "timeoutOnIteratorError": 5000,

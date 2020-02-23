@@ -38,6 +38,11 @@ function getAppConfigNames() {
   return appConfigNames
 }
 
+
+function getAppConfig(name) {
+  return appConfigMap[name]
+}
+
 function getAppConfigMap() {
   return appConfigMap
 }
@@ -45,3 +50,4 @@ function getAppConfigMap() {
 module.exports.envConfig = envConfig
 module.exports.getAppConfigNames = getAppConfigNames
 module.exports.getAppConfigMap = getAppConfigMap
+module.exports.getAppConfig = getAppConfig

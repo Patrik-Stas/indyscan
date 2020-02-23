@@ -12,8 +12,8 @@ fields added, depending on transaction type.
 Constructor requires following arguments:
 ```json
 {
-    "id": "transformer.expansion.$INDY_NETWORK",
-    "sourceLookups": "source.target.$INDY_NETWORK"
+    "id": "transformer.expansion.{{{INDY_NETWORK}}}",
+    "sourceLookups": "source.target.{{{INDY_NETWORK}}}"
 }
 ```
 The `sourceLookups` lookups must be id of a source containing transactions belonging to the same network as 
@@ -34,7 +34,7 @@ after applying the transaction to previously known state of the DID.
 Constructor requires following arguments:
 ```json
 {
-    "id": "transformer.expansion.$INDY_NETWORK",
-    "sourceLookups": "source.target.$INDY_NETWORK"
+    "id": "transformer.expansion.{{{INDY_NETWORK}}}",
+    "sourceLookups": "source.target.{{{INDY_NETWORK}}}"
 }
 ```

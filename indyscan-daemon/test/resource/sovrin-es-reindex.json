@@ -13,19 +13,19 @@
       "interface": "SOURCE",
       "impl": "elasticsearch",
       "params": {
-        "id": "source.$INDY_NETWORK",
-        "url": "$URL_ELASTICSEARCH",
+        "id": "source.{{{INDY_NETWORK}}}",
+        "url": "{{{URL_ELASTICSEARCH}}}",
         "subledger": "domain",
-        "indexDomain": "txs-$INDY_NETWORK-domain",
-        "indexPool": "txs-$INDY_NETWORK-pool",
-        "indexConfig": "txs-$INDY_NETWORK-config"
+        "indexDomain": "txs-{{{INDY_NETWORK}}}-domain",
+        "indexPool": "txs-{{{INDY_NETWORK}}}-pool",
+        "indexConfig": "txs-{{{INDY_NETWORK}}}-config"
       }
     },
     {
       "interface": "SOURCE",
       "impl": "ledger",
       "params": {
-        "id": "source.target.$INDY_NETWORK.domain",
+        "id": "source.target.{{{INDY_NETWORK}}}.domain",
         "networkName": "SOVRIN_MAINNET",
         "networkGenesisRef": "$CFGDIR/genesis/SOVRIN_MAINNET.txn"
       }
@@ -34,39 +34,39 @@
       "interface": "TARGET",
       "impl": "elasticsearch",
       "params": {
-        "id": "target.$INDY_NETWORK",
-        "url": "$URL_ELASTICSEARCH",
+        "id": "target.{{{INDY_NETWORK}}}",
+        "url": "{{{URL_ELASTICSEARCH}}}",
         "replicas": 2,
-        "indexDomain": "txs-$INDY_NETWORK-domain-reindex",
-        "indexPool": "txs-$INDY_NETWORK-pool-reindex",
-        "indexConfig": "txs-$INDY_NETWORK-config-reindex"
+        "indexDomain": "txs-{{{INDY_NETWORK}}}-domain-reindex",
+        "indexPool": "txs-{{{INDY_NETWORK}}}-pool-reindex",
+        "indexConfig": "txs-{{{INDY_NETWORK}}}-config-reindex"
       }
     },
     {
       "interface": "ITERATOR",
       "impl": "guided-iterator",
       "params": {
-        "id": "iterator.$INDY_NETWORK",
-        "source": "@@source.$INDY_NETWORK",
-        "sourceSeqNoGuidance": "@@source.target.$INDY_NETWORK"
+        "id": "iterator.{{{INDY_NETWORK}}}",
+        "source": "@@source.{{{INDY_NETWORK}}}",
+        "sourceSeqNoGuidance": "@@source.target.{{{INDY_NETWORK}}}"
       }
     },
     {
       "interface": "PROCESSOR",
       "impl": "expansion",
       "params": {
-        "id": "processor.expansion.$INDY_NETWORK",
-        "sourceDomainLookups": "@@source.target.$INDY_NETWORK.domain"
+        "id": "processor.expansion.{{{INDY_NETWORK}}}",
+        "sourceDomainLookups": "@@source.target.{{{INDY_NETWORK}}}.domain"
       }
     },
     {
       "interface": "PIPELINE",
       "impl": "sequential",
       "params": {
-        "id": "pipeline.$INDY_NETWORK.domain",
-        "iterator": "@@iterator.$INDY_NETWORK.domain",
-        "processor": "@@processor.expansion.$INDY_NETWORK",
-        "target": "@@target.$INDY_NETWORK.domain",
+        "id": "pipeline.{{{INDY_NETWORK}}}.domain",
+        "iterator": "@@iterator.{{{INDY_NETWORK}}}.domain",
+        "processor": "@@processor.expansion.{{{INDY_NETWORK}}}",
+        "target": "@@target.{{{INDY_NETWORK}}}.domain",
         "timing": {
           "timeoutOnSuccess": 1000,
           "timeoutOnIteratorError": 5000,

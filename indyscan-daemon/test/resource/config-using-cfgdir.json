@@ -12,9 +12,9 @@
       "interface": "SOURCE",
       "impl": "ledger",
       "params": {
-        "id": "source.$INDY_NETWORK",
-        "name": "$INDY_NETWORK",
-        "genesisPath": "$CFGDIR/genesis/$INDY_NETWORK.txn"
+        "id": "source.{{{INDY_NETWORK}}}",
+        "name": "{{{INDY_NETWORK}}}",
+        "genesisPath": "$CFGDIR/genesis/{{{INDY_NETWORK}}}.txn"
       }
     }
   ]

@@ -5,10 +5,10 @@ Proposal for object representing group of workers
   "interface": "Worker",
   "impl": "worker-rtw",
   "params": {
-    "id": "worker.$INDY_NETWORK.domain",
-    "iterator": "iterator.$INDY_NETWORK",
-    "transformer": "transformer.expansion.$INDY_NETWORK",
-    "target": "target.$INDY_NETWORK",
+    "id": "worker.{{{INDY_NETWORK}}}.domain",
+    "iterator": "iterator.{{{INDY_NETWORK}}}",
+    "transformer": "transformer.expansion.{{{INDY_NETWORK}}}",
+    "target": "target.{{{INDY_NETWORK}}}",
     "subledgers": {
       "domain": "enabled",
       "config": "enabled",

@@ -18,12 +18,12 @@ off some source, transforms them and the result is written to some destination.
 Constructor requires following arguments:
 ```json
 {
-    "id": "worker-rtw.$INDY_NETWORK.pool",
+    "id": "worker-rtw.{{{INDY_NETWORK}}}.pool",
     "subledger": "pool",
-    "iterator": "iterator.$INDY_NETWORK",
+    "iterator": "iterator.{{{INDY_NETWORK}}}",
     "iteratorTxFormat": "original",
-    "transformer": "transformer.expansion.$INDY_NETWORK",
-    "target": "target.$INDY_NETWORK",
+    "transformer": "transformer.expansion.{{{INDY_NETWORK}}}",
+    "target": "target.{{{INDY_NETWORK}}}",
     "timing": {
       "timeoutOnSuccess": 1000,
       "timeoutOnTxIngestionError": 5000,
