@@ -1,7 +1,7 @@
 {
   "comments": {
     "description": {
-      "1": "Standard operation from ledger to elasticsearch"
+      "1": "Standard operation from network {{{INDY_NETWORK}}} into Elasticsearhc {{{URL_ELASTICSEARCH}}}, index {{{TARGET_INDEX}}}"
     }
   },
   "objects": [
@@ -9,7 +9,7 @@
       "interface": "Source",
       "impl": "ledger",
       "params": {
-        "id": "source.{{{INDY_NETWORK}}}",
+        "id": "source.ledger.{{{INDY_NETWORK}}}",
         "name": "{{{INDY_NETWORK}}}",
         "genesisPath": "{{{GENESIS_DIR}}}/{{{INDY_NETWORK}}}.txn"
       }
@@ -37,7 +37,7 @@
       "impl": "guided",
       "params": {
         "id": "iterator.{{{INDY_NETWORK}}}",
-        "source": "@@source.{{{INDY_NETWORK}}}",
+        "source": "@@source.ledger.{{{INDY_NETWORK}}}",
         "sourceSeqNoGuidance": "@@source.target.{{{INDY_NETWORK}}}"
       }
     },
@@ -50,17 +50,10 @@
       }
     },
     {
-      "interface": "Transformer",
-      "impl": "serializer",
-      "params": {
-        "id": "transformer.serializer.{{{INDY_NETWORK}}}"
-      }
-    },
-    {
       "interface": "Worker",
-      "impl": "worker-rtw",
+      "impl": "rtw",
       "params": {
-        "id": "worker-rtw.{{{INDY_NETWORK}}}.domain",
+        "id": "worker.rtw.{{{INDY_NETWORK}}}.domain",
         "subledger": "domain",
         "iterator": "@@iterator.{{{INDY_NETWORK}}}",
         "iteratorTxFormat": "original",
@@ -71,9 +64,9 @@
     },
     {
       "interface": "Worker",
-      "impl": "worker-rtw",
+      "impl": "rtw",
       "params": {
-        "id": "worker-rtw.{{{INDY_NETWORK}}}.config",
+        "id": "worker.rtw.{{{INDY_NETWORK}}}.config",
         "subledger": "config",
         "iterator": "@@iterator.{{{INDY_NETWORK}}}",
         "iteratorTxFormat": "original",
@@ -84,9 +77,9 @@
     },
     {
       "interface": "Worker",
-      "impl": "worker-rtw",
+      "impl": "rtw",
       "params": {
-        "id": "worker-rtw.{{{INDY_NETWORK}}}.pool",
+        "id": "worker.rtw.{{{INDY_NETWORK}}}.pool",
         "subledger": "pool",
         "iterator": "@@iterator.{{{INDY_NETWORK}}}",
         "iteratorTxFormat": "original",

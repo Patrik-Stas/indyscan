@@ -8,7 +8,7 @@ function registerInstance (id, instance) {
     throw Error(`Registering instance '${id}' but provided instance is null or undefined.`)
   }
   if (instances[id]) {
-    throw Error(`Duplicate instance id '${id}' upon DI registration!`)
+    throw Error(`Instance with id '${id}' was already registered in dependency injection container.`)
   }
   instances[id] = instance
 }

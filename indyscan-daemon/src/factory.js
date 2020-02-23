@@ -37,8 +37,8 @@ const implTransformer = {
   'serializer': 'serializer'
 }
 
-const implPipeline = {
-  'sequential': 'sequential'
+const implWorker = {
+  'rtw': 'rtw'
 }
 
 async function _buildImplementation (interfaceName, implementationName, objectConfig) {
@@ -81,10 +81,10 @@ async function _buildImplementation (interfaceName, implementationName, objectCo
       }
     case interfaces.worker:
       switch (implementationName) {
-        case implPipeline.sequential:
+        case implWorker.rtw:
           return createWorkerRtw(objectConfig)
         default:
-          throw Error(`Unknown ${interfaceName} implementation ${implementationName}`)
+          throw Error(`Unknown ${interfaceName} implementation ${implementationName}. Available implementations: ${JSON.stringify(Object.values(implWorker))}`)
       }
     default:
       throw Error(`Unknown interface ${interfaceName}.`)
@@ -122,7 +122,7 @@ async function buildImplementation (objectConfig) {
 
 module.exports.buildImplementation = buildImplementation
 module.exports.interfaces = interfaces
-module.exports.implPipeline = implPipeline
+module.exports.implPipeline = implWorker
 module.exports.implIterator = implIterator
 module.exports.implTransformer = implTransformer
 module.exports.implTarget = implTarget

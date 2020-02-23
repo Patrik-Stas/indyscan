@@ -2,11 +2,11 @@ const path = require('path')
 
 const config = {
   'view': {
-    'INDY_NETWORK': 'LOCALHOST_INDYSCAN',
-    'TARGET_INDEX': 'txs-localhost',
+    'INDY_NETWORK': 'HOST_DOCKER_INTERNAL',
+    'TARGET_INDEX': 'txs-2localhost',
     'URL_ELASTICSEARCH': 'http://localhost:9200',
     'GENESIS_DIR': () => {
-      return `${path.dirname(__dirname)}/genesis`
+      return `${__dirname}/genesis`
     }
   },
   'operations': ['standard-rtw-serialization']

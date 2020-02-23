@@ -6,7 +6,7 @@ const config = {
     'TARGET_INDEX': 'txs-sovmain',
     'URL_ELASTICSEARCH': 'http://localhost:9200',
     'GENESIS_DIR': () => {
-      return `${path.dirname(__dirname)}/genesis`
+      return `${__dirname}/genesis`
     }
   },
   'operations': ['standard-rtw-serialization']

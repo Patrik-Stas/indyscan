@@ -1,7 +1,7 @@
 {
   "comments": {
     "description": {
-      "1": "Standard operation from ledger to elasticsearch"
+      "1": "RTW Ledger->Elasticsearch for network {{{INDY_NETWORK}}} into ES {{{URL_ELASTICSEARCH}}}, index {{{TARGET_INDEX}}}"
     }
   },
   "objects": [
@@ -43,54 +43,47 @@
     },
     {
       "interface": "Transformer",
-      "impl": "expansion",
+      "impl": "serializer",
       "params": {
-        "id": "transformer.expansion.{{{INDY_NETWORK}}}",
+        "id": "transformer.serializer.{{{INDY_NETWORK}}}",
         "sourceLookups": "@@source.target.{{{INDY_NETWORK}}}"
       }
     },
     {
-      "interface": "Transformer",
-      "impl": "serializer",
-      "params": {
-        "id": "transformer.serializer.{{{INDY_NETWORK}}}"
-      }
-    },
-    {
       "interface": "Worker",
-      "impl": "worker-rtw",
+      "impl": "rtw",
       "params": {
-        "id": "worker-rtw.{{{INDY_NETWORK}}}.domain",
+        "id": "worker.rtw.{{{INDY_NETWORK}}}.domain",
         "subledger": "domain",
         "iterator": "@@iterator.{{{INDY_NETWORK}}}",
         "iteratorTxFormat": "original",
-        "transformer": "@@transformer.expansion.{{{INDY_NETWORK}}}",
+        "transformer": "@@transformer.serializer.{{{INDY_NETWORK}}}",
         "target": "@@target.{{{INDY_NETWORK}}}",
         "timing": "SLOW"
       }
     },
     {
       "interface": "Worker",
-      "impl": "worker-rtw",
+      "impl": "rtw",
       "params": {
-        "id": "worker-rtw.{{{INDY_NETWORK}}}.config",
+        "id": "worker.rtw.{{{INDY_NETWORK}}}.config",
         "subledger": "config",
         "iterator": "@@iterator.{{{INDY_NETWORK}}}",
         "iteratorTxFormat": "original",
-        "transformer": "@@transformer.expansion.{{{INDY_NETWORK}}}",
+        "transformer": "@@transformer.serializer.{{{INDY_NETWORK}}}",
         "target": "@@target.{{{INDY_NETWORK}}}",
         "timing": "SLOW"
       }
     },
     {
       "interface": "Worker",
-      "impl": "worker-rtw",
+      "impl": "rtw",
       "params": {
-        "id": "worker-rtw.{{{INDY_NETWORK}}}.pool",
+        "id": "worker.rtw.{{{INDY_NETWORK}}}.pool",
         "subledger": "pool",
         "iterator": "@@iterator.{{{INDY_NETWORK}}}",
         "iteratorTxFormat": "original",
-        "transformer": "@@transformer.expansion.{{{INDY_NETWORK}}}",
+        "transformer": "@@transformer.serializer.{{{INDY_NETWORK}}}",
         "target": "@@target.{{{INDY_NETWORK}}}",
         "timing": "SLOW"
       }
