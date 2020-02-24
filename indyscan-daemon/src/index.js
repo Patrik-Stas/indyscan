@@ -1,11 +1,5 @@
-const {envConfig, getAppConfigNames, getAppConfigMap} = require('./config/env')
 const logger = require('./logging/logger-main')
-const {getAppConfig} = require('./config/env')
-const {appConfigToObjectsConfig} = require('./config/network-config-processor')
-const {loadAppConfigFromFile} = require('./config/network-config-processor')
-const Mustache = require('mustache')
 const path = require('path')
-const fs = require('fs')
 const {getAppConfigPaths} = require('./config/env')
 const _ = require('lodash')
 
@@ -49,6 +43,7 @@ async function run () {
   }
   workers = _.flatten(workers)
   for (const worker of workers) {
+    console.log(`Starting worker ${worker.getObjectId()}`)
     worker.start()
   }
 

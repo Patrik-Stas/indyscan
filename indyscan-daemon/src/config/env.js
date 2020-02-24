@@ -19,10 +19,6 @@ const configValidation = Joi.object().keys({
 })
 Joi.validate(envConfig, configValidation, (err, ok) => { if (err) throw err })
 
-// if (!fs.existsSync(envConfig.APP_CONFIGS_DIR)) {
-//   throw Error(`Config path ${envConfig.APP_CONFIGS_DIR} is not pointing to a file.`)
-// }
-
 const appConfigNames = envConfig.APP_CONFIGS.split(',')
 const appConfigPaths = []
 for (const appConfigName of appConfigNames) {
