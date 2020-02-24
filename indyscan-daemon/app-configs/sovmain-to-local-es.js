@@ -1,14 +1,14 @@
-const path = require('path')
+const {createNetOpRtwExpansion} = require('../src/op-templates/standard-rtw-expansion')
 
-const config = {
-  'view': {
-    'INDY_NETWORK': 'SOVRIN_MAINNET',
-    'TARGET_INDEX': 'txs-sovmain',
-    'URL_ELASTICSEARCH': 'http://localhost:9200',
-    'GENESIS_DIR': () => {
-      return `${__dirname}/genesis`
-    }
-  },
-  'operations': ['standard-rtw-serialization']
+async function bootstrap () {
+  let rtwOperation = createNetOpRtwExpansion(
+    'SOVRIN_MAINNET',
+    `${__dirname}/genesis/SOVRIN_MAINNET.txn`,
+    'http://localhost:9200',
+    'txs-sovmain',
+    'SLOW'
+  )
+  return rtwOperation
 }
-module.exports = config
+
+module.exports = bootstrap

@@ -24,13 +24,13 @@ Joi.validate(envConfig, configValidation, (err, ok) => { if (err) throw err })
 // }
 
 const appConfigNames = envConfig.APP_CONFIGS.split(',')
-const appConfigMap = {}
+const appConfigPaths = []
 for (const appConfigName of appConfigNames) {
   const path = `${envConfig.APP_CONFIGS_DIR}/${appConfigName}.js`
   if (!fs.existsSync(path)) {
     throw Error(`Config path ${path} is not pointing to a file.`)
   }
-  appConfigMap[appConfigName] = require(path)
+  appConfigPaths.push(path)
 }
 
 
@@ -38,16 +38,10 @@ function getAppConfigNames() {
   return appConfigNames
 }
 
-
-function getAppConfig(name) {
-  return appConfigMap[name]
-}
-
-function getAppConfigMap() {
-  return appConfigMap
+function getAppConfigPaths() {
+  return appConfigPaths
 }
 
 module.exports.envConfig = envConfig
 module.exports.getAppConfigNames = getAppConfigNames
-module.exports.getAppConfigMap = getAppConfigMap
-module.exports.getAppConfig = getAppConfig
+module.exports.getAppConfigPaths = getAppConfigPaths

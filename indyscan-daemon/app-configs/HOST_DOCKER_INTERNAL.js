@@ -1,15 +1,14 @@
-const path = require('path')
+const {createNetOpRtwSerialization} = require('../src/op-templates/standard-rtw-serialization')
 
-const config = {
-  'view': {
-    'INDY_NETWORK': 'HOST_DOCKER_INTERNAL',
-    'TARGET_INDEX': 'txs-2localhost',
-    'URL_ELASTICSEARCH': 'http://localhost:9200',
-    'GENESIS_DIR': () => {
-      return `${__dirname}/genesis`
-    }
-  },
-  'operations': ['standard-rtw-serialization']
+async function bootstrap () {
+  let rtwOperation = createNetOpRtwSerialization(
+    'HOST_DOCKER_INTERNAL',
+    `${__dirname}/genesis/HOST_DOCKER_INTERNAL.txn`,
+    'http://localhost:9200',
+    'txs-localhost',
+    'SLOW'
+  )
+  return rtwOperation
 }
 
-module.exports = config
+module.exports = bootstrap

@@ -1,27 +1,26 @@
-const { intializeEsTarget } = require('./target-inits')
+const {intializeEsTarget} = require('./target-inits')
 
-function createTransformerSerializer ({ id }) {
+function createTransformerSerializer ({id}) {
   async function processTx (tx) {
     if (!tx) {
       throw Error('tx argument not defined')
     }
-    const processedTx = { serialized: JSON.stringify(tx) }
-    return { processedTx, format: 'original' }
+    const processedTx = {serialized: JSON.stringify(tx)}
+    return {processedTx, format: getOutputFormat()}
+  }
+
+  function getOutputFormat () {
+    return 'original'
   }
 
   function getElasticsearchTargetMappings () {
     return {
-      'serialized': { type: 'text', index: false }
+      'serialized': {type: 'text', index: false}
     }
   }
 
   async function initializeTarget (target) {
-    const targetImpl = target.getImplName()
-    if (targetImpl === 'elasticsearch') {
-      await intializeEsTarget(target, getElasticsearchTargetMappings())
-    } else {
-      throw Error(`Processor ${id} doesn't know how to initialize target implementation ${targetImpl}`)
-    }
+    return intializeEsTarget(target, getElasticsearchTargetMappings())
   }
 
   function getObjectId () {
@@ -31,7 +30,8 @@ function createTransformerSerializer ({ id }) {
   return {
     processTx,
     initializeTarget,
-    getObjectId
+    getObjectId,
+    getOutputFormat
   }
 }
 

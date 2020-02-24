@@ -1,4 +1,3 @@
-const { implTarget } = require('../factory')
 const logger = require('../logging/logger-main')
 const { createStorageWriteEs } = require('indyscan-storage')
 const sleep = require('sleep-promise')
@@ -33,24 +32,19 @@ async function createTargetElasticsearch ({ id, url, index, replicas = 0 }) {
     return storageWrite.addTx(subledger, seqNo, format, txData)
   }
 
-  function getObjectId () {
-    return id
-  }
-
-  function getImplName () {
-    return implTarget.elasticsearch
-  }
-
   async function setMappings (indexMappings) {
     logger.info(`${id} Setting up mappings for ES Index ${index}!`)
     return storageWrite.setFormatMappings(esClient, index, indexMappings)
   }
 
+  function getObjectId () {
+    return id
+  }
+
   return {
     getObjectId,
     addTxData,
-    setMappings, // target-elasticsearch specific
-    getImplName // just need this for processor to know whether this target should get ES mapping intialized
+    setMappings
   }
 }
 
