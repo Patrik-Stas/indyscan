@@ -1,10 +1,10 @@
 // "RTW Ledger->Elasticsearch for network {{{INDY_NETWORK}}} into ES {{{URL_ELASTICSEARCH}}}, index {{{TARGET_INDEX}}}"
-const {createWorkerRtw} = require('../workers/worker-rtw')
-const {createIteratorGuided} = require('../iterators/iterator-guided')
-const {createTransformerSerializer} = require('../transformers/transformer-serializer')
-const {createTargetElasticsearch} = require('../targets/target-elasticsearch')
-const {createSourceElasticsearch} = require('../sources/source-elasticsearch')
-const {createSourceLedger} = require('../sources/source-ledger')
+const { createTargetElasticsearch } = require('../targets/target-elasticsearch')
+const { createWorkerRtw } = require('../workers/worker-rtw')
+const { createIteratorGuided } = require('../iterators/iterator-guided')
+const { createTransformerSerializer } = require('../transformers/transformer-serializer')
+const { createSourceElasticsearch } = require('../sources/source-elasticsearch')
+const { createSourceLedger } = require('../sources/source-ledger')
 
 async function createNetOpRtwSerialization (indyNetworkName, genesisPath, esUrl, esIndex, workerTiming) {
   const sourceLedger = await createSourceLedger({
@@ -12,9 +12,9 @@ async function createNetOpRtwSerialization (indyNetworkName, genesisPath, esUrl,
     name: indyNetworkName,
     genesisPath
   })
-  const sourceEs = await createSourceElasticsearch({id: 'source.es.{{{INDY_NETWORK}}}', index: esIndex, url: esUrl})
-  const targetEs = await createTargetElasticsearch({id: `target.${indyNetworkName}`, url: esUrl, index: esIndex, replicas: 0})
-  const transformer = await createTransformerSerializer({id: `transformer.serializer.${indyNetworkName}`})
+  const sourceEs = await createSourceElasticsearch({ id: 'source.es.{{{INDY_NETWORK}}}', index: esIndex, url: esUrl })
+  const targetEs = await createTargetElasticsearch({ id: `target.${indyNetworkName}`, url: esUrl, index: esIndex, replicas: 0 })
+  const transformer = await createTransformerSerializer({ id: `transformer.serializer.${indyNetworkName}` })
   const iterateLedgerByDbOriginalTxs = createIteratorGuided({
     id: `iterate-ledger-${indyNetworkName}-by-es-original`,
     source: sourceLedger,

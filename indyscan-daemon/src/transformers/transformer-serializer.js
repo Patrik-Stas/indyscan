@@ -1,12 +1,12 @@
-const {intializeEsTarget} = require('./target-inits')
+const { intializeEsTarget } = require('./target-inits')
 
-function createTransformerSerializer ({id}) {
+function createTransformerSerializer ({ id }) {
   async function processTx (tx) {
     if (!tx) {
       throw Error('tx argument not defined')
     }
-    const processedTx = {serialized: JSON.stringify(tx)}
-    return {processedTx, format: getOutputFormat()}
+    const processedTx = { serialized: JSON.stringify(tx) }
+    return { processedTx, format: getOutputFormat() }
   }
 
   function getOutputFormat () {
@@ -15,7 +15,7 @@ function createTransformerSerializer ({id}) {
 
   function getElasticsearchTargetMappings () {
     return {
-      'serialized': {type: 'text', index: false}
+      'serialized': { type: 'text', index: false }
     }
   }
 

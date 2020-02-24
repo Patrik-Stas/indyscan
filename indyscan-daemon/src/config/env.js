@@ -29,12 +29,11 @@ for (const appConfigName of appConfigNames) {
   appConfigPaths.push(path)
 }
 
-
-function getAppConfigNames() {
+function getAppConfigNames () {
   return appConfigNames
 }
 
-function getAppConfigPaths() {
+function getAppConfigPaths () {
   return appConfigPaths
 }
 

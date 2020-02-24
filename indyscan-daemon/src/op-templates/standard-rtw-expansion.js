@@ -1,9 +1,10 @@
 // "RTW Ledger->Elasticsearch for network {{{INDY_NETWORK}}} into ES {{{URL_ELASTICSEARCH}}}, index {{{TARGET_INDEX}}}"
-const {createWorkerRtw} = require('../workers/worker-rtw')
-const {createIteratorGuided} = require('../iterators/iterator-guided')
-const {createTargetElasticsearch} = require('../targets/target-elasticsearch')
-const {createSourceElasticsearch} = require('../sources/source-elasticsearch')
-const {createSourceLedger} = require('../sources/source-ledger')
+const { createWorkerRtw } = require('../workers/worker-rtw')
+const { createIteratorGuided } = require('../iterators/iterator-guided')
+const { createTargetElasticsearch } = require('../targets/target-elasticsearch')
+const { createSourceElasticsearch } = require('../sources/source-elasticsearch')
+const { createSourceLedger } = require('../sources/source-ledger')
+const { createTransformerExpansion } = require('../transformers/transformer-expansion')
 
 async function createNetOpRtwExpansion (indyNetworkName, genesisPath, esUrl, esIndex, workerTiming) {
   const sourceLedger = await createSourceLedger({
@@ -11,14 +12,14 @@ async function createNetOpRtwExpansion (indyNetworkName, genesisPath, esUrl, esI
     name: indyNetworkName,
     genesisPath
   })
-  const sourceEs = await createSourceElasticsearch({id: 'source.es.{{{INDY_NETWORK}}}', index: esIndex, url: esUrl})
-  const targetEs = await createTargetElasticsearch({id: `target.${indyNetworkName}`, url: esUrl, index: esIndex, replicas: 0})
-  const transformer = await createTransformerExpansion({id: `transformer.serializer.${indyNetworkName}`})
+  const sourceEs = await createSourceElasticsearch({ id: 'source.es.{{{INDY_NETWORK}}}', index: esIndex, url: esUrl })
+  const targetEs = await createTargetElasticsearch({ id: `target.${indyNetworkName}`, url: esUrl, index: esIndex, replicas: 0 })
+  const transformer = await createTransformerExpansion({ id: `transformer.serializer.${indyNetworkName}` })
   const iterateLedgerByDbOriginalTxs = createIteratorGuided({
     id: `iterate-ledger-${indyNetworkName}-by-es-original`,
     source: sourceLedger,
     sourceSeqNoGuidance: sourceEs,
-    guidanceFormat: transformer.getOutputFormat(),
+    guidanceFormat: transformer.getOutputFormat()
   })
   const rtwDomain = createWorkerRtw({
     id: `worker.rtw.${indyNetworkName}.domain`,

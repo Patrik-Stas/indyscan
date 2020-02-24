@@ -1,4 +1,4 @@
-const {createNetOpRtwSerialization} = require('../src/op-templates/standard-rtw-serialization')
+const { createNetOpRtwSerialization } = require('../src/op-templates/standard-rtw-serialization')
 
 async function bootstrap () {
   let rtwOperation = createNetOpRtwSerialization(

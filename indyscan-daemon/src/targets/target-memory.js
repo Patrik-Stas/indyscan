@@ -33,7 +33,6 @@ function createTargetMemory ({ id, dataspace }) {
     dataspace[subledger][seqNo][format] = txData
   }
 
-
   async function setMappings (indexMappings) {}
 
   function getObjectId () {

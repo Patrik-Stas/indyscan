@@ -1,4 +1,4 @@
-const {createNetOpRtwExpansion} = require('../src/op-templates/standard-rtw-expansion')
+const { createNetOpRtwExpansion } = require('../src/op-templates/standard-rtw-expansion')
 
 async function bootstrap () {
   let rtwOperation = createNetOpRtwExpansion(

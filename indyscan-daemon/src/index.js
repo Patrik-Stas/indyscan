@@ -1,6 +1,5 @@
 const logger = require('./logging/logger-main')
-const path = require('path')
-const {getAppConfigPaths} = require('./config/env')
+const { getAppConfigPaths } = require('./config/env')
 const _ = require('lodash')
 
 // TODO: Setting up IndySKD logging here is causing seemmingly random crashes!
@@ -19,17 +18,6 @@ const _ = require('lodash')
 //   }
 // })
 
-function loadOpTemplate (opTemplateName) {
-  const template = require(`${path.dirname(__dirname)}/src/op-templates/${opTemplateName}.json`)
-  if (!template) {
-    throw Error(`Failed to load operational template ${opTemplateName}`)
-  }
-  // if (!fs.existsSync(path)) {
-  //   throw Error(`Config path ${path} is not pointing to a file.`)
-  // }
-  return template
-}
-
 async function run () {
   const operationConfigPaths = getAppConfigPaths()
   logger.info(`Will bootstrap app from following operations definitions`)
@@ -46,15 +34,6 @@ async function run () {
     console.log(`Starting worker ${worker.getObjectId()}`)
     worker.start()
   }
-
-  // for (const operationDefinition of operationDefinitions) {
-  //   let pipelines = await bootstrapApp(operationDefinition.objects)
-  //   logger.info(`Bootstrap finished! Created ${pipelines.length} pipelines.`)
-  //   for (const pipeline of pipelines) {
-  //     logger.info(`Starting pipeline ${pipeline.getObjectId()}`)
-  //     pipeline.start()
-  //   }
-  // }
 }
 
 run()
