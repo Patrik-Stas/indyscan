@@ -4,7 +4,7 @@ const txCredDef = require('indyscan-storage/test/resource/sample-txs/tx-domain-c
 const _ = require('lodash')
 const { createTargetMemory } = require('../../../../src/targets/target-memory')
 const { createSourceMemory } = require('../../../../src/sources/source-memory')
-const { createTransformerExpansion } = require('../../../../src/transformers/transformer-expansion')
+const { createTransformerOriginal2Expansion } = require('../../../../src/transformers/transformer-original2expansion')
 
 let dataspace = {
   domain: {},
@@ -14,7 +14,7 @@ let dataspace = {
 let txSource = createSourceMemory({ id: 'inmem-mock', dataspace })
 let txTarget = createTargetMemory({ id: 'inmem-mock', dataspace })
 txTarget.addTxData('domain', 74631, 'original', txSchemaDef)
-let processor = createTransformerExpansion({ id: 'foo', sourceLookups: txSource })
+let processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: txSource })
 
 describe('domain/claim-def transaction transformations', () => {
   it('should transform domain CLAIM_DEF transaction', async () => {

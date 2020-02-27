@@ -1,9 +1,9 @@
-const { createTimerLock } = require('../time/scan-timer')
+const {createTimerLock} = require('../time/scan-timer')
 const util = require('util')
 const logger = require('../logging/logger-main')
-const { getDefaultPreset } = require('../config/presets-consumer')
-const { resolvePreset } = require('../config/presets-consumer')
-const { runWithTimer } = require('../time/util')
+const {getDefaultPreset} = require('../config/presets-consumer')
+const {resolvePreset} = require('../config/presets-consumer')
+const {runWithTimer} = require('../time/util')
 
 function getExpandedTimingConfig (providedTimingSetup) {
   let presetData
@@ -16,7 +16,7 @@ function getExpandedTimingConfig (providedTimingSetup) {
 }
 
 function validateTimingConfig (timingConfig) {
-  const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timingConfig
+  const {timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio} = timingConfig
   if (timeoutOnSuccess === undefined) {
     throw Error(`Timing config is missing 'timeoutOnSuccess'.`)
   }
@@ -34,10 +34,10 @@ function validateTimingConfig (timingConfig) {
   }
 }
 
-function createWorkerRtw ({ id, subledger, iterator, iteratorTxFormat, transformer, target, timing = undefined }) {
+function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transformers, target, timing = undefined}) {
   timing = getExpandedTimingConfig(timing)
   validateTimingConfig(timing)
-  const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timing
+  const {timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio} = timing
   logger.info(`Pipeline ${id} using iterator ${iterator.getObjectId}`)
 
   // TODO
@@ -89,7 +89,13 @@ function createWorkerRtw ({ id, subledger, iterator, iteratorTxFormat, transform
     let txData, txMeta
     try {
       logger.info(`${id}  Cycle '${requestCycleCount}' requesting next transaction.`)
-      let { tx, meta } = await getNextTxTimed(subledger, iteratorTxFormat)
+      let res = await getNextTxTimed(subledger, iteratorTxFormat)
+      if (!res) {
+        timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
+        logger.error(`${id} Cycle '${requestCycleCount}': iterator exhaustedd.`)
+        return
+      }
+      let {tx, meta} = res
       txData = tx
       txMeta = meta
     } catch (e) {
@@ -115,28 +121,32 @@ function createWorkerRtw ({ id, subledger, iterator, iteratorTxFormat, transform
     }
 
     // process it
-    let txDataProcessed, txDataProcessedFormat
-    try {
-      let { processedTx, format } = await transformer.processTx(txData)
-      txDataProcessed = processedTx
-      txDataProcessedFormat = format
-    } catch (e) {
-      logger.error(`${id} Stopping pipeline as cycle '${requestCycleCount}' critically failed to process tx ` +
-        `${JSON.stringify(txMeta)}. Details: ${e.message} ${e.stack}`)
-      stop()
-      return
-    }
+    let txDataProcessed = txData
+    let txDataProcessedFormat = txMeta.format
+    for (const transformer of transformers) {
+      try {
+        let result = await transformer.processTx(txDataProcessed)
+        txDataProcessed = result.processedTx
+        txDataProcessedFormat = result.format
+      } catch (e) {
+        logger.error(`${id} Stopping pipeline as cycle '${requestCycleCount}' critically failed to transform tx `
+          + `${JSON.stringify(txMeta)} using transformer ${transformer.getObjectId()}. Details: ${e.message} ${e.stack}`)
+        stop()
+        return
+      }
 
-    if (!txDataProcessed) {
-      logger.error(`${id} Stopping pipeline on critical error. transformer did not return any data.` +
-        `Input transaction ${JSON.stringify(txMeta)}: ${JSON.stringify(txData)}`)
-      stop()
-      return
-    }
-    if (!txDataProcessedFormat) {
-      logger.error(`${id} Stopping pipeline on critical error. transformer did format of its output txData.`)
-      stop()
-      return
+      if (!txDataProcessed) {
+        logger.error(`${id} Stopping pipeline on critical error. transformer ${transformer.getObjectId()} did `
+          + `not return any data. Input transaction ${JSON.stringify(txMeta)}: ${JSON.stringify(txData)}`)
+        stop()
+        return
+      }
+      if (!txDataProcessedFormat) {
+        logger.error(`${id} Stopping pipeline on critical error. transformer  ${transformer.getObjectId()} `
+          + `did format of its output txData.`)
+        stop()
+        return
+      }
     }
 
     try {

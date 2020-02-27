@@ -2,7 +2,7 @@ const { createIndyClient } = require('../indy/indyclient')
 const logger = require('../logging/logger-main')
 const sleep = require('sleep-promise')
 
-async function createSourceLedger ({ id, name, genesisPath = undefined }) {
+async function createSourceLedger ({ id, name, genesisPath }) {
   logger.info(`----- SRC LEDGER: ${name}`)
   let client = null
   let isConnecting = false
@@ -31,7 +31,7 @@ async function createSourceLedger ({ id, name, genesisPath = undefined }) {
 
   async function getTxData (subledger, seqNo, format = 'original') {
     if (format !== 'original') {
-      throw Error(`Only "original" format is supported by "ledger" source.`)
+      throw Error(`Requested unsupported format ${format}. Only "original" format is supported by "ledger" source.`)
     }
     let waitingForConnection = 0
     while (isConnecting) { // eslint-disable-line

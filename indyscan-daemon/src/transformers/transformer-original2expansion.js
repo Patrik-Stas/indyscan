@@ -9,7 +9,7 @@ const { txTypeToTxName } = require('indyscan-txtype/src/types')
 
 const geoipLiteLookupIp = geoip.lookup.bind(geoip)
 
-function createTransformerExpansion ({ id, sourceLookups }) {
+function createTransformerOriginal2Expansion ({ id, sourceLookups }) {
   let resolveDomainTxBySeqNo = async (seqNo) => {
     return sourceLookups.getTxData('domain', seqNo, 'original')
   }
@@ -77,7 +77,7 @@ function createTransformerExpansion ({ id, sourceLookups }) {
   }
 
   function getOutputFormat () {
-    return 'indyscan'
+    return 'expansion'
   }
 
   function getEsDomainMappingFields () {
@@ -156,12 +156,12 @@ function createTransformerExpansion ({ id, sourceLookups }) {
       // 'meta.scanTime': {type: 'date', format: 'date_time'},
 
       // 'ver': {type: 'keyword'},
-      // 'indyscan.rootHash': {type: 'keyword'},
-      // 'indyscan.txn.type': {type: 'keyword'},
-      // 'indyscan.subledger.code': {type: 'keyword'},
-      // 'indyscan.subledger.name': {type: 'keyword'},
-      // 'indyscan.txnMetadata.seqNo': {type: 'integer'},
-      // 'indyscan.txnMetadata.txnTime': {type: 'date', format: 'date_time'},
+      // 'rootHash': {type: 'keyword'},
+      // 'txn.type': {type: 'keyword'},
+      // 'subledger.code': {type: 'keyword'},
+      // 'subledger.name': {type: 'keyword'},
+      // 'txnMetadata.seqNo': {type: 'integer'},
+      // 'txnMetadata.txnTime': {type: 'date', format: 'date_time'},
     }
   }
 
@@ -190,4 +190,4 @@ function createTransformerExpansion ({ id, sourceLookups }) {
   }
 }
 
-module.exports.createTransformerExpansion = createTransformerExpansion
+module.exports.createTransformerOriginal2Expansion = createTransformerOriginal2Expansion

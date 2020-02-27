@@ -16,9 +16,9 @@ const txAttribRawLastUpated = require('indyscan-storage/test/resource/sample-txs
 const txAttribRawNoJson = require('indyscan-storage/test/resource/sample-txs/tx-domain-attrib-raw-invalid-json')
 const txAttribRawNoDest = require('indyscan-storage/test/resource/sample-txs/tx-domain-attrib-verkey-no-dest')
 const _ = require('lodash')
-const { createTransformerExpansion } = require('../../../../src/transformers/transformer-expansion')
+const { createTransformerOriginal2Expansion } = require('../../../../src/transformers/transformer-original2expansion')
 
-let processor = createTransformerExpansion({ id: 'foo', sourceLookups: undefined })
+let processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
 
 describe('domain/attrib transaction transformations', () => {
   it('should have correctly set basic fields', async () => {

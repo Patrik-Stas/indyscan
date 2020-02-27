@@ -1,9 +1,9 @@
 /* eslint-env jest */
 const txRevocEntry = require('indyscan-storage/test/resource/sample-txs/tx-domain-revoc-reg-entry')
 const _ = require('lodash')
-const { createTransformerExpansion } = require('../../../../src/transformers/transformer-expansion')
+const { createTransformerOriginal2Expansion } = require('../../../../src/transformers/transformer-original2expansion')
 
-let processor = createTransformerExpansion({ id: 'foo', sourceLookups: undefined })
+let processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
 
 describe('domain/revoc-entry transaction transformations', () => {
   it('should add typeName and subledger for domain REVOC_REG_ENTRY transaction', async () => {

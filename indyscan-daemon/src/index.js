@@ -1,5 +1,5 @@
-const logger = require('./logging/logger-main')
 const { getAppConfigPaths } = require('./config/env')
+const logger = require('./logging/logger-main')
 const _ = require('lodash')
 
 // TODO: Setting up IndySKD logging here is causing seemmingly random crashes!
@@ -29,9 +29,10 @@ async function run () {
     const opWorkers = await buildOperation()
     workers.push(opWorkers)
   }
-  workers = _.flatten(workers)
+  workers = _.flattenDeep(workers)
+  console.log(JSON.stringify(workers))
   for (const worker of workers) {
-    console.log(`Starting worker ${worker.getObjectId()}`)
+    logger.info(`Starting worker ${worker.getObjectId()}`)
     worker.start()
   }
 }

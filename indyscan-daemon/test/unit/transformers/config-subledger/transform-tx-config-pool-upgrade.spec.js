@@ -1,8 +1,8 @@
 /* eslint-env jest */
 const txPoolUpgrade = require('indyscan-storage/test/resource/sample-txs/tx-config-pool-upgrade')
-const { createTransformerExpansion } = require('../../../../src/transformers/transformer-expansion')
+const { createTransformerOriginal2Expansion } = require('../../../../src/transformers/transformer-original2expansion')
 
-let processor = createTransformerExpansion({ id: 'foo', sourceLookups: undefined })
+let processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
 
 describe('config/pool-upgrade transaction transformations', () => {
   it('should not modify config POOL_UPGRADE transaction', async () => {

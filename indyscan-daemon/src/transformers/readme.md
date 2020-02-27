@@ -5,7 +5,7 @@ Performs certain data transformation on passed transaction. The transformer impl
 async processTx(txData) -> {processedTx, format}}
 ```
 
-#### `transformer` interface implementation: `transformer-expansion`
+#### `transformer` interface implementation: `transformer-original2expansion`
 Expects to be passed transaction in `original` format. Returns copy of data received, but possibly with additional
 fields added, depending on transaction type. 
 

@@ -5,7 +5,7 @@ const path = require('path')
 // Note: Can't refer to logging/logger-main.js otherwise we get circular dependency and corrupts either logger or config
 
 const envConfig = {
-  LOG_LEVEL: process.env.LOG_LEVEL,
+  LOG_LEVEL: process.env.LOG_LEVEL || 'info',
   APP_CONFIGS_DIR: process.env.APP_CONFIGS_DIR || path.join(__dirname, '../../app-configs'),
   APP_CONFIGS: process.env.APP_CONFIGS
 }

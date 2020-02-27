@@ -1,9 +1,9 @@
 /* eslint-env jest */
 const txSchemaDef = require('indyscan-storage/test/resource/sample-txs/tx-domain-schema')
 const _ = require('lodash')
-const { createTransformerExpansion } = require('../../../../src/transformers/transformer-expansion')
+const { createTransformerOriginal2Expansion } = require('../../../../src/transformers/transformer-original2expansion')
 
-let processor = createTransformerExpansion({ id: 'foo', sourceLookups: undefined })
+let processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
 
 describe('domain/schema transaction transformations', () => {
   it('should add typeName and subledger for domain SCHEMA transaction', async () => {

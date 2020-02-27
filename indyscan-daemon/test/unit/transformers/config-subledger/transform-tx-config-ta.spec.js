@@ -2,9 +2,9 @@
 const txAuthorAgreement = require('indyscan-storage/test/resource/sample-txs/tx-config-txn-author-agreement')
 const txAuthorAgreementAml = require('indyscan-storage/test/resource/sample-txs/tx-config-txn-author-agreement-aml')
 const _ = require('lodash')
-const { createTransformerExpansion } = require('../../../../src/transformers/transformer-expansion')
+const { createTransformerOriginal2Expansion } = require('../../../../src/transformers/transformer-original2expansion')
 
-let processor = createTransformerExpansion({ id: 'foo', sourceLookups: undefined })
+let processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
 
 describe('config/ta transaction transformations', () => {
   it('should add typeName and subledger for config TXN_AUTHOR_AGREEMENT transaction', async () => {

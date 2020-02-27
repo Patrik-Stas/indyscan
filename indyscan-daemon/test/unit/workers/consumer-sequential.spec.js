@@ -20,7 +20,7 @@
 // }
 
 const { createWorkerRtw } = require('../../../src/workers/worker-rtw')
-const { createTransformerSerializer } = require('../../../src/transformers/transformer-serializer')
+const { createTransformerOriginal2Serialized } = require('../../../src/transformers/transformer-serializer')
 const { createTargetMemory } = require('../../../src/targets/target-memory')
 const { createIteratorGuided } = require('../../../src/iterators/iterator-guided')
 const { createSourceMemory } = require('../../../src/sources/source-memory')
@@ -53,7 +53,7 @@ let dataspace2 = {
 let sourceLedgerSim = createSourceMemory({ id: 'ledger-source-simulation', dataspace: dataspace1 })
 let sourceDbSim = createSourceMemory({ id: 'db-source-simulation', dataspace: dataspace2 })
 let targetDbSim = createTargetMemory({ id: 'db-target-simulation', dataspace: dataspace2 })
-let originalSerializer = createTransformerSerializer({ id: 'serializer' })
+let originalSerializer = createTransformerOriginal2Serialized({ id: 'serializer' })
 
 describe('ledger tx resolution', () => {
   beforeAll(async () => {

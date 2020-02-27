@@ -1,9 +1,9 @@
 /* eslint-env jest */
-const { createTransformerExpansion } = require('../../../src/transformers/transformer-expansion')
+const { createTransformerOriginal2Expansion } = require('../../../src/transformers/transformer-original2expansion')
 const txAttribRoleSteward = require('indyscan-storage/test/resource/sample-txs/tx-domain-attrib-role-steward')
 const _ = require('lodash')
 
-let processor = createTransformerExpansion({ id: 'foo', sourceLookups: undefined })
+let processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
 
 describe('common transformations', () => {
   it('should not modify original argument object', async () => {
@@ -12,10 +12,10 @@ describe('common transformations', () => {
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txAttribRoleSteward))
   })
 
-  it('should return format "indyscan"', async () => {
+  it('should return format "expansion"', async () => {
     const tx = _.cloneDeep(txAttribRoleSteward)
     const { processedTx, format } = await processor.processTx(tx)
-    expect(format).toBe('indyscan')
+    expect(format).toBe('expansion')
     expect(processedTx).toBeDefined()
   })
 

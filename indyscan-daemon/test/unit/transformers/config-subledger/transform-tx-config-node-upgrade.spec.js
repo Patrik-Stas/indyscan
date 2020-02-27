@@ -1,9 +1,9 @@
 /* eslint-env jest */
-const { createTransformerExpansion } = require('../../../../src/transformers/transformer-expansion')
+const { createTransformerOriginal2Expansion } = require('../../../../src/transformers/transformer-original2expansion')
 const txNodeUpgrade = require('indyscan-storage/test/resource/sample-txs/tx-config-node-upgrade')
 const _ = require('lodash')
 
-let processor = createTransformerExpansion({ id: 'foo', sourceLookups: undefined })
+let processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
 
 describe('config/node-upgrade transaction transformations', () => {
   it('should andd typeName and subledger for config NODE_UPGRADE transaction', async () => {
