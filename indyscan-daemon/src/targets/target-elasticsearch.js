@@ -32,9 +32,9 @@ async function createTargetElasticsearch ({ id, url, index, replicas = 0 }) {
     return storageWrite.addTx(subledger, seqNo, format, txData)
   }
 
-  async function setMappings (indexMappings) {
-    logger.info(`${id} Setting up mappings for ES Index ${index}!`)
-    return storageWrite.setFormatMappings(esClient, index, indexMappings)
+  async function setMappings (formatName, indexMappings) {
+    logger.info(`${id} Setting up mappings for ES ${ur}, index ${index}, tx format ${formatName}!`)
+    return storageWrite.setFormatMappings(formatName, indexMappings)
   }
 
   function getObjectId () {

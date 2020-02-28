@@ -1,3 +1,4 @@
+const {createTransformerPipeline} = require('../transformers/transformer-pipeline')
 const {createTransformerSerialized2Original} = require('../transformers/transformer-serialized2original')
 const {createTransformerOriginal2Expansion} = require('../transformers/transformer-original2expansion')
 const {createTargetElasticsearch} = require('../targets/target-elasticsearch')
@@ -23,7 +24,10 @@ async function createNetOpRtwExpansion (indyNetworkName, genesisPath, esUrl, esI
       id: `worker.dbserialized2expansion.${indyNetworkName}.${subledger}`,
       subledger,
       iteratorTxFormat: 'serialized',
-      transformers: [deserializer, expander],
+      transformer: createTransformerPipeline({
+        id: 'transformer::deserializer-expander-pipeline',
+        transformers: [deserializer, expander]
+      }),
       target: targetEs,
       iterator: iterateLedgerByDbExpansionTxs,
       timing: workerTiming

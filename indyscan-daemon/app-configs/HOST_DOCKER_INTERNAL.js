@@ -9,13 +9,13 @@ const ES_INDEX = 'txs-localhost'
 const WORKER_TIMING = 'SLOW'
 
 async function bootstrap () {
-  // let ledgerToDbWorkers = await createNetOpRtwSerialization(
-  //   INDY_NETWORK,
-  //   GENESIS_PATH,
-  //   ES_URL,
-  //   ES_INDEX,
-  //   WORKER_TIMING
-  // )
+  let ledgerToDbWorkers = await createNetOpRtwSerialization(
+    INDY_NETWORK,
+    GENESIS_PATH,
+    ES_URL,
+    ES_INDEX,
+    WORKER_TIMING
+  )
   let dbSerializedToExpansion = await createNetOpRtwExpansion(
     INDY_NETWORK,
     GENESIS_PATH,
@@ -23,8 +23,8 @@ async function bootstrap () {
     ES_INDEX,
     WORKER_TIMING
   )
-  // return [ledgerToDbWorkers, dbSerializedToExpansion]
-  return [dbSerializedToExpansion]
+  return [ledgerToDbWorkers, dbSerializedToExpansion]
+  // return [dbSerializedToExpansion]
   // return [ledgerToDbWorkers]
 }
 
