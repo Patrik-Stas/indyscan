@@ -27,7 +27,7 @@ async function createNetOpRtwSerialization (indyNetworkName, genesisPath, esUrl,
       id: `worker.legerOriginal2Serialized.${indyNetworkName}.${subledger}`,
       subledger,
       iteratorTxFormat: 'original',
-      transformers: [transformer],
+      transformer: transformer,
       target: targetEs,
       iterator: iterateLedgerByDbOriginalTxs,
       timing: workerTiming

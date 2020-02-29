@@ -20,7 +20,7 @@ function createTransformerOriginal2Serialized ({ id }) {
   }
 
   async function initializeTarget (target) {
-    return intializeEsTarget(target, getElasticsearchTargetMappings())
+    return intializeEsTarget(target, getOutputFormat(), getElasticsearchTargetMappings())
   }
 
   function getObjectId () {

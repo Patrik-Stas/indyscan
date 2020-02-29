@@ -175,7 +175,7 @@ function createTransformerOriginal2Expansion ({ id, sourceLookups }) {
   }
 
   async function initializeTarget (target) {
-    return intializeEsTarget(target, getElasticsearchMappingDirectives())
+    return intializeEsTarget(target, getOutputFormat(), getElasticsearchMappingDirectives())
   }
 
   function getObjectId () {

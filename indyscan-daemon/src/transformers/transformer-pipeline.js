@@ -3,24 +3,24 @@ function createTransformerPipeline ({ id, transformers }) {
 
   const lastTransformer = transformers[transformers.length -1]
 
-  async function processTx (txData, format) {
-    if (!tx) {
-      throw Error('tx argument not defined')
+  async function processTx (txData) {
+    if (!txData) {
+      throw Error(`Transaction to process is ${txData}`)
     }
 
-    let txDataProcessed = txData
-    let txDataProcessedFormat = format
+    let processedTx = txData
+    let txDataProcessedFormat = undefined
     for (const transformer of transformers) {
       try {
-        let result = await transformer.processTx(txDataProcessed)
-        txDataProcessed = result.processedTx
+        let result = await transformer.processTx(processedTx)
+        processedTx = result.processedTx
         txDataProcessedFormat = result.format
       } catch (e) {
         throw Error(`${id} Stopping pipeline as cycle '${requestCycleCount}' critically failed to transform tx `
           + `${JSON.stringify(txMeta)} using transformer ${transformer.getObjectId()}. Details: ${e.message} ${e.stack}`)
       }
 
-      if (!txDataProcessed) {
+      if (!processedTx) {
         throw Error(`${id} Stopping pipeline on critical error. Transformer ${transformer.getObjectId()} did `
           + `not return any data. Input transaction ${JSON.stringify(txMeta)}: ${JSON.stringify(txData)}`)
       }
@@ -30,7 +30,10 @@ function createTransformerPipeline ({ id, transformers }) {
       }
     }
 
-    return { processedTx, format }
+    if (txDataProcessedFormat !== getOutputFormat()) {
+      throw Error(`${id} proclaims it returns format ${getOutputFormat()} but it actually tried to return format ${txDataProcessedFormat}.`)
+    }
+    return { processedTx, format: txDataProcessedFormat }
   }
 
   function getOutputFormat () {

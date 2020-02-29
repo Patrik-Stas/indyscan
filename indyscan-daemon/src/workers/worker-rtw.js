@@ -4,6 +4,7 @@ const logger = require('../logging/logger-main')
 const {getDefaultPreset} = require('../config/presets-consumer')
 const {resolvePreset} = require('../config/presets-consumer')
 const {runWithTimer} = require('../time/util')
+const sleep = require('sleep-promise')
 
 function getExpandedTimingConfig (providedTimingSetup) {
   let presetData
@@ -34,12 +35,37 @@ function validateTimingConfig (timingConfig) {
   }
 }
 
-function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transformers, target, timing = undefined}) {
+function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transformer, target, timing = undefined}) {
+  if (!id) {
+    throw Error(`WorkerRTW missing id parameter.`)
+  }
+  if (!subledger) {
+    throw Error(`WorkerRTW missing subledger parameter.`)
+  }
+  if (!iterator) {
+    throw Error(`WorkerRTW missing iterator parameter.`)
+  }
+  if (!iteratorTxFormat) {
+    throw Error(`WorkerRTW missing iteratorTxFormat parameter.`)
+  }
+  if (!transformer) {
+    throw Error(`WorkerRTW missing transformer parameter.`)
+  }
+  if (!target) {
+    throw Error(`WorkerRTW missing target parameter.`)
+  }
   timing = getExpandedTimingConfig(timing)
   validateTimingConfig(timing)
   const {timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio} = timing
   logger.info(`Pipeline ${id} using iterator ${iterator.getObjectId}`)
 
+  let initialzed = false
+
+  async function initialize () {
+    await transformer.initializeTarget(target)
+    initialzed = true
+  }
+  initialize()
 
   let processedTxCount = 0
   let requestCycleCount = 0
@@ -76,17 +102,17 @@ function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transforme
   }
 
   async function processTransaction(txData, txFormat) {
-    let txDataProcessed = txData
+    let processedTx = txData
     let txDataProcessedFormat = txFormat
     try {
-      let result = await transformer.processTx(txDataProcessed)
-      txDataProcessed = result.processedTx
+      let result = await transformer.processTx(processedTx)
+      processedTx = result.processedTx
       txDataProcessedFormat = result.format
     } catch (e) {
       throw Error(`${id} Stopping pipeline as cycle '${requestCycleCount}' critically failed to transform tx `
-        + `${JSON.stringify(txMeta)} using transformer ${transformer.getObjectId()}. Details: ${e.message} ${e.stack}`)
+        + `${JSON.stringify(txData)} using transformer ${transformer.getObjectId()}. Details: ${e.message} ${e.stack}`)
     }
-    if (!txDataProcessed) {
+    if (!processedTx) {
       throw Error(`${id} Stopping pipeline on critical error. transformer ${transformer.getObjectId()} did `
         + `not return any data. Input transaction ${JSON.stringify(txMeta)}: ${JSON.stringify(txData)}`)
     }
@@ -94,6 +120,7 @@ function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transforme
       throw Errror(`${id} Stopping pipeline on critical error. transformer  ${transformer.getObjectId()} `
         + `did format of its output txData.`)
     }
+    return {processedTx, format: txDataProcessedFormat}
   }
 
   /*
@@ -194,9 +221,13 @@ function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transforme
     }
   }
 
-  function start () {
+  async function start () {
     logger.info(`${id}: Starting ...`)
     enabled = true
+    while (!initialzed) {
+      await sleep(1000)
+      logger.info(`${id}: Waiting for initialization to complete.`)
+    }
     consumptionCycle()
   }
 

@@ -33,7 +33,7 @@ async function createTargetElasticsearch ({ id, url, index, replicas = 0 }) {
   }
 
   async function setMappings (formatName, indexMappings) {
-    logger.info(`${id} Setting up mappings for ES ${ur}, index ${index}, tx format ${formatName}!`)
+    logger.info(`${id} Setting up mappings for ES ${url}, index ${index}, tx format ${formatName}!`)
     return storageWrite.setFormatMappings(formatName, indexMappings)
   }
 
