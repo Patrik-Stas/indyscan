@@ -1,7 +1,7 @@
 const uuid = require('uuid')
-const logger = require('./logging/logger-main')
+const logger = require('../logging/logger-main')
 
-module.exports.logResponses = function logResponses (req, res, next) {
+function logResponses (req, res, next) {
   var oldWrite = res.write
 
   var oldEnd = res.end
@@ -26,7 +26,7 @@ module.exports.logResponses = function logResponses (req, res, next) {
   next()
 }
 
-module.exports.logRequests = function logRequests (req, res, next) {
+function logRequests (req, res, next) {
   logger.info(`HTTP Request: [${req.method}] ${req.originalUrl} Request body: ${JSON.stringify(req.body)}`)
   next()
 }

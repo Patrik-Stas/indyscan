@@ -268,13 +268,21 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     enabled = false
   }
 
-  function info () {
+  function getWorkerInfo () {
     return {
-      consumerName: componentId,
+      initialzed,
+      enabled,
+      indyNetworkId,
+      operationId,
+      componentId,
+      outputFormat: transformer.getOutputFormat(),
+      targetComponentId: target.getObjectId(),
+      iteratorComponentId: iterator.getObjectId(),
       processedTxCount,
       requestCycleCount,
       txNotAvailableCount,
-      cycleExceptionCount
+      cycleExceptionCount,
+      avgDurations: getAverageDurations()
     }
   }
 
@@ -283,10 +291,10 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
   }
 
   return {
+    getWorkerInfo,
     getObjectId,
     start,
-    stop,
-    info
+    stop
   }
 }
 

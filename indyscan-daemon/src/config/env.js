@@ -7,7 +7,9 @@ const path = require('path')
 const envConfig = {
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
   APP_CONFIGS_DIR: process.env.APP_CONFIGS_DIR || path.join(__dirname, '../../app-configs'),
-  APP_CONFIGS: process.env.APP_CONFIGS
+  APP_CONFIGS: process.env.APP_CONFIGS,
+  SERVER_ENABLED: process.env.SERVER_ENABLED,
+  SERVER_PORT: process.env.SERVER_PORT
 }
 
 console.log(`Loaded configuration: ${JSON.stringify(envConfig, null, 2)}`)
@@ -15,9 +17,13 @@ console.log(`Loaded configuration: ${JSON.stringify(envConfig, null, 2)}`)
 const configValidation = Joi.object().keys({
   LOG_LEVEL: Joi.string().lowercase().valid(['silly', 'debug', 'info', 'warn', 'error']),
   APP_CONFIGS_DIR: Joi.string().required(),
-  APP_CONFIGS: Joi.string()
+  APP_CONFIGS: Joi.string(),
+  SERVER_ENABLED: Joi.string().valid(['true', 'false']).required(),
+  SERVER_PORT: Joi.number().integer().min(1025).max(65535),
 })
 Joi.validate(envConfig, configValidation, (err, ok) => { if (err) throw err })
+
+envConfig.SERVER_ENABLED = envConfig.SERVER_ENABLED === 'true'
 
 const appConfigNames = envConfig.APP_CONFIGS.split(',')
 const appConfigPaths = []

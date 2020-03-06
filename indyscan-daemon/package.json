@@ -33,11 +33,14 @@
     "indyscan-storage": "file:../indyscan-storage",
     "indyscan-txtype": "file:../indyscan-txtype",
     "joi": "^14.3.1",
+    "body-parser": "^1.18.3",
     "sleep-promise": "^8.0.1",
     "util": "^0.11.1",
     "uuid": "^3.3.2",
     "winston": "^3.2.1",
-    "write": "^1.0.3"
+    "write": "^1.0.3",
+    "express": "^4.16.4",
+    "express-prettify": "^0.1.1"
   },
   "devDependencies": {
     "elasticdump": "^6.16.0",

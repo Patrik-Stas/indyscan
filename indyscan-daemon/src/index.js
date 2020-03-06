@@ -1,8 +1,10 @@
-const { getAppConfigPaths } = require('./config/env')
+const { getAppConfigPaths, envConfig } = require('./config/env')
 const logger = require('./logging/logger-main')
 const _ = require('lodash')
 const sleep = require('sleep-promise')
 const util = require('util')
+const { startServer } = require('./server/server')
+const { createServiceWorkers } = require('./service/service-workers')
 
 // TODO: Setting up IndySKD logging here is causing seemmingly random crashes!
 // const indy = require('indy-sdk')
@@ -21,6 +23,7 @@ const util = require('util')
 // })
 
 async function run () {
+  let serviceWorkers = createServiceWorkers()
   try {
     const operationConfigPaths = getAppConfigPaths()
     await sleep(2000)
@@ -36,9 +39,14 @@ async function run () {
     for (const worker of workers) {
       logger.info(`Going to enable worker ${worker.getObjectId()}`)
       worker.start()
+      serviceWorkers.registerWorker(worker)
     }
   } catch (e) {
     console.error(util.inspect(e))
+  }
+
+  if (envConfig.SERVER_ENABLED ) {
+    startServer(serviceWorkers)
   }
 }
 
