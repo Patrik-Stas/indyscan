@@ -31,7 +31,6 @@ async function isKnownLedger (ledgerName) {
 }
 
 async function createIndyClient (operationId, componentId, ledgerName, genesisPath = undefined) {
-
   const loggerMetadata = {
     metadaemon: {
       operationId,

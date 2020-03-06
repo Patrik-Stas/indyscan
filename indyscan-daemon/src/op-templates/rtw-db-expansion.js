@@ -7,7 +7,7 @@ const { createIteratorGuided } = require('../iterators/iterator-guided')
 const { createSourceElasticsearch } = require('../sources/source-elasticsearch')
 
 async function createNetOpRtwExpansion (esUrl, esIndex, workerTiming, operationId) {
-  operationId = operationId ? operationId : `dbexpansion-${esIndex}`
+  operationId = operationId || `dbexpansion-${esIndex}`
 
   const sourceEs = await createSourceElasticsearch({
     operationId,
@@ -47,7 +47,7 @@ async function createNetOpRtwExpansion (esUrl, esIndex, workerTiming, operationI
 
   const workers = []
   for (const subledger of ['domain', 'config', 'pool']) {
-    const worker = createWorkerRtw({
+    const worker = await createWorkerRtw({
       operationId,
       componentId: `${operationId}.worker.serialized2expansion.${subledger}`,
       subledger,

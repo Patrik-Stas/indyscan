@@ -1,6 +1,5 @@
-const {createNetOpRtwSerialization} = require('../src/op-templates/rtw-ledger-to-serialized')
-const {createNetOpRtwExpansion} = require('../src/op-templates/rtw-db-expansion')
-
+const { createNetOpRtwSerialization } = require('../src/op-templates/rtw-ledger-to-serialized')
+const { createNetOpRtwExpansion } = require('../src/op-templates/rtw-db-expansion')
 
 const INDY_NETWORK = 'HOST_DOCKER_INTERNAL'
 const GENESIS_PATH = `${__dirname}/genesis/HOST_DOCKER_INTERNAL.txn`
@@ -22,8 +21,6 @@ async function bootstrap () {
     WORKER_TIMING
   )
   return [dbSerializedToExpansion, ledgerToDbWorkers]
-  // return [dbSerializedToExpansion]
-  // return [ledgerToDbWorkers]
 }
 
 module.exports = bootstrap

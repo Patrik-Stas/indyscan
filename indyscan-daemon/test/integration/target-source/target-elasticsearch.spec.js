@@ -44,7 +44,7 @@ describe('integration for target elasticsearch', () => {
     await sleep(1000)
 
     let tx1 = await source.getTxData('domain', 1, 'format-foo')
-    expect(toCanonicalJson(tx1)).toBe(toCanonicalJson( { 'foo': 'foo1' }))
+    expect(toCanonicalJson(tx1)).toBe(toCanonicalJson({ 'foo': 'foo1' }))
 
     let h1 = await source.getHighestSeqno('domain')
     expect(h1).toBe(2)
@@ -64,12 +64,12 @@ describe('integration for target elasticsearch', () => {
     let source = await createSourceElasticsearch({ id: 'foo', url: 'http://localhost:9200', index })
     let originalTx = { 'foo': 'foo1' }
 
-    await target.addTxData('domain', 1, 'serialized', {json: JSON.stringify(originalTx)})
+    await target.addTxData('domain', 1, 'serialized', { json: JSON.stringify(originalTx) })
 
     await sleep(1000)
 
     let txSerialized = await source.getTxData('domain', 1, 'serialized')
-    expect(toCanonicalJson(txSerialized)).toBe(toCanonicalJson({json: JSON.stringify(originalTx)}))
+    expect(toCanonicalJson(txSerialized)).toBe(toCanonicalJson({ json: JSON.stringify(originalTx) }))
     let txOriginal = await source.getTxData('domain', 1, 'original')
     expect(txOriginal.foo).toBe('foo1')
   })

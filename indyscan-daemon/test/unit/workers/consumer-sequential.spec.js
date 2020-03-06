@@ -49,7 +49,7 @@ let dataspace2 = {
   pool: {},
   config: {}
 }
-const operationId =  "unit-test"
+const operationId = 'unit-test'
 let sourceLedgerSim = createSourceMemory({ operationId, componentId: 'ledger-source-simulation', dataspace: dataspace1 })
 let sourceDbSim = createSourceMemory({ operationId, componentId: 'db-source-simulation', dataspace: dataspace2 })
 let targetDbSim = createTargetMemory({ operationId, componentId: 'db-target-simulation', dataspace: dataspace2 })
@@ -70,14 +70,14 @@ describe('ledger tx resolution', () => {
     }
     let iteratorGuided = createIteratorGuided({
       componentId: 'unit-test-iterator',
-      operationId: "unit-test",
+      operationId: 'unit-test',
       source: sourceLedgerSim,
       sourceSeqNoGuidance: sourceDbSim,
       guidanceFormat: 'serialized'
     })
     let workerRtw = await createWorkerRtw({
       componentId: 'unit-test-rtw',
-      operationId: "unit-test",
+      operationId: 'unit-test',
       subledger: 'domain',
       iterator: iteratorGuided,
       iteratorTxFormat: TX_FORMAT_IN,

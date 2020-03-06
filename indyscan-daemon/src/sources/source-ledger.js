@@ -19,7 +19,7 @@ async function createSourceLedger ({ operationId, componentId, name, genesisPath
   async function reconnect () {
     try {
       isConnecting = true
-      client = await createIndyClient(operationId, `${operationId}-${componentId}.indyclient` ,name, genesisPath)
+      client = await createIndyClient(operationId, `${operationId}-${componentId}.indyclient`, name, genesisPath)
     } catch (e) {
       throw Error(`${componentId} Failed to create indy client for network ${name}. Details: ${e.message} ${e.stack}.`)
     } finally {

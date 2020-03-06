@@ -34,8 +34,8 @@ async function run () {
     }
     workers = _.flattenDeep(workers)
     for (const worker of workers) {
-    logger.info(`Starting worker ${worker.getObjectId()}`)
-    worker.start()
+      logger.info(`Going to enable worker ${worker.getObjectId()}`)
+      worker.start()
     }
   } catch (e) {
     console.error(util.inspect(e))

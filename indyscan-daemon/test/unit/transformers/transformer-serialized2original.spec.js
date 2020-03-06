@@ -7,7 +7,7 @@ let original2Serialized = createTransformerOriginal2Serialized({ id: 'noop-proce
 
 describe('noop processor testsuite', () => {
   it('should not modify any data that comes in and return copy of it', async () => {
-    const tx = {json:"{\"foo\":\"bar\",\"baz\":\"baz\"}"}
+    const tx = { json: '{"foo":"bar","baz":"baz"}' }
     const { processedTx, format } = await serialized2Original.processTx(tx)
     expect(format).toBe('original')
     expect(processedTx.foo).toBe('bar')

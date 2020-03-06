@@ -1,9 +1,9 @@
-const {createTimerLock} = require('../time/scan-timer')
+const { createTimerLock } = require('../time/scan-timer')
 const util = require('util')
 const logger = require('../logging/logger-main')
-const {getDefaultPreset} = require('../config/presets-consumer')
-const {resolvePreset} = require('../config/presets-consumer')
-const {runWithTimer} = require('../time/util')
+const { getDefaultPreset } = require('../config/presets-consumer')
+const { resolvePreset } = require('../config/presets-consumer')
+const { runWithTimer } = require('../time/util')
 const sleep = require('sleep-promise')
 
 function getExpandedTimingConfig (providedTimingSetup) {
@@ -17,7 +17,7 @@ function getExpandedTimingConfig (providedTimingSetup) {
 }
 
 function validateTimingConfig (timingConfig) {
-  const {timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio} = timingConfig
+  const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timingConfig
   if (timeoutOnSuccess === undefined) {
     throw Error(`Timing config is missing 'timeoutOnSuccess'.`)
   }
@@ -35,8 +35,7 @@ function validateTimingConfig (timingConfig) {
   }
 }
 
-async function createWorkerRtw ({componentId, subledger, iterator, iteratorTxFormat, transformer, target, timing, operationId}) {
-
+async function createWorkerRtw ({ componentId, subledger, iterator, iteratorTxFormat, transformer, target, timing, operationId }) {
   const loggerMetadata = {
     metadaemon: {
       componentType: 'worker-rtw',
@@ -78,7 +77,7 @@ async function createWorkerRtw ({componentId, subledger, iterator, iteratorTxFor
   }
   timing = getExpandedTimingConfig(timing)
   validateTimingConfig(timing)
-  const {timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio} = timing
+  const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timing
   logger.info(`Pipeline ${componentId} using iterator ${iterator.getObjectId()}`, loggerMetadata)
 
   let initialzed = false
@@ -132,24 +131,24 @@ async function createWorkerRtw ({componentId, subledger, iterator, iteratorTxFor
       processedTx = result.processedTx
       txDataProcessedFormat = result.format
     } catch (e) {
-      const errMsg = `Stopping pipeline as cycle '${requestCycleCount}' critically failed to transform tx `
-        + `${JSON.stringify(txData)} using transformer ${transformer.getObjectId()}. Details: ${e.message} ${e.stack}`
+      const errMsg = `Stopping pipeline as cycle '${requestCycleCount}' critically failed to transform tx ` +
+        `${JSON.stringify(txData)} using transformer ${transformer.getObjectId()}. Details: ${e.message} ${e.stack}`
       logger.error(errMsg, loggerMetadata)
       throw Error(errMsg)
     }
     if (!processedTx) {
-      const errMsg = `Stopping pipeline on critical error. transformer ${transformer.getObjectId()} did `
-        + `not return any data. Input transaction ${JSON.stringify(txMeta)}: ${JSON.stringify(txData)}`
+      const errMsg = `Stopping pipeline on critical error. Transformer ${transformer.getObjectId()} did ` +
+        `not return any data. Input transaction ${JSON.stringify(txData)}`
       logger.error(errMsg, loggerMetadata)
       throw Error(errMsg)
     }
     if (!txDataProcessedFormat) {
-      const errMsg = `Stopping pipeline on critical error. transformer  ${transformer.getObjectId()} `
-        + `did format of its output txData.`
+      const errMsg = `Stopping pipeline on critical error. Transformer ${transformer.getObjectId()} did ` +
+        `did format of its output txData.`
       logger.error(errMsg, loggerMetadata)
       throw Error(errMsg)
     }
-    return {processedTx, format: txDataProcessedFormat}
+    return { processedTx, format: txDataProcessedFormat }
   }
 
   /*
@@ -173,7 +172,7 @@ async function createWorkerRtw ({componentId, subledger, iterator, iteratorTxFor
         logger.warn(`Cycle '${requestCycleCount}': iterator exhausted.`, loggerMetadata)
         return
       }
-      let {tx, meta} = res
+      let { tx, meta } = res
       txData = tx
       txMeta = meta
     } catch (e) {
@@ -199,7 +198,7 @@ async function createWorkerRtw ({componentId, subledger, iterator, iteratorTxFor
     }
 
     // process it
-    const {processedTx, format: txDataProcessedFormat} = await processTransaction(txData, txMeta.format)
+    const { processedTx, format: txDataProcessedFormat } = await processTransaction(txData, txMeta.format)
 
     try {
       await addTxTimed(txMeta.subledger, txMeta.seqNo, txDataProcessedFormat, processedTx)
@@ -255,7 +254,7 @@ async function createWorkerRtw ({componentId, subledger, iterator, iteratorTxFor
   async function start () {
     enabled = true
     logger.info(`Worker enabled.`, loggerMetadata)
-    while (!initialzed) {
+    while (!initialzed) { // eslint-disable-line
       logger.info(`Waiting for initialization to complete.`, loggerMetadata)
       await sleep(1000)
     }

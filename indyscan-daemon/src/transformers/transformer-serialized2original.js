@@ -1,3 +1,4 @@
+const logger = require('../logging/logger-main')
 const { intializeEsTarget } = require('./target-inits')
 
 function createTransformerSerialized2Original ({ operationId, componentId }) {
@@ -34,7 +35,7 @@ function createTransformerSerialized2Original ({ operationId, componentId }) {
   }
 
   function getObjectId () {
-    return id
+    return componentId
   }
 
   return {

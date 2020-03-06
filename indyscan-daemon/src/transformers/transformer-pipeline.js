@@ -1,7 +1,7 @@
 const logger = require('../logging/logger-main')
 
 function createTransformerPipeline ({ operationId, componentId, transformers }) {
-  const lastTransformer = transformers[transformers.length -1]
+  const lastTransformer = transformers[transformers.length - 1]
 
   const loggerMetadata = {
     metadaemon: {
@@ -15,33 +15,32 @@ function createTransformerPipeline ({ operationId, componentId, transformers }) 
     if (!txData) {
       throw Error(`Transaction to process is ${txData}`)
     }
-
-    let processedTx = txData
-    let txDataProcessedFormat = undefined
+    let tmpProcessedTx = txData
+    let tmpProcessedTxFormat
     for (const transformer of transformers) {
+      let result
       try {
-        let result = await transformer.processTx(processedTx)
-        processedTx = result.processedTx
-        txDataProcessedFormat = result.format
+        result = await transformer.processTx(tmpProcessedTx)
       } catch (e) {
-        throw Error(`${componentId} Stopping pipeline as cycle '${requestCycleCount}' critically failed to transform tx `
-          + `${JSON.stringify(txMeta)} using transformer ${transformer.getObjectId()}. Details: ${e.message} ${e.stack}`)
+        throw Error(`Transform pipeline failed to finish transformation of ${JSON.stringify(tmpProcessedTx)} ` +
+          ` using transformer ${transformer.getObjectId()}. Details: ${e.message} ${e.stack}`)
       }
-
-      if (!processedTx) {
-        throw Error(`${componentId} Stopping pipeline on critical error. Transformer ${transformer.getObjectId()} did `
-          + `not return any data. Input transaction ${JSON.stringify(txMeta)}: ${JSON.stringify(txData)}`)
+      if (!result.processedTx) {
+        throw Error(`Transformer ${transformer.getObjectId()} did not return any data. Input transaction ${JSON.stringify(tmpProcessedTx)}`)
       }
-      if (!txDataProcessedFormat) {
-        throw Error(`${componentId} Stopping pipeline on critical error. Transformer ${transformer.getObjectId()} `
-          + `did format of its output txData.`)
+      if (!result.format) {
+        throw Error(`Transformer ${transformer.getObjectId()} did not return output format.`)
       }
+      tmpProcessedTx = result.processedTx
+      tmpProcessedTxFormat = result.format
     }
 
-    if (txDataProcessedFormat !== getOutputFormat()) {
-      throw Error(`${componentId} proclaims it returns format ${getOutputFormat()} but it actually tried to return format ${txDataProcessedFormat}.`)
+    if (tmpProcessedTxFormat !== getOutputFormat()) {
+      throw Error(`${componentId} proclaims it returns format ${getOutputFormat()} but it actually tried to return format ${tmpProcessedTxFormat}.`)
     }
-    return { processedTx, format: txDataProcessedFormat }
+    const processedTx = tmpProcessedTx
+    const format = tmpProcessedTxFormat
+    return { processedTx, format }
   }
 
   function getOutputFormat () {
@@ -66,5 +65,3 @@ function createTransformerPipeline ({ operationId, componentId, transformers }) 
 }
 
 module.exports.createTransformerPipeline = createTransformerPipeline
-
-

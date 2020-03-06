@@ -11,7 +11,6 @@ const { txTypeToTxName } = require('indyscan-txtype/src/types')
 const geoipLiteLookupIp = geoip.lookup.bind(geoip)
 
 function createTransformerOriginal2Expansion ({ operationId, componentId, sourceLookups }) {
-
   const loggerMetadata = {
     metadaemon: {
       componentType: 'transformer-original2expansion',
@@ -162,7 +161,7 @@ function createTransformerOriginal2Expansion ({ operationId, componentId, source
       'txn.metadata.reqId': { type: 'keyword' },
       'txn.data.data.blskey': { type: 'keyword' },
       'txn.data.data.blskey_pop': { type: 'keyword' },
-      'txn.data.txnTime': {type: 'date', format: 'date_time'},
+      'txn.data.txnTime': { type: 'date', format: 'date_time' }
       // 'txn.protocolVersion': {type: 'keyword'},
       // 'meta.scanTime': {type: 'date', format: 'date_time'},
 

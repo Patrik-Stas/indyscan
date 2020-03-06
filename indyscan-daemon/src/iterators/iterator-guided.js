@@ -1,7 +1,6 @@
 const logger = require('../logging/logger-main')
 
 function createIteratorGuided ({ operationId, componentId, source, sourceSeqNoGuidance, guidanceFormat }) {
-
   const loggerMetadata = {
     metadaemon: {
       operationId,

@@ -1,12 +1,12 @@
 const logger = require('../logging/logger-main')
-const {createStorageReadEs} = require('indyscan-storage')
-const {Client} = require('@elastic/elasticsearch')
+const { createStorageReadEs } = require('indyscan-storage')
+const { Client } = require('@elastic/elasticsearch')
 
-async function createSourceElasticsearch ({operationId, componentId, url, index}) {
-  const esClient = new Client({node: url})
+async function createSourceElasticsearch ({ operationId, componentId, url, index }) {
+  const esClient = new Client({ node: url })
   const storageRead = createStorageReadEs(esClient, index, logger)
 
-  const loggerMetadata = {
+  const loggerMetadata = { // eslint-disable-line
     metadaemon: {
       operationId,
       componentId,
@@ -20,7 +20,7 @@ async function createSourceElasticsearch ({operationId, componentId, url, index}
     if (!result) {
       return undefined
     }
-    const {idata, imeta} = result
+    const { idata, imeta } = result
     if (!idata || !imeta) {
       throw Error(`Received a response from storage, but idata or imeta was undefined.`)
     }
