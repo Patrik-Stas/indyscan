@@ -35,29 +35,51 @@ function validateTimingConfig (timingConfig) {
   }
 }
 
-function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transformer, target, timing = undefined}) {
-  if (!id) {
-    throw Error(`WorkerRTW missing id parameter.`)
+function createWorkerRtw ({componentId, subledger, iterator, iteratorTxFormat, transformer, target, timing, operationId}) {
+
+  const loggerMetadata = {
+    metadaemon: {
+      componentType: 'worker-rtw',
+      componentId,
+      operationId,
+      workerRtwOutputFormat: transformer.getOutputFormat()
+    }
+  }
+
+  if (!componentId) {
+    const errMsg = `WorkerRTW missing id parameter.`
+    logger.error(errMsg, loggerMetadata)
+    throw Error(errMsg)
   }
   if (!subledger) {
-    throw Error(`WorkerRTW missing subledger parameter.`)
+    const errMsg = `WorkerRTW missing subledger parameter.`
+    logger.error(errMsg, loggerMetadata)
+    throw Error(errMsg)
   }
   if (!iterator) {
-    throw Error(`WorkerRTW missing iterator parameter.`)
+    const errMsg = `WorkerRTW missing iterator parameter.`
+    logger.error(errMsg, loggerMetadata)
+    throw Error(errMsg)
   }
   if (!iteratorTxFormat) {
-    throw Error(`WorkerRTW missing iteratorTxFormat parameter.`)
+    const errMsg = `WorkerRTW missing iteratorTxFormat parameter.`
+    logger.error(errMsg, loggerMetadata)
+    throw Error(errMsg)
   }
   if (!transformer) {
-    throw Error(`WorkerRTW missing transformer parameter.`)
+    const errMsg = `WorkerRTW missing transformer parameter.`
+    logger.error(errMsg, loggerMetadata)
+    throw Error(errMsg)
   }
   if (!target) {
-    throw Error(`WorkerRTW missing target parameter.`)
+    const errMsg = `WorkerRTW missing target parameter.`
+    logger.error(errMsg, loggerMetadata)
+    throw Error(errMsg)
   }
   timing = getExpandedTimingConfig(timing)
   validateTimingConfig(timing)
   const {timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio} = timing
-  logger.info(`Pipeline ${id} using iterator ${iterator.getObjectId}`)
+  logger.info(`Pipeline ${componentId} using iterator ${iterator.getObjectId()}`, loggerMetadata)
 
   let initialzed = false
 
@@ -65,6 +87,7 @@ function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transforme
     await transformer.initializeTarget(target)
     initialzed = true
   }
+
   initialize()
 
   let processedTxCount = 0
@@ -101,7 +124,7 @@ function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transforme
     return avgDurations
   }
 
-  async function processTransaction(txData, txFormat) {
+  async function processTransaction (txData, txFormat) {
     let processedTx = txData
     let txDataProcessedFormat = txFormat
     try {
@@ -109,16 +132,22 @@ function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transforme
       processedTx = result.processedTx
       txDataProcessedFormat = result.format
     } catch (e) {
-      throw Error(`${id} Stopping pipeline as cycle '${requestCycleCount}' critically failed to transform tx `
-        + `${JSON.stringify(txData)} using transformer ${transformer.getObjectId()}. Details: ${e.message} ${e.stack}`)
+      const errMsg = `Stopping pipeline as cycle '${requestCycleCount}' critically failed to transform tx `
+        + `${JSON.stringify(txData)} using transformer ${transformer.getObjectId()}. Details: ${e.message} ${e.stack}`
+      logger.error(errMsg, loggerMetadata)
+      throw Error(errMsg)
     }
     if (!processedTx) {
-      throw Error(`${id} Stopping pipeline on critical error. transformer ${transformer.getObjectId()} did `
-        + `not return any data. Input transaction ${JSON.stringify(txMeta)}: ${JSON.stringify(txData)}`)
+      const errMsg = `Stopping pipeline on critical error. transformer ${transformer.getObjectId()} did `
+        + `not return any data. Input transaction ${JSON.stringify(txMeta)}: ${JSON.stringify(txData)}`
+      logger.error(errMsg, loggerMetadata)
+      throw Error(errMsg)
     }
     if (!txDataProcessedFormat) {
-      throw Errror(`${id} Stopping pipeline on critical error. transformer  ${transformer.getObjectId()} `
-        + `did format of its output txData.`)
+      const errMsg = `Stopping pipeline on critical error. transformer  ${transformer.getObjectId()} `
+        + `did format of its output txData.`
+      logger.error(errMsg, loggerMetadata)
+      throw Error(errMsg)
     }
     return {processedTx, format: txDataProcessedFormat}
   }
@@ -127,21 +156,21 @@ function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transforme
   Might throw on critical error. Throwing here will lead to stopping worker.
    */
   async function tryConsumeNextTransaction () {
-    logger.info(`${id} Cycle '${requestCycleCount}' starts.`)
+    logger.info(`Cycle '${requestCycleCount}' starts.`, loggerMetadata)
     try {
-      logger.info(`${id} Average durations ${JSON.stringify(getAverageDurations(), null, 2)}`)
+      logger.info(`Average durations ${JSON.stringify(getAverageDurations(), null, 2)}`, loggerMetadata)
     } catch (e) {
-      logger.warn(`${id} Error evaluating average durations. ${e.message} ${e.stack}`)
+      logger.warn(`Error evaluating average durations. ${e.message} ${e.stack}`, loggerMetadata)
     }
 
     // get it
     let txData, txMeta
     try {
-      logger.info(`${id}  Cycle '${requestCycleCount}' requesting next transaction.`)
+      logger.info(`Cycle '${requestCycleCount}' requesting next transaction.`, loggerMetadata)
       let res = await getNextTxTimed(subledger, iteratorTxFormat)
       if (!res) {
         timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
-        logger.warn(`${id} Cycle '${requestCycleCount}': iterator exhausted.`)
+        logger.warn(`Cycle '${requestCycleCount}': iterator exhausted.`, loggerMetadata)
         return
       }
       let {tx, meta} = res
@@ -150,36 +179,38 @@ function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transforme
     } catch (e) {
       cycleExceptionCount++
       timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
-      logger.error(`${id} Cycle '${requestCycleCount}' failed to resolve next tx. Details: ${e.message} ${e.stack}`)
+      logger.error(`Cycle '${requestCycleCount}' failed to resolve next tx. Details: ${e.message} ${e.stack}`, loggerMetadata)
       return
     }
 
     if (!txMeta || !txMeta.subledger || !txMeta.seqNo || !txMeta.format) {
-      throw Error(`${id} Stopping pipeline on critical error. Iterator did not return sufficient meta information` +
-        `about tx. Meta ${JSON.stringify(txMeta)}`)
+      const errMsg = `Stopping pipeline on critical error. Iterator did not return sufficient meta information` +
+        `about tx. Meta ${JSON.stringify(txMeta)}`
+      logger.error(errMsg, loggerMetadata)
+      throw Error(errMsg)
     }
 
     // was available?
     if (!txData) {
       txNotAvailableCount++
       timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
-      logger.warn(`${id} Cycle '${requestCycleCount}' was trying to get transaction ${JSON.stringify(txMeta)} but it's not available.`)
+      logger.warn(`Cycle '${requestCycleCount}' was trying to get transaction ${JSON.stringify(txMeta)} but it's not available.`, loggerMetadata)
       return
     }
 
     // process it
-    const {processedTx, format: txDataProcessedFormat} = await processTransaction(txData, txMeta.format);
+    const {processedTx, format: txDataProcessedFormat} = await processTransaction(txData, txMeta.format)
 
     try {
       await addTxTimed(txMeta.subledger, txMeta.seqNo, txDataProcessedFormat, processedTx)
       processedTxCount++
       timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
-      logger.info(`${id} Cycle '${requestCycleCount}' processed tx ${JSON.stringify(txMeta)}.`)
+      logger.info(`Cycle '${requestCycleCount}' processed tx ${JSON.stringify(txMeta)}.`, loggerMetadata)
     } catch (e) {
       cycleExceptionCount++
       timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
-      logger.error(`${id} Cycle '${requestCycleCount}' failed to store tx ${JSON.stringify(txMeta)}. ` +
-        `Details: ${e.message} ${e.stack} \n ${util.inspect(e, false, 10)}`)
+      logger.error(`Cycle '${requestCycleCount}' failed to store tx ${JSON.stringify(txMeta)}. ` +
+        `Details: ${e.message} ${e.stack} \n ${util.inspect(e, false, 10)}`, loggerMetadata)
     }
   }
 
@@ -213,7 +244,7 @@ function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transforme
           (duration) => processDurationResult('consumption-iteration-full', duration)
         )
       } catch (e) {
-        logger.error(`${id} Critical Error. Unhandled error propagated to consumption loop. ${e.message} ${e.stack}. Stopping this consumer.`)
+        logger.error(`Critical Error. Unhandled error propagated to consumption loop. ${e.message} ${JSON.stringify(e.stack)}. Stopping this consumer.`, loggerMetadata)
         enabled = false
       } finally {
         requestCycleCount++
@@ -222,23 +253,23 @@ function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transforme
   }
 
   async function start () {
-    logger.info(`${id}: Starting ...`)
+    logger.info(`Starting worker.`, loggerMetadata)
     enabled = true
     while (!initialzed) {
       await sleep(1000)
-      logger.info(`${id}: Waiting for initialization to complete.`)
+      logger.info(`Waiting for initialization to complete.`, loggerMetadata)
     }
     consumptionCycle()
   }
 
   function stop () {
-    logger.info(`${id}: Stopping ...`)
+    logger.info(`Stopping worker.`, loggerMetadata)
     enabled = false
   }
 
   function info () {
     return {
-      consumerName: id,
+      consumerName: componentId,
       processedTxCount,
       requestCycleCount,
       txNotAvailableCount,
@@ -247,7 +278,7 @@ function createWorkerRtw ({id, subledger, iterator, iteratorTxFormat, transforme
   }
 
   function getObjectId () {
-    return id
+    return componentId
   }
 
   return {

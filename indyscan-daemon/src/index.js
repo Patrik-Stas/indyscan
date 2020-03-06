@@ -1,6 +1,8 @@
 const { getAppConfigPaths } = require('./config/env')
 const logger = require('./logging/logger-main')
 const _ = require('lodash')
+const sleep = require('sleep-promise')
+const util = require('util')
 
 // TODO: Setting up IndySKD logging here is causing seemmingly random crashes!
 // const indy = require('indy-sdk')
@@ -19,22 +21,39 @@ const _ = require('lodash')
 // })
 
 async function run () {
-  const operationConfigPaths = getAppConfigPaths()
-  logger.info(`Will bootstrap app from following operations definitions`)
-  logger.info(JSON.stringify(operationConfigPaths, null, 2))
+  try {
+    const operationConfigPaths = getAppConfigPaths()
+    await sleep(2000)
+    logger.info(`Will bootstrap app from following operations definitions ${JSON.stringify(operationConfigPaths, null, 2)}`)
 
-  let workers = []
-  for (const opConfig of operationConfigPaths) {
-    const buildOperation = require(opConfig)
-    const opWorkers = await buildOperation()
-    workers.push(opWorkers)
-  }
-  workers = _.flattenDeep(workers)
-  console.log(JSON.stringify(workers))
-  for (const worker of workers) {
+    let workers = []
+    for (const opConfig of operationConfigPaths) {
+      const buildOperation = require(opConfig)
+      const opWorkers = await buildOperation()
+      workers.push(opWorkers)
+    }
+    workers = _.flattenDeep(workers)
+    for (const worker of workers) {
     logger.info(`Starting worker ${worker.getObjectId()}`)
     worker.start()
+    }
+  } catch (e) {
+    console.error(util.inspect(e))
   }
 }
+
+// process.on('error', (err) => {
+//   console.log(`Error event ${JSON.stringify(err)}`)
+//   process.exit(1);
+// });
+//
+// process.on('uncaughtException', (err) => {
+//   console.log(`Error event ${JSON.stringify(err)}`)
+//   process.exit(1);
+// });
+//
+// process.on('unhandledRejection', (reason, promise) => {
+//   throw reason;
+// })
 
 run()

@@ -1,7 +1,15 @@
-// TODO: Test thiss
-function createTransformerPipeline ({ id, transformers }) {
+const logger = require('../logging/logger-main')
 
+function createTransformerPipeline ({ operationId, componentId, transformers }) {
   const lastTransformer = transformers[transformers.length -1]
+
+  const loggerMetadata = {
+    metadaemon: {
+      componentType: 'transformer-pipeline',
+      componentId,
+      operationId
+    }
+  }
 
   async function processTx (txData) {
     if (!txData) {
@@ -16,22 +24,22 @@ function createTransformerPipeline ({ id, transformers }) {
         processedTx = result.processedTx
         txDataProcessedFormat = result.format
       } catch (e) {
-        throw Error(`${id} Stopping pipeline as cycle '${requestCycleCount}' critically failed to transform tx `
+        throw Error(`${componentId} Stopping pipeline as cycle '${requestCycleCount}' critically failed to transform tx `
           + `${JSON.stringify(txMeta)} using transformer ${transformer.getObjectId()}. Details: ${e.message} ${e.stack}`)
       }
 
       if (!processedTx) {
-        throw Error(`${id} Stopping pipeline on critical error. Transformer ${transformer.getObjectId()} did `
+        throw Error(`${componentId} Stopping pipeline on critical error. Transformer ${transformer.getObjectId()} did `
           + `not return any data. Input transaction ${JSON.stringify(txMeta)}: ${JSON.stringify(txData)}`)
       }
       if (!txDataProcessedFormat) {
-        throw Error(`${id} Stopping pipeline on critical error. Transformer  ${transformer.getObjectId()} `
+        throw Error(`${componentId} Stopping pipeline on critical error. Transformer ${transformer.getObjectId()} `
           + `did format of its output txData.`)
       }
     }
 
     if (txDataProcessedFormat !== getOutputFormat()) {
-      throw Error(`${id} proclaims it returns format ${getOutputFormat()} but it actually tried to return format ${txDataProcessedFormat}.`)
+      throw Error(`${componentId} proclaims it returns format ${getOutputFormat()} but it actually tried to return format ${txDataProcessedFormat}.`)
     }
     return { processedTx, format: txDataProcessedFormat }
   }
@@ -41,11 +49,12 @@ function createTransformerPipeline ({ id, transformers }) {
   }
 
   async function initializeTarget (target) {
+    logger.info(`Initializing target.`, loggerMetadata)
     return lastTransformer.initializeTarget(target)
   }
 
   function getObjectId () {
-    return id
+    return componentId
   }
 
   return {

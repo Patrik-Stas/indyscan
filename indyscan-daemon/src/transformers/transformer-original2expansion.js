@@ -1,3 +1,4 @@
+const logger = require('../logging/logger-main')
 const geoip = require('geoip-lite')
 const _ = require('lodash')
 const { intializeEsTarget } = require('./target-inits')
@@ -9,7 +10,16 @@ const { txTypeToTxName } = require('indyscan-txtype/src/types')
 
 const geoipLiteLookupIp = geoip.lookup.bind(geoip)
 
-function createTransformerOriginal2Expansion ({ id, sourceLookups }) {
+function createTransformerOriginal2Expansion ({ operationId, componentId, sourceLookups }) {
+
+  const loggerMetadata = {
+    metadaemon: {
+      componentType: 'transformer-original2expansion',
+      componentId,
+      operationId
+    }
+  }
+
   let resolveDomainTxBySeqNo = async (seqNo) => {
     return sourceLookups.getTxData('domain', seqNo, 'original')
   }
@@ -151,7 +161,8 @@ function createTransformerOriginal2Expansion ({ id, sourceLookups }) {
       'txn.metadata.from': { type: 'keyword' },
       'txn.metadata.reqId': { type: 'keyword' },
       'txn.data.data.blskey': { type: 'keyword' },
-      'txn.data.data.blskey_pop': { type: 'keyword' }
+      'txn.data.data.blskey_pop': { type: 'keyword' },
+      'txn.data.txnTime': {type: 'date', format: 'date_time'},
       // 'txn.protocolVersion': {type: 'keyword'},
       // 'meta.scanTime': {type: 'date', format: 'date_time'},
 
@@ -161,7 +172,6 @@ function createTransformerOriginal2Expansion ({ id, sourceLookups }) {
       // 'subledger.code': {type: 'keyword'},
       // 'subledger.name': {type: 'keyword'},
       // 'txnMetadata.seqNo': {type: 'integer'},
-      // 'txnMetadata.txnTime': {type: 'date', format: 'date_time'},
     }
   }
 
@@ -175,11 +185,12 @@ function createTransformerOriginal2Expansion ({ id, sourceLookups }) {
   }
 
   async function initializeTarget (target) {
+    logger.info(`Initializing target.`, loggerMetadata)
     return intializeEsTarget(target, getOutputFormat(), getElasticsearchMappingDirectives())
   }
 
   function getObjectId () {
-    return id
+    return componentId
   }
 
   return {

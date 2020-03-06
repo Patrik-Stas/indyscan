@@ -2,9 +2,17 @@ const logger = require('../logging/logger-main')
 const {createStorageReadEs} = require('indyscan-storage')
 const {Client} = require('@elastic/elasticsearch')
 
-async function createSourceElasticsearch ({id, url, index}) {
+async function createSourceElasticsearch ({operationId, componentId, url, index}) {
   const esClient = new Client({node: url})
   const storageRead = createStorageReadEs(esClient, index, logger)
+
+  const loggerMetadata = {
+    metadaemon: {
+      operationId,
+      componentId,
+      componentType: 'source-es'
+    }
+  }
 
   async function getTxData (subledger, seqNo, format) {
     const queryFormat = (format === 'original') ? 'serialized' : format
@@ -31,7 +39,7 @@ async function createSourceElasticsearch ({id, url, index}) {
   }
 
   function getObjectId () {
-    return id
+    return componentId
   }
 
   return {

@@ -1,6 +1,16 @@
+const logger = require('../logging/logger-main')
 const { intializeEsTarget } = require('./target-inits')
 
-function createTransformerOriginal2Serialized ({ id }) {
+function createTransformerOriginal2Serialized ({ operationId, componentId }) {
+
+  const loggerMetadata = {
+    metadaemon: {
+      componentType: 'transformer-original2serialized',
+      componentId,
+      operationId
+    }
+  }
+
   async function processTx (tx) {
     if (!tx) {
       throw Error('tx argument not defined')
@@ -20,6 +30,7 @@ function createTransformerOriginal2Serialized ({ id }) {
   }
 
   async function initializeTarget (target) {
+    logger.info(`Initializing target.`, loggerMetadata)
     return intializeEsTarget(target, getOutputFormat(), getElasticsearchTargetMappings())
   }
 

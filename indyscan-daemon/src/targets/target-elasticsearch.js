@@ -17,7 +17,15 @@ async function waitUntilElasticIsReady (esUrl) {
   }
 }
 
-async function createTargetElasticsearch ({ id, url, index, replicas = 0 }) {
+async function createTargetElasticsearch ({ operationId, componentId, url, index, replicas = 0 }) {
+  const loggerMetadata = {
+    metadaemon: {
+      operationId,
+      componentId,
+      componentType: 'target-es'
+    }
+  }
+
   await waitUntilElasticIsReady(url)
 
   const esClient = new elasticsearch.Client({ node: url })
@@ -33,12 +41,13 @@ async function createTargetElasticsearch ({ id, url, index, replicas = 0 }) {
   }
 
   async function setMappings (formatName, indexMappings) {
-    logger.info(`${id} Setting up mappings for ES ${url}, index ${index}, tx format ${formatName}!`)
+    logger.info(`Setting up mappings for ES ${url}, index ${index}, tx format ${formatName}!`, loggerMetadata)
+    logger.debug(`Mapping details: ${JSON.stringify(indexMappings, null, 2)}`, loggerMetadata)
     return storageWrite.setFormatMappings(formatName, indexMappings)
   }
 
   function getObjectId () {
-    return id
+    return componentId
   }
 
   return {

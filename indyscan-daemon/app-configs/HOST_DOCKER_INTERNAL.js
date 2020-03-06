@@ -17,13 +17,11 @@ async function bootstrap () {
     WORKER_TIMING
   )
   let dbSerializedToExpansion = await createNetOpRtwExpansion(
-    INDY_NETWORK,
-    GENESIS_PATH,
     ES_URL,
     ES_INDEX,
     WORKER_TIMING
   )
-  return [ledgerToDbWorkers, dbSerializedToExpansion]
+  return [dbSerializedToExpansion, ledgerToDbWorkers]
   // return [dbSerializedToExpansion]
   // return [ledgerToDbWorkers]
 }
