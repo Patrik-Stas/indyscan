@@ -17,9 +17,10 @@ async function waitUntilElasticIsReady (esUrl) {
   }
 }
 
-async function createTargetElasticsearch ({ operationId, componentId, url, index, replicas = 0 }) {
+async function createTargetElasticsearch ({ indyNetworkId, operationId, componentId, url, index, replicas = 0 }) {
   const loggerMetadata = {
     metadaemon: {
+      indyNetworkId,
       operationId,
       componentId,
       componentType: 'target-es'

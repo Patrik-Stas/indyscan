@@ -2,12 +2,13 @@ const logger = require('../logging/logger-main')
 const { createStorageReadEs } = require('indyscan-storage')
 const { Client } = require('@elastic/elasticsearch')
 
-async function createSourceElasticsearch ({ operationId, componentId, url, index }) {
+async function createSourceElasticsearch ({ indyNetworkId, operationId, componentId, url, index }) {
   const esClient = new Client({ node: url })
   const storageRead = createStorageReadEs(esClient, index, logger)
 
   const loggerMetadata = { // eslint-disable-line
     metadaemon: {
+      indyNetworkId,
       operationId,
       componentId,
       componentType: 'source-es'

@@ -16,6 +16,7 @@ async function bootstrap () {
     WORKER_TIMING
   )
   let dbSerializedToExpansion = await createNetOpRtwExpansion(
+    INDY_NETWORK,
     ES_URL,
     ES_INDEX,
     WORKER_TIMING

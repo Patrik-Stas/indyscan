@@ -49,9 +49,10 @@ function addElasticTransport (logger, loggingUrl, indexPrefix, logLevel) {
             'properties': {
               'metadaemon': {
                 'properties': {
-                  'componentType': { 'type': 'keyword', 'index': true },
-                  'componentId': { 'type': 'keyword', 'index': true },
+                  "indyNetworkId": { 'type': 'keyword', 'index': true },
                   'operationId': { 'type': 'keyword', 'index': true },
+                  'componentId': { 'type': 'keyword', 'index': true },
+                  'componentType': { 'type': 'keyword', 'index': true },
                   'workerRtwOutputFormat': { 'type': 'keyword', 'index': true }
                 }
               }

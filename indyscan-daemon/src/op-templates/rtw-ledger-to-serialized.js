@@ -6,22 +6,24 @@ const { createTargetElasticsearch } = require('../targets/target-elasticsearch')
 const { createSourceElasticsearch } = require('../sources/source-elasticsearch')
 const { createSourceLedger } = require('../sources/source-ledger')
 
-async function createNetOpRtwSerialization (indyNetworkName, genesisPath, esUrl, esIndex, workerTiming, operationId) {
-  operationId = operationId || `ledgercpy-${indyNetworkName}-to-${esIndex}`
+async function createNetOpRtwSerialization (indyNetworkId, genesisPath, esUrl, esIndex, workerTiming, operationId) {
+  operationId = operationId || `ledgercpy-${indyNetworkId}-to-${esIndex}`
   const sourceLedger = await createSourceLedger({
     operationId,
     componentId: `${operationId}.source.ledger`,
-    name: indyNetworkName,
+    name: indyNetworkId,
     genesisPath
   })
 
   const sourceEs = await createSourceElasticsearch({
+    indyNetworkId,
     operationId,
     componentId: `${operationId}.source.es`,
     index: esIndex,
     url: esUrl
   })
   const targetEs = await createTargetElasticsearch({
+    indyNetworkId,
     operationId,
     componentId: `${operationId}.target.es`,
     url: esUrl,
@@ -29,11 +31,13 @@ async function createNetOpRtwSerialization (indyNetworkName, genesisPath, esUrl,
     replicas: 0
   })
   const transformer = await createTransformerOriginal2Serialized({
+    indyNetworkId,
     operationId,
-    componentId: `transformer.serializer.${indyNetworkName}`
+    componentId: `transformer.original2serialized`
   })
   const guidanceFormat = transformer.getOutputFormat()
   const iterateLedgerByDbOriginalTxs = createIteratorGuided({
+    indyNetworkId,
     operationId,
     componentId: `${operationId}.iterator.guided.${guidanceFormat}`,
     source: sourceLedger,
@@ -44,6 +48,7 @@ async function createNetOpRtwSerialization (indyNetworkName, genesisPath, esUrl,
   const workers = []
   for (const subledger of ['domain', 'config', 'pool']) {
     const worker = await createWorkerRtw({
+      indyNetworkId,
       operationId,
       componentId: `${operationId}.worker.original2Serialized.${subledger}`,
       subledger,

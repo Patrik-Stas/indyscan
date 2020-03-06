@@ -2,7 +2,7 @@ const { createIndyClient } = require('../indy/indyclient')
 const logger = require('../logging/logger-main')
 const sleep = require('sleep-promise')
 
-async function createSourceLedger ({ operationId, componentId, name, genesisPath }) {
+async function createSourceLedger ({ indyNetworkId, operationId, componentId, name, genesisPath }) {
   logger.info(`----- SRC LEDGER: ${name}`)
   let client = null
   let isConnecting = false
@@ -10,6 +10,7 @@ async function createSourceLedger ({ operationId, componentId, name, genesisPath
 
   const loggerMetadata = {
     metadaemon: {
+      indyNetworkId: name,
       operationId,
       componentId,
       componentType: 'source-ledger'
@@ -19,7 +20,7 @@ async function createSourceLedger ({ operationId, componentId, name, genesisPath
   async function reconnect () {
     try {
       isConnecting = true
-      client = await createIndyClient(operationId, `${operationId}-${componentId}.indyclient`, name, genesisPath)
+      client = await createIndyClient(indyNetworkId, operationId, `${operationId}-${componentId}.indyclient`, name, genesisPath)
     } catch (e) {
       throw Error(`${componentId} Failed to create indy client for network ${name}. Details: ${e.message} ${e.stack}.`)
     } finally {

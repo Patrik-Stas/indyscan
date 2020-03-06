@@ -1,13 +1,14 @@
 const logger = require('../logging/logger-main')
 
-function createTransformerPipeline ({ operationId, componentId, transformers }) {
+function createTransformerPipeline ({ indyNetworkId, operationId, componentId, transformers }) {
   const lastTransformer = transformers[transformers.length - 1]
 
   const loggerMetadata = {
     metadaemon: {
-      componentType: 'transformer-pipeline',
+      indyNetworkId,
+      operationId,
       componentId,
-      operationId
+      componentType: 'transformer-pipeline'
     }
   }
 
