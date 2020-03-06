@@ -35,7 +35,7 @@ function validateTimingConfig (timingConfig) {
   }
 }
 
-function createWorkerRtw ({componentId, subledger, iterator, iteratorTxFormat, transformer, target, timing, operationId}) {
+async function createWorkerRtw ({componentId, subledger, iterator, iteratorTxFormat, transformer, target, timing, operationId}) {
 
   const loggerMetadata = {
     metadaemon: {
@@ -88,7 +88,7 @@ function createWorkerRtw ({componentId, subledger, iterator, iteratorTxFormat, t
     initialzed = true
   }
 
-  initialize()
+  await initialize()
 
   let processedTxCount = 0
   let requestCycleCount = 0
@@ -253,12 +253,13 @@ function createWorkerRtw ({componentId, subledger, iterator, iteratorTxFormat, t
   }
 
   async function start () {
-    logger.info(`Starting worker.`, loggerMetadata)
     enabled = true
+    logger.info(`Worker enabled.`, loggerMetadata)
     while (!initialzed) {
-      await sleep(1000)
       logger.info(`Waiting for initialization to complete.`, loggerMetadata)
+      await sleep(1000)
     }
+    logger.info(`Worker starting.`, loggerMetadata)
     consumptionCycle()
   }
 

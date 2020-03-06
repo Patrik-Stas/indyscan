@@ -20,7 +20,7 @@
 // }
 
 const { createWorkerRtw } = require('../../../src/workers/worker-rtw')
-const { createTransformerOriginal2Serialized } = require('../../../src/transformers/transformer-serializer')
+const { createTransformerOriginal2Serialized } = require('../../../src/transformers/transformer-original2serialized')
 const { createTargetMemory } = require('../../../src/targets/target-memory')
 const { createIteratorGuided } = require('../../../src/iterators/iterator-guided')
 const { createSourceMemory } = require('../../../src/sources/source-memory')
@@ -49,11 +49,11 @@ let dataspace2 = {
   pool: {},
   config: {}
 }
-
-let sourceLedgerSim = createSourceMemory({ id: 'ledger-source-simulation', dataspace: dataspace1 })
-let sourceDbSim = createSourceMemory({ id: 'db-source-simulation', dataspace: dataspace2 })
-let targetDbSim = createTargetMemory({ id: 'db-target-simulation', dataspace: dataspace2 })
-let originalSerializer = createTransformerOriginal2Serialized({ id: 'serializer' })
+const operationId =  "unit-test"
+let sourceLedgerSim = createSourceMemory({ operationId, componentId: 'ledger-source-simulation', dataspace: dataspace1 })
+let sourceDbSim = createSourceMemory({ operationId, componentId: 'db-source-simulation', dataspace: dataspace2 })
+let targetDbSim = createTargetMemory({ operationId, componentId: 'db-target-simulation', dataspace: dataspace2 })
+let originalSerializer = createTransformerOriginal2Serialized({ operationId, componentId: 'serializer' })
 
 describe('ledger tx resolution', () => {
   beforeAll(async () => {
@@ -69,13 +69,15 @@ describe('ledger tx resolution', () => {
       jitterRatio: 0
     }
     let iteratorGuided = createIteratorGuided({
-      id: 'test-iterator',
+      componentId: 'unit-test-iterator',
+      operationId: "unit-test",
       source: sourceLedgerSim,
       sourceSeqNoGuidance: sourceDbSim,
-      guidanceFormat: 'original'
+      guidanceFormat: 'serialized'
     })
-    let workerRtw = createWorkerRtw({
-      id: 'test-domain',
+    let workerRtw = await createWorkerRtw({
+      componentId: 'unit-test-rtw',
+      operationId: "unit-test",
       subledger: 'domain',
       iterator: iteratorGuided,
       iteratorTxFormat: TX_FORMAT_IN,
@@ -84,33 +86,33 @@ describe('ledger tx resolution', () => {
       timing: sequentialConsumerConfig
     })
 
-    let txData1NotFound = await sourceDbSim.getTxData('domain', 1, 'original')
+    let txData1NotFound = await sourceDbSim.getTxData('domain', 1, 'serialized')
     expect(txData1NotFound).toBeUndefined()
 
     workerRtw.start()
     await sleep(500)
     workerRtw.stop()
 
-    let txData1 = await sourceDbSim.getTxData('domain', 1, 'original')
-    expect(toCanonicalJson(txData1)).toBe(toCanonicalJson({ serialized: JSON.stringify({ 'foo': 'foo-data1' }) }))
+    let txData1 = await sourceDbSim.getTxData('domain', 1, 'serialized')
+    expect(toCanonicalJson(txData1)).toBe(toCanonicalJson({ json: JSON.stringify({ 'foo': 'foo-data1' }) }))
 
-    let txData2 = await sourceDbSim.getTxData('domain', 2, 'original')
-    expect(toCanonicalJson(txData2)).toBe(toCanonicalJson({ serialized: JSON.stringify({ 'foo': 'foo-data2' }) }))
+    let txData2 = await sourceDbSim.getTxData('domain', 2, 'serialized')
+    expect(toCanonicalJson(txData2)).toBe(toCanonicalJson({ json: JSON.stringify({ 'foo': 'foo-data2' }) }))
 
-    let txData3NotFound = await sourceDbSim.getTxData('domain', 3, 'original')
+    let txData3NotFound = await sourceDbSim.getTxData('domain', 3, 'serialized')
     expect(txData3NotFound).toBeUndefined()
 
     workerRtw.start()
     await sleep(500)
     workerRtw.stop()
 
-    let txData3 = await sourceDbSim.getTxData('domain', 3, 'original')
-    expect(toCanonicalJson(txData3)).toBe(toCanonicalJson({ serialized: JSON.stringify({ 'foo': 'foo-data3' }) }))
+    let txData3 = await sourceDbSim.getTxData('domain', 3, 'serialized')
+    expect(toCanonicalJson(txData3)).toBe(toCanonicalJson({ json: JSON.stringify({ 'foo': 'foo-data3' }) }))
 
-    let txData4 = await sourceDbSim.getTxData('domain', 4, 'original')
-    expect(toCanonicalJson(txData4)).toBe(toCanonicalJson({ serialized: JSON.stringify({ 'foo': 'foo-data4' }) }))
+    let txData4 = await sourceDbSim.getTxData('domain', 4, 'serialized')
+    expect(toCanonicalJson(txData4)).toBe(toCanonicalJson({ json: JSON.stringify({ 'foo': 'foo-data4' }) }))
 
-    let txData5 = await sourceDbSim.getTxData('domain', 5, 'original')
+    let txData5 = await sourceDbSim.getTxData('domain', 5, 'serialized')
     expect(txData5).toBeUndefined()
   })
   //

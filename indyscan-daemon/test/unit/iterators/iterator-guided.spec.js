@@ -90,7 +90,7 @@ describe('basic iterator testsuite', () => {
 
     txTarget2.addTxData('pool', 1, 'format-pool', tx1)
 
-    let { tx: tx4 } = await iterator.getNextTx('pool', 'format-pool')
-    expect(tx4).toBeUndefined()
+    let res = await iterator.getNextTx('pool', 'format-pool')
+    expect(res).toBeUndefined()
   })
 })
