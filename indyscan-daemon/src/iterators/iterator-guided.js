@@ -18,8 +18,8 @@ function createIteratorGuided ({ operationId, componentId, source, sourceSeqNoGu
     const seqNo = await sourceSeqNoGuidance.getHighestSeqno(subledger, guidanceFormat) + 1
     logger.debug(`The seqNo ${seqNo} is to be queried from subledger '${subledger}' in format '${format}'.`, loggerMetadata)
     let tx = await source.getTxData(subledger, seqNo, format)
-    logger.debug(`Iterator resolved next tx: ${JSON.stringify(tx)}`, loggerMetadata)
     if (tx) {
+      logger.debug(`Iterator resolved next tx: ${JSON.stringify(tx)}`, loggerMetadata)
       return {
         meta: {
           subledger,
@@ -29,6 +29,7 @@ function createIteratorGuided ({ operationId, componentId, source, sourceSeqNoGu
         tx
       }
     }
+    logger.debug(`Iterator exhausted.`, loggerMetadata)
     return undefined
   }
 

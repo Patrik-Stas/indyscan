@@ -16,7 +16,9 @@
     "networks:list": "ls ~/.indy_client/pool",
     "networks:add:localhost": "bash genesis/localhost/setup.sh",
     "networks:add:sovrin": "bash setup.sh",
-    "elastic:delete:sovrin": "bash delete-es-indices.sh"
+    "elastic:delete:sovrin": "bash delete-es-indices.sh",
+    "kibana-export": "elasticdump --input=http://localhost:9200/.kibana_1 --output=kibana/esindex.kibana_1.json --type=data && elasticdump --input=http://localhost:9200/.kibana_1 --output=kibana/esindex_mapping.kibana_1.json --type=mapping",
+    "kibana-import": "elasticdump --input=kibana/esindex.kibana_1.json --output=http://localhost:9200/.kibana_1 --type=data && elasticdump --input=kibana/esindex_mapping.kibana_1.json --output=http://localhost:9200/.kibana_1 --type=mapping"
   },
   "jest": {
     "testEnvironment": "node"
@@ -38,6 +40,7 @@
     "write": "^1.0.3"
   },
   "devDependencies": {
+    "elasticdump": "^6.16.0",
     "@types/jest": "^25.1.3",
     "canonical-json": "0.0.4",
     "jest": "^25.1.0",
