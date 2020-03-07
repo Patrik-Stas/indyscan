@@ -2,10 +2,10 @@ const { createNetOpRtwSerialization } = require('../src/op-templates/rtw-ledger-
 const { createNetOpRtwExpansion } = require('../src/op-templates/rtw-db-expansion')
 
 const INDY_NETWORK = 'SOVRIN_MAINNET'
-const GENESIS_PATH = `${__dirname}/genesis/SOVRIN_MAINNET.txn`
+const GENESIS_PATH = `${__dirname}/genesis/${INDY_NETWORK}.txn`
 const ES_URL = 'http://localhost:9200'
 const ES_INDEX = 'txs-sovmain'
-const WORKER_TIMING = 'SLOW'
+const WORKER_TIMING = process.env.WORKER_TIMING || 'SLOW'
 
 async function bootstrap () {
   let ledgerToDbWorkers = await createNetOpRtwSerialization(

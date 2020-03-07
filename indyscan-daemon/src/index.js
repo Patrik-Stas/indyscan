@@ -24,21 +24,22 @@ const { createServiceWorkers } = require('./service/service-workers')
 
 async function run () {
   let serviceWorkers = createServiceWorkers()
+  if (envConfig.SERVER_ENABLED ) {
+    startServer(serviceWorkers)
+  }
   try {
     const operationConfigPaths = getAppConfigPaths()
     await sleep(2000)
     logger.info(`Will bootstrap app from following operations definitions ${JSON.stringify(operationConfigPaths, null, 2)}`)
 
-    let workers = []
     for (const opConfig of operationConfigPaths) {
       const buildOperation = require(opConfig)
-      const opWorkers = await buildOperation()
-      workers.push(opWorkers)
-    }
-    workers = _.flattenDeep(workers)
-    for (const worker of workers) {
-      logger.info(`Going to enable worker ${worker.getObjectId()}`)
-      serviceWorkers.registerWorker(worker)
+      const opWorkers = _.flatten(await buildOperation())
+      for (const worker of opWorkers) {
+        logger.info(util.inspect(worker))
+        logger.info(`Going to enable worker '${worker.getObjectId()}'.`)
+        serviceWorkers.registerWorker(worker)
+      }
     }
   } catch (e) {
     console.error(util.inspect(e))
@@ -47,11 +48,8 @@ async function run () {
   if (envConfig.AUTOSTART) {
     let workers = serviceWorkers.getAllWorkers()
     for (const worker of workers) {
-      worker.start()
+      worker.enable()
     }
-  }
-  if (envConfig.SERVER_ENABLED ) {
-    startServer(serviceWorkers)
   }
 }
 

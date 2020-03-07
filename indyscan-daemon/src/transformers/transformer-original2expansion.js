@@ -166,7 +166,7 @@ function createTransformerOriginal2Expansion ({ indyNetworkId, operationId, comp
       'txn.metadata.reqId': { type: 'keyword' },
       'txn.data.data.blskey': { type: 'keyword' },
       'txn.data.data.blskey_pop': { type: 'keyword' },
-      'txn.data.txnTime': { type: 'date', format: 'date_time' }
+      'txn.txnMetadata.txnTime': { type: 'date', format: 'date_time' }
       // 'txn.protocolVersion': {type: 'keyword'},
       // 'meta.scanTime': {type: 'date', format: 'date_time'},
 
