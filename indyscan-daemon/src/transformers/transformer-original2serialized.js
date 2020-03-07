@@ -23,6 +23,10 @@ function createTransformerOriginal2Serialized ({ indyNetworkId, operationId, com
     return 'serialized'
   }
 
+  function getInputFormat () {
+    return 'original'
+  }
+
   function getElasticsearchTargetMappings () {
     return {
       'json': { type: 'text', index: false }
@@ -38,11 +42,17 @@ function createTransformerOriginal2Serialized ({ indyNetworkId, operationId, com
     return componentId
   }
 
+  function describe () {
+    return `${getInputFormat()} -> ${getOutputFormat()}`
+  }
+
   return {
     processTx,
     initializeTarget,
     getObjectId,
-    getOutputFormat
+    getOutputFormat,
+    getInputFormat,
+    describe
   }
 }
 

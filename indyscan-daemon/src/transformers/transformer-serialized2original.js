@@ -26,6 +26,10 @@ function createTransformerSerialized2Original ({ indyNetworkId, operationId, com
     return 'original'
   }
 
+  function getInputFormat () {
+    return 'serialized'
+  }
+
   function getElasticsearchTargetMappings () {
     throw Error(`Output is not intended to be sent to ES.`)
   }
@@ -39,11 +43,18 @@ function createTransformerSerialized2Original ({ indyNetworkId, operationId, com
     return componentId
   }
 
+
+  function describe () {
+    return `${getInputFormat()} -> ${getOutputFormat()}`
+  }
+
   return {
     processTx,
     initializeTarget,
     getObjectId,
-    getOutputFormat
+    getOutputFormat,
+    getInputFormat,
+    describe
   }
 }
 

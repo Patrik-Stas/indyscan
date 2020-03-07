@@ -81,11 +81,11 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
   const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timing
   logger.info(`Pipeline ${componentId} using iterator ${iterator.getObjectId()}`, loggerMetadata)
 
-  let initialzed = false
+  let initialized = false
 
   async function initialize () {
     await transformer.initializeTarget(target)
-    initialzed = true
+    initialized = true
   }
 
   await initialize()
@@ -97,7 +97,7 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
 
   const timerLock = createTimerLock()
 
-  let enabled = true
+  let enabled = false
 
   let processesDuration = {}
 
@@ -122,6 +122,24 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
       avgDurations[processName] = getAverage(durations)
     }
     return avgDurations
+  }
+
+  function txProcessed(txMeta, txData, processedTx) {
+    processedTxCount++
+    timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
+    logger.info(`Cycle '${requestCycleCount}' processed tx ${JSON.stringify(txMeta)}.`, loggerMetadata)
+  }
+
+  function txNotAvailable() {
+    txNotAvailableCount++
+    timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
+    logger.warn(`Cycle '${requestCycleCount}': iterator exhausted.`, loggerMetadata)
+  }
+
+  function loopError(errMsg) {
+    cycleExceptionCount++
+    timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
+    logger.error(errMsg, loggerMetadata)
   }
 
   async function processTransaction (txData, txFormat) {
@@ -168,18 +186,16 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     try {
       logger.info(`Cycle '${requestCycleCount}' requesting next transaction.`, loggerMetadata)
       let res = await getNextTxTimed(subledger, iteratorTxFormat)
+      // was available?
       if (!res) {
-        timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
-        logger.warn(`Cycle '${requestCycleCount}': iterator exhausted.`, loggerMetadata)
+        txNotAvailable()
         return
       }
       let { tx, meta } = res
       txData = tx
       txMeta = meta
     } catch (e) {
-      cycleExceptionCount++
-      timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
-      logger.error(`Cycle '${requestCycleCount}' failed to resolve next tx. Details: ${e.message} ${e.stack}`, loggerMetadata)
+      loopError(`Cycle '${requestCycleCount}' failed to resolve next tx. Details: ${e.message} ${e.stack}`)
       return
     }
 
@@ -190,27 +206,14 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
       throw Error(errMsg)
     }
 
-    // was available?
-    if (!txData) {
-      txNotAvailableCount++
-      timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
-      logger.warn(`Cycle '${requestCycleCount}' was trying to get transaction ${JSON.stringify(txMeta)} but it's not available.`, loggerMetadata)
-      return
-    }
-
     // process it
     const { processedTx, format: txDataProcessedFormat } = await processTransaction(txData, txMeta.format)
 
     try {
       await addTxTimed(txMeta.subledger, txMeta.seqNo, txDataProcessedFormat, processedTx)
-      processedTxCount++
-      timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
-      logger.info(`Cycle '${requestCycleCount}' processed tx ${JSON.stringify(txMeta)}.`, loggerMetadata)
+      txProcessed(txMeta, txData, processedTx)
     } catch (e) {
-      cycleExceptionCount++
-      timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
-      logger.error(`Cycle '${requestCycleCount}' failed to store tx ${JSON.stringify(txMeta)}. ` +
-        `Details: ${e.message} ${e.stack} \n ${util.inspect(e, false, 10)}`, loggerMetadata)
+      loopError(`Cycle '${requestCycleCount}' failed to store tx ${JSON.stringify(txMeta)}. Details: ${util.inspect(e, false, 10)}`)
     }
   }
 
@@ -238,6 +241,7 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
 
   async function consumptionCycle () {
     while (enabled) { // eslint-disable-line
+      requestCycleCount++
       try {
         await runWithTimer(
           tryConsumeNextTransactionAndWait,
@@ -246,16 +250,14 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
       } catch (e) {
         logger.error(`Critical Error. Unhandled error propagated to consumption loop. ${e.message} ${JSON.stringify(e.stack)}. Stopping this consumer.`, loggerMetadata)
         enabled = false
-      } finally {
-        requestCycleCount++
       }
     }
   }
 
-  async function start () {
+  async function enable () {
     enabled = true
     logger.info(`Worker enabled.`, loggerMetadata)
-    while (!initialzed) { // eslint-disable-line
+    while (!initialized) { // eslint-disable-line
       logger.info(`Waiting for initialization to complete.`, loggerMetadata)
       await sleep(1000)
     }
@@ -263,21 +265,31 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     consumptionCycle()
   }
 
-  function stop () {
+  function disable () {
     logger.info(`Stopping worker.`, loggerMetadata)
     enabled = false
   }
 
+  function flipState () {
+    if (enabled) {
+      disable()
+    } else {
+      enable()
+    }
+  }
+
   function getWorkerInfo () {
     return {
-      initialzed,
+      initialized,
       enabled,
       indyNetworkId,
       operationId,
       componentId,
-      outputFormat: transformer.getOutputFormat(),
+      transformerInfo: transformer.describe(),
       targetComponentId: target.getObjectId(),
       iteratorComponentId: iterator.getObjectId(),
+      iteratorInfo: iterator.describe(),
+      targetInfo: target.describe(),
       processedTxCount,
       requestCycleCount,
       txNotAvailableCount,
@@ -293,8 +305,9 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
   return {
     getWorkerInfo,
     getObjectId,
-    start,
-    stop
+    enable,
+    disable,
+    flipState
   }
 }
 

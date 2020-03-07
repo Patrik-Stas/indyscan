@@ -89,9 +89,9 @@ describe('ledger tx resolution', () => {
     let txData1NotFound = await sourceDbSim.getTxData('domain', 1, 'serialized')
     expect(txData1NotFound).toBeUndefined()
 
-    workerRtw.start()
+    workerRtw.enable()
     await sleep(500)
-    workerRtw.stop()
+    workerRtw.disable()
 
     let txData1 = await sourceDbSim.getTxData('domain', 1, 'serialized')
     expect(toCanonicalJson(txData1)).toBe(toCanonicalJson({ json: JSON.stringify({ 'foo': 'foo-data1' }) }))
@@ -102,9 +102,9 @@ describe('ledger tx resolution', () => {
     let txData3NotFound = await sourceDbSim.getTxData('domain', 3, 'serialized')
     expect(txData3NotFound).toBeUndefined()
 
-    workerRtw.start()
+    workerRtw.enable()
     await sleep(500)
-    workerRtw.stop()
+    workerRtw.disable()
 
     let txData3 = await sourceDbSim.getTxData('domain', 3, 'serialized')
     expect(toCanonicalJson(txData3)).toBe(toCanonicalJson({ json: JSON.stringify({ 'foo': 'foo-data3' }) }))

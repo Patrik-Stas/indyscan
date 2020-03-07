@@ -51,10 +51,15 @@ async function createTargetElasticsearch ({ indyNetworkId, operationId, componen
     return componentId
   }
 
+  function describe() {
+    return `Target ${url}/${index}`
+  }
+
   return {
     getObjectId,
     addTxData,
-    setMappings
+    setMappings,
+    describe
   }
 }
 

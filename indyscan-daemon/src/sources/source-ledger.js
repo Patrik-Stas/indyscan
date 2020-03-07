@@ -79,10 +79,15 @@ async function createSourceLedger ({ indyNetworkId, operationId, componentId, na
     return componentId
   }
 
+  function describe() {
+    return `Ledger ${indyNetworkId}`
+  }
+
   return {
     getObjectId,
     getTxData,
-    getHighestSeqno
+    getHighestSeqno,
+    describe
   }
 }
 

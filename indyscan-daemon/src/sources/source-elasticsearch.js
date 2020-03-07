@@ -43,10 +43,15 @@ async function createSourceElasticsearch ({ indyNetworkId, operationId, componen
     return componentId
   }
 
+  function describe() {
+    return `Elasticsearch ${indyNetworkId}/${index}`
+  }
+
   return {
     getObjectId,
     getTxData,
-    getHighestSeqno
+    getHighestSeqno,
+    describe
   }
 }
 

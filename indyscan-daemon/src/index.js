@@ -38,13 +38,18 @@ async function run () {
     workers = _.flattenDeep(workers)
     for (const worker of workers) {
       logger.info(`Going to enable worker ${worker.getObjectId()}`)
-      worker.start()
       serviceWorkers.registerWorker(worker)
     }
   } catch (e) {
     console.error(util.inspect(e))
   }
 
+  if (envConfig.AUTOSTART) {
+    let workers = serviceWorkers.getAllWorkers()
+    for (const worker of workers) {
+      worker.start()
+    }
+  }
   if (envConfig.SERVER_ENABLED ) {
     startServer(serviceWorkers)
   }

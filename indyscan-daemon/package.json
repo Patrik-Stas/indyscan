@@ -8,6 +8,7 @@
   "scripts": {
     "lint": "standard",
     "lint:fix": "standard --fix",
+    "dev": "cross-env NODE_ENV=development nodemon src/index.js",
     "start": "cross-env NODE_ENV=production node ./src/index.js",
     "start:locahost": "cross-env ENVIRONMENT=localhost node ./src/index.js",
     "test:unit": "jest test/unit",
@@ -43,12 +44,12 @@
     "express-prettify": "^0.1.1"
   },
   "devDependencies": {
-    "elasticdump": "^6.16.0",
     "@types/jest": "^25.1.3",
     "canonical-json": "0.0.4",
+    "elasticdump": "^6.16.0",
     "jest": "^25.1.0",
     "jest-cli": "^25.1.0",
-    "nodemon": "^1.19.1",
+    "nodemon": "^1.19.4",
     "standard": "^12.0.1",
     "winston-elasticsearch": "^0.8.4"
   }

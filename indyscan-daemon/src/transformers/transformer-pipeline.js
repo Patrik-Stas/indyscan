@@ -1,6 +1,7 @@
 const logger = require('../logging/logger-main')
 
 function createTransformerPipeline ({ indyNetworkId, operationId, componentId, transformers }) {
+  const firstTransformer = transformers[0]
   const lastTransformer = transformers[transformers.length - 1]
 
   const loggerMetadata = {
@@ -48,6 +49,18 @@ function createTransformerPipeline ({ indyNetworkId, operationId, componentId, t
     return lastTransformer.getOutputFormat()
   }
 
+  function getInputFormat () {
+    return firstTransformer.getInputFormat()
+  }
+
+  function describe () {
+    let description = `${transformers[0].getInputFormat()}`
+    // for (const transformer of transformers) {
+    //   description += `-> ${transformer.getOutputFormat()}`
+    // }
+    return `${firstTransformer.getInputFormat()} -> ${lastTransformer.getOutputFormat()}`
+  }
+
   async function initializeTarget (target) {
     logger.info(`Initializing target.`, loggerMetadata)
     return lastTransformer.initializeTarget(target)
@@ -61,7 +74,9 @@ function createTransformerPipeline ({ indyNetworkId, operationId, componentId, t
     processTx,
     initializeTarget,
     getObjectId,
-    getOutputFormat
+    getOutputFormat,
+    getInputFormat,
+    describe
   }
 }
 

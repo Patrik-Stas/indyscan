@@ -90,6 +90,10 @@ function createTransformerOriginal2Expansion ({ indyNetworkId, operationId, comp
     return 'expansion'
   }
 
+  function getInputFormat () {
+    return 'original'
+  }
+
   function getEsDomainMappingFields () {
     return {
       // TX: NYM, ATTRIB
@@ -193,11 +197,17 @@ function createTransformerOriginal2Expansion ({ indyNetworkId, operationId, comp
     return componentId
   }
 
+  function describe () {
+    return `${getInputFormat()} -> ${getOutputFormat()}`
+  }
+
   return {
     processTx,
     initializeTarget,
     getOutputFormat,
-    getObjectId
+    getInputFormat,
+    getObjectId,
+    describe
   }
 }
 
