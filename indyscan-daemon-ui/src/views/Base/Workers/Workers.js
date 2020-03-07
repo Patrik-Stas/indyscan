@@ -1,21 +1,21 @@
 import React, { Component } from 'react'
 import {
+  Button,
   Card,
-  CardBody,
+  CardBody, CardHeader,
   Col,
   Row,
 } from 'reactstrap'
 import axios from 'axios'
 import { WorkersTable } from '../../components/WorkersTable'
+import util from 'util'
+import _ from 'lodash'
 
 class Workers extends Component {
 
   constructor () {
     super()
-    this.state = {
-      agentProvision: {},
-      updateLogoUrl: ''
-    }
+    this.state = {}
   }
 
   async reloadData () {
@@ -32,17 +32,39 @@ class Workers extends Component {
     await this.reloadData()
   }
 
-  onAgentUpdateSubmit = async (event) => {
-    event.preventDefault()
-    this.reloadData()
+  async onSwitchWorker (workerId) {
+    console.log(`Click worker ${util.inspect(workerId)}`)
+    await axios.post(`/api/workers/${workerId}?flipState=true`, )
   }
 
-  renderAgent () {
+  async enableAllWorkers () {
+    await axios.post(`/api/workers?enabled=true`)
+  }
+
+  async disableAllWorkers () {
+    await axios.post(`/api/workers?enabled=false`)
+  }
+
+  renderContent () {
+    let networkWorkerInfos = _.groupBy(this.state.workersInfo, (worker) => worker.indyNetworkId)
+    let networkTables = []
+    for (const [indyNetworkId, workerInfos] of Object.entries(networkWorkerInfos)) {
+      networkTables.push(
+        <WorkersTable key={indyNetworkId} networkId={indyNetworkId} workers={workerInfos} onSwitchWorker={this.onSwitchWorker}/>
+      )
+    }
+
     return (
       <Col xs="12" md="12">
         <Card>
+
+          <Button size="sm" color="success"
+                  onClick={this.enableAllWorkers}><i className="fa"></i>Enable all</Button>
+
+          <Button size="sm" color="danger"
+                  onClick={this.disableAllWorkers}><i className="fa"></i>Disable all</Button>
           <CardBody>
-            <WorkersTable workers={this.state.workersInfo}/>
+            {networkTables}
           </CardBody>
         </Card>
       </Col>
@@ -53,7 +75,7 @@ class Workers extends Component {
     return (
       <div className="animated fadeIn">
         <Row>
-          {this.renderAgent()}
+          {this.renderContent()}
         </Row>
       </div>
     )
