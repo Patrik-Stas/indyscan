@@ -18,7 +18,7 @@ function createIteratorGuided ({ indyNetworkId, operationId, componentId, source
     logger.debug(`requested nextTx from subledger '${subledger}' in format '${format}'.`, loggerMetadata)
     const seqNo = await sourceSeqNoGuidance.getHighestSeqno(subledger, guidanceFormat) + 1
     logger.debug(`The seqNo ${seqNo} is to be queried from subledger '${subledger}' in format '${format}'.`, loggerMetadata)
-    let tx = await source.getTxData(subledger, seqNo, format)
+    const tx = await source.getTxData(subledger, seqNo, format)
     if (tx) {
       logger.debug(`Iterator resolved next tx: ${JSON.stringify(tx)}`, loggerMetadata)
       return {
@@ -30,7 +30,7 @@ function createIteratorGuided ({ indyNetworkId, operationId, componentId, source
         tx
       }
     }
-    logger.debug(`Iterator exhausted.`, loggerMetadata)
+    logger.debug('Iterator exhausted.', loggerMetadata)
     return undefined
   }
 
@@ -38,8 +38,7 @@ function createIteratorGuided ({ indyNetworkId, operationId, componentId, source
     return componentId
   }
 
-
-  function describe() {
+  function describe () {
     return `Guided iterator on ${source.getObjectId()} [format:${guidanceFormat}]`
   }
 

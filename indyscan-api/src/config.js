@@ -12,7 +12,7 @@ function loadNetworkConfigs (configPath) {
   return networkConfigs
 }
 
-let appConfig = {
+const appConfig = {
   ES_URL: process.env.ES_URL,
   PORT: process.env.PORT,
   NETWORKS_CONFIG_PATH: process.env.NETWORKS_CONFIG_PATH,

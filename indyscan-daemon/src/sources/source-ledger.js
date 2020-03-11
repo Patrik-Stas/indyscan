@@ -79,7 +79,7 @@ async function createSourceLedger ({ indyNetworkId, operationId, componentId, na
     return componentId
   }
 
-  function describe() {
+  function describe () {
     return `Ledger ${indyNetworkId}`
   }
 

@@ -23,13 +23,13 @@ async function createSourceElasticsearch ({ indyNetworkId, operationId, componen
     }
     const { idata, imeta } = result
     if (!idata || !imeta) {
-      throw Error(`Received a response from storage, but idata or imeta was undefined.`)
+      throw Error('Received a response from storage, but idata or imeta was undefined.')
     }
     if (format === 'original') {
       if (queryFormat === 'serialized') {
         return JSON.parse(idata.json)
       } else {
-        throw Error(`Assumptions on code above broke. If user requested "original", query should had been queried for "serialized".`)
+        throw Error('Assumptions on code above broke. If user requested "original", query should had been queried for "serialized".')
       }
     }
     return idata
@@ -43,7 +43,7 @@ async function createSourceElasticsearch ({ indyNetworkId, operationId, componen
     return componentId
   }
 
-  function describe() {
+  function describe () {
     return `Elasticsearch ${indyNetworkId}/${index}`
   }
 

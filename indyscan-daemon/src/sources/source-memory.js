@@ -7,15 +7,15 @@ function checkNested (obj, level, ...rest) {
 
 function createSourceMemory ({ id, dataspace }) {
   if (!dataspace.domain) {
-    throw Error(`Dataspace needs to have field 'domain'`)
+    throw Error('Dataspace needs to have field \'domain\'')
   }
 
   if (!dataspace.config) {
-    throw Error(`Dataspace needs to have field 'config'`)
+    throw Error('Dataspace needs to have field \'config\'')
   }
 
   if (!dataspace.pool) {
-    throw Error(`Dataspace needs to have field 'pool'`)
+    throw Error('Dataspace needs to have field \'pool\'')
   }
 
   function getTxData (subledger, seqNo, format) {
@@ -24,12 +24,12 @@ function createSourceMemory ({ id, dataspace }) {
     if (!checkNested(dataspace, subledger, seqNo, format)) {
       return undefined
     }
-    let txData = dataspace[subledger][seqNo][format]
+    const txData = dataspace[subledger][seqNo][format]
     return txData
   }
 
   function getHighestSeqno (subledger, format = 'full') {
-    let seqNos = Object.keys(dataspace[subledger])
+    const seqNos = Object.keys(dataspace[subledger])
     if (seqNos.length === 0) {
       return 0
     }

@@ -51,7 +51,7 @@ async function createTargetElasticsearch ({ indyNetworkId, operationId, componen
     return componentId
   }
 
-  function describe() {
+  function describe () {
     return `Target ${url}/${index}`
   }
 

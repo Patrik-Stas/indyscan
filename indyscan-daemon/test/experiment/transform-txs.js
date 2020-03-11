@@ -9,7 +9,7 @@ function writeToFiles (targetDir, originalFilename, originalTx, transformedTx) {
   fs.writeFileSync(`${targetDir}/${originalFilename}-transformed.json`, JSON.stringify(transformedTx, null, 2))
 }
 
-let esTransform = createIndyscanTransform((seqno) => {
+const esTransform = createIndyscanTransform((seqno) => {
   if (seqno === 74631) {
     return txSchemaDef
   } else {
@@ -19,15 +19,15 @@ let esTransform = createIndyscanTransform((seqno) => {
 
 function run () {
   const directoryPath = path.join(__dirname, '../resource/sample-txs')
-  let targetDir = './transforms'
+  const targetDir = './transforms'
 
   rimraf.sync(targetDir)
   fs.mkdirSync(targetDir)
 
-  let files = fs.readdirSync(directoryPath)
+  const files = fs.readdirSync(directoryPath)
   files.forEach(async function (file) {
-    let originalTx = require(`./indyscan-storage/test/resource/sample-txs`)
-    let transformedTx = await esTransform(originalTx)
+    const originalTx = require('./indyscan-storage/test/resource/sample-txs')
+    const transformedTx = await esTransform(originalTx)
     writeToFiles(targetDir, file, originalTx, transformedTx)
   })
 }

@@ -156,4 +156,14 @@ jobs:
           echo "Building docker for indyscan-daemon"
           (cd indyscan-daemon && yes | ./dockerbuild.sh)
 
+  build-daemon-ui:
+    runs-on: ubuntu-16.04
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+      - name: Building docker image
+        run: |
+          echo "Building docker for indyscan-daemon-ui"
+          (cd indyscan-daemon-ui && yes | ./dockerbuild.sh)
+
 

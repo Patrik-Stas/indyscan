@@ -31,7 +31,6 @@ function logRequests (req, res, next) {
   next()
 }
 
-
 const asyncHandler = fn => (req, res, next) => {
   const result = Promise
     .resolve(fn(req, res, next))
@@ -39,7 +38,7 @@ const asyncHandler = fn => (req, res, next) => {
       const errorId = uuid.v4()
       logger.error(`ErrorID: '${errorId}'. Unhandled error from async express handler. Error details:`)
       logger.error(err.stack)
-      res.status(500).send({ message: `Something went wrong unexpectedly.`, errorId })
+      res.status(500).send({ message: 'Something went wrong unexpectedly.', errorId })
     })
   return result
 }

@@ -29,12 +29,12 @@ function createTransformerOriginal2Serialized ({ indyNetworkId, operationId, com
 
   function getElasticsearchTargetMappings () {
     return {
-      'json': { type: 'text', index: false }
+      json: { type: 'text', index: false }
     }
   }
 
   async function initializeTarget (target) {
-    logger.info(`Initializing target.`, loggerMetadata)
+    logger.info('Initializing target.', loggerMetadata)
     return intializeEsTarget(target, getOutputFormat(), getElasticsearchTargetMappings())
   }
 

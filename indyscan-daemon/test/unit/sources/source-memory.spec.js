@@ -6,7 +6,7 @@ let target
 let txSource
 
 beforeEach(async () => {
-  let dataspace = {
+  const dataspace = {
     domain: {},
     pool: {},
     config: {}
@@ -23,7 +23,7 @@ describe('basic inmemory target testsuite', () => {
     target.addTxData('domain', 2, 'format-foo', { foo: 'foo2' })
     target.addTxData('domain', 4, 'format-foo', { foo: 'foo4' })
 
-    let txdata = await txSource.getTxData('domain', 1, 'format-foo')
+    const txdata = await txSource.getTxData('domain', 1, 'format-foo')
     expect(JSON.stringify(txdata)).toBe(JSON.stringify({ foo: 'foo1' }))
   })
 

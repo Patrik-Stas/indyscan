@@ -20,15 +20,15 @@ function createClaimDefTransform (resolveDomainTxBySeqNo) {
 
   async function transformClaimDef (tx) {
     const schemaRefSeqNo = tx.txn.data.ref
-    let schemaTx = await resolveDomainTxBySeqNo(schemaRefSeqNo)
+    const schemaTx = await resolveDomainTxBySeqNo(schemaRefSeqNo)
     const { txnSeqno, txnTime, schemaId, schemaFrom, schemaName, schemaVersion, attributes } = extractSchemaTxInfo(schemaTx)
     if (txnSeqno !== schemaRefSeqNo) {
-      throw Error(`txnSeqno !== schemaRefSeqNo. This should never happen.`)
+      throw Error('txnSeqno !== schemaRefSeqNo. This should never happen.')
     }
     tx.txn.data = {}
     tx.txn.data.refSchemaTxnSeqno = txnSeqno
     if (txnTime) {
-      let epochMiliseconds = txnTime * 1000
+      const epochMiliseconds = txnTime * 1000
       tx.txn.data.refSchemaTxnTime = new Date(epochMiliseconds).toISOString()
     }
     tx.txn.data.refSchemaId = schemaId

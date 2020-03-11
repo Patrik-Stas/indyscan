@@ -8,14 +8,14 @@ const ES_INDEX = 'txs-sovstaging'
 const WORKER_TIMING = process.env.WORKER_TIMING || 'SLOW'
 
 async function bootstrap () {
-  let ledgerToDbWorkers = await createNetOpRtwSerialization(
+  const ledgerToDbWorkers = await createNetOpRtwSerialization(
     INDY_NETWORK,
     GENESIS_PATH,
     ES_URL,
     ES_INDEX,
     WORKER_TIMING
   )
-  let dbSerializedToExpansion = await createNetOpRtwExpansion(
+  const dbSerializedToExpansion = await createNetOpRtwExpansion(
     INDY_NETWORK,
     ES_URL,
     ES_INDEX,

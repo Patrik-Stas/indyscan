@@ -29,31 +29,31 @@ function addElasticTransport (logger, loggingUrl, indexPrefix, logLevel) {
     indexPrefix,
     ensureMappingTemplate: true,
     mappingTemplate: {
-      'index_patterns': `${indexPrefix}-*`,
-      'settings': {
-        'number_of_shards': 1,
-        'number_of_replicas': 0,
-        'index': {
-          'refresh_interval': '5s'
+      index_patterns: `${indexPrefix}-*`,
+      settings: {
+        number_of_shards: 1,
+        number_of_replicas: 0,
+        index: {
+          refresh_interval: '5s'
         }
       },
-      'mappings': {
-        '_source': { 'enabled': true },
-        'properties': {
-          '@timestamp': { 'type': 'date' },
-          '@version': { 'type': 'keyword' },
-          'environment': { 'type': 'keyword', 'index': true },
-          'severity': { 'type': 'keyword', 'index': true },
-          'message': { 'type': 'text', 'index': true },
-          'fields': {
-            'properties': {
-              'metadaemon': {
-                'properties': {
-                  "indyNetworkId": { 'type': 'keyword', 'index': true },
-                  'operationId': { 'type': 'keyword', 'index': true },
-                  'componentId': { 'type': 'keyword', 'index': true },
-                  'componentType': { 'type': 'keyword', 'index': true },
-                  'workerRtwOutputFormat': { 'type': 'keyword', 'index': true }
+      mappings: {
+        _source: { enabled: true },
+        properties: {
+          '@timestamp': { type: 'date' },
+          '@version': { type: 'keyword' },
+          environment: { type: 'keyword', index: true },
+          severity: { type: 'keyword', index: true },
+          message: { type: 'text', index: true },
+          fields: {
+            properties: {
+              metadaemon: {
+                properties: {
+                  indyNetworkId: { type: 'keyword', index: true },
+                  operationId: { type: 'keyword', index: true },
+                  componentId: { type: 'keyword', index: true },
+                  componentType: { type: 'keyword', index: true },
+                  workerRtwOutputFormat: { type: 'keyword', index: true }
                 }
               }
             }

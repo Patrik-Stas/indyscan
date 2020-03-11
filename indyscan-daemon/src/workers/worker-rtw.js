@@ -19,19 +19,19 @@ function getExpandedTimingConfig (providedTimingSetup) {
 function validateTimingConfig (timingConfig) {
   const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timingConfig
   if (timeoutOnSuccess === undefined) {
-    throw Error(`Timing config is missing 'timeoutOnSuccess'.`)
+    throw Error('Timing config is missing \'timeoutOnSuccess\'.')
   }
   if (timeoutOnTxIngestionError === undefined) {
-    throw Error(`Timing config is missing 'timeoutOnTxIngestionError'.`)
+    throw Error('Timing config is missing \'timeoutOnTxIngestionError\'.')
   }
   if (timeoutOnLedgerResolutionError === undefined) {
-    throw Error(`Timing config is missing 'timeoutOnLedgerResolutionError'.`)
+    throw Error('Timing config is missing \'timeoutOnLedgerResolutionError\'.')
   }
   if (timeoutOnTxNoFound === undefined) {
-    throw Error(`Timing config is missing 'timeoutOnTxNoFound'.`)
+    throw Error('Timing config is missing \'timeoutOnTxNoFound\'.')
   }
   if (jitterRatio === undefined) {
-    throw Error(`Timing config is missing 'jitterRatio'.`)
+    throw Error('Timing config is missing \'jitterRatio\'.')
   }
 }
 
@@ -47,32 +47,32 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
   }
 
   if (!componentId) {
-    const errMsg = `WorkerRTW missing id parameter.`
+    const errMsg = 'WorkerRTW missing id parameter.'
     logger.error(errMsg, loggerMetadata)
     throw Error(errMsg)
   }
   if (!subledger) {
-    const errMsg = `WorkerRTW missing subledger parameter.`
+    const errMsg = 'WorkerRTW missing subledger parameter.'
     logger.error(errMsg, loggerMetadata)
     throw Error(errMsg)
   }
   if (!iterator) {
-    const errMsg = `WorkerRTW missing iterator parameter.`
+    const errMsg = 'WorkerRTW missing iterator parameter.'
     logger.error(errMsg, loggerMetadata)
     throw Error(errMsg)
   }
   if (!iteratorTxFormat) {
-    const errMsg = `WorkerRTW missing iteratorTxFormat parameter.`
+    const errMsg = 'WorkerRTW missing iteratorTxFormat parameter.'
     logger.error(errMsg, loggerMetadata)
     throw Error(errMsg)
   }
   if (!transformer) {
-    const errMsg = `WorkerRTW missing transformer parameter.`
+    const errMsg = 'WorkerRTW missing transformer parameter.'
     logger.error(errMsg, loggerMetadata)
     throw Error(errMsg)
   }
   if (!target) {
-    const errMsg = `WorkerRTW missing target parameter.`
+    const errMsg = 'WorkerRTW missing target parameter.'
     logger.error(errMsg, loggerMetadata)
     throw Error(errMsg)
   }
@@ -99,7 +99,7 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
 
   let enabled = false
 
-  let processesDuration = {}
+  const processesDuration = {}
 
   function processDurationResult (processId, duration) {
     if (processesDuration[processId] === undefined) {
@@ -112,41 +112,47 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
   }
 
   function getAverage (list) {
-    let sum = list.reduce((a, b) => a + b, 0)
+    const sum = list.reduce((a, b) => a + b, 0)
     return sum / list.length || 0
   }
 
   function getAverageDurations () {
-    let avgDurations = {}
+    const avgDurations = {}
     for (const [processName, durations] of Object.entries(processesDuration)) {
       avgDurations[processName] = getAverage(durations)
     }
     return avgDurations
   }
 
-  function txProcessed(txMeta, txData, processedTx) {
+  function txProcessed (txMeta, txData, processedTx) {
     processedTxCount++
     timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
     logger.info(`Cycle '${requestCycleCount}' processed tx ${JSON.stringify(txMeta)}.`, loggerMetadata)
   }
 
-  function txNotAvailable() {
+  function txNotAvailable () {
     txNotAvailableCount++
     timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
     logger.warn(`Cycle '${requestCycleCount}': iterator exhausted.`, loggerMetadata)
   }
 
-  function loopError(errMsg) {
+  function resolutionError (e) {
     cycleExceptionCount++
     timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
-    logger.error(errMsg, loggerMetadata)
+    logger.error(`Cycle '${requestCycleCount}' failed to resolve next tx. Details: ${e.message} ${e.stack}`, loggerMetadata)
+  }
+
+  function ingestionError (e, txMeta, processedTx) {
+    cycleExceptionCount++
+    timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
+    logger.error(`Cycle '${requestCycleCount}' failed to store tx ${JSON.stringify(txMeta)}: ${JSON.stringify(processedTx)} Error details: ${util.inspect(e, false, 10)}`, loggerMetadata)
   }
 
   async function processTransaction (txData, txFormat) {
     let processedTx = txData
     let txDataProcessedFormat = txFormat
     try {
-      let result = await transformer.processTx(processedTx)
+      const result = await transformer.processTx(processedTx)
       processedTx = result.processedTx
       txDataProcessedFormat = result.format
     } catch (e) {
@@ -163,11 +169,19 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     }
     if (!txDataProcessedFormat) {
       const errMsg = `Stopping pipeline on critical error. Transformer ${transformer.getObjectId()} did ` +
-        `did format of its output txData.`
+        'did format of its output txData.'
       logger.error(errMsg, loggerMetadata)
       throw Error(errMsg)
     }
     return { processedTx, format: txDataProcessedFormat }
+  }
+
+  function printAverageDurations () {
+    try {
+      logger.info(`Average durations ${JSON.stringify(getAverageDurations(), null, 2)}`, loggerMetadata)
+    } catch (e) {
+      logger.warn(`Error evaluating average durations. ${e.message} ${e.stack}`, loggerMetadata)
+    }
   }
 
   /*
@@ -175,32 +189,28 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
    */
   async function tryConsumeNextTransaction () {
     logger.info(`Cycle '${requestCycleCount}' starts.`, loggerMetadata)
-    try {
-      logger.info(`Average durations ${JSON.stringify(getAverageDurations(), null, 2)}`, loggerMetadata)
-    } catch (e) {
-      logger.warn(`Error evaluating average durations. ${e.message} ${e.stack}`, loggerMetadata)
-    }
+    printAverageDurations()
 
     // get it
     let txData, txMeta
     try {
       logger.info(`Cycle '${requestCycleCount}' requesting next transaction.`, loggerMetadata)
-      let res = await getNextTxTimed(subledger, iteratorTxFormat)
+      const res = await getNextTxTimed(subledger, iteratorTxFormat)
       // was available?
       if (!res) {
         txNotAvailable()
         return
       }
-      let { tx, meta } = res
+      const { tx, meta } = res
       txData = tx
       txMeta = meta
     } catch (e) {
-      loopError(`Cycle '${requestCycleCount}' failed to resolve next tx. Details: ${e.message} ${e.stack}`)
+      resolutionError(e)
       return
     }
 
     if (!txMeta || !txMeta.subledger || !txMeta.seqNo || !txMeta.format) {
-      const errMsg = `Stopping pipeline on critical error. Iterator did not return sufficient meta information` +
+      const errMsg = 'Stopping pipeline on critical error. Iterator did not return sufficient meta information' +
         `about tx. Meta ${JSON.stringify(txMeta)}`
       logger.error(errMsg, loggerMetadata)
       throw Error(errMsg)
@@ -213,7 +223,7 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
       await addTxTimed(txMeta.subledger, txMeta.seqNo, txDataProcessedFormat, processedTx)
       txProcessed(txMeta, txData, processedTx)
     } catch (e) {
-      loopError(`Cycle '${requestCycleCount}' failed to store tx ${JSON.stringify(txMeta)}. Details: ${util.inspect(e, false, 10)}`)
+      ingestionError(e, txMeta, processedTx)
     }
   }
 
@@ -256,17 +266,17 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
 
   async function enable () {
     enabled = true
-    logger.info(`Worker enabled.`, loggerMetadata)
+    logger.info('Worker enabled.', loggerMetadata)
     while (!initialized) { // eslint-disable-line
-      logger.info(`Waiting for initialization to complete.`, loggerMetadata)
+      logger.info('Waiting for initialization to complete.', loggerMetadata)
       await sleep(1000)
     }
-    logger.info(`Worker starting.`, loggerMetadata)
+    logger.info('Worker starting.', loggerMetadata)
     consumptionCycle()
   }
 
   function disable () {
-    logger.info(`Stopping worker.`, loggerMetadata)
+    logger.info('Stopping worker.', loggerMetadata)
     enabled = false
   }
 

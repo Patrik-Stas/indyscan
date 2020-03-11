@@ -32,5 +32,4 @@ module.exports = function (app, serviceWorkers) {
       res.status(200).send(workersInfo)
     })
   )
-
 }

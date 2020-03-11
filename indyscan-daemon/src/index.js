@@ -23,8 +23,8 @@ const { createServiceWorkers } = require('./service/service-workers')
 // })
 
 async function run () {
-  let serviceWorkers = createServiceWorkers()
-  if (envConfig.SERVER_ENABLED ) {
+  const serviceWorkers = createServiceWorkers()
+  if (envConfig.SERVER_ENABLED) {
     startServer(serviceWorkers)
   }
   try {
@@ -46,7 +46,7 @@ async function run () {
   }
 
   if (envConfig.AUTOSTART) {
-    let workers = serviceWorkers.getAllWorkers()
+    const workers = serviceWorkers.getAllWorkers()
     for (const worker of workers) {
       worker.enable()
     }

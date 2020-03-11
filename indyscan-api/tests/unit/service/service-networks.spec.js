@@ -4,74 +4,74 @@ const { createNetworkManager } = require('../../../src/service/service-networks'
 describe('network config manager', () => {
   const standardNetworkConfig = [
     {
-      'id': 'sovmain',
-      'aliases': [
+      id: 'sovmain',
+      aliases: [
         'SOVRIN_MAINNET'
       ],
-      'ui': {
-        'priority': 3,
-        'display': 'MainNet',
-        'description': 'MainNet is live network for production use.'
+      ui: {
+        priority: 3,
+        display: 'MainNet',
+        description: 'MainNet is live network for production use.'
       },
-      'es': {
-        'index': 'txs-sovrin_mainnet'
+      es: {
+        index: 'txs-sovrin_mainnet'
       }
     },
     {
-      'id': 'sovstaging',
-      'ui': {
-        'priority': 2,
-        'display': 'StagingNet',
-        'description': 'StagingNet is area where end-users of products can test in a pre-production environment.'
+      id: 'sovstaging',
+      ui: {
+        priority: 2,
+        display: 'StagingNet',
+        description: 'StagingNet is area where end-users of products can test in a pre-production environment.'
       },
-      'aliases': [
+      aliases: [
         'SOVRIN_TESTNET'
       ],
-      'es': {
-        'index': 'txs-sovrin_testnet'
+      es: {
+        index: 'txs-sovrin_testnet'
       }
     },
     {
-      'id': 'sovbuilder',
-      'ui': {
-        'priority': 1,
-        'display': 'BuilderNet',
-        'description': 'BuilderNet is network to try out their product before giving their end-users a go at it.'
+      id: 'sovbuilder',
+      ui: {
+        priority: 1,
+        display: 'BuilderNet',
+        description: 'BuilderNet is network to try out their product before giving their end-users a go at it.'
       },
-      'es': {
-        'index': 'txs-sovrin_buildernet'
+      es: {
+        index: 'txs-sovrin_buildernet'
       }
     }
   ]
 
   const minimalNetworkConfig = [
     {
-      'id': 'sovmain',
-      'es': {
-        'index': 'txs-sovrin_mainnet'
+      id: 'sovmain',
+      es: {
+        index: 'txs-sovrin_mainnet'
       }
     }
   ]
 
   const missingElasticsearchConfiguration = [
     {
-      'id': 'sovmain',
-      'es': { }
+      id: 'sovmain',
+      es: { }
     }
   ]
 
   const missingNetworkId = [
     {
-      'aliases': [
+      aliases: [
         'SOVRIN_MAINNET'
       ],
-      'ui': {
-        'priority': 3,
-        'display': 'MainNet',
-        'description': 'MainNet is live network for production use.'
+      ui: {
+        priority: 3,
+        display: 'MainNet',
+        description: 'MainNet is live network for production use.'
       },
-      'es': {
-        'index': 'txs-sovrin_mainnet'
+      es: {
+        index: 'txs-sovrin_mainnet'
       }
     }
   ]

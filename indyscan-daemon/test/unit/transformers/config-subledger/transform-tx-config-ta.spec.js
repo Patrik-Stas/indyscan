@@ -4,7 +4,7 @@ const txAuthorAgreementAml = require('indyscan-storage/test/resource/sample-txs/
 const _ = require('lodash')
 const { createTransformerOriginal2Expansion } = require('../../../../src/transformers/transformer-original2expansion')
 
-let processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
+const processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
 
 describe('config/ta transaction transformations', () => {
   it('should add typeName and subledger for config TXN_AUTHOR_AGREEMENT transaction', async () => {

@@ -20,7 +20,7 @@ function createTransformerOriginal2Expansion ({ indyNetworkId, operationId, comp
     }
   }
 
-  let resolveDomainTxBySeqNo = async (seqNo) => {
+  const resolveDomainTxBySeqNo = async (seqNo) => {
     return sourceLookups.getTxData('domain', seqNo, 'original')
   }
 
@@ -29,23 +29,23 @@ function createTransformerOriginal2Expansion ({ indyNetworkId, operationId, comp
   }
 
   const txTransforms = {
-    'NYM': transformNymAttrib,
-    'ATTRIB': transformNymAttrib,
-    'SCHEMA': noop,
-    'CLAIM_DEF': createClaimDefTransform(resolveDomainTxBySeqNo),
-    'REVOC_REG_DEF': noop,
-    'REVOC_REG_ENTRY': noop,
-    'SET_CONTEXT': noop,
-    'NODE': createNodeTransform(geoipLiteLookupIp),
-    'POOL_UPGRADE': transformPoolUpgrade,
-    'NODE_UPGRADE': noop,
-    'POOL_CONFIG': noop,
-    'AUTH_RULE': noop,
-    'AUTH_RULES': noop,
-    'TXN_AUTHOR_AGREEMENT': noop,
-    'TXN_AUTHOR_AGREEMENT_AML': noop,
-    'SET_FEES': noop,
-    'UNKNOWN': noop
+    NYM: transformNymAttrib,
+    ATTRIB: transformNymAttrib,
+    SCHEMA: noop,
+    CLAIM_DEF: createClaimDefTransform(resolveDomainTxBySeqNo),
+    REVOC_REG_DEF: noop,
+    REVOC_REG_ENTRY: noop,
+    SET_CONTEXT: noop,
+    NODE: createNodeTransform(geoipLiteLookupIp),
+    POOL_UPGRADE: transformPoolUpgrade,
+    NODE_UPGRADE: noop,
+    POOL_CONFIG: noop,
+    AUTH_RULE: noop,
+    AUTH_RULES: noop,
+    TXN_AUTHOR_AGREEMENT: noop,
+    TXN_AUTHOR_AGREEMENT_AML: noop,
+    SET_FEES: noop,
+    UNKNOWN: noop
   }
 
   /*
@@ -58,7 +58,7 @@ function createTransformerOriginal2Expansion ({ indyNetworkId, operationId, comp
     }
     const { txn, txnMetadata } = tx
     if (!txn || !txn.type) {
-      throw Error(`txn.type was missing`)
+      throw Error('txn.type was missing')
     }
     const txnTypeName = txTypeToTxName(txn.type) || 'UNKNOWN'
     let processed = {
@@ -69,7 +69,7 @@ function createTransformerOriginal2Expansion ({ indyNetworkId, operationId, comp
 
     // genesis txs do not have time
     if (processed.txnMetadata && processed.txnMetadata.txnTime) {
-      let epochMiliseconds = processed.txnMetadata.txnTime * 1000
+      const epochMiliseconds = processed.txnMetadata.txnTime * 1000
       // convert txnTime from unix to ISO time
       processed.txnMetadata.txnTime = new Date(epochMiliseconds).toISOString()
     }
@@ -116,12 +116,12 @@ function createTransformerOriginal2Expansion ({ indyNetworkId, operationId, comp
       // TX: pool NODE transaction
       'txn.data.data.client_ip': {
         type: 'text',
-        'fields': { 'raw': { 'type': 'keyword' }, 'as_ip': { type: 'ip', 'ignore_malformed': true } }
+        fields: { raw: { type: 'keyword' }, as_ip: { type: 'ip', ignore_malformed: true } }
       },
       'txn.data.data.client_port': { type: 'integer' },
       'txn.data.data.node_ip': {
         type: 'text',
-        'fields': { 'raw': { 'type': 'keyword' }, 'as_ip': { type: 'ip', 'ignore_malformed': true } }
+        fields: { raw: { type: 'keyword' }, as_ip: { type: 'ip', ignore_malformed: true } }
       },
       'txn.data.data.node_ip_text': { type: 'text' },
       'txn.data.data.node_port': { type: 'integer' },
@@ -189,7 +189,7 @@ function createTransformerOriginal2Expansion ({ indyNetworkId, operationId, comp
   }
 
   async function initializeTarget (target) {
-    logger.info(`Initializing target.`, loggerMetadata)
+    logger.info('Initializing target.', loggerMetadata)
     return intializeEsTarget(target, getOutputFormat(), getElasticsearchMappingDirectives())
   }
 

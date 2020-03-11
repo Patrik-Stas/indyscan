@@ -1,27 +1,26 @@
 const logger = require('../logging/logger-main')
 
-function createServiceWorkers() {
+function createServiceWorkers () {
+  const workers = {}
 
-  let workers = {}
-
-  function registerWorker(worker) {
+  function registerWorker (worker) {
     const id = worker.getObjectId()
     logger.info(`Registering new worker '${id}'.`)
     if (workers[id]) {
       throw Error(`Duplicate worker ID. Worker ${id} was already registered.`)
     }
-    workers[id]=worker
+    workers[id] = worker
   }
 
-  function getAllWorkers() {
+  function getAllWorkers () {
     return Object.values(workers)
   }
 
-  function getAllWorkersInfo() {
+  function getAllWorkersInfo () {
     return getAllWorkers().map(worker => worker.getWorkerInfo())
   }
 
-  function enableAll() {
+  function enableAll () {
     const workers = getAllWorkers()
     for (const worker of workers) {
       worker.enable()
@@ -35,7 +34,7 @@ function createServiceWorkers() {
     }
   }
 
-  function getWorker(id) {
+  function getWorker (id) {
     const worker = workers[id]
     if (!worker) {
       throw Error(`Worker ${id} not found.`)
@@ -43,15 +42,15 @@ function createServiceWorkers() {
     return worker
   }
 
-  function enableOne(id) {
+  function enableOne (id) {
     getWorker(id).enable()
   }
 
-  function disableOne(id) {
+  function disableOne (id) {
     getWorker(id).disable()
   }
 
-  function flipStateOne(id) {
+  function flipStateOne (id) {
     getWorker(id).flipState()
   }
 

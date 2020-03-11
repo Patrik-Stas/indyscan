@@ -26,12 +26,12 @@ async function createNetOpRtwExpansion (indyNetworkId, esUrl, esIndex, workerTim
   const deserializer = await createTransformerSerialized2Original({
     indyNetworkId,
     operationId,
-    componentId: `transformer.Serialized2Original`
+    componentId: 'transformer.Serialized2Original'
   })
   const expander = await createTransformerOriginal2Expansion({
     indyNetworkId,
     operationId,
-    componentId: `transformer.Original2Expansion`,
+    componentId: 'transformer.Original2Expansion',
     sourceLookups: sourceEs
   })
 

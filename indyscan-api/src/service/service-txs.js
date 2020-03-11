@@ -13,11 +13,11 @@ function urlQueryTxNamesToEsQuery (urlQueryTxNames) {
 
 function createServiceTxs (ledgerStorageManager) {
   async function getTxs (networkId, subledger, skip, size, filterTxNames, search, format, sortFromMostRecent = true) {
-    let txTypeQuery = urlQueryTxNamesToEsQuery(filterTxNames)
-    let searchQuery = search ? esFullTextsearch(search) : null
-    let sort = (sortFromMostRecent)
-      ? { 'imeta.seqNo': { 'order': 'desc' } }
-      : { 'imeta.seqNo': { 'order': 'asc' } }
+    const txTypeQuery = urlQueryTxNamesToEsQuery(filterTxNames)
+    const searchQuery = search ? esFullTextsearch(search) : null
+    const sort = (sortFromMostRecent)
+      ? { 'imeta.seqNo': { order: 'desc' } }
+      : { 'imeta.seqNo': { order: 'asc' } }
     return ledgerStorageManager
       .getStorage(networkId)
       .getManyTxs(subledger, skip, size, [txTypeQuery, searchQuery], sort, format)
@@ -29,7 +29,7 @@ function createServiceTxs (ledgerStorageManager) {
   }
 
   async function getTxsCount (networkId, subledger, filterTxNames, search) {
-    let queries = urlQueryTxNamesToEsQuery(filterTxNames)
+    const queries = urlQueryTxNamesToEsQuery(filterTxNames)
     if (search) {
       queries.append(esFullTextsearch(search))
     }

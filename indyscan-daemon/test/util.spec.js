@@ -12,12 +12,12 @@ describe('configuration processing', () => {
   })
 
   it('should measure duration of a function running and return result', async () => {
-    let calculation = async () => { await sleep(100); return 12345 }
+    const calculation = async () => { await sleep(100); return 12345 }
     let reportedData
-    let reportCallback = (duration) => {
+    const reportCallback = (duration) => {
       reportedData = duration
     }
-    let result = await runWithTimer(calculation, reportCallback)
+    const result = await runWithTimer(calculation, reportCallback)
     expect(result).toBe(12345)
     await sleep(200)
     expect(reportedData).toBeGreaterThanOrEqual(100)
@@ -25,18 +25,18 @@ describe('configuration processing', () => {
   })
 
   it('should return result from timed function even if result callback throws', async () => {
-    let calculation = async () => { await sleep(100); return 12345 }
-    let reportCallback = (duration) => {
+    const calculation = async () => { await sleep(100); return 12345 }
+    const reportCallback = (duration) => {
       throw Error(`Simulated problem processing duration result ${duration}`)
     }
-    let result = await runWithTimer(calculation, reportCallback)
+    const result = await runWithTimer(calculation, reportCallback)
     expect(result).toBe(12345)
   })
 
   it('should throw and never call result callback if main timed closure throws', async () => {
-    let calculation = async () => { await sleep(1); throw Error(`Simulated calculation failure.`) }
+    const calculation = async () => { await sleep(1); throw Error('Simulated calculation failure.') }
     let reportedData
-    let reportCallback = (duration) => {
+    const reportCallback = (duration) => {
       reportedData = duration
     }
     let threw = false

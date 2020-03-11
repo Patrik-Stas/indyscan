@@ -33,7 +33,7 @@ async function createNetOpRtwSerialization (indyNetworkId, genesisPath, esUrl, e
   const transformer = await createTransformerOriginal2Serialized({
     indyNetworkId,
     operationId,
-    componentId: `transformer.original2serialized`
+    componentId: 'transformer.original2serialized'
   })
   const guidanceFormat = transformer.getOutputFormat()
   const iterateLedgerByDbOriginalTxs = createIteratorGuided({

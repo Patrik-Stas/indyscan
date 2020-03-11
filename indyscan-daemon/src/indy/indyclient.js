@@ -3,26 +3,26 @@ const logger = require('../logging/logger-main')
 const fs = require('fs')
 
 const LEDGER_NAME_TO_CODE = {
-  'pool': '0',
-  'domain': '1',
-  'config': '2'
+  pool: '0',
+  domain: '1',
+  config: '2'
 }
 
 async function registerLedger (ledgerName, genesisFilePath) {
   if (!fs.lstatSync(genesisFilePath).isFile()) {
     throw Error(`Was about to register ledger ${ledgerName} but provided genesis file path ${genesisFilePath}` +
-      `does not point to a file.`)
+      'does not point to a file.')
   }
   await indy.createPoolLedgerConfig(ledgerName, { genesis_txn: genesisFilePath })
 }
 
 async function getListOfRegisteredLedgers () {
-  let pools = await indy.listPools()
+  const pools = await indy.listPools()
   return pools.map(ledger => ledger.pool)
 }
 
 async function isUnknownLedger (ledgerName) {
-  let ledgers = await getListOfRegisteredLedgers()
+  const ledgers = await getListOfRegisteredLedgers()
   return (ledgers.find(l => l === ledgerName) === undefined)
 }
 
@@ -45,7 +45,7 @@ async function createIndyClient (indyNetworkId, operationId, componentId, ledger
   if (await isUnknownLedger(ledgerName)) {
     if (!genesisPath) {
       throw Error(`Ledger ${ledgerName} is is not known (ie. not located in ~/.indy_client/pools)` +
-      ` and because neither genesis file for this ledger was supplied, it cannot be added.` +
+      ' and because neither genesis file for this ledger was supplied, it cannot be added.' +
       ` Currently known pools are: ${JSON.stringify(await getListOfRegisteredLedgers())}`)
     }
     logger.warn(`Ledger ${ledgerName} is being registered using genesis file: ${genesisPath}.`, loggerMetadata)
@@ -56,7 +56,7 @@ async function createIndyClient (indyNetworkId, operationId, componentId, ledger
   logger.info(`Connected to ledger ${ledgerName}.`, loggerMetadata)
 
   const walletName = `indyscan-${ledgerName}`
-  logger.info(`Assuring local wallet.`, loggerMetadata)
+  logger.info('Assuring local wallet.', loggerMetadata)
   const config = JSON.stringify({ id: walletName, storage_type: 'default' })
   const credentials = JSON.stringify({ key: 'ke®y' })
   try {

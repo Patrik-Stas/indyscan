@@ -3,10 +3,10 @@ const { isAbbreviatedVerkey } = require('indyscan-txtype/src/util')
 
 // https://github.com/hyperledger/indy-sdk/blob/315ea1ef63830529b57c20ee45212ad5ce90fd0a/libindy/src/domain/ledger/constants.rs#L37
 const ROLE_ACTIONS = {
-  '0': 'SET_TRUSTEE',
-  '2': 'SET_STEWARD',
-  '101': 'SET_ENDORSER',
-  '201': 'SET_NETWORK_MONITOR'
+  0: 'SET_TRUSTEE',
+  2: 'SET_STEWARD',
+  101: 'SET_ENDORSER',
+  201: 'SET_NETWORK_MONITOR'
 }
 
 const UNKNOWN_ROLE_ACTION = 'UNKNOWN_ROLE_ACTION'
@@ -24,7 +24,7 @@ function tryParseRawData (rawData) {
   let lastUpdated
   try {
     parsed = JSON.parse(rawData)
-    if (parsed['endpoint']) {
+    if (parsed.endpoint) {
       if (parsed.endpoint.endpoint) {
         endpoint = parsed.endpoint.endpoint
       } else if (parsed.endpoint.agent) {
@@ -36,11 +36,11 @@ function tryParseRawData (rawData) {
       } else if (parsed.endpoint.controller_url) {
         endpoint = parsed.endpoint.controller_url
       }
-    } else if (parsed['url']) {
+    } else if (parsed.url) {
       endpoint = parsed.url
     }
-    if (parsed['last_updated']) {
-      lastUpdated = parsed['last_updated']
+    if (parsed.last_updated) {
+      lastUpdated = parsed.last_updated
     }
   } catch (err) {}
   return { endpoint, lastUpdated }

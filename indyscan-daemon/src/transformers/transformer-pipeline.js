@@ -54,7 +54,7 @@ function createTransformerPipeline ({ indyNetworkId, operationId, componentId, t
   }
 
   function describe () {
-    let description = `${transformers[0].getInputFormat()}`
+    // let description = `${transformers[0].getInputFormat()}`
     // for (const transformer of transformers) {
     //   description += `-> ${transformer.getOutputFormat()}`
     // }
@@ -62,7 +62,7 @@ function createTransformerPipeline ({ indyNetworkId, operationId, componentId, t
   }
 
   async function initializeTarget (target) {
-    logger.info(`Initializing target.`, loggerMetadata)
+    logger.info('Initializing target.', loggerMetadata)
     return lastTransformer.initializeTarget(target)
   }
 

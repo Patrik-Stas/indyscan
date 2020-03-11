@@ -3,7 +3,7 @@ const txNode = require('indyscan-storage/test/resource/sample-txs/tx-pool-node')
 const _ = require('lodash')
 const { createTransformerOriginal2Expansion } = require('../../../../src/transformers/transformer-original2expansion')
 
-let processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
+const processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
 
 describe('pool/node transaction transformations', () => {
   it('should add typeName and subledger for pool NODE transaction', async () => {

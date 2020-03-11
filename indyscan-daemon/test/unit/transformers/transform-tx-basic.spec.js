@@ -3,7 +3,7 @@ const { createTransformerOriginal2Expansion } = require('../../../src/transforme
 const txAttribRoleSteward = require('indyscan-storage/test/resource/sample-txs/tx-domain-attrib-role-steward')
 const _ = require('lodash')
 
-let processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
+const processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
 
 describe('common transformations', () => {
   it('should not modify original argument object', async () => {

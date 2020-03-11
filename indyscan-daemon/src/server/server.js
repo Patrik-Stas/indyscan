@@ -15,8 +15,8 @@ function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLoggi
   }
 }
 
-function startServer(serviceWorkers) {
-  logger.info(`Starting daemon express server!`)
+function startServer (serviceWorkers) {
+  logger.info('Starting daemon express server!')
   const app = express()
   app.use(bodyParser.json())
   app.use(pretty({ query: 'pretty' }))

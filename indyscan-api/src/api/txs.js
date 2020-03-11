@@ -28,8 +28,8 @@ function initTxsApi (app, networkManager, serviceTxs) {
     asyncHandler(async function (req, res) {
       const parts = url.parse(req.url, true)
       const networkId = getNetworkId(req, res)
-      let { ledger } = req.params
-      let { skip, size, filterTxNames, search, format, sortFromRecent } = parts.query
+      const { ledger } = req.params
+      const { skip, size, filterTxNames, search, format, sortFromRecent } = parts.query
       const txs = await serviceTxs.getTxs(
         networkId,
         ledger,
@@ -52,11 +52,11 @@ function initTxsApi (app, networkManager, serviceTxs) {
       }
     ),
     asyncHandler(async function (req, res) {
-      let { ledger: subledger, seqNo } = req.params
+      const { ledger: subledger, seqNo } = req.params
       let { format } = req.query
       format = format || 'full'
       const networkId = getNetworkId(req, res)
-      let tx = await serviceTxs.getTx(networkId, subledger, parseInt(seqNo), format)
+      const tx = await serviceTxs.getTx(networkId, subledger, parseInt(seqNo), format)
       res.status(200).send(tx)
     }))
 

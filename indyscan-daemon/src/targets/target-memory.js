@@ -7,15 +7,15 @@ function checkNested (obj, level, ...rest) {
 
 function createTargetMemory ({ id, dataspace }) {
   if (!dataspace.domain) {
-    throw Error(`Dataspace needs to have field 'domain'`)
+    throw Error('Dataspace needs to have field \'domain\'')
   }
 
   if (!dataspace.config) {
-    throw Error(`Dataspace needs to have field 'config'`)
+    throw Error('Dataspace needs to have field \'config\'')
   }
 
   if (!dataspace.pool) {
-    throw Error(`Dataspace needs to have field 'pool'`)
+    throw Error('Dataspace needs to have field \'pool\'')
   }
 
   function addTxData (subledger, seqNo, format, txData) {

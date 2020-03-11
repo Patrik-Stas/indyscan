@@ -6,10 +6,10 @@ const { createStorageReadEs } = require('indyscan-storage/src')
  Manages multiple IndyScan storages - groups together storages for different networks
  */
 async function createLedgerStorageManager (esUrl) {
-  let storages = {}
+  const storages = {}
 
   logger.info(`Connecting to ElasticSearh '${esUrl}'.`)
-  let esClient = new elasticsearch.Client({ node: esUrl })
+  const esClient = new elasticsearch.Client({ node: esUrl })
 
   async function addIndyNetwork (networkId, networkEsIndex) {
     const storage = await createStorageReadEs(esClient, networkEsIndex, logger)
