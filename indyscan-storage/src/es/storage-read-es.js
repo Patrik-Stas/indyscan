@@ -5,7 +5,7 @@ const { esFilterSubledgerName, esAndFilters, esFilterBySeqNo } = require('./es-q
 const util = require('util')
 
 function createWinstonLoggerDummy () {
-  let logger = {}
+  const logger = {}
   logger.error = (param1, param2) => {}
   logger.warn = (param1, param2) => {}
   logger.info = (param1, param2) => {}
@@ -36,7 +36,7 @@ function createStorageReadEs (esClient, esIndex, logger) {
 
   async function getTxCount (subledger, queries = []) {
     const query = esAndFilters(createSubledgerQuery(subledger), queries)
-    let request = {
+    const request = {
       index: esIndex,
       body: { query }
     }
@@ -95,15 +95,15 @@ function createStorageReadEs (esClient, esIndex, logger) {
     const formatQuery = (format === 'full') ? null : esFilterContainsFormat(format)
     const subledgerQuery = createSubledgerQuery(subledger)
     const query = esAndFilters(subledgerQuery, formatQuery, queries)
-    sort = sort || { 'imeta.seqNo': { 'order': 'desc' } }
+    sort = sort || { 'imeta.seqNo': { order: 'desc' } }
     const searchRequest = {
       from: skip,
       size: limit,
       index: esIndex,
       body: { query, sort }
     }
-    let body = await executeEsSearch(searchRequest)
-    let fullTxs = body.hits.hits.map(h => h['_source'])
+    const body = await executeEsSearch(searchRequest)
+    const fullTxs = body.hits.hits.map(h => h._source)
     // todo: Add ES query to return only transactions which contain certain tx formats. We wouldn't then have to do the filtering here
     if (format === 'full') {
       return fullTxs
@@ -114,12 +114,12 @@ function createStorageReadEs (esClient, esIndex, logger) {
   }
 
   async function findMaxSeqNo (subledger, format = 'full') {
-    let txs = await getManyTxs(
+    const txs = await getManyTxs(
       subledger,
       0,
       1,
       null,
-      { 'imeta.seqNo': { 'order': 'desc' } },
+      { 'imeta.seqNo': { order: 'desc' } },
       format
     )
     if (txs.length === 0) {

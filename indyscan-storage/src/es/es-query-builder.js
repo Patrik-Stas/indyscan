@@ -1,19 +1,19 @@
 // const txTypeUtils = require('indyscan-txtype')
-//
-// function esFilterByTxTypeNames (txNames) {
-//   return {
-//     'terms': {
-//       'idata.indyscan.txn.type': txTypeUtils.txNamesToTypes(txNames)
-//     }
-//   }
-// }
 const _ = require('lodash')
+
+function esFilterByTxTypeNames (txNames) {
+  return {
+    'terms': {
+      'idata.expansion.idata.txn.typeName': txNames
+    }
+  }
+}
 
 function esFilterSubledgerName (subledgerName) {
   return {
-    'term': {
+    term: {
       'imeta.subledger': {
-        'value': subledgerName
+        value: subledgerName
       }
     }
   }
@@ -21,9 +21,9 @@ function esFilterSubledgerName (subledgerName) {
 
 function esFilterBySeqNo (seqNo) {
   return {
-    'term': {
+    term: {
       'imeta.seqNo': {
-        'value': seqNo
+        value: seqNo
       }
     }
   }
@@ -31,25 +31,25 @@ function esFilterBySeqNo (seqNo) {
 
 function esFilterContainsFormat (format) {
   return {
-    'exists': {
-      'field': `idata.${format}`
+    exists: {
+      field: `idata.${format}`
     }
   }
 }
 
 function esFilterHasTimestamp () {
   return {
-    'exists': {
-      'field': 'idata.indyscan.txnMetadata.txnTime'
+    exists: {
+      field: 'idata.expansion.idata.txnMetadata.txnTime'
     }
   }
 }
 
 function esFilterSeqNoGte (seqNo) {
   return {
-    'range': {
+    range: {
       'imeta.seqNo': {
-        'gte': seqNo
+        gte: seqNo
       }
     }
   }
@@ -57,9 +57,9 @@ function esFilterSeqNoGte (seqNo) {
 
 function esFilterSeqNoLt (seqNo) {
   return {
-    'range': {
+    range: {
       'imeta.seqNo': {
-        'lt': seqNo
+        lt: seqNo
       }
     }
   }
@@ -67,9 +67,9 @@ function esFilterSeqNoLt (seqNo) {
 
 function esFilterTxnAfterTime (utime) {
   return {
-    'range': {
-      'idata.indyscan.txnMetadata.txnTime': {
-        'gte': new Date(utime * 1000).toISOString()
+    range: {
+      'idata.expansion.idata.txnMetadata.txnTime': {
+        gte: new Date(utime * 1000).toISOString()
       }
     }
   }
@@ -77,9 +77,9 @@ function esFilterTxnAfterTime (utime) {
 
 function esFilterTxnBeforeTime (utime) {
   return {
-    'range': {
-      'idata.indyscan.txnMetadata.txnTime': {
-        'lt': new Date(utime * 1000).toISOString()
+    range: {
+      'idata.expansion.idata.txnMetadata.txnTime': {
+        lt: new Date(utime * 1000).toISOString()
       }
     }
   }
@@ -87,27 +87,27 @@ function esFilterTxnBeforeTime (utime) {
 
 function esFullTextsearch (text) {
   return {
-    'simple_query_string': {
-      'query': text,
-      'default_operator': 'and'
+    simple_query_string: {
+      query: text,
+      default_operator: 'and'
     }
   }
 }
 
 function esOrFilters (...filters) {
-  let finalQueries = _.concat(...filters).filter(f => !!f)
+  const finalQueries = _.concat(...filters).filter(f => !!f)
   if (finalQueries.length === 0) {
     return {}
   }
-  return { 'bool': { 'should': [...finalQueries] } }
+  return { bool: { should: [...finalQueries] } }
 }
 
 function esAndFilters (...filters) {
-  let finalQueries = _.concat(...filters).filter(f => !!f)
+  const finalQueries = _.concat(...filters).filter(f => !!f)
   if (finalQueries.length === 0) {
     return {}
   }
-  return { 'bool': { 'filter': [...finalQueries] } }
+  return { bool: { filter: [...finalQueries] } }
 }
 
 //
@@ -141,7 +141,7 @@ function esAndFilters (...filters) {
 // }
 
 module.exports.esFilterSubledgerName = esFilterSubledgerName
-// module.exports.esFilterByTxTypeNames = esFilterByTxTypeNames
+module.exports.esFilterByTxTypeNames = esFilterByTxTypeNames
 module.exports.esFilterTxnAfterTime = esFilterTxnAfterTime
 module.exports.esFilterTxnBeforeTime = esFilterTxnBeforeTime
 module.exports.esFilterBySeqNo = esFilterBySeqNo

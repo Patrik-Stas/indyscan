@@ -88,14 +88,14 @@ describe('basic api test suite', () => {
   it('should get config transaction as was found on ledger', async () => {
     const networks = await getNetworks(process.env.API_URL)
     const firstNetworkId = networks[0].id
-    let tx = await getTx(process.env.API_URL, firstNetworkId, 'CONFIG', 1, 'original')
+    const tx = await getTx(process.env.API_URL, firstNetworkId, 'CONFIG', 1, 'original')
     basicOriginalTxValidation(tx)
   })
 
   it('should be case insensitive on subledger name', async () => {
     const networks = await getNetworks(process.env.API_URL)
     const firstNetworkId = networks[0].id
-    let tx = await getTx(process.env.API_URL, firstNetworkId, 'conFIG', 1, 'original')
+    const tx = await getTx(process.env.API_URL, firstNetworkId, 'conFIG', 1, 'original')
     basicOriginalTxValidation(tx)
   })
 
@@ -113,7 +113,7 @@ describe('basic api test suite', () => {
   it('should get domain transaction as was found on ledger', async () => {
     const networks = await getNetworks(process.env.API_URL)
     const firstNetworkId = networks[0].id
-    let tx = await getTx(process.env.API_URL, firstNetworkId, 'domain', 1, 'original')
+    const tx = await getTx(process.env.API_URL, firstNetworkId, 'domain', 1, 'original')
     basicOriginalTxValidation(tx)
   })
 
@@ -131,14 +131,14 @@ describe('basic api test suite', () => {
   it('should get transaction in ledger format by default', async () => {
     const networks = await getNetworks(process.env.API_URL)
     const firstNetworkId = networks[0].id
-    let tx = await getTx(process.env.API_URL, firstNetworkId, 'pool', 1)
+    const tx = await getTx(process.env.API_URL, firstNetworkId, 'pool', 1)
     basicOriginalTxValidation(tx)
   })
 
   it('should get transaction in ledger format', async () => {
     const networks = await getNetworks(process.env.API_URL)
     const firstNetworkId = networks[0].id
-    let tx = await getTx(process.env.API_URL, firstNetworkId, 'pool', 1, 'original')
+    const tx = await getTx(process.env.API_URL, firstNetworkId, 'pool', 1, 'original')
     basicOriginalTxValidation(tx)
   })
 
@@ -156,22 +156,22 @@ describe('basic api test suite', () => {
   it('should get transaction count', async () => {
     const networks = await getNetworks(process.env.API_URL)
     const firstNetworkId = networks[0].id
-    let count = await getTxCount(process.env.API_URL, firstNetworkId, 'domain')
+    const count = await getTxCount(process.env.API_URL, firstNetworkId, 'domain')
     expect(count).toBeGreaterThan(5)
   })
 
   it('should have higher total tx count than count of NYM transactions', async () => {
     const networks = await getNetworks(process.env.API_URL)
     const firstNetworkId = networks[0].id
-    let countAll = await getTxCount(process.env.API_URL, firstNetworkId, 'domain')
-    let countNym = await getTxCount(process.env.API_URL, firstNetworkId, 'domain', ['NYM'])
+    const countAll = await getTxCount(process.env.API_URL, firstNetworkId, 'domain')
+    const countNym = await getTxCount(process.env.API_URL, firstNetworkId, 'domain', ['NYM'])
     expect(countAll).toBeGreaterThan(countNym)
   })
 
   it('should have higher total tx count than count of NYM transactions', async () => {
     const networks = await getNetworks(process.env.API_URL)
     const firstNetworkId = networks[0].id
-    let txs = await getTxs(process.env.API_URL, firstNetworkId, 'domain', 0, 10)
+    const txs = await getTxs(process.env.API_URL, firstNetworkId, 'domain', 0, 10)
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBe(10)
   })
@@ -179,7 +179,7 @@ describe('basic api test suite', () => {
   it('should search NYM transactions containing DID', async () => {
     const networks = await getNetworks(process.env.API_URL)
     const firstNetworkId = networks[0].id
-    let txs = await getTxs(process.env.API_URL, firstNetworkId, 'domain', 0, 100, ['NYM'], 'full', 'J4N1K1SEB8uY2muwmecY5q')
+    const txs = await getTxs(process.env.API_URL, firstNetworkId, 'domain', 0, 100, ['NYM'], 'full', 'J4N1K1SEB8uY2muwmecY5q')
     expect(Array.isArray(txs)).toBeTruthy()
     for (const tx of txs) {
       expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/J4N1K1SEB8uY2muwmecY5q/))
@@ -190,7 +190,7 @@ describe('basic api test suite', () => {
   it('should find 2 NYM transactions containing DID', async () => {
     const networks = await getNetworks(process.env.API_URL)
     const firstNetworkId = networks[0].id
-    let txs = await getTxs(process.env.API_URL, firstNetworkId, 'domain', 0, 2, ['NYM'], 'full', 'J4N1K1SEB8uY2muwmecY5q')
+    const txs = await getTxs(process.env.API_URL, firstNetworkId, 'domain', 0, 2, ['NYM'], 'full', 'J4N1K1SEB8uY2muwmecY5q')
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBe(2)
     for (const tx of txs) {
@@ -202,7 +202,7 @@ describe('basic api test suite', () => {
   it('should search ATTRIB transactions containing DID', async () => {
     const networks = await getNetworks(process.env.API_URL)
     const firstNetworkId = networks[0].id
-    let txs = await getTxs(process.env.API_URL, firstNetworkId, 'domain', 0, 100, ['ATTRIB'], 'full', 'J4N1K1SEB8uY2muwmecY5q')
+    const txs = await getTxs(process.env.API_URL, firstNetworkId, 'domain', 0, 100, ['ATTRIB'], 'full', 'J4N1K1SEB8uY2muwmecY5q')
     expect(Array.isArray(txs)).toBeTruthy()
     for (const tx of txs) {
       expect(JSON.stringify(tx)).toEqual(expect.stringMatching(/J4N1K1SEB8uY2muwmecY5q/))

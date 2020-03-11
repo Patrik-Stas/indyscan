@@ -55,19 +55,19 @@ async function run (options) {
 }
 
 function areOptionsValid (options) {
-  if (!options['url']) {
+  if (!options.url) {
     console.error('Need to specify indyscan url')
     return false
   }
-  if (!options['network']) {
+  if (!options.network) {
     console.error('Need to specify network')
     return false
   }
-  if (!options['ledger']) {
+  if (!options.ledger) {
     console.error('Need to specify ledger')
     return false
   }
-  if (!options['seqno']) {
+  if (!options.seqno) {
     console.error('Need to specify bound2')
     return false
   }

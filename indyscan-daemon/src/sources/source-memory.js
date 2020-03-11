@@ -1,7 +1,7 @@
 // https://stackoverflow.com/questions/2631001/test-for-existence-of-nested-javascript-object-key
 function checkNested (obj, level, ...rest) {
   if (obj === undefined) return false
-  if (rest.length === 0 && obj.hasOwnProperty(level)) return true
+  if (rest.length === 0 && obj.hasOwnProperty(level)) return true // eslint-disable-line
   return checkNested(obj[level], ...rest)
 }
 

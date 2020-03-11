@@ -27,19 +27,19 @@ beforeEach(async () => {
 })
 
 const imetaMapping = {
-  'properties': {
-    'seqNo': {
-      'type': 'integer'
+  properties: {
+    seqNo: {
+      type: 'integer'
     },
-    'subledger': {
-      'type': 'keyword'
+    subledger: {
+      type: 'keyword'
     }
   }
 }
 
 describe('writing txdata to elasticsearch', () => {
   it('should write and find sample tx representation', async () => {
-    let writeStorage = await createStorageWriteEs(esClient, index, 0)
+    const writeStorage = await createStorageWriteEs(esClient, index, 0)
     await writeStorage.addTx('domain', 1, 'newformat', { what: 'ever1234', you: 'wish' })
     await sleep(1000)
     // assert
@@ -53,14 +53,14 @@ describe('writing txdata to elasticsearch', () => {
     expect(toCanonicalJson(txBar)).toBe(toCanonicalJson({
       imeta: { subledger: 'domain', seqNo: 1 },
       idata: {
-        'newformat': { idata: { what: 'ever1234', you: 'wish' }, imeta: { subledger: 'domain', seqNo: 1 } }
+        newformat: { idata: { what: 'ever1234', you: 'wish' }, imeta: { subledger: 'domain', seqNo: 1 } }
       }
     }))
   })
 
   it('should persist multiple transaction formats', async () => {
     // arrange
-    let writeStorage = await createStorageWriteEs(esClient, index, 0)
+    const writeStorage = await createStorageWriteEs(esClient, index, 0)
 
     // act
     await writeStorage.addTx('domain', 1, 'format-foo', { what: 'ever1234', you: 'wish' })
@@ -86,7 +86,7 @@ describe('writing txdata to elasticsearch', () => {
 
   it('should create default mapping for default and required "meta" format', async () => {
     // arrange
-    let testIndex = 'integration-test-expect-default-mapping'
+    const testIndex = 'integration-test-expect-default-mapping'
     try {
       await deleteIndex(esClient, testIndex)
     } catch (e) {}
@@ -96,15 +96,15 @@ describe('writing txdata to elasticsearch', () => {
     const mapping = await getMapping(esClient, testIndex)
     const expectedBody = toCanonicalJson({
       [testIndex]: {
-        'mappings': {
-          'properties': {
-            'imeta': {
-              'properties': {
-                'seqNo': {
-                  'type': 'integer'
+        mappings: {
+          properties: {
+            imeta: {
+              properties: {
+                seqNo: {
+                  type: 'integer'
                 },
-                'subledger': {
-                  'type': 'keyword'
+                subledger: {
+                  type: 'keyword'
                 }
               }
             }
@@ -118,13 +118,13 @@ describe('writing txdata to elasticsearch', () => {
 
   it('should create mappings for two transaction formats', async () => {
     // arrange
-    let testIndex = 'index-test-mappings'
+    const testIndex = 'index-test-mappings'
     try {
       await deleteIndex(esClient, testIndex)
     } catch (e) {}
-    let esStorage = await createStorageWriteEs(esClient, testIndex, 0)
-    let mappingFoo = {
-      'aaa': { type: 'integer' }
+    const esStorage = await createStorageWriteEs(esClient, testIndex, 0)
+    const mappingFoo = {
+      aaa: { type: 'integer' }
     }
     await sleep(1000)
 
@@ -136,16 +136,16 @@ describe('writing txdata to elasticsearch', () => {
 
     expect(toCanonicalJson(mapping.body)).toBe(toCanonicalJson({
       [testIndex]: {
-        'mappings': {
-          'properties': {
+        mappings: {
+          properties: {
             idata: {
-              'properties': {
+              properties: {
                 'format-foo': {
-                  'properties': {
-                    'idata': {
-                      'properties': {
-                        'aaa': {
-                          'type': 'integer'
+                  properties: {
+                    idata: {
+                      properties: {
+                        aaa: {
+                          type: 'integer'
                         }
                       }
                     },
@@ -161,8 +161,8 @@ describe('writing txdata to elasticsearch', () => {
     }
     ))
 
-    let mappingBar = {
-      'bbb': { type: 'keyword' }
+    const mappingBar = {
+      bbb: { type: 'keyword' }
     }
     await sleep(1000)
 
@@ -173,16 +173,16 @@ describe('writing txdata to elasticsearch', () => {
     const mappingNew = await getMapping(esClient, testIndex)
     expect(toCanonicalJson(mappingNew.body)).toBe(toCanonicalJson({
       [testIndex]: {
-        'mappings': {
-          'properties': {
+        mappings: {
+          properties: {
             idata: {
-              'properties': {
+              properties: {
                 'format-foo': {
-                  'properties': {
-                    'idata': {
-                      'properties': {
-                        'aaa': {
-                          'type': 'integer'
+                  properties: {
+                    idata: {
+                      properties: {
+                        aaa: {
+                          type: 'integer'
                         }
                       }
                     },
@@ -190,11 +190,11 @@ describe('writing txdata to elasticsearch', () => {
                   }
                 },
                 'format-bar': {
-                  'properties': {
-                    'idata': {
-                      'properties': {
-                        'bbb': {
-                          'type': 'keyword'
+                  properties: {
+                    idata: {
+                      properties: {
+                        bbb: {
+                          type: 'keyword'
                         }
                       }
                     },
@@ -215,32 +215,32 @@ describe('writing txdata to elasticsearch', () => {
 
   it('should create mapping for a tx format, then add another field', async () => {
     // arrange
-    let testIndex = 'index-test-mappings'
+    const testIndex = 'index-test-mappings'
     try {
       await deleteIndex(esClient, testIndex)
     } catch (e) {}
-    let esStorage = await createStorageWriteEs(esClient, testIndex, 0)
+    const esStorage = await createStorageWriteEs(esClient, testIndex, 0)
     // act
-    await esStorage.setFormatMappings('format-foo', { 'aaa': { type: 'integer' } })
-    await esStorage.setFormatMappings('format-foo', { 'bbb': { type: 'keyword' } })
+    await esStorage.setFormatMappings('format-foo', { aaa: { type: 'integer' } })
+    await esStorage.setFormatMappings('format-foo', { bbb: { type: 'keyword' } })
 
     // assert
     const mappingNew = await getMapping(esClient, testIndex)
     expect(toCanonicalJson(mappingNew.body)).toBe(toCanonicalJson({
       [testIndex]: {
-        'mappings': {
-          'properties': {
+        mappings: {
+          properties: {
             idata: {
-              'properties': {
+              properties: {
                 'format-foo': {
-                  'properties': {
-                    'idata': {
-                      'properties': {
-                        'aaa': {
-                          'type': 'integer'
+                  properties: {
+                    idata: {
+                      properties: {
+                        aaa: {
+                          type: 'integer'
                         },
-                        'bbb': {
-                          'type': 'keyword'
+                        bbb: {
+                          type: 'keyword'
                         }
                       }
                     },

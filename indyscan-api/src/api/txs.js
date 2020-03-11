@@ -1,7 +1,7 @@
 const { asyncHandler } = require('../middleware')
 const validate = require('express-validation')
 const Joi = require('joi')
-const url = require('url')
+const util = require('util')
 
 function initTxsApi (app, networkManager, serviceTxs) {
   function getNetworkId (req, res) {
@@ -26,10 +26,11 @@ function initTxsApi (app, networkManager, serviceTxs) {
       }
     ),
     asyncHandler(async function (req, res) {
-      const parts = url.parse(req.url, true)
+      // console.log(util.inspect(req))
       const networkId = getNetworkId(req, res)
       const { ledger } = req.params
-      const { skip, size, filterTxNames, search, format, sortFromRecent } = parts.query
+      console.log(JSON.stringify(req.query))
+      const { skip, size, filterTxNames, search, format, sortFromRecent } = req.query
       const txs = await serviceTxs.getTxs(
         networkId,
         ledger,
@@ -38,7 +39,7 @@ function initTxsApi (app, networkManager, serviceTxs) {
         filterTxNames,
         search,
         format,
-        sortFromRecent
+        (sortFromRecent === undefined || sortFromRecent === null) ? false : (sortFromRecent === 'true')
       )
       res.status(200).send(txs)
     }))
@@ -69,10 +70,9 @@ function initTxsApi (app, networkManager, serviceTxs) {
       }
     ),
     asyncHandler(async function (req, res) {
-      const parts = url.parse(req.url, true)
       const { ledger } = req.params
       const networkId = getNetworkId(req, res)
-      const { filterTxNames, search } = parts.query
+      const { filterTxNames, search } = req.query
       const txCount = await serviceTxs.getTxsCount(networkId, ledger, filterTxNames, search)
       res.status(200).send({ txCount })
     }))

@@ -1,7 +1,7 @@
 // const util = require('util')
 
 function createWinstonLoggerDummy () {
-  let logger = {}
+  const logger = {}
   logger.error = (param1, param2) => {}
   logger.warn = (param1, param2) => {}
   logger.info = (param1, param2) => {}
@@ -28,7 +28,7 @@ async function indexExists (esClient, index) {
 
 async function createEsIndex (esClient, esIndex, replicaCount, logger) {
   logger.info(`Creating ES Index ${esIndex}!`)
-  let createIndexRes = await esClient.indices.create({
+  const createIndexRes = await esClient.indices.create({
     index: esIndex,
     body: {
       settings: {
@@ -59,7 +59,7 @@ async function searchOneDocument (esClient, esIndex, query) {
   if (body.hits.hits.length === 0) {
     return null
   }
-  return body.hits.hits[0]['_source']
+  return body.hits.hits[0]._source
 }
 
 async function upsertSubdocument (esClient, esIndex, id, subdoc) {
@@ -67,14 +67,14 @@ async function upsertSubdocument (esClient, esIndex, id, subdoc) {
     index: esIndex,
     id,
     body: {
-      'doc': subdoc,
-      'doc_as_upsert': true
+      doc: subdoc,
+      doc_as_upsert: true
     }
   })
 }
 
 async function getDocument (esClient, esIndex, id) {
-  let res = await esClient.get({
+  const res = await esClient.get({
     index: esIndex,
     id
   })

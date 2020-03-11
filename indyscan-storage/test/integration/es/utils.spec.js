@@ -36,22 +36,22 @@ async function doesIndexExist (esClient, index) {
 describe('basic es utils tests', () => {
   it('should create ES index if doesnt exist', async () => {
     await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
-    let exists = await doesIndexExist(esClient, index)
+    const exists = await doesIndexExist(esClient, index)
     expect(exists).toBeTruthy()
   })
 
   it('should be okay to call assureEsIndex repeatedly', async () => {
     await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
-    let exists = await doesIndexExist(esClient, index)
+    const exists = await doesIndexExist(esClient, index)
     expect(exists).toBeTruthy()
     await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
-    let exists2 = await doesIndexExist(esClient, index)
+    const exists2 = await doesIndexExist(esClient, index)
     expect(exists2).toBeTruthy()
   })
 
   it('expect index not to exist', async () => {
     // act
-    let exists = await indexExists(esClient, 'nonexisting-index')
+    const exists = await indexExists(esClient, 'nonexisting-index')
 
     // assert
     expect(exists).toBeFalsy()
@@ -65,7 +65,7 @@ describe('basic es utils tests', () => {
       index,
       body: { foo: { bar: 42, baz: 256 } }
     })
-    let query = {
+    const query = {
       term: {
         'foo.bar': {
           value: 42
@@ -75,7 +75,7 @@ describe('basic es utils tests', () => {
     await sleep(1000) // takes time to index the stuff
 
     // act
-    let document = await searchOneDocument(esClient, index, query)
+    const document = await searchOneDocument(esClient, index, query)
 
     // assert
     expect(document.foo.bar).toBe(42)
@@ -83,12 +83,12 @@ describe('basic es utils tests', () => {
   })
 
   it('should add new format representations of tx', async () => {
-    let docId = 'wololooo'
+    const docId = 'wololooo'
     await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
     await upsertSubdocument(esClient, index, docId, { format1: { a: 'a' } })
     await upsertSubdocument(esClient, index, docId, { format2: { b: 'b' } })
     await sleep(1000) // takes time to index the stuff
-    let doc = await getDocument(esClient, index, docId)
+    const doc = await getDocument(esClient, index, docId)
     expect(doc).toBeDefined()
     expect(doc.format1.a).toBe('a')
     expect(doc.format2.b).toBe('b')

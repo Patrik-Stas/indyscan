@@ -7,7 +7,7 @@ transformation require backward tx lookups - for example claim definitions looku
  */
 async function importFileToStorage (storage, filePath) {
   console.log(`Readng file ${filePath} for tx import.`)
-  let lines = fs.readFileSync(filePath, 'utf-8')
+  const lines = fs.readFileSync(filePath, 'utf-8')
     .split('\n')
     .filter(Boolean)
   for (const line of lines) {

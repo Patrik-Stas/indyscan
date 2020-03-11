@@ -1,13 +1,11 @@
-const indyscanStorage = require('indyscan-storage')
-const { esFullTextsearch } = require('indyscan-storage/src/es/es-query-builder')
-const { esTxFilters } = indyscanStorage
+const {  esFilterByTxTypeNames, esFullTextsearch } = require('indyscan-storage/src/es/es-query-builder')
 
 function urlQueryTxNamesToEsQuery (urlQueryTxNames) {
-  const filterTxNames = (urlQueryTxNames) ? JSON.parse(urlQueryTxNames) : []
+  const filterTxNames = (urlQueryTxNames) ? urlQueryTxNames : []
   if (filterTxNames.length === 0) {
     return null
   } else {
-    return esTxFilters.esFilterByTxTypeNames(filterTxNames)
+    return esFilterByTxTypeNames(filterTxNames)
   }
 }
 
@@ -29,9 +27,10 @@ function createServiceTxs (ledgerStorageManager) {
   }
 
   async function getTxsCount (networkId, subledger, filterTxNames, search) {
-    const queries = urlQueryTxNamesToEsQuery(filterTxNames)
+    const queries = []
+    queries.push(urlQueryTxNamesToEsQuery(filterTxNames))
     if (search) {
-      queries.append(esFullTextsearch(search))
+      queries.push(esFullTextsearch(search))
     }
     return ledgerStorageManager.getStorage(networkId).getTxCount(subledger, queries)
   }

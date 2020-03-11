@@ -41,13 +41,13 @@ describe('reading transaction formats from elasticsearch', () => {
     const logger = createWinstonLoggerDummy()
     const storageWriteEs = await createStorageWriteEs(esClient, index, 0, logger)
     const storageReadEs = await createStorageReadEs(esClient, index, logger)
-    await storageWriteEs.addTx('domain', 1, 'foo', { 'foodata': 'fooval' })
-    await storageWriteEs.addTx('domain', 1, 'bar', { 'bardata': 'barval' })
+    await storageWriteEs.addTx('domain', 1, 'foo', { foodata: 'fooval' })
+    await storageWriteEs.addTx('domain', 1, 'bar', { bardata: 'barval' })
 
     await sleep(1000) // takes time to index the stuff
 
     // act
-    let domainTx = await storageReadEs.getOneTx('domain', 1)
+    const domainTx = await storageReadEs.getOneTx('domain', 1)
 
     // assert
     expect(toCanonicalJson(domainTx.imeta)).toBe(toCanonicalJson(
@@ -76,17 +76,17 @@ describe('reading transaction formats from elasticsearch', () => {
     await sleep(2000) // takes time to index the stuff
 
     // get in foo format
-    let fooTx = await storageReadEs.getOneTx('domain', 1, 'foo')
+    const fooTx = await storageReadEs.getOneTx('domain', 1, 'foo')
     expect(fooTx).toBeDefined()
     expect(fooTx.idata.foodata).toBe('foo-domain-1111')
 
     // get in bar format
-    let barTx = await storageReadEs.getOneTx('domain', 1, 'bar')
+    const barTx = await storageReadEs.getOneTx('domain', 1, 'bar')
     expect(barTx).toBeDefined()
     expect(barTx.idata.bardata).toBe('bar-domain-1111')
 
     // get in full format
-    let fullTx = await storageReadEs.getOneTx('domain', 1)
+    const fullTx = await storageReadEs.getOneTx('domain', 1)
     expect(toCanonicalJson(fullTx)).toBe(toCanonicalJson({
       imeta: { subledger: 'domain', seqNo: 1 },
       idata: {
@@ -101,54 +101,54 @@ describe('reading transaction formats from elasticsearch', () => {
     const logger = createWinstonLoggerDummy()
     const storageWriteEs = await createStorageWriteEs(esClient, index, 0, logger)
     const storageReadEs = await createStorageReadEs(esClient, index, logger)
-    await storageWriteEs.addTx('domain', 1, 'foo', { 'foodata': 'foo-domain-1111' })
-    await storageWriteEs.addTx('domain', 2, 'foo', { 'foodata': 'foo-domain-2222' })
-    await storageWriteEs.addTx('domain', 3, 'foo', { 'foodata': 'foo-domain-3333' })
-    await storageWriteEs.addTx('domain', 4, 'foo', { 'foodata': 'foo-domain-4444' })
-    await storageWriteEs.addTx('domain', 1, 'bar', { 'bardata': 'bar-domain-1111' })
-    await storageWriteEs.addTx('domain', 2, 'bar', { 'bardata': 'bar-domain-2222' })
-    await storageWriteEs.addTx('domain', 3, 'bar', { 'bardata': 'bar-domain-3333' })
-    await storageWriteEs.addTx('domain', 4, 'bar', { 'bardata': 'bar-domain-4444' })
+    await storageWriteEs.addTx('domain', 1, 'foo', { foodata: 'foo-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'foo', { foodata: 'foo-domain-2222' })
+    await storageWriteEs.addTx('domain', 3, 'foo', { foodata: 'foo-domain-3333' })
+    await storageWriteEs.addTx('domain', 4, 'foo', { foodata: 'foo-domain-4444' })
+    await storageWriteEs.addTx('domain', 1, 'bar', { bardata: 'bar-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'bar', { bardata: 'bar-domain-2222' })
+    await storageWriteEs.addTx('domain', 3, 'bar', { bardata: 'bar-domain-3333' })
+    await storageWriteEs.addTx('domain', 4, 'bar', { bardata: 'bar-domain-4444' })
 
-    await storageWriteEs.addTx('config', 1, 'foo', { 'foodata': 'foo-config-1111' })
-    await storageWriteEs.addTx('config', 2, 'foo', { 'foodata': 'foo-config-2222' })
-    await storageWriteEs.addTx('config', 3, 'foo', { 'foodata': 'foo-config-3333' })
-    await storageWriteEs.addTx('config', 4, 'foo', { 'foodata': 'foo-config-4444' })
-    await storageWriteEs.addTx('config', 1, 'bar', { 'bardata': 'bar-config-1111' })
-    await storageWriteEs.addTx('config', 2, 'bar', { 'bardata': 'bar-config-2222' })
-    await storageWriteEs.addTx('config', 3, 'bar', { 'bardata': 'bar-config-3333' })
-    await storageWriteEs.addTx('config', 4, 'bar', { 'bardata': 'bar-config-4444' })
+    await storageWriteEs.addTx('config', 1, 'foo', { foodata: 'foo-config-1111' })
+    await storageWriteEs.addTx('config', 2, 'foo', { foodata: 'foo-config-2222' })
+    await storageWriteEs.addTx('config', 3, 'foo', { foodata: 'foo-config-3333' })
+    await storageWriteEs.addTx('config', 4, 'foo', { foodata: 'foo-config-4444' })
+    await storageWriteEs.addTx('config', 1, 'bar', { bardata: 'bar-config-1111' })
+    await storageWriteEs.addTx('config', 2, 'bar', { bardata: 'bar-config-2222' })
+    await storageWriteEs.addTx('config', 3, 'bar', { bardata: 'bar-config-3333' })
+    await storageWriteEs.addTx('config', 4, 'bar', { bardata: 'bar-config-4444' })
 
     await sleep(1000) // takes time to index the stuff
 
     // act
-    let domainTx1 = await storageReadEs.getOneTx('domain', 1)
-    let domainTx2 = await storageReadEs.getOneTx('domain', 2)
-    let domainTx3 = await storageReadEs.getOneTx('domain', 3)
-    let domainTx4 = await storageReadEs.getOneTx('domain', 4)
-    let configTx1 = await storageReadEs.getOneTx('config', 1)
-    let configTx2 = await storageReadEs.getOneTx('config', 2)
-    let configTx3 = await storageReadEs.getOneTx('config', 3)
-    let configTx4 = await storageReadEs.getOneTx('config', 4)
+    const domainTx1 = await storageReadEs.getOneTx('domain', 1)
+    const domainTx2 = await storageReadEs.getOneTx('domain', 2)
+    const domainTx3 = await storageReadEs.getOneTx('domain', 3)
+    const domainTx4 = await storageReadEs.getOneTx('domain', 4)
+    const configTx1 = await storageReadEs.getOneTx('config', 1)
+    const configTx2 = await storageReadEs.getOneTx('config', 2)
+    const configTx3 = await storageReadEs.getOneTx('config', 3)
+    const configTx4 = await storageReadEs.getOneTx('config', 4)
 
     // assert
-    expect(toCanonicalJson(domainTx1.idata.foo.idata)).toBe(toCanonicalJson({ 'foodata': 'foo-domain-1111' }))
-    expect(toCanonicalJson(domainTx1.idata.bar.idata)).toBe(toCanonicalJson({ 'bardata': 'bar-domain-1111' }))
-    expect(toCanonicalJson(domainTx2.idata.foo.idata)).toBe(toCanonicalJson({ 'foodata': 'foo-domain-2222' }))
-    expect(toCanonicalJson(domainTx2.idata.bar.idata)).toBe(toCanonicalJson({ 'bardata': 'bar-domain-2222' }))
-    expect(toCanonicalJson(domainTx3.idata.foo.idata)).toBe(toCanonicalJson({ 'foodata': 'foo-domain-3333' }))
-    expect(toCanonicalJson(domainTx3.idata.bar.idata)).toBe(toCanonicalJson({ 'bardata': 'bar-domain-3333' }))
-    expect(toCanonicalJson(domainTx4.idata.foo.idata)).toBe(toCanonicalJson({ 'foodata': 'foo-domain-4444' }))
-    expect(toCanonicalJson(domainTx4.idata.bar.idata)).toBe(toCanonicalJson({ 'bardata': 'bar-domain-4444' }))
+    expect(toCanonicalJson(domainTx1.idata.foo.idata)).toBe(toCanonicalJson({ foodata: 'foo-domain-1111' }))
+    expect(toCanonicalJson(domainTx1.idata.bar.idata)).toBe(toCanonicalJson({ bardata: 'bar-domain-1111' }))
+    expect(toCanonicalJson(domainTx2.idata.foo.idata)).toBe(toCanonicalJson({ foodata: 'foo-domain-2222' }))
+    expect(toCanonicalJson(domainTx2.idata.bar.idata)).toBe(toCanonicalJson({ bardata: 'bar-domain-2222' }))
+    expect(toCanonicalJson(domainTx3.idata.foo.idata)).toBe(toCanonicalJson({ foodata: 'foo-domain-3333' }))
+    expect(toCanonicalJson(domainTx3.idata.bar.idata)).toBe(toCanonicalJson({ bardata: 'bar-domain-3333' }))
+    expect(toCanonicalJson(domainTx4.idata.foo.idata)).toBe(toCanonicalJson({ foodata: 'foo-domain-4444' }))
+    expect(toCanonicalJson(domainTx4.idata.bar.idata)).toBe(toCanonicalJson({ bardata: 'bar-domain-4444' }))
 
-    expect(toCanonicalJson(configTx1.idata.foo.idata)).toBe(toCanonicalJson({ 'foodata': 'foo-config-1111' }))
-    expect(toCanonicalJson(configTx1.idata.bar.idata)).toBe(toCanonicalJson({ 'bardata': 'bar-config-1111' }))
-    expect(toCanonicalJson(configTx2.idata.foo.idata)).toBe(toCanonicalJson({ 'foodata': 'foo-config-2222' }))
-    expect(toCanonicalJson(configTx2.idata.bar.idata)).toBe(toCanonicalJson({ 'bardata': 'bar-config-2222' }))
-    expect(toCanonicalJson(configTx3.idata.foo.idata)).toBe(toCanonicalJson({ 'foodata': 'foo-config-3333' }))
-    expect(toCanonicalJson(configTx3.idata.bar.idata)).toBe(toCanonicalJson({ 'bardata': 'bar-config-3333' }))
-    expect(toCanonicalJson(configTx4.idata.foo.idata)).toBe(toCanonicalJson({ 'foodata': 'foo-config-4444' }))
-    expect(toCanonicalJson(configTx4.idata.bar.idata)).toBe(toCanonicalJson({ 'bardata': 'bar-config-4444' }))
+    expect(toCanonicalJson(configTx1.idata.foo.idata)).toBe(toCanonicalJson({ foodata: 'foo-config-1111' }))
+    expect(toCanonicalJson(configTx1.idata.bar.idata)).toBe(toCanonicalJson({ bardata: 'bar-config-1111' }))
+    expect(toCanonicalJson(configTx2.idata.foo.idata)).toBe(toCanonicalJson({ foodata: 'foo-config-2222' }))
+    expect(toCanonicalJson(configTx2.idata.bar.idata)).toBe(toCanonicalJson({ bardata: 'bar-config-2222' }))
+    expect(toCanonicalJson(configTx3.idata.foo.idata)).toBe(toCanonicalJson({ foodata: 'foo-config-3333' }))
+    expect(toCanonicalJson(configTx3.idata.bar.idata)).toBe(toCanonicalJson({ bardata: 'bar-config-3333' }))
+    expect(toCanonicalJson(configTx4.idata.foo.idata)).toBe(toCanonicalJson({ foodata: 'foo-config-4444' }))
+    expect(toCanonicalJson(configTx4.idata.bar.idata)).toBe(toCanonicalJson({ bardata: 'bar-config-4444' }))
   })
 
   it('should retrieve range of transaction within a particlar format', async () => {
@@ -156,37 +156,37 @@ describe('reading transaction formats from elasticsearch', () => {
     const logger = createWinstonLoggerDummy()
     const storageWriteEs = await createStorageWriteEs(esClient, index, 0, logger)
     const storageReadEs = await createStorageReadEs(esClient, index, logger)
-    await storageWriteEs.addTx('domain', 1, 'foo', { 'foodata': 'foo-domain-1111' })
-    await storageWriteEs.addTx('domain', 2, 'foo', { 'foodata': 'foo-domain-2222' })
-    await storageWriteEs.addTx('domain', 3, 'foo', { 'foodata': 'foo-domain-3333' })
-    await storageWriteEs.addTx('domain', 4, 'foo', { 'foodata': 'foo-domain-4444' })
-    await storageWriteEs.addTx('domain', 5, 'foo', { 'foodata': 'foo-domain-4444' })
-    await storageWriteEs.addTx('domain', 6, 'foo', { 'foodata': 'foo-domain-6666' })
-    await storageWriteEs.addTx('domain', 7, 'foo', { 'foodata': 'foo-domain-7777' })
-    await storageWriteEs.addTx('domain', 8, 'foo', { 'foodata': 'foo-domain-8888' })
-    await storageWriteEs.addTx('domain', 9, 'foo', { 'foodata': 'foo-domain-9999' })
-    await storageWriteEs.addTx('domain', 10, 'foo', { 'foodata': 'foo-domain-10101010' })
-    await storageWriteEs.addTx('domain', 11, 'foo', { 'foodata': 'foo-domain-11111111' })
-    await storageWriteEs.addTx('domain', 12, 'foo', { 'foodata': 'foo-domain-12121212' })
-    await storageWriteEs.addTx('domain', 13, 'foo', { 'foodata': 'foo-domain-13131313' })
+    await storageWriteEs.addTx('domain', 1, 'foo', { foodata: 'foo-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'foo', { foodata: 'foo-domain-2222' })
+    await storageWriteEs.addTx('domain', 3, 'foo', { foodata: 'foo-domain-3333' })
+    await storageWriteEs.addTx('domain', 4, 'foo', { foodata: 'foo-domain-4444' })
+    await storageWriteEs.addTx('domain', 5, 'foo', { foodata: 'foo-domain-4444' })
+    await storageWriteEs.addTx('domain', 6, 'foo', { foodata: 'foo-domain-6666' })
+    await storageWriteEs.addTx('domain', 7, 'foo', { foodata: 'foo-domain-7777' })
+    await storageWriteEs.addTx('domain', 8, 'foo', { foodata: 'foo-domain-8888' })
+    await storageWriteEs.addTx('domain', 9, 'foo', { foodata: 'foo-domain-9999' })
+    await storageWriteEs.addTx('domain', 10, 'foo', { foodata: 'foo-domain-10101010' })
+    await storageWriteEs.addTx('domain', 11, 'foo', { foodata: 'foo-domain-11111111' })
+    await storageWriteEs.addTx('domain', 12, 'foo', { foodata: 'foo-domain-12121212' })
+    await storageWriteEs.addTx('domain', 13, 'foo', { foodata: 'foo-domain-13131313' })
 
-    await storageWriteEs.addTx('domain', 1, 'bar', { 'bardata': 'bar-domain-1111' })
-    await storageWriteEs.addTx('domain', 2, 'bar', { 'bardata': 'bar-domain-2222' })
-    await storageWriteEs.addTx('domain', 3, 'bar', { 'bardata': 'bar-domain-3333' })
-    await storageWriteEs.addTx('domain', 4, 'bar', { 'bardata': 'bar-domain-4444' })
+    await storageWriteEs.addTx('domain', 1, 'bar', { bardata: 'bar-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'bar', { bardata: 'bar-domain-2222' })
+    await storageWriteEs.addTx('domain', 3, 'bar', { bardata: 'bar-domain-3333' })
+    await storageWriteEs.addTx('domain', 4, 'bar', { bardata: 'bar-domain-4444' })
 
-    await storageWriteEs.addTx('config', 1, 'foo', { 'foodata': 'foo-config-1111' })
-    await storageWriteEs.addTx('config', 2, 'foo', { 'foodata': 'foo-config-2222' })
-    await storageWriteEs.addTx('config', 3, 'foo', { 'foodata': 'foo-config-3333' })
-    await storageWriteEs.addTx('config', 4, 'foo', { 'foodata': 'foo-config-4444' })
-    await storageWriteEs.addTx('config', 5, 'foo', { 'foodata': 'foo-config-5555' })
-    await storageWriteEs.addTx('config', 6, 'foo', { 'foodata': 'foo-config-6666' })
-    await storageWriteEs.addTx('config', 7, 'foo', { 'foodata': 'foo-config-7777' })
+    await storageWriteEs.addTx('config', 1, 'foo', { foodata: 'foo-config-1111' })
+    await storageWriteEs.addTx('config', 2, 'foo', { foodata: 'foo-config-2222' })
+    await storageWriteEs.addTx('config', 3, 'foo', { foodata: 'foo-config-3333' })
+    await storageWriteEs.addTx('config', 4, 'foo', { foodata: 'foo-config-4444' })
+    await storageWriteEs.addTx('config', 5, 'foo', { foodata: 'foo-config-5555' })
+    await storageWriteEs.addTx('config', 6, 'foo', { foodata: 'foo-config-6666' })
+    await storageWriteEs.addTx('config', 7, 'foo', { foodata: 'foo-config-7777' })
 
     await sleep(1000) // takes time to index the stuff
 
     // act
-    let domainTxs = await storageReadEs.getManyTxs('domain', 0, 20, esFilterSeqNoGte(4), undefined, 'foo')
+    const domainTxs = await storageReadEs.getManyTxs('domain', 0, 20, esFilterSeqNoGte(4), undefined, 'foo')
     expect(Array.isArray(domainTxs)).toBeTruthy()
     expect(domainTxs.length).toBe(10)
     expect(domainTxs[0].imeta.seqNo).toBe(13)
@@ -204,7 +204,7 @@ describe('reading transaction formats from elasticsearch', () => {
       imeta: { subledger: 'domain', seqNo: 4 }
     }))
 
-    let domainTxsWithBarFormat = await storageReadEs.getManyTxs('domain', 0, 20, esFilterSeqNoGte(2), undefined, 'bar')
+    const domainTxsWithBarFormat = await storageReadEs.getManyTxs('domain', 0, 20, esFilterSeqNoGte(2), undefined, 'bar')
     expect(Array.isArray(domainTxsWithBarFormat)).toBeTruthy()
     expect(domainTxsWithBarFormat.length).toBe(3)
     expect(toCanonicalJson(domainTxsWithBarFormat[0])).toBe(toCanonicalJson({
@@ -221,32 +221,32 @@ describe('reading transaction formats from elasticsearch', () => {
     // arrange
     const logger = createWinstonLoggerDummy()
     const storageWriteEs = await createStorageWriteEs(esClient, index, 0, logger)
-    await storageWriteEs.setFormatMappings('foo', { 'fooclass': { 'type': 'keyword' } })
+    await storageWriteEs.setFormatMappings('foo', { fooclass: { type: 'keyword' } })
     const storageReadEs = await createStorageReadEs(esClient, index, logger)
-    await storageWriteEs.addTx('domain', 1, 'foo', { 'foodata': 'foo-domain-1111', 'fooclass': 'AA' })
-    await storageWriteEs.addTx('domain', 2, 'foo', { 'foodata': 'foo-domain-2222', 'fooclass': 'AA' })
-    await storageWriteEs.addTx('domain', 3, 'foo', { 'foodata': 'foo-domain-3333', 'fooclass': 'BB' })
-    await storageWriteEs.addTx('domain', 4, 'foo', { 'foodata': 'foo-domain-4444', 'fooclass': 'BB' })
-    await storageWriteEs.addTx('domain', 5, 'foo', { 'foodata': 'foo-domain-5555', 'fooclass': 'CC' })
-    await storageWriteEs.addTx('domain', 6, 'foo', { 'foodata': 'foo-domain-6666', 'fooclass': 'CC' })
+    await storageWriteEs.addTx('domain', 1, 'foo', { foodata: 'foo-domain-1111', fooclass: 'AA' })
+    await storageWriteEs.addTx('domain', 2, 'foo', { foodata: 'foo-domain-2222', fooclass: 'AA' })
+    await storageWriteEs.addTx('domain', 3, 'foo', { foodata: 'foo-domain-3333', fooclass: 'BB' })
+    await storageWriteEs.addTx('domain', 4, 'foo', { foodata: 'foo-domain-4444', fooclass: 'BB' })
+    await storageWriteEs.addTx('domain', 5, 'foo', { foodata: 'foo-domain-5555', fooclass: 'CC' })
+    await storageWriteEs.addTx('domain', 6, 'foo', { foodata: 'foo-domain-6666', fooclass: 'CC' })
 
-    await storageWriteEs.addTx('domain', 1, 'bar', { 'bardata': 'bar-domain-1111' })
-    await storageWriteEs.addTx('domain', 2, 'bar', { 'bardata': 'bar-domain-2222' })
-    await storageWriteEs.addTx('domain', 3, 'bar', { 'bardata': 'bar-domain-3333' })
-    await storageWriteEs.addTx('domain', 4, 'bar', { 'bardata': 'bar-domain-4444' })
+    await storageWriteEs.addTx('domain', 1, 'bar', { bardata: 'bar-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'bar', { bardata: 'bar-domain-2222' })
+    await storageWriteEs.addTx('domain', 3, 'bar', { bardata: 'bar-domain-3333' })
+    await storageWriteEs.addTx('domain', 4, 'bar', { bardata: 'bar-domain-4444' })
 
     await sleep(1000) // takes time to index the stuff
 
     function esFilterByTxFooClasses (values) {
       return {
-        'terms': {
+        terms: {
           'idata.foo.idata.fooclass': values
         }
       }
     }
 
     // act
-    let txs = await storageReadEs.getManyTxs('domain', 0, 20, esFilterByTxFooClasses(['CC', 'BB']), undefined, 'foo')
+    const txs = await storageReadEs.getManyTxs('domain', 0, 20, esFilterByTxFooClasses(['CC', 'BB']), undefined, 'foo')
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBe(4)
     expect(toCanonicalJson(txs[0])).toBe(toCanonicalJson({
@@ -271,21 +271,21 @@ describe('reading transaction formats from elasticsearch', () => {
     const logger = createWinstonLoggerDummy()
     const storageWriteEs = await createStorageWriteEs(esClient, index, 0, logger)
     const storageReadEs = await createStorageReadEs(esClient, index, logger)
-    await storageWriteEs.addTx('domain', 1, 'foo', { 'foodata': 'foo-domain-1111' })
-    await storageWriteEs.addTx('domain', 2, 'foo', { 'foodata': 'foo-domain-2222' })
-    await storageWriteEs.addTx('domain', 3, 'foo', { 'foodata': 'foo-domain-3333' })
-    await storageWriteEs.addTx('domain', 4, 'foo', { 'foodata': 'foo-domain-4444' })
-    await storageWriteEs.addTx('domain', 1, 'bar', { 'bardata': 'bar-domain-1111' })
-    await storageWriteEs.addTx('domain', 2, 'bar', { 'bardata': 'bar-domain-2222' })
-    await storageWriteEs.addTx('domain', 3, 'bar', { 'bardata': 'bar-domain-3333' })
-    await storageWriteEs.addTx('domain', 4, 'bar', { 'bardata': 'bar-domain-4444' })
+    await storageWriteEs.addTx('domain', 1, 'foo', { foodata: 'foo-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'foo', { foodata: 'foo-domain-2222' })
+    await storageWriteEs.addTx('domain', 3, 'foo', { foodata: 'foo-domain-3333' })
+    await storageWriteEs.addTx('domain', 4, 'foo', { foodata: 'foo-domain-4444' })
+    await storageWriteEs.addTx('domain', 1, 'bar', { bardata: 'bar-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'bar', { bardata: 'bar-domain-2222' })
+    await storageWriteEs.addTx('domain', 3, 'bar', { bardata: 'bar-domain-3333' })
+    await storageWriteEs.addTx('domain', 4, 'bar', { bardata: 'bar-domain-4444' })
 
-    await storageWriteEs.addTx('config', 1, 'foo', { 'foodata': 'foo-config-1111' })
-    await storageWriteEs.addTx('config', 2, 'foo', { 'foodata': 'foo-config-2222' })
-    await storageWriteEs.addTx('config', 3, 'foo', { 'foodata': 'foo-config-3333' })
-    await storageWriteEs.addTx('config', 4, 'foo', { 'foodata': 'foo-config-4444' })
-    await storageWriteEs.addTx('config', 5, 'bar', { 'bardata': 'bar-config-1111' })
-    await storageWriteEs.addTx('config', 6, 'bar', { 'bardata': 'bar-config-2222' })
+    await storageWriteEs.addTx('config', 1, 'foo', { foodata: 'foo-config-1111' })
+    await storageWriteEs.addTx('config', 2, 'foo', { foodata: 'foo-config-2222' })
+    await storageWriteEs.addTx('config', 3, 'foo', { foodata: 'foo-config-3333' })
+    await storageWriteEs.addTx('config', 4, 'foo', { foodata: 'foo-config-4444' })
+    await storageWriteEs.addTx('config', 5, 'bar', { bardata: 'bar-config-1111' })
+    await storageWriteEs.addTx('config', 6, 'bar', { bardata: 'bar-config-2222' })
 
     await sleep(1000) // takes time to index the stuff
 
@@ -300,18 +300,18 @@ describe('reading transaction formats from elasticsearch', () => {
     const logger = createWinstonLoggerDummy()
     const storageWriteEs = await createStorageWriteEs(esClient, index, 0, logger)
     const storageReadEs = await createStorageReadEs(esClient, index, logger)
-    await storageWriteEs.addTx('domain', 1, 'foo', { 'foodata': 'foo-domain-1111' })
-    await storageWriteEs.addTx('domain', 2, 'foo', { 'foodata': 'foo-domain-2222' })
-    await storageWriteEs.addTx('domain', 3, 'foo', { 'foodata': 'foo-domain-3333' })
-    await storageWriteEs.addTx('domain', 1, 'bar', { 'bardata': 'bar-domain-1111' })
-    await storageWriteEs.addTx('domain', 2, 'bar', { 'bardata': 'bar-domain-2222' })
+    await storageWriteEs.addTx('domain', 1, 'foo', { foodata: 'foo-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'foo', { foodata: 'foo-domain-2222' })
+    await storageWriteEs.addTx('domain', 3, 'foo', { foodata: 'foo-domain-3333' })
+    await storageWriteEs.addTx('domain', 1, 'bar', { bardata: 'bar-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'bar', { bardata: 'bar-domain-2222' })
 
-    await storageWriteEs.addTx('config', 1, 'foo', { 'foodata': 'foo-config-1111' })
-    await storageWriteEs.addTx('config', 2, 'foo', { 'foodata': 'foo-config-2222' })
-    await storageWriteEs.addTx('config', 3, 'foo', { 'foodata': 'foo-config-3333' })
-    await storageWriteEs.addTx('config', 4, 'foo', { 'foodata': 'foo-config-4444' })
-    await storageWriteEs.addTx('config', 5, 'foo', { 'foodata': 'foo-config-5555' })
-    await storageWriteEs.addTx('config', 6, 'foo', { 'foodata': 'foo-config-6666' })
+    await storageWriteEs.addTx('config', 1, 'foo', { foodata: 'foo-config-1111' })
+    await storageWriteEs.addTx('config', 2, 'foo', { foodata: 'foo-config-2222' })
+    await storageWriteEs.addTx('config', 3, 'foo', { foodata: 'foo-config-3333' })
+    await storageWriteEs.addTx('config', 4, 'foo', { foodata: 'foo-config-4444' })
+    await storageWriteEs.addTx('config', 5, 'foo', { foodata: 'foo-config-5555' })
+    await storageWriteEs.addTx('config', 6, 'foo', { foodata: 'foo-config-6666' })
 
     await sleep(1000) // takes time to index the stuff
 

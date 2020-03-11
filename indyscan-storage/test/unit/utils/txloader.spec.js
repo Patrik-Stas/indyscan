@@ -5,7 +5,7 @@ const path = require('path')
 const RESOURCE_DIR = path.resolve(__dirname, '../../resource')
 
 function createsSimpleStorage () {
-  let txs = []
+  const txs = []
 
   function addTx (tx) {
     txs.push(tx)

@@ -27,7 +27,7 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger) 
 
   await assureEsIndex(esClient, esIndex, esReplicaCount, logger)
   await setMapping(esClient, esIndex, {
-    'properties': {
+    properties: {
       'imeta.subledger': { type: 'keyword' },
       'imeta.seqNo': { type: 'integer' }
     }
@@ -37,8 +37,8 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger) 
 
   async function setFormatMappings (formatName, fieldMappings) {
     logger.info(`${whoami} Setting up mappings for ES Index ${esIndex}!`)
-    let esMappingDefinition = { properties: {} }
-    for (let [field, fieldMapping] of Object.entries(fieldMappings)) {
+    const esMappingDefinition = { properties: {} }
+    for (const [field, fieldMapping] of Object.entries(fieldMappings)) {
       esMappingDefinition.properties[`idata.${formatName}.idata.${field}`] = fieldMapping
     }
     esMappingDefinition.properties[`idata.${formatName}.imeta.subledger`] = { type: 'keyword' }
