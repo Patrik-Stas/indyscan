@@ -1,7 +1,6 @@
 const { asyncHandler } = require('../middleware')
 const validate = require('express-validation')
 const Joi = require('joi')
-const util = require('util')
 
 function initTxsApi (app, networkManager, serviceTxs) {
   function getNetworkId (req, res) {
@@ -26,7 +25,6 @@ function initTxsApi (app, networkManager, serviceTxs) {
       }
     ),
     asyncHandler(async function (req, res) {
-      // console.log(util.inspect(req))
       const networkId = getNetworkId(req, res)
       const { ledger } = req.params
       console.log(JSON.stringify(req.query))

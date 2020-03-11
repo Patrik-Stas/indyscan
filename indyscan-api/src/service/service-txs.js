@@ -1,7 +1,7 @@
-const {  esFilterByTxTypeNames, esFullTextsearch } = require('indyscan-storage/src/es/es-query-builder')
+const { esFilterByTxTypeNames, esFullTextsearch } = require('indyscan-storage/src/es/es-query-builder')
 
 function urlQueryTxNamesToEsQuery (urlQueryTxNames) {
-  const filterTxNames = (urlQueryTxNames) ? urlQueryTxNames : []
+  const filterTxNames = (urlQueryTxNames) || []
   if (filterTxNames.length === 0) {
     return null
   } else {

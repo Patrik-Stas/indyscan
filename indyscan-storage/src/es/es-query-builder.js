@@ -3,7 +3,7 @@ const _ = require('lodash')
 
 function esFilterByTxTypeNames (txNames) {
   return {
-    'terms': {
+    terms: {
       'idata.expansion.idata.txn.typeName': txNames
     }
   }
