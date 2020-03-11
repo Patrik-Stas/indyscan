@@ -21,7 +21,7 @@ function initTxsApi (app, networkManager, serviceTxs) {
           toRecentTx: Joi.number(),
           filterTxNames: Joi.array().items(Joi.string()),
           search: Joi.string(),
-          format: Joi.string().valid(['original', 'full', 'indyscan'])
+          format: Joi.string().valid(['serialized', 'full', 'expansion'])
         }
       }
     ),
@@ -47,7 +47,7 @@ function initTxsApi (app, networkManager, serviceTxs) {
     validate(
       {
         query: {
-          format: Joi.string().valid(['original', 'full', 'indyscan'])
+          format: Joi.string().valid(['serialized', 'full', 'expansion'])
         }
       }
     ),
@@ -64,7 +64,7 @@ function initTxsApi (app, networkManager, serviceTxs) {
     validate(
       {
         query: {
-          filterTxNames: Joi.array().items(Joi.string()).required()
+          filterTxNames: Joi.array().items(Joi.string())
         }
       }
     ),
@@ -73,7 +73,7 @@ function initTxsApi (app, networkManager, serviceTxs) {
       const { ledger } = req.params
       const networkId = getNetworkId(req, res)
       const { filterTxNames, search } = parts.query
-      const txCount = serviceTxs.getTxsCount(networkId, ledger, filterTxNames, search)
+      const txCount = await serviceTxs.getTxsCount(networkId, ledger, filterTxNames, search)
       res.status(200).send({ txCount })
     }))
 

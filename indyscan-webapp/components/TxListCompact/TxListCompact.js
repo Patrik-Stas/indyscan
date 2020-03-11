@@ -5,6 +5,7 @@ import React, { Component } from 'react'
 
 class TxListCompact extends Component {
   render () {
+    console.log(`TX LIST COMPACT`)
     return (
       <Table striped celled selectable>
         <TableHeader>
@@ -18,7 +19,6 @@ class TxListCompact extends Component {
         </TableHeader>
         <TableBody>
           {this.props.txs.map((txn) => {
-            // const description = describeTransaction(txn)
             return (
               <TxListItem
                 baseUrl={this.props.baseUrl}

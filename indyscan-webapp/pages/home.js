@@ -8,15 +8,16 @@ import TxPreviewList from '../components/TxPreviewList/TxPreviewList'
 import Footer from '../components/Footer/Footer'
 import fetch from 'isomorphic-fetch'
 import { secondsToDhms } from '../txtools'
+import util from 'util'
 
 class HomePage extends Component {
   static async getInitialProps ({ req, query }) {
     const baseUrl = getBaseUrl(req)
     const { network } = query
     const networkDetails = await getNetwork(baseUrl, network)
-    const domainIndyscanTxs = await getTxs(baseUrl, network, 'domain', 0, 13, [], 'indyscan')
-    const poolIndyscanTxs = await getTxs(baseUrl, network, 'pool', 0, 13, [], 'indyscan')
-    const configIndyscanTxs = await getTxs(baseUrl, network, 'config', 0, 13, [], 'indyscan')
+    const domainIndyscanTxs = await getTxs(baseUrl, network, 'domain', 0, 13, [], 'expansion')
+    const poolIndyscanTxs = await getTxs(baseUrl, network, 'pool', 0, 13, [], 'expansion')
+    const configIndyscanTxs = await getTxs(baseUrl, network, 'config', 0, 13, [], 'expansion')
     const versionRes = await fetch(`${baseUrl}/version`)
     const version = (await versionRes.json()).version
     return {

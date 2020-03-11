@@ -21,19 +21,21 @@ class Tx extends Component {
   static async getInitialProps ({ req, query }) {
     const { network, ledger, seqNo } = query
     const baseUrl = getBaseUrl(req)
-    let txIndyscan
-    let txDetail
+    let txExpansion
+    let txSerialized
     try {
-      let txFull = await getTx(baseUrl, network, ledger, seqNo, 'full')
-      txIndyscan = txFull.indyscan
-      txDetail = JSON.parse(txFull.original)
+      let {idata} = await getTx(baseUrl, network, ledger, seqNo, 'full')
+      txExpansion = idata.expansion
+      txSerialized = idata.serialized
     } catch (e) {
-      txDetail = { error: 'This tx was not scanned yet, or something went wrong trying to retrieve it.' }
+      txSerialized = { error: 'This tx was not scanned yet, or something went wrong trying to retrieve it.' }
     }
     return {
-      txIndyscan,
+      // txIndyscan: txExpansion,
+      txExpansion,
       baseUrl,
-      txDetail,
+      // txDetail: txSerialized,
+      txSerialized,
       network,
       ledger,
       seqNo
@@ -75,7 +77,7 @@ class Tx extends Component {
       boolean: `color:${palette[4]};`
     }
 
-    const { baseUrl, txDetail, network, ledger, seqNo, txIndyscan } = this.props
+    const { baseUrl, txSerialized, network, ledger, seqNo, txExpansion } = this.props
     const { href: hrefPrev, as: asPrev } = getTxLinkData(baseUrl, network, ledger, parseInt(seqNo) - 1)
     const { href: hrefNext, as: asNext } = getTxLinkData(baseUrl, network, ledger, parseInt(seqNo) + 1)
     return (
@@ -97,9 +99,9 @@ class Tx extends Component {
             <Link href={hrefPrev} as={asPrev}><a className='menulink'>Prev tx</a></Link>
           </GridColumn>
         </GridRow>
-        {txIndyscan &&
+        {txExpansion &&
         <GridRow>
-          <TxDisplay txIndyscan={txIndyscan} txLedger={txDetail} />
+          <TxDisplay txIndyscan={txExpansion} txLedger={txSerialized} />
         </GridRow>
         }
         <GridRow>
@@ -112,7 +114,7 @@ class Tx extends Component {
         <GridRow>
           <GridColumn>
             <Container textAlign='justified'>
-              {<JSONPretty theme={mytheme} data={toCanonicalJson(txIndyscan)} />}
+              {<JSONPretty theme={mytheme} data={toCanonicalJson(txExpansion.idata)} />}
             </Container>
           </GridColumn>
         </GridRow>
@@ -127,7 +129,7 @@ class Tx extends Component {
         <GridRow>
           <GridColumn>
             <Container textAlign='justified'>
-              {<JSONPretty theme={mytheme} data={toCanonicalJson(txDetail)} />}
+              {<JSONPretty theme={mytheme} data={toCanonicalJson(JSON.parse(txSerialized.idata.json))} />}
             </Container>
           </GridColumn>
         </GridRow>

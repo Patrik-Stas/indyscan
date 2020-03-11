@@ -47,9 +47,9 @@ async function startServer () {
   const networkConfigManager = setupNetworkManager(networksConfig)
   const ledgerStorageManager = await setupStorageManager(networkConfigManager, appConfig.ES_URL)
   const serviceTxs = createServiceTxs(ledgerStorageManager)
+  setupLoggingMiddlleware(app, appConfig.LOG_HTTP_REQUESTS === 'true', appConfig.LOG_HTTP_RESPONSES === 'true')
   initApiTxs(app, networkConfigManager, serviceTxs)
   initApiNetworks(app, networkConfigManager)
-  setupLoggingMiddlleware(app, appConfig.LOG_HTTP_REQUESTS === 'true', appConfig.LOG_HTTP_RESPONSES === 'true')
 
   app.use(function (err, req, res, next) {
     res.status(400).json(err)

@@ -9,6 +9,7 @@ import Footer from '../components/Footer/Footer'
 import { getConfigTxNames, getDomainsTxNames, getPoolTxNames } from 'indyscan-txtype'
 import AwesomeDebouncePromise from 'awesome-debounce-promise'
 import Router from 'next/router'
+import util from "util"
 
 class Txs extends Component {
   updateUrl (baseUrl, network, ledger, page, pageSize, filterTxNames = '[]', search = null, sortFromRecent = true) {
@@ -70,7 +71,7 @@ class Txs extends Component {
     const filterTxNames = (query.filterTxNames) ? JSON.parse(query.filterTxNames) : []
     const search = query.search
     const sortFromRecent = (query.sortFromRecent) ? query.sortFromRecent : 'true'
-    const indyscanTxs = await getTxs(baseUrl, network, ledger, skip, pageSize, filterTxNames, 'indyscan', search, sortFromRecent)
+    const indyscanTxs = await getTxs(baseUrl, network, ledger, skip, pageSize, filterTxNames, 'expansion', search, sortFromRecent)
     const txCount = await getTxCount(baseUrl, network, ledger, filterTxNames, search)
     return {
       indyscanTxs,
@@ -126,6 +127,7 @@ class Txs extends Component {
   }
 
   render () {
+    console.log(`TXS PAGE RENDER`)
     const { ledger, network, txCount, page, baseUrl, pageSize, indyscanTxs, sortFromRecent } = this.props
     const pageCount = Math.min(Math.ceil(txCount / pageSize), 200)
     return (
@@ -159,7 +161,8 @@ class Txs extends Component {
           </GridColumn>
           <GridColumn floated='right' width={2}>
             <span style={{ fontSize: '2em', marginRight: '0.2em' }}>{txCount}</span>
-            <span style={{ fontSize: '1.2em' }}> txs</span></GridColumn>
+            <span style={{ fontSize: '1.2em' }}> txs</span>
+          </GridColumn>
         </GridRow>
         <GridRow>
           <GridColumn>
