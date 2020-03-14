@@ -16,16 +16,16 @@ const PRESET_MEDIUM = {
 
 const PRESET_FAST = {
   timeoutOnSuccess: 1000,
-  timeoutOnTxIngestionError: 60 * 1000,
-  timeoutOnLedgerResolutionError: 60 * 1000,
+  timeoutOnTxIngestionError: 30 * 1000,
+  timeoutOnLedgerResolutionError: 30 * 1000,
   timeoutOnTxNoFound: 3 * 1000,
   jitterRatio: 0.1
 }
 
 const PRESET_TURBO = {
-  timeoutOnSuccess: 100,
-  timeoutOnTxIngestionError: 60 * 1000,
-  timeoutOnLedgerResolutionError: 60 * 1000,
+  timeoutOnSuccess: 500,
+  timeoutOnTxIngestionError: 25 * 1000,
+  timeoutOnLedgerResolutionError: 6 * 1000,
   timeoutOnTxNoFound: 1500,
   jitterRatio: 0.1
 }

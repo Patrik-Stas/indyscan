@@ -4,7 +4,7 @@
     "consumerConfig": {
       "type": "sequential",
       "data": {
-        "preset": "FAST"
+        "preset": "TURBO"
       }
     },
     "sourceConfig": {

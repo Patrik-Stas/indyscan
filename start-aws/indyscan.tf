@@ -3,12 +3,13 @@ resource "aws_instance" "indyscan" {
   instance_type = var.ec2_size
   availability_zone = var.availability_zone
   key_name = var.keypair_name
-  vpc_security_group_ids = [
+  vpc_security_group_ids = flatten([
     aws_security_group.Indyscan_General.id,
     aws_security_group.Indyscan_Services.id,
     aws_security_group.Indyscan_IndyPool_Client.id,
-    aws_security_group.Indyscan_IndyPool_Node.id
-  ]
+    aws_security_group.Indyscan_IndyPool_Node.id,
+    var.custom_security_group_ids
+  ])
 
   root_block_device {
     volume_size = "20"
@@ -80,7 +81,12 @@ resource "null_resource" "assure_software" {
   }
 }
 
-resource "null_resource" "provision_indyscan_scripts" {
+/*
+Destroys all existing data
+Recreate everything from scrach
+TODO: Make it possible to restart ledger without destorying it. Right now that's problematic because I can't mount ledger data to named volume. There's a comment about this in start/docker-compose.yml
+*/
+resource "null_resource" "recreate_environment" {
 
   connection {
     type = "ssh"
@@ -89,10 +95,25 @@ resource "null_resource" "provision_indyscan_scripts" {
     private_key = file(var.private_key_path)
   }
 
+  depends_on = [
+    null_resource.assure_software,
+    aws_route53_record.www
+  ]
+
   triggers = {
-    key = "reprovision-scripts-1"
+    key = var.trigger_reset_environment
   }
 
+  // wipe out existing files, destory existing environment
+  provisioner "remote-exec" {
+    inline = [
+      "set -x",
+      "cd $HOME/indyscan; docker-compose down --volumes ||:", // since we cannot preserve ledger data, we have to also wipe out elasticsearch data
+      "yes | rm -r $HOME/indyscan ||:",
+    ]
+  }
+
+  // re-copy files
   provisioner "file" {
     source = "${path.module}/../start"
     destination = "$HOME/indyscan"
@@ -100,26 +121,12 @@ resource "null_resource" "provision_indyscan_scripts" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -x",
       "chmod -R +x indyscan/*.sh indyscan/**/*.sh",
     ]
   }
-}
 
-resource "null_resource" "build_indypool_image" {
-
-  depends_on = [
-    null_resource.provision_indyscan_scripts,
-    null_resource.assure_software,
-    aws_route53_record.www
-  ]
-
-  connection {
-    type = "ssh"
-    user = "ubuntu"
-    host = aws_instance.indyscan.public_ip
-    private_key = file(var.private_key_path)
-  }
-
+  // build pool image, prepare configuration
   provisioner "remote-exec" {
     inline = [
       "set -x",
@@ -127,39 +134,21 @@ resource "null_resource" "build_indypool_image" {
       "export INDYPOOL_IMAGE_TAG=\"indypool-$POOL_ADDRESS:latest\"",
       "yes | ~/indyscan/indypool/build-pool.sh",
       "rm -r ~/.indy_client/pool/INDYPOOL_INDYSCAN ||:",
-      "docker run --name tmp-indypool \"$INDYPOOL_IMAGE_TAG\" cat /var/lib/indy/sandbox/pool_transactions_genesis > ~/indyscan/app-config-daemon/genesis/INDYPOOL_INDYSCAN.txn",
-      "docker rm -f tmp-indypool"
+      "docker run --rm --name tmp-indypool \"$INDYPOOL_IMAGE_TAG\" cat /var/lib/indy/sandbox/pool_transactions_genesis > ~/indyscan/app-config-daemon/genesis/INDYPOOL_INDYSCAN.txn"
     ]
   }
-}
 
-resource "null_resource" "restart_docker" {
-
-  depends_on = [
-    null_resource.build_indypool_image
-  ]
-
-  triggers = {
-    key = "restart-1"
-  }
-
-  connection {
-    type = "ssh"
-    user = "ubuntu"
-    host = aws_instance.indyscan.public_ip
-    private_key = file(var.private_key_path)
-  }
-
+  // start up new environment
   provisioner "remote-exec" {
-
     inline = [
-      "cd ~/indyscan; docker-compose pull",
+      "set -x",
+      "ls ~",
+      "cd ~/indyscan; docker-compose pull --ignore-pull-failures",
       "export POOL_ADDRESS='${coalesce(var.dns_hostname, aws_instance.indyscan.public_ip)}'",
       "export INDYPOOL_IMAGE_TAG=\"indypool-$POOL_ADDRESS:latest\"",
       "echo \"INDYSCAN_INDYPOOL_IMAGE=indypool-$POOL_ADDRESS:latest\" > ~/indyscan/.env",
       "echo Restarting docker-compose with following env file:",
       "cat ~/indyscan/.env",
-      "cd ~/indyscan; docker-compose down ||:",
       "cd ~/indyscan; docker-compose up -d",
     ]
   }
@@ -178,7 +167,7 @@ resource "null_resource" "restart_docker" {
 resource "null_resource" "provision_genesis_locally" {
 
   depends_on = [
-    null_resource.build_indypool_image
+    null_resource.recreate_environment
   ]
 
   provisioner "local-exec" {
@@ -205,7 +194,7 @@ resource "null_resource" "print_info" {
   }
 
   depends_on = [
-    null_resource.restart_docker,
+    null_resource.recreate_environment,
     null_resource.provision_genesis_locally
   ]
 

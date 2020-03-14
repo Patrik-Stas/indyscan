@@ -54,3 +54,16 @@ variable "dns_hostname" {
   default = ""
   description = "(Optional) Example: 'dev.indypool.id'. VPC-wide Indyscan DNS A record. This URL will be also used in genesis file for this IndyPool. If not specified, pool will be Internet-public, accesible via public IP. "
 }
+
+variable "trigger_reset_environment" {
+  default = "1"
+}
+
+variable "ssh_cidr_block" {
+  default = "0.0.0.0/0"
+}
+
+variable "custom_security_group_ids" {
+  type    = list(string)
+  default = []
+}
