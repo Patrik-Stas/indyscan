@@ -4,6 +4,7 @@ REPO_OWNER="hyperledger"
 INDY_VERSION="v1.14.2"
 TMP_INDYSDK=$(dirname "$0")/tmp-indysdk
 
+DOCKER_BUILD_PARAMS=$1
 
 if [ ! -d "$TMP_INDYSDK" ]; then
     git clone "https://github.com/${REPO_OWNER}/indy-sdk.git" "$TMP_INDYSDK"
@@ -31,9 +32,10 @@ read yesno
 if [ $yesno != "y" ]; then
   exit 0
 fi
+echo "Building image!"
 
 cd "$TMP_INDYSDK" || exit 1
-docker build --build-arg pool_ip="$POOL_ADDRESS" -f "ci/indy-pool.dockerfile" -t "$INDYPOOL_IMAGE_TAG" .
+docker build "$DOCKER_BUILD_PARAMS" --build-arg pool_ip="$POOL_ADDRESS" -f "ci/indy-pool.dockerfile" -t "$INDYPOOL_IMAGE_TAG" .
 
 echo "Image built"
 docker image ls "$INDYPOOL_IMAGE_TAG"

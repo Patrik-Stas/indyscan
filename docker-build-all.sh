@@ -1,15 +1,15 @@
 cd "$(dirname $0)" || exit
 echo "Going to build base indysdk image"
-(cd ubuntu-libindy && yes | ./dockerbuild.sh)
+(cd ubuntu-libindy && yes | ./dockerbuild.sh --quiet)
 echo "Going to build docker for 'indyscan-api'"
-(cd indyscan-api && yes | ./dockerbuild.sh)
+(cd indyscan-api && yes | ./dockerbuild.sh --quiet)
 echo "Going to build docker for 'indyscan-daemon'"
-(cd indyscan-daemon && yes | ./dockerbuild.sh)
+(cd indyscan-daemon && yes | ./dockerbuild.sh --quiet)
 echo "Going to build docker for 'indyscan-daemon-ui'"
-(cd indyscan-daemon-ui && yes | ./dockerbuild.sh)
+(cd indyscan-daemon-ui && yes | ./dockerbuild.sh --quiet)
 echo "Going to build docker for 'indyscan-webapp'"
-(cd indyscan-webapp && yes | ./dockerbuild.sh)
+(cd indyscan-webapp && yes | ./dockerbuild.sh --quiet)
 echo "Going to build docker for 'start/indypool'"
-(cd start/indypool && yes | ./build-pool.sh)
+(cd start/indypool && yes | ./build-pool.sh --quiet)
 
 
