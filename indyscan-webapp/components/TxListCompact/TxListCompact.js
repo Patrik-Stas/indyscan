@@ -5,7 +5,6 @@ import React, { Component } from 'react'
 
 class TxListCompact extends Component {
   render () {
-    console.log(`TX LIST COMPACT`)
     return (
       <Table striped celled selectable>
         <TableHeader>
@@ -21,6 +20,7 @@ class TxListCompact extends Component {
           {this.props.txs.map((txn) => {
             return (
               <TxListItem
+                key={txn.idata.seqNo}
                 baseUrl={this.props.baseUrl}
                 network={this.props.network}
                 ledger={this.props.ledger}

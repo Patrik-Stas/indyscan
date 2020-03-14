@@ -35,7 +35,7 @@ function extractClassDataNode (txExpansion) {
     { priority: 1, label: 'Destination', value: txExpansion.idata.txn.data.dest },
     { priority: 1, label: 'Alias', value: txExpansion.idata.txn.data.data.alias }
   ]
-  let { data } = txExpansion.txn.data
+  let { data } = txExpansion.idata.txn.data
   if (data.client_ip) {
     display.push({ priority: 1, label: 'Client', value: `${data.client_ip}:${data.client_port}` })
   }

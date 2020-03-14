@@ -1,9 +1,9 @@
 [
   {
-    "id": "indylocal",
-    "display": "IndyNetwork",
+    "id": "indyscanpool",
+    "display": "IndyscanPool",
     "es" : {
-      "index": "txs-indypool-indyscan"
+      "index": "txs-indyscanpool"
     },
     "description": "Local docker Indy network."
   }

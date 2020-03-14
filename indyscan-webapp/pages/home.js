@@ -15,31 +15,31 @@ class HomePage extends Component {
     const baseUrl = getBaseUrl(req)
     const { network } = query
     const networkDetails = await getNetwork(baseUrl, network)
-    const domainIndyscanTxs = await getTxs(baseUrl, network, 'domain', 0, 13, [], 'expansion')
-    const poolIndyscanTxs = await getTxs(baseUrl, network, 'pool', 0, 13, [], 'expansion')
-    const configIndyscanTxs = await getTxs(baseUrl, network, 'config', 0, 13, [], 'expansion')
+    const domainExpansionTxs = await getTxs(baseUrl, network, 'domain', 0, 13, [], 'expansion')
+    const poolExpansionTxs = await getTxs(baseUrl, network, 'pool', 0, 13, [], 'expansion')
+    const configExpansionTxs = await getTxs(baseUrl, network, 'config', 0, 13, [], 'expansion')
     const versionRes = await fetch(`${baseUrl}/version`)
     const version = (await versionRes.json()).version
     return {
       networkDetails,
       network,
-      domainIndyscanTxs,
-      poolIndyscanTxs,
-      configIndyscanTxs,
+      domainExpansionTxs,
+      poolExpansionTxs,
+      configExpansionTxs,
       baseUrl,
       version
     }
   }
 
-  calculateTimeSinceLastTransaction = function calculateTimeSinceLastTransaction (txs) {
-    const timestamps = txs.map(tx => (tx && tx.txnMetadata) ? (Date.parse(tx.txnMetadata.txnTime) / 1000) : undefined).filter(t => !!t)
+  calculateTimeSinceLastTransaction = function calculateTimeSinceLastTransaction (expansionTxs) {
+    const timestamps = expansionTxs.map(tx => (tx && tx.idata && tx.idata.txnMetadata) ? (Date.parse(tx.idata.txnMetadata.txnTime) / 1000) : undefined).filter(t => !!t)
     const utimeMaxTx = Math.max(...timestamps)
     const utimeNow = Math.floor(new Date() / 1000)
     return secondsToDhms(utimeNow - utimeMaxTx)
   }
 
   render () {
-    const { network, networkDetails, baseUrl, domainIndyscanTxs, poolIndyscanTxs, configIndyscanTxs } = this.props
+    const { network, networkDetails, baseUrl, domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.props
     return (
       <Grid>
         <GridRow style={{ backgroundColor: 'white', marginBottom: '-1em' }}>
@@ -59,33 +59,33 @@ class HomePage extends Component {
           <GridColumn width={5} align='left'>
             <GridRow align='left'>
               <h2>Domain txs</h2>
-              <h4>Last tx {this.calculateTimeSinceLastTransaction(domainIndyscanTxs)} ago</h4>
+              <h4>Last tx {this.calculateTimeSinceLastTransaction(domainExpansionTxs)} ago</h4>
             </GridRow>
             <GridRow centered style={{ marginTop: '2em' }}>
               <Grid.Column>
-                <TxPreviewList indyscanTxs={domainIndyscanTxs} network={network} subledger='domain' />
+                <TxPreviewList indyscanTxs={domainExpansionTxs} network={network} subledger='domain' />
               </Grid.Column>
             </GridRow>
           </GridColumn>
           <GridColumn width={6} align='center'>
             <GridRow align='left'>
               <h2>Pool txs</h2>
-              <h4>Last tx {this.calculateTimeSinceLastTransaction(poolIndyscanTxs)} ago</h4>
+              <h4>Last tx {this.calculateTimeSinceLastTransaction(poolExpansionTxs)} ago</h4>
             </GridRow>
             <GridRow centered style={{ marginTop: '2em' }}>
               <Grid.Column>
-                <TxPreviewList indyscanTxs={poolIndyscanTxs} network={network} subledger='pool' />
+                <TxPreviewList indyscanTxs={poolExpansionTxs} network={network} subledger='pool' />
               </Grid.Column>
             </GridRow>
           </GridColumn>
           <GridColumn width={5} align='right'>
             <GridRow align='left'>
               <h2>Config txs</h2>
-              <h4>Last tx {this.calculateTimeSinceLastTransaction(configIndyscanTxs)} ago</h4>
+              <h4>Last tx {this.calculateTimeSinceLastTransaction(configExpansionTxs)} ago</h4>
             </GridRow>
             <GridRow centered style={{ marginTop: '2em' }}>
               <Grid.Column>
-                <TxPreviewList indyscanTxs={configIndyscanTxs} network={network} subledger='config' />
+                <TxPreviewList indyscanTxs={configExpansionTxs} network={network} subledger='config' />
               </Grid.Column>
             </GridRow>
           </GridColumn>

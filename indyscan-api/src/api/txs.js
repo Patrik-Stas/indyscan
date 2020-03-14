@@ -37,7 +37,7 @@ function initTxsApi (app, networkManager, serviceTxs) {
         filterTxNames,
         search,
         format,
-        (sortFromRecent === undefined || sortFromRecent === null) ? false : (sortFromRecent === 'true')
+        (sortFromRecent === undefined || sortFromRecent === null) ? true : (sortFromRecent === 'true')
       )
       res.status(200).send(txs)
     }))

@@ -12,7 +12,6 @@ if [ "$yesno" != "y" ]; then
   exit 0
 fi
 
-
 cd .. # we need to have full monorepo context loaded
 docker build -f "./$PROJECT_NAME/Dockerfile" -t "$IMAGE_TAG" .
 docker tag "$IMAGE_TAG" "$IMAGE_TAG_LATEST"

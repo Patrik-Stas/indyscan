@@ -127,7 +127,6 @@ class Txs extends Component {
   }
 
   render () {
-    console.log(`TXS PAGE RENDER`)
     const { ledger, network, txCount, page, baseUrl, pageSize, indyscanTxs, sortFromRecent } = this.props
     const pageCount = Math.min(Math.ceil(txCount / pageSize), 200)
     return (
