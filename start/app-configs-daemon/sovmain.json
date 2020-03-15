@@ -1,29 +1,27 @@
 {
   "env": {
-    "INDY_NETWORK": "HOST_DOCKER_INTERNAL",
-    "ES_URL": "http://localhost:9200",
-    "ES_INDEX": "txs-localdocker"
+    "INDY_NETWORK": "SOVRIN_MAINNET",
+    "ES_URL": "http://indyscan-elasticsearch.esnet:9200",
+    "ES_INDEX": "txs-sovmain"
   },
   "workersBuildersTemplate": [
     {
       "builder": "rtwSerialization",
       "params": {
-        "operationType": "ledgercopy",
         "indyNetworkId": "{{{INDY_NETWORK}}}",
         "genesisPath": "{{{cfgdir}}}/genesis/{{{INDY_NETWORK}}}.txn`",
-        "esUrl": "{{{ES_URL}}}",
         "esIndex": "{{{ES_INDEX}}}",
-        "workerTiming": "MEDIUM"
+        "esUrl": "{{{ES_URL}}}",
+        "workerTiming": "SLOW"
       }
     },
     {
       "builder": "rtwExpansion",
       "params": {
-        "operationType": "dbexpansion",
         "indyNetworkId": "{{{INDY_NETWORK}}}",
         "esUrl": "{{{ES_URL}}}",
         "esIndex": "{{{ES_INDEX}}}",
-        "workerTiming": "MEDIUM"
+        "workerTiming": "SLOW"
       }
     }
   ]

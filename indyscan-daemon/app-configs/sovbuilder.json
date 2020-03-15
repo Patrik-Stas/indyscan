@@ -1,17 +1,18 @@
 {
   "env": {
     "INDY_NETWORK": "SOVRIN_BUILDERNET",
-    "ES_URL": "http://localhost:9200"
+    "ES_URL": "http://localhost:9200",
+    "ES_INDEX": "txs-sovbuilder"
   },
-  "workers": [
+  "workersBuildersTemplate": [
     {
       "builder": "rtwSerialization",
       "params": {
         "indyNetworkId": "{{{INDY_NETWORK}}}",
-        "genesisPath": "{{{cfgdir}}}/genesis/${INDY_NETWORK}.txn`",
-        "esIndex": "txs-sovbuilder",
+        "genesisPath": "{{{cfgdir}}}/genesis/{{{INDY_NETWORK}}}.txn`",
+        "esIndex": "{{{ES_INDEX}}}",
         "esUrl": "{{{ES_URL}}}",
-        "workerTiming": "SLOW"
+        "workerTiming": "MEDIUM"
       }
     },
     {
@@ -19,8 +20,8 @@
       "params": {
         "indyNetworkId": "{{{INDY_NETWORK}}}",
         "esUrl": "{{{ES_URL}}}",
-        "esIndex": "txs-sovbuilder",
-        "workerTiming": "SLOW"
+        "esIndex": "{{{ES_INDEX}}}",
+        "workerTiming": "MEDIUM"
       }
     }
   ]

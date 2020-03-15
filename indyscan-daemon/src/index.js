@@ -51,9 +51,9 @@ async function run () {
 
     for (const workerConfigPath of workerConfigPaths) {
       const workersConfig = fs.readFileSync(workerConfigPath)
-      const { workersBuilderTemplates, env } = JSON.parse(workersConfig)
+      const { workersBuildersTemplate, env } = JSON.parse(workersConfig)
       env.cfgdir = path.dirname(workerConfigPath)
-      const workerBuilders = JSON.parse(Mustache.render(JSON.stringify(workersBuilderTemplates), env))
+      const workerBuilders = JSON.parse(Mustache.render(JSON.stringify(workersBuildersTemplate), env))
       for (const workerBuilder of workerBuilders) {
         const { builder, params } = workerBuilder
         const workerGroup = await buildWorkers(builder, params)
