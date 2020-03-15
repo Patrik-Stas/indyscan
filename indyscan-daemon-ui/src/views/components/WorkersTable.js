@@ -40,7 +40,7 @@ export class WorkersTable extends Component {
                 <th></th>
                 <th>Initialized</th>
                 <th>Status</th>
-                <th>Operation ID</th>
+                <th>Operation Type</th>
                 <th>Component ID</th>
                 <th>Transformation</th>
                 <th>Cycles</th>
@@ -66,7 +66,7 @@ export class WorkersTable extends Component {
                       <td>
                         <Badge color={colorStatus}>{textStatus}</Badge>
                       </td>
-                      <td>{worker.operationId}</td>
+                      <td>{worker.operationType}</td>
                       <td>{worker.componentId}</td>
                       <td>
                         <Badge>{worker.transformerInfo}</Badge>

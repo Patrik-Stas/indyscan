@@ -1,10 +1,10 @@
 const logger = require('../logging/logger-main')
 
-function createIteratorGuided ({ indyNetworkId, operationId, componentId, source, sourceSeqNoGuidance, guidanceFormat }) {
+function createIteratorGuided ({ indyNetworkId, operationType, componentId, source, sourceSeqNoGuidance, guidanceFormat }) {
   const loggerMetadata = {
     metadaemon: {
       indyNetworkId,
-      operationId,
+      operationType,
       componentId,
       componentType: 'iterator-guided'
     }

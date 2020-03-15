@@ -30,11 +30,11 @@ async function isKnownLedger (ledgerName) {
   return !(await isUnknownLedger(ledgerName))
 }
 
-async function createIndyClient (indyNetworkId, operationId, componentId, ledgerName, genesisPath = undefined) {
+async function createIndyClient (indyNetworkId, operationType, componentId, ledgerName, genesisPath = undefined) {
   const loggerMetadata = {
     metadaemon: {
       indyNetworkId,
-      operationId,
+      operationType,
       componentId,
       componentType: 'indy-client'
     }

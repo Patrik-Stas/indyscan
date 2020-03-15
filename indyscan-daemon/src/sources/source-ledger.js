@@ -2,8 +2,8 @@ const { createIndyClient } = require('../indy/indyclient')
 const logger = require('../logging/logger-main')
 const sleep = require('sleep-promise')
 
-async function createSourceLedger ({ indyNetworkId, operationId, componentId, name, genesisPath }) {
-  logger.info(`----- SRC LEDGER: ${name}`)
+async function createSourceLedger ({ indyNetworkId, operationType, componentId, name, genesisPath }) {
+  logger.info(`----- SRC LEDGER: ${JSON.stringify(name)}`)
   let client = null
   let isConnecting = false
   let consecutiveTxResolutionFailures
@@ -11,7 +11,7 @@ async function createSourceLedger ({ indyNetworkId, operationId, componentId, na
   const loggerMetadata = {
     metadaemon: {
       indyNetworkId: name,
-      operationId,
+      operationType,
       componentId,
       componentType: 'source-ledger'
     }
@@ -20,7 +20,7 @@ async function createSourceLedger ({ indyNetworkId, operationId, componentId, na
   async function reconnect () {
     try {
       isConnecting = true
-      client = await createIndyClient(indyNetworkId, operationId, `${operationId}-${componentId}.indyclient`, name, genesisPath)
+      client = await createIndyClient(indyNetworkId, operationType, `${operationType}-${componentId}.indyclient`, name, genesisPath)
     } catch (e) {
       throw Error(`${componentId} Failed to create indy client for network ${name}. Details: ${e.message} ${e.stack}.`)
     } finally {

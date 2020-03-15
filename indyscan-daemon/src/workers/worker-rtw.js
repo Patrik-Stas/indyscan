@@ -35,13 +35,13 @@ function validateTimingConfig (timingConfig) {
   }
 }
 
-async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterator, iteratorTxFormat, transformer, target, timing, operationId }) {
+async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterator, iteratorTxFormat, transformer, target, timing, operationType }) {
   const loggerMetadata = {
     metadaemon: {
       indyNetworkId,
       componentType: 'worker-rtw',
       componentId,
-      operationId,
+      operationType,
       workerRtwOutputFormat: transformer.getOutputFormat()
     }
   }
@@ -293,7 +293,7 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
       initialized,
       enabled,
       indyNetworkId,
-      operationId,
+      operationType,
       componentId,
       transformerInfo: transformer.describe(),
       targetComponentId: target.getObjectId(),

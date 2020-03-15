@@ -49,11 +49,11 @@ const dataspace2 = {
   pool: {},
   config: {}
 }
-const operationId = 'unit-test'
-const sourceLedgerSim = createSourceMemory({ operationId, componentId: 'ledger-source-simulation', dataspace: dataspace1 })
-const sourceDbSim = createSourceMemory({ operationId, componentId: 'db-source-simulation', dataspace: dataspace2 })
-const targetDbSim = createTargetMemory({ operationId, componentId: 'db-target-simulation', dataspace: dataspace2 })
-const originalSerializer = createTransformerOriginal2Serialized({ operationId, componentId: 'serializer' })
+const operationType = 'unit-test'
+const sourceLedgerSim = createSourceMemory({ operationType, componentId: 'ledger-source-simulation', dataspace: dataspace1 })
+const sourceDbSim = createSourceMemory({ operationType, componentId: 'db-source-simulation', dataspace: dataspace2 })
+const targetDbSim = createTargetMemory({ operationType, componentId: 'db-target-simulation', dataspace: dataspace2 })
+const originalSerializer = createTransformerOriginal2Serialized({ operationType: operationType, componentId: 'serializer' })
 
 describe('ledger tx resolution', () => {
   beforeAll(async () => {
@@ -70,14 +70,14 @@ describe('ledger tx resolution', () => {
     }
     const iteratorGuided = createIteratorGuided({
       componentId: 'unit-test-iterator',
-      operationId: 'unit-test',
+      operationType: 'unit-test',
       source: sourceLedgerSim,
       sourceSeqNoGuidance: sourceDbSim,
       guidanceFormat: 'serialized'
     })
     const workerRtw = await createWorkerRtw({
       componentId: 'unit-test-rtw',
-      operationId: 'unit-test',
+      operationType: 'unit-test',
       subledger: 'domain',
       iterator: iteratorGuided,
       iteratorTxFormat: TX_FORMAT_IN,

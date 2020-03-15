@@ -1,5 +1,5 @@
-const { createNetOpRtwSerialization } = require('../src/op-templates/rtw-ledger-to-serialized')
-const { createNetOpRtwExpansion } = require('../src/op-templates/rtw-db-expansion')
+const { createNetOpRtwSerialization } = require('../src/worker-templates/rtw-ledger-to-serialized')
+const { createNetOpRtwExpansion } = require('../src/worker-templates/rtw-db-expansion')
 
 const INDY_NETWORK = 'SOVRIN_MAINNET'
 const GENESIS_PATH = `${__dirname}/genesis/${INDY_NETWORK}.txn`

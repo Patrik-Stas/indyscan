@@ -1,11 +1,11 @@
 const logger = require('../logging/logger-main')
 const { intializeEsTarget } = require('./target-inits')
 
-function createTransformerOriginal2Serialized ({ indyNetworkId, operationId, componentId }) {
+function createTransformerOriginal2Serialized ({ indyNetworkId, operationType, componentId }) {
   const loggerMetadata = {
     metadaemon: {
       indyNetworkId,
-      operationId,
+      operationType,
       componentId,
       componentType: 'transformer-original2serialized'
     }
