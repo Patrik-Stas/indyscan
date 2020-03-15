@@ -1,4 +1,4 @@
-const { getAppConfigPaths, envConfig } = require('./config/env')
+const { envConfig } = require('./config/env')
 const logger = require('./logging/logger-main')
 const _ = require('lodash')
 const sleep = require('sleep-promise')
@@ -27,7 +27,7 @@ const { createNetOpRtwSerialization } = require('./worker-templates/rtw-ledger-t
 //   }
 // })
 
-async function buildWorkers(builder, builderParams) {
+async function buildWorkers (builder, builderParams) {
   logger.info(`Going to build workers by ${builder} from ${JSON.stringify(builderParams)}`)
   if (builder === 'rtwSerialization') {
     return createNetOpRtwSerialization(builderParams)
@@ -51,12 +51,12 @@ async function run () {
 
     for (const workerConfigPath of workerConfigPaths) {
       const workersConfig = fs.readFileSync(workerConfigPath)
-      const {workersBuilderTemplates, env} = JSON.parse(workersConfig)
+      const { workersBuilderTemplates, env } = JSON.parse(workersConfig)
       env.cfgdir = path.dirname(workerConfigPath)
       const workerBuilders = JSON.parse(Mustache.render(JSON.stringify(workersBuilderTemplates), env))
       for (const workerBuilder of workerBuilders) {
-        const {builder, params} = workerBuilder
-        let workerGroup = await buildWorkers(builder, params)
+        const { builder, params } = workerBuilder
+        const workerGroup = await buildWorkers(builder, params)
         workers.push(workerGroup)
       }
     }
@@ -71,13 +71,13 @@ async function run () {
   }
 
   if (envConfig.AUTOSTART) {
-    logger.info(`Autostarting all workers.`)
+    logger.info('Autostarting all workers.')
     const workers = serviceWorkers.getAllWorkers()
     for (const worker of workers) {
       worker.enable()
     }
   } else {
-    logger.info(`Worker autostart is disabled.`)
+    logger.info('Worker autostart is disabled.')
   }
 }
 

@@ -5,8 +5,8 @@ const { createTargetElasticsearch } = require('../targets/target-elasticsearch')
 const { createSourceElasticsearch } = require('../sources/source-elasticsearch')
 const { createSourceLedger } = require('../sources/source-ledger')
 
-async function createNetOpRtwSerialization ({indyNetworkId, genesisPath, esUrl, esIndex, workerTiming, operationType}) {
-  operationType = operationType || `ledgercpy-${indyNetworkId}-to-${esIndex}`
+async function createNetOpRtwSerialization ({ indyNetworkId, genesisPath, esUrl, esIndex, workerTiming }) {
+  const operationType = 'ledgercpy'
   const sourceLedger = await createSourceLedger({
     operationType,
     componentId: `${operationType}.source.ledger`,

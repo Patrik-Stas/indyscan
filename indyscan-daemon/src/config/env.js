@@ -1,7 +1,6 @@
 require('dotenv').config()
 const Joi = require('joi')
 const fs = require('fs')
-const path = require('path')
 // Note: Can't refer to logging/logger-main.js otherwise we get circular dependency and corrupts either logger or config
 
 const envConfig = {

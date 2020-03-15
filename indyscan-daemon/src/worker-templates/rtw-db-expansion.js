@@ -6,8 +6,8 @@ const { createWorkerRtw } = require('../workers/worker-rtw')
 const { createIteratorGuided } = require('../iterators/iterator-guided')
 const { createSourceElasticsearch } = require('../sources/source-elasticsearch')
 
-async function createNetOpRtwExpansion ({indyNetworkId, esUrl, esIndex, workerTiming}) {
-  operationType = 'expansion'
+async function createNetOpRtwExpansion ({ indyNetworkId, esUrl, esIndex, workerTiming }) {
+  const operationType = 'expansion'
 
   const sourceEs = await createSourceElasticsearch({
     indyNetworkId,
