@@ -24,7 +24,7 @@ x-ui-logging:
 services:
   indyscan-indypool:
     container_name: indyscanpool
-    image: ${INDYSCAN_INDYPOOL_IMAGE:-indypool:indyscanpool-v1.14.2}
+    image: ${INDYSCAN_INDYPOOL_IMAGE:-pstas/indypool:indyscanpool-v1.14.2}
     logging: *es-logging
     networks:
       - indyscan
@@ -70,7 +70,7 @@ services:
 #
   indyscan-daemon:
     restart: unless-stopped
-    image: ${INDYSCAN_DAEMON_IMAGE:-indyscan-daemon:4.0.0-dev}
+    image: ${INDYSCAN_DAEMON_IMAGE:-pstas/indyscan-daemon:4.0.0-dev}
     container_name: indyscan-daemon
     logging: *service-logging
     depends_on:
@@ -93,7 +93,7 @@ services:
 
   indyscan-api:
     restart: unless-stopped
-    image: ${INDYSCAN_API_IMAGE:-indyscan-api:4.0.0-dev}
+    image: ${INDYSCAN_API_IMAGE:-pstas/indyscan-api:4.0.0-dev}
     container_name: indyscan-api
     logging: *service-logging
     environment:
@@ -113,7 +113,7 @@ services:
 
   indyscan-webapp:
     restart: unless-stopped
-    image: ${INDYSCAN_WEBAPP_IMAGE:-indyscan-webapp:4.0.0-dev}
+    image: ${INDYSCAN_WEBAPP_IMAGE:-pstas/indyscan-webapp:4.0.0-dev}
     container_name: indyscan-webapp
     logging: *ui-logging
     environment:
@@ -129,7 +129,7 @@ services:
 
   indyscan-daemon-ui:
     restart: unless-stopped
-    image: ${INDYSCAN_DAEMON_UI_IMAGE:-indyscan-daemon-ui:4.0.0-dev}
+    image: ${INDYSCAN_DAEMON_UI_IMAGE:-pstas/indyscan-daemon-ui:4.0.0-dev}
     container_name: indyscan-daemon-ui
     logging: *ui-logging
     environment:

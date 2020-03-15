@@ -7,5 +7,7 @@ echo "Docker publish for indyscan-daemon-ui"
 (cd ../indyscan-daemon-ui && yes | ./dockerpublish.sh)
 echo "Docker publish for indyscan-webapp"
 (cd ../indyscan-webapp && yes | ./dockerpublish.sh)
+echo "Docker publish for indyscan-webapp"
+(cd ../start/indypool && yes | ./dockerpublish.sh)
 
 

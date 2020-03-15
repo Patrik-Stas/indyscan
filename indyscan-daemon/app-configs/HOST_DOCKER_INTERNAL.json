@@ -1,0 +1,26 @@
+{
+  "env": {
+    "INDY_NETWORK": "HOST_DOCKER_INTERNAL",
+    "ES_URL": "http://localhost:9200"
+  },
+  "workerTemplates": [
+    {
+      "template": "rtwSerialization",
+      "indyNetwork": "{{{INDY_NETWORK}}}",
+      "genesisPath": "{{{cfgdir}}}/genesis/${INDY_NETWORK}.txn`",
+      "esUrl": "{{{ES_URL}}}",
+      "esIndex": "txs-sovbuilder",
+      "workerTiming": "SLOW"
+    },
+    {
+      "template": "rtwExpansion",
+      "indyNetwork": "{{{INDY_NETWORK}}}",
+      "esUrl": "{{{ES_URL}}}",
+      "esIndex": "txs-sovbuilder",
+      "workerTiming": "SLOW"
+    }
+  ]
+}
+
+
+
