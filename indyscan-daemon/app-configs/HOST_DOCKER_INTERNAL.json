@@ -8,22 +8,20 @@
     {
       "builder": "rtwSerialization",
       "params": {
-        "operationType": "ledgercopy",
         "indyNetworkId": "{{{INDY_NETWORK}}}",
-        "genesisPath": "{{{cfgdir}}}/genesis/{{{INDY_NETWORK}}}.txn`",
+        "genesisPath": "{{{cfgdir}}}/genesis/{{{INDY_NETWORK}}}.txn",
         "esUrl": "{{{ES_URL}}}",
         "esIndex": "{{{ES_INDEX}}}",
-        "workerTiming": "MEDIUM"
+        "workerTiming": "FAST"
       }
     },
     {
       "builder": "rtwExpansion",
       "params": {
-        "operationType": "dbexpansion",
         "indyNetworkId": "{{{INDY_NETWORK}}}",
         "esUrl": "{{{ES_URL}}}",
         "esIndex": "{{{ES_INDEX}}}",
-        "workerTiming": "MEDIUM"
+        "workerTiming": "FAST"
       }
     }
   ]

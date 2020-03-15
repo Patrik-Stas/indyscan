@@ -9,7 +9,7 @@
       "builder": "rtwSerialization",
       "params": {
         "indyNetworkId": "{{{INDY_NETWORK}}}",
-        "genesisPath": "{{{cfgdir}}}/genesis/{{{INDY_NETWORK}}}.txn`",
+        "genesisPath": "{{{cfgdir}}}/genesis/{{{INDY_NETWORK}}}.txn",
         "esIndex": "{{{ES_INDEX}}}",
         "esUrl": "{{{ES_URL}}}",
         "workerTiming": "SLOW"

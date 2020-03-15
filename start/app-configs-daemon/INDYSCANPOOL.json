@@ -9,10 +9,10 @@
       "builder": "rtwSerialization",
       "params": {
         "indyNetworkId": "{{{INDY_NETWORK}}}",
-        "genesisPath": "{{{cfgdir}}}/genesis/{{{INDY_NETWORK}}}.txn`",
+        "genesisPath": "{{{cfgdir}}}/genesis/{{{INDY_NETWORK}}}.txn",
         "esIndex": "{{{ES_INDEX}}}",
         "esUrl": "{{{ES_URL}}}",
-        "workerTiming": "SLOW"
+        "workerTiming": "FAST"
       }
     },
     {
@@ -21,7 +21,7 @@
         "indyNetworkId": "{{{INDY_NETWORK}}}",
         "esUrl": "{{{ES_URL}}}",
         "esIndex": "{{{ES_INDEX}}}",
-        "workerTiming": "SLOW"
+        "workerTiming": "FAST"
       }
     }
   ]
