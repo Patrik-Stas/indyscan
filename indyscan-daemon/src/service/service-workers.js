@@ -30,7 +30,7 @@ function createServiceWorkers () {
   function disableAll () {
     const workers = getAllWorkers()
     for (const worker of workers) {
-      worker.enable()
+      worker.disable()
     }
   }
 

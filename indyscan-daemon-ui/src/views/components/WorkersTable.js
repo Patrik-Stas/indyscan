@@ -31,7 +31,7 @@ export class WorkersTable extends Component {
       <Col xs="12" lg="12">
         <Card>
           <CardHeader>
-            {this.props.networkId}
+            <h3>Network <Badge color="dark">{this.props.networkId}</Badge></h3>
           </CardHeader>
           <CardBody>
             <Table responsive size="sm">
@@ -66,7 +66,12 @@ export class WorkersTable extends Component {
                       <td>
                         <Badge color={colorStatus}>{textStatus}</Badge>
                       </td>
-                      <td>{worker.operationType}</td>
+                      {
+                        worker.operationType === 'expansion'
+                          ? <td><Badge color="info">{worker.operationType}</Badge></td>
+                          : <td><Badge color="primary">{worker.operationType}</Badge></td>
+                      }
+
                       <td>{worker.componentId}</td>
                       <td>
                         <Badge>{worker.transformerInfo}</Badge>
