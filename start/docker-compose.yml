@@ -80,14 +80,13 @@ services:
       - esnet
       - indyscan
     environment:
-      - APP_CONFIGS=INDYSCANPOOL
+      - WORKER_CONFIGS=/home/indyscan/indyscan-daemon/app-configs/INDYSCANPOOL.json
       - LOG_LEVEL=info
       - LOG_HTTP_REQUESTS=true
       - LOG_HTTP_RESPONSES=true
       - SERVER_ENABLED=true
       - SERVER_PORT=3709
-      - AUTOSTART=false
-      - WORKER_TIMING=medium
+      - AUTOSTART=true
     volumes:
       - ./app-configs-daemon/:/home/indyscan/indyscan-daemon/app-configs
 
