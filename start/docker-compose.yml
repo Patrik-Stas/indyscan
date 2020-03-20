@@ -80,7 +80,7 @@ services:
       - esnet
       - indyscan
     environment:
-      - WORKER_CONFIGS=/home/indyscan/indyscan-daemon/app-configs/INDYSCANPOOL.json
+      - WORKER_CONFIGS=/home/indyscan/indyscan-daemon/app-configs-docker/INDYSCANPOOL.json
       - LOG_LEVEL=info
       - LOG_HTTP_REQUESTS=true
       - LOG_HTTP_RESPONSES=true
@@ -88,7 +88,7 @@ services:
       - SERVER_PORT=3709
       - AUTOSTART=true
     volumes:
-      - ./app-configs-daemon/:/home/indyscan/indyscan-daemon/app-configs
+      - ./app-configs-daemon/:/home/indyscan/indyscan-daemon/app-configs-docker
 
   indyscan-api:
     restart: unless-stopped
