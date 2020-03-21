@@ -6,7 +6,7 @@ function bump () {
 
 cd "$(dirname $0)" || exit
 
-NEW_VERSION="4.0.0-dev"
+NEW_VERSION="$1"
 TARGET_PROJECTS=("indyscan-storage" "indyscan-txtype" "indyscan-daemon" "indyscan-daemon-ui" "indyscan-api" "indyscan-api-client" "indyscan-webapp" "indypool-client" )
 
 for project in "${TARGET_PROJECTS[@]}";

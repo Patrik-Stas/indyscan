@@ -1,6 +1,6 @@
 {
   "name": "indyscan-daemon",
-  "version": "4.0.0-dev",
+  "version": "4.0.0",
   "author": "Patrik Staš",
   "license": "ISC",
   "description": "Application scanning Hyperledger Indy blockchain for fetching and processing transactions.",
