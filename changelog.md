@@ -1,7 +1,11 @@
 # 4.0.0
-- New configuration format for daemon. It enables much more flexibility specifying what operation shall the 
-daemon perform and how.
-- Redesigned Elasticsearch storage model. Transaction can now have arbitrary number of format representations.
+- Big `indyscan-daemon` rewrite - it's more flexible and capable supporting range of workloads. 
+- New `indyscan-daemon` file configuration format
+- The `indyscan-daemon` can be now run with HTTP server enabled. The exposed API enables management of workers. 
+- Redesigned Elasticsearch storage model. Transaction can now have arbitrary number of format representations. 
+- Small UX fixes in webapp
+- Improved documentation
+- Added project `indyscan-daemon-ui` to manage `indyscan-daemon` running workers.
 
 # 3.1.3
 - Update to IndySDK 1.14.2
