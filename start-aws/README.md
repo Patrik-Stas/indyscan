@@ -67,6 +67,12 @@ null_resource.print_info: Creation complete after 0s [id=381879146457820641]
 If you navigate straight away to the presented Indyscan URL, you might get see an error - give it a minute
 till all services get fully up and running. 
 
+## 7. Test connectivity
+You can now verify network connectivity: 
+1. Navigate to `indypool-client` [project](../indypool-client) in this repo.
+2. Install project `npm run install`
+3. Test connectivity: `npm run verify-indyscan-aws`
+
 ## Security Warning
 Beware that by default 
 - Indyscan UI (port 3707) and API (port 3708) are exposed to the internet

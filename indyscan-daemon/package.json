@@ -18,8 +18,8 @@
     "networks:add:localhost": "bash genesis/localhost/setup.sh",
     "networks:add:sovrin": "bash setup.sh",
     "elastic:delete:sovrin": "bash delete-es-indices.sh",
-    "kibana-export": "elasticdump --input=http://localhost:9200/.kibana_1 --output=kibana/esindex.kibana_1.json --type=data && elasticdump --input=http://localhost:9200/.kibana_1 --output=kibana/esindex_mapping.kibana_1.json --type=mapping",
-    "kibana-import": "elasticdump --input=kibana/esindex.kibana_1.json --output=http://localhost:9200/.kibana_1 --type=data && elasticdump --input=kibana/esindex_mapping.kibana_1.json --output=http://localhost:9200/.kibana_1 --type=mapping"
+    "kibana-export": "elasticdump --input=http://localhost:9200/.kibana_1 --output=kibana-index/esindex.kibana_1.json --type=data && elasticdump --input=http://localhost:9200/.kibana_1 --output=kibana-index/esindex_mapping.kibana_1.json --type=mapping",
+    "kibana-import": "elasticdump --input=kibana-index/esindex.kibana_1.json --output=http://localhost:9200/.kibana_1 --type=data && elasticdump --input=kibana-index/esindex_mapping.kibana_1.json --output=http://localhost:9200/.kibana_1 --type=mapping"
   },
   "jest": {
     "testEnvironment": "node"

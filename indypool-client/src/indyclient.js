@@ -52,12 +52,10 @@ async function createIndyClient (ledgerName, genesisPath = undefined) {
   const credentials = JSON.stringify({ key: 'ke®y' })
   try {
     await indy.createWallet(config, credentials)
-    logger.debug(`${whoami} New wallet '${walletName}' created.`)
+    logger.debug(`New wallet '${walletName}' created.`)
   } catch (err) {
-    if (err === 'WalletAlreadyExistsError') {
-      logger.debug('Wallet probably already exists, will proceed.')
-    } else {
-      throw Error(`Unexpected problem creating IndySDK wallet. ${err} ${err.stack}`)
+    if (err.message !== 'WalletAlreadyExistsError') {
+      logger.error(`Unexpected error trying to create a wallet: ${err.message} ${JSON.stringify(err.stack)}`)
     }
   }
   const wh = await indy.openWallet(config, credentials)

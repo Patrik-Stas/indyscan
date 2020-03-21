@@ -9,6 +9,7 @@
     "lint": "standard",
     "lint:fix": "standard --fix",
     "verify": "cross-env LOG_LEVEL=debug node src/index.js",
+    "verify-indyscan-local": "cross-env NETWORK_NAME=INDYSCANPOOL LOG_LEVEL=debug node src/index.js",
     "verify-indyscan-aws": "cross-env NETWORK_NAME=indyscan-aws LOG_LEVEL=debug node src/index.js"
   },
   "dependencies": {

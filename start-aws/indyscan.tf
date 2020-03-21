@@ -165,8 +165,12 @@ resource "null_resource" "recreate_environment" {
 
 resource "null_resource" "provision_genesis_locally" {
 
+  triggers = {
+    key = var.trigger_reset_environment
+  }
+
   depends_on = [
-    null_resource.recreate_environment
+    null_resource.recreate_environment,
   ]
 
   provisioner "local-exec" {
@@ -182,7 +186,7 @@ resource "null_resource" "provision_genesis_locally" {
   }
 
   provisioner "local-exec" {
-    command = "ls -lah \"$HOME\"/.indy_client/pool/${var.local_network_name}/${var.local_network_name}.txn"
+    command = "echo \"Genesis file for your AWS Indypool is located at: $HOME/.indy_client/pool/${var.local_network_name}/${var.local_network_name}.txn\""
   }
 }
 
