@@ -31,10 +31,10 @@ const PRESET_TURBO = {
 }
 
 const scanConfigPresets = {
-  'SLOW': PRESET_SLOW,
-  'MEDIUM': PRESET_MEDIUM,
-  'FAST': PRESET_FAST,
-  'TURBO': PRESET_TURBO
+  SLOW: PRESET_SLOW,
+  MEDIUM: PRESET_MEDIUM,
+  FAST: PRESET_FAST,
+  TURBO: PRESET_TURBO
 }
 
 function resolvePreset (presetName) {

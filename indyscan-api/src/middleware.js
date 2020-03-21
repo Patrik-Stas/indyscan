@@ -18,9 +18,7 @@ function logResponses (req, res, next) {
       if (chunk && Buffer.isBuffer(chunk)) {
         chunks.push(chunk)
         var body = Buffer.concat(chunks).toString('utf8')
-        logger.debug(`<------ Response to [${req.method}] ${req.path}:`)
-        logger.debug(`<------ HTTP Code: ${res.statusCode}`)
-        logger.debug(`<------ Body: ${body}`)
+        logger.info(`HTTP Response [${req.method}] ${req.path} Response code: ${res.statusCode} Response body: ${body}`)
       }
     }
     oldEnd.apply(res, arguments)
@@ -29,8 +27,7 @@ function logResponses (req, res, next) {
 }
 
 function logRequests (req, res, next) {
-  logger.debug(`----> Request: [${req.method}] ${req.originalUrl}`)
-  logger.debug(`----> Body: ${JSON.stringify(req.body)}`)
+  logger.info(`HTTP Request: [${req.method}] ${req.originalUrl} Request body: ${JSON.stringify(req.body)}`)
   next()
 }
 
@@ -41,7 +38,7 @@ const asyncHandler = fn => (req, res, next) => {
       const errorId = uuid.v4()
       logger.error(`ErrorID: '${errorId}'. Unhandled error from async express handler. Error details:`)
       logger.error(err.stack)
-      res.status(500).send({ message: `Something went wrong unexpectedly.`, errorId })
+      res.status(500).send({ message: 'Something went wrong unexpectedly.', errorId })
     })
   return result
 }

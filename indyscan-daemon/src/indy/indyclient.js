@@ -1,23 +1,28 @@
 const indy = require('indy-sdk')
 const logger = require('../logging/logger-main')
+const fs = require('fs')
 
 const LEDGER_NAME_TO_CODE = {
-  'pool': '0',
-  'domain': '1',
-  'config': '2'
+  pool: '0',
+  domain: '1',
+  config: '2'
 }
 
-async function registerLedger (poolName, genesisFilePath) {
-  await indy.createPoolLedgerConfig(poolName, { genesis_txn: genesisFilePath })
+async function registerLedger (ledgerName, genesisFilePath) {
+  if (!fs.lstatSync(genesisFilePath).isFile()) {
+    throw Error(`Was about to register ledger ${ledgerName} but provided genesis file path ${genesisFilePath}` +
+      'does not point to a file.')
+  }
+  await indy.createPoolLedgerConfig(ledgerName, { genesis_txn: genesisFilePath })
 }
 
 async function getListOfRegisteredLedgers () {
-  let pools = await indy.listPools()
+  const pools = await indy.listPools()
   return pools.map(ledger => ledger.pool)
 }
 
 async function isUnknownLedger (ledgerName) {
-  let ledgers = await getListOfRegisteredLedgers()
+  const ledgers = await getListOfRegisteredLedgers()
   return (ledgers.find(l => l === ledgerName) === undefined)
 }
 
@@ -25,40 +30,46 @@ async function isKnownLedger (ledgerName) {
   return !(await isUnknownLedger(ledgerName))
 }
 
-async function createIndyClient (ledgerName, genesisPath = undefined) {
-  const whoami = `IndyClient[${ledgerName}]`
+async function createIndyClient (indyNetworkId, operationType, componentId, ledgerName, genesisPath = undefined) {
+  const loggerMetadata = {
+    metadaemon: {
+      indyNetworkId,
+      operationType,
+      componentId,
+      componentType: 'indy-client'
+    }
+  }
+
   await indy.setProtocolVersion(2)
 
   if (await isUnknownLedger(ledgerName)) {
     if (!genesisPath) {
       throw Error(`Ledger ${ledgerName} is is not known (ie. not located in ~/.indy_client/pools)` +
-      ` and because neither genesis file for this ledger was supplied, it cannot be added.` +
+      ' and because neither genesis file for this ledger was supplied, it cannot be added.' +
       ` Currently known pools are: ${JSON.stringify(await getListOfRegisteredLedgers())}`)
     }
-    logger.warn(`Ledger ${ledgerName} is being registered using genesis file: ${genesisPath}`)
+    logger.warn(`Ledger ${ledgerName} is being registered using genesis file: ${genesisPath}.`, loggerMetadata)
     await registerLedger(ledgerName, genesisPath)
   }
-  logger.info(`${whoami} Connecting to ledger ${ledgerName}.`)
+  logger.info(`Connecting to ledger ${ledgerName}.`, loggerMetadata)
   const poolHandle = await indy.openPoolLedger(ledgerName)
-  logger.info(`${whoami} Connected to ledger ${ledgerName}.`)
+  logger.info(`Connected to ledger ${ledgerName}.`, loggerMetadata)
 
   const walletName = `indyscan-${ledgerName}`
-  logger.info(`${whoami} Assuring local wallet.`)
+  logger.info('Assuring local wallet.', loggerMetadata)
   const config = JSON.stringify({ id: walletName, storage_type: 'default' })
   const credentials = JSON.stringify({ key: 'ke®y' })
   try {
     await indy.createWallet(config, credentials)
-    logger.debug(`${whoami} New wallet '${walletName}' created.`)
+    logger.debug(`New wallet '${walletName}' created.`, loggerMetadata)
   } catch (err) {
-    logger.debug(err)
-    logger.debug(err.stack)
-    logger.debug('Wallet probably already exists, will proceed.')
+    if (err.message !== 'WalletAlreadyExistsError') {
+      logger.error(`Unexpected error trying to create a wallet: ${err.message} ${JSON.stringify(err.stack)}`, loggerMetadata)
+    }
   }
   const wh = await indy.openWallet(config, credentials)
-  logger.debug(`${whoami} Opened wallet '${walletName}'.`)
-  const res = await indy.createAndStoreMyDid(wh, {})
-  const did = res[0]
-  logger.debug(`${whoami} Created did/verkey ${JSON.stringify(res)}`)
+  logger.debug(`Opened wallet '${walletName}'.`, loggerMetadata)
+  const [did] = await indy.createAndStoreMyDid(wh, {})
 
   /*
   Returns transaction data if transaction was resolved
@@ -68,9 +79,8 @@ async function createIndyClient (ledgerName, genesisPath = undefined) {
   async function getTx (subledgerName, seqNo) {
     const subledgerCode = LEDGER_NAME_TO_CODE[subledgerName.toLowerCase()]
     const getTx = await indy.buildGetTxnRequest(did, subledgerCode, seqNo)
-    logger.debug(`${whoami} Ledger GET_TX request: ${JSON.stringify(getTx)}`)
+    logger.debug(`Built GET_TX request: ${JSON.stringify(getTx)}`)
     const tx = await indy.submitRequest(poolHandle, getTx)
-    logger.debug(`${whoami} Ledger GET_TX response: ${JSON.stringify(tx)}`)
     if (tx.op === 'REPLY') {
       if (tx.result.data) {
         return tx.result.data
@@ -78,7 +88,7 @@ async function createIndyClient (ledgerName, genesisPath = undefined) {
         return null
       }
     } else {
-      throw Error(`${whoami} Problem receiving tx seqNo='${seqNo}' for subledger='${subledgerName}'`)
+      throw Error(`Problem receiving tx seqNo='${seqNo}' for subledger='${subledgerName}'`)
     }
   }
 

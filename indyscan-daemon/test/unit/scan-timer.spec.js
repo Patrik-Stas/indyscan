@@ -23,7 +23,7 @@ describe('ledger tx resolution', () => {
     const utime1 = Math.floor(new Date() / 1)
     await timerLock.waitTillUnlock()
     const utime2 = Math.floor(new Date() / 1)
-    expect(utime2 - utime1).toBeGreaterThanOrEqual(295)
+    expect(utime2 - utime1).toBeGreaterThanOrEqual(290)
     expect(utime2 - utime1).toBeLessThan(320)
   })
 

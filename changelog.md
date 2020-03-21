@@ -1,3 +1,25 @@
+# Yet to come next
+- Websocket integration between daemon and webapp
+- New TX representation `state` - will provide history of all states DID has ever was at.  
+- Graphs, histograms in webapp 
+
+# 4.0.0
+- Big `indyscan-daemon` rewrite - it's more flexible and capable supporting range of workloads.
+- New `indyscan-daemon` file configuration format
+- The `indyscan-daemon` can be now run with HTTP server enabled. The exposed API enables management of workers. 
+- Redesigned ElasticSearch storage model. Transaction can now have arbitrary number of format representations. 
+- New transaction storage model. Each transaction has exactly 1 document in ElasticSearch, however this document
+can contain many representations of the same transaction.
+- Small UX fixes in webapp (clickable IndyScan header in to left, switching networks without being redirected to homepage)
+- Improved documentation 
+- Added project `indyscan-daemon-ui` to manage `indyscan-daemon` running workers. 
+
+# 3.1.3
+- Update to IndySDK 1.14.2
+
+# 3.1.2
+- Fix bug waiting incorrect amount of time (too long) when no new transactions are available.
+
 ## 3.1.1
 - Display "Genesis Tx" instead of "Invalid date" in UI if timestamp is not present on tx.
 - Fix UI error when reverse order is enabled together with TX type filter

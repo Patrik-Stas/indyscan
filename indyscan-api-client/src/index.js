@@ -34,7 +34,7 @@ async function getDefaultNetwork (baseUrl) {
 
 async function getTxCount (baseUrl, network, ledger, filterTxNames = [], search) {
   const query = qs.stringify({ search, filterTxNames: JSON.stringify(filterTxNames) })
-  let res = await getRequest(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs/stats/count?${query}`)
+  const res = await getRequest(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs/stats/count?${query}`)
   return res.txCount
 }
 

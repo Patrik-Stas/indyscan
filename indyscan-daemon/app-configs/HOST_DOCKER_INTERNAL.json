@@ -1,0 +1,30 @@
+{
+  "env": {
+    "INDY_NETWORK": "HOST_DOCKER_INTERNAL",
+    "ES_URL": "http://localhost:9200",
+    "ES_INDEX": "txs-localdocker"
+  },
+  "workersBuildersTemplate": [
+    {
+      "builder": "rtwSerialization",
+      "params": {
+        "indyNetworkId": "{{{INDY_NETWORK}}}",
+        "genesisPath": "{{{cfgdir}}}/genesis/{{{INDY_NETWORK}}}.txn",
+        "esUrl": "{{{ES_URL}}}",
+        "esIndex": "{{{ES_INDEX}}}",
+        "workerTiming": "FAST"
+      }
+    },
+    {
+      "builder": "rtwExpansion",
+      "params": {
+        "indyNetworkId": "{{{INDY_NETWORK}}}",
+        "esUrl": "{{{ES_URL}}}",
+        "esIndex": "{{{ES_INDEX}}}",
+        "workerTiming": "FAST"
+      }
+    }
+  ]
+}
+
+

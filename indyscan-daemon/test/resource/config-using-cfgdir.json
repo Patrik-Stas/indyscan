@@ -1,0 +1,21 @@
+{
+  "environment": {
+    "INDY_NETWORK": "SOVRIN_MAINNET"
+  },
+  "comments": {
+    "description": {
+      "1": "Any text can be here."
+    }
+  },
+  "objects": [
+    {
+      "interface": "SOURCE",
+      "impl": "ledger",
+      "params": {
+        "id": "source.{{{INDY_NETWORK}}}",
+        "name": "{{{INDY_NETWORK}}}",
+        "genesisPath": "$CFGDIR/genesis/{{{INDY_NETWORK}}}.txn"
+      }
+    }
+  ]
+}

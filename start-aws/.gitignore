@@ -3,3 +3,4 @@ tmp/
 terraform.tfstate*
 terraform.tfvars
 .idea/
+.terraform.tfstate.lock.info

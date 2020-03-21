@@ -3,6 +3,7 @@ import './PageHeader.scss'
 import Navbar from '../Navbar/Navbar'
 import { Divider, Grid, GridColumn, GridRow } from 'semantic-ui-react'
 import MenuLink from '../MenuLink/MenuLink'
+import Link from 'next/link'
 
 const { getNetworks } = require('indyscan-api-client')
 
@@ -14,16 +15,38 @@ class PageHeader extends Component {
     }
   }
 
+  buildNextLinkHome(networkId) {
+    return {
+      "href": `/home?network=${networkId}`,
+      "as": `/home/${networkId}`
+    }
+  }
+
+  buildNextLink(page, network) {
+    if (page === 'home') {
+      return {
+        "href": `/home?network=${network.id}`,
+        "as": `/home/${network.id}`
+      }
+    } else {
+      return {
+        "href": `/txs?network=${network.id}&ledger=${page}`,
+        "as": `/txs/${network.id}/${page}`
+      }
+    }
+  }
+
   renderNetworks (networks, activeNetwork) {
     let networkMenuLinks = []
     for (let i = 0; i < networks.length; i++) {
       const network = networks[i]
+      const {href, as} = this.buildNextLink(this.props.page, network)
       networkMenuLinks.push(
         <MenuLink
           key={`netlink-${network.id}`}
           active={network.id === activeNetwork}
-          href={`/home?network=${network.id}`}
-          as={`/home/${network.id}`}>
+          href={href}
+          as={as}>
           {network.ui.display}
         </MenuLink>
       )
@@ -38,11 +61,14 @@ class PageHeader extends Component {
 
   render () {
     const { network } = this.props
+    const {href: homeLinkHref, as: homeLinkAs} = this.buildNextLinkHome(network)
     return (
       <div>
         <Grid id='page-header'>
           <GridRow>
-            <h1><span style={{ color: 'darkcyan' }}>IndyScan</span></h1>
+            <h1>
+              <Link href={homeLinkHref} as={homeLinkAs}><a className='menulink' style={{ color: 'darkcyan' }}><div>IndyScan</div></a></Link>
+            </h1>
           </GridRow>
           <GridRow style={{ marginTop: '-2em' }}>
             <h5>Hyperledger Indy transaction explorer</h5>

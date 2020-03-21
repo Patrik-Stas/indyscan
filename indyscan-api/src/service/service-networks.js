@@ -1,7 +1,7 @@
 const logger = require('../logging/logger-main')
 
 function createNetworkManager (networkConfigs = []) {
-  let configs = []
+  const configs = []
 
   for (const networkConfig of networkConfigs) {
     addNetworkConfig(networkConfig)
@@ -45,7 +45,7 @@ function createNetworkManager (networkConfigs = []) {
 
   function getHighestPrirorityNetwork () {
     if (configs.length === 0) {
-      throw Error(`No networks found.`)
+      throw Error('No networks found.')
     }
     return configs[0]
   }

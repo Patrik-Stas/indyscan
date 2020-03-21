@@ -6,7 +6,7 @@ import {
   Grid,
   Container,
   GridRow,
-  GridColumn
+  GridColumn, Message
 } from 'semantic-ui-react'
 import JSONPretty from 'react-json-pretty'
 import top100 from '../components/palettes'
@@ -21,19 +21,24 @@ class Tx extends Component {
   static async getInitialProps ({ req, query }) {
     const { network, ledger, seqNo } = query
     const baseUrl = getBaseUrl(req)
-    let txIndyscan
-    let txDetail
+    let txExpansion
+    let txSerialized
+    let displayMessage
     try {
-      let txFull = await getTx(baseUrl, network, ledger, seqNo, 'full')
-      txIndyscan = txFull.indyscan
-      txDetail = JSON.parse(txFull.original)
+      let {idata} = await getTx(baseUrl, network, ledger, seqNo, 'full')
+      txExpansion = idata.expansion
+      txSerialized = idata.serialized
     } catch (e) {
-      txDetail = { error: 'This tx was not scanned yet, or something went wrong trying to retrieve it.' }
+      displayMessage = <Message negative>
+        <Message.Header>This transaction is not yet available</Message.Header>
+        <p>Transaction {seqNo} either doesn't exist on ledger or was not yet fully discovered.</p>
+      </Message>
     }
     return {
-      txIndyscan,
+      displayMessage,
+      txExpansion,
       baseUrl,
-      txDetail,
+      txSerialized,
       network,
       ledger,
       seqNo
@@ -75,7 +80,7 @@ class Tx extends Component {
       boolean: `color:${palette[4]};`
     }
 
-    const { baseUrl, txDetail, network, ledger, seqNo, txIndyscan } = this.props
+    const { baseUrl, txSerialized, network, ledger, seqNo, txExpansion, displayMessage } = this.props
     const { href: hrefPrev, as: asPrev } = getTxLinkData(baseUrl, network, ledger, parseInt(seqNo) - 1)
     const { href: hrefNext, as: asNext } = getTxLinkData(baseUrl, network, ledger, parseInt(seqNo) + 1)
     return (
@@ -97,40 +102,48 @@ class Tx extends Component {
             <Link href={hrefPrev} as={asPrev}><a className='menulink'>Prev tx</a></Link>
           </GridColumn>
         </GridRow>
-        {txIndyscan &&
-        <GridRow>
-          <TxDisplay txIndyscan={txIndyscan} txLedger={txDetail} />
-        </GridRow>
+        {displayMessage && displayMessage}
+        {txExpansion &&
+          <GridRow>
+            <TxDisplay txIndyscan={txExpansion} txLedger={txSerialized} />
+          </GridRow>
         }
-        <GridRow>
-          <GridColumn width={3} textAlign='center' />
-          <GridColumn width={10} textAlign='center'>
-            <h4>Enriched data</h4>
-          </GridColumn>
-          <GridColumn width={3} textAlign='center' />
-        </GridRow>
-        <GridRow>
-          <GridColumn>
-            <Container textAlign='justified'>
-              {<JSONPretty theme={mytheme} data={toCanonicalJson(txIndyscan)} />}
-            </Container>
-          </GridColumn>
-        </GridRow>
-
-        <GridRow>
-          <GridColumn width={3} textAlign='center' />
-          <GridColumn width={10} textAlign='center'>
-            <h4>Original ledger data</h4>
-          </GridColumn>
-          <GridColumn width={3} textAlign='center' />
-        </GridRow>
-        <GridRow>
-          <GridColumn>
-            <Container textAlign='justified'>
-              {<JSONPretty theme={mytheme} data={toCanonicalJson(txDetail)} />}
-            </Container>
-          </GridColumn>
-        </GridRow>
+        {txExpansion &&
+          <GridRow>
+            <GridColumn width={3} textAlign='center'/>
+            <GridColumn width={10} textAlign='center'>
+              <h4>Enriched data</h4>
+            </GridColumn>
+            <GridColumn width={3} textAlign='center'/>
+          </GridRow>
+        }
+        {txExpansion &&
+          <GridRow>
+            <GridColumn>
+              <Container textAlign='justified'>
+                {<JSONPretty theme={mytheme} data={toCanonicalJson(txExpansion.idata)}/>}
+              </Container>
+            </GridColumn>
+          </GridRow>
+        }
+        {txSerialized &&
+          <GridRow>
+            <GridColumn width={3} textAlign='center'/>
+            <GridColumn width={10} textAlign='center'>
+              <h4>Original ledger data</h4>
+            </GridColumn>
+            <GridColumn width={3} textAlign='center'/>
+          </GridRow>
+        }
+        {txSerialized &&
+          <GridRow>
+            <GridColumn>
+              <Container textAlign='justified'>
+                {<JSONPretty theme={mytheme} data={toCanonicalJson(JSON.parse(txSerialized.idata.json))}/>}
+              </Container>
+            </GridColumn>
+          </GridRow>
+        }
 
         <GridRow>
           <GridColumn>

@@ -5,7 +5,7 @@
   "ext": "js json",
   "env": {
     "ES_URL": "http://localhost:9200",
-    "LOG_LEVEL": "debug",
+    "LOG_LEVEL": "info",
     "PORT" : 3708,
     "LOG_HTTP_REQUESTS" : true,
     "LOG_HTTP_RESPONSES" : true,

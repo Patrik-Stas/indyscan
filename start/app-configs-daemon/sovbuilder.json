@@ -1,0 +1,30 @@
+{
+  "env": {
+    "INDY_NETWORK": "SOVRIN_BUILDERNET",
+    "ES_URL": "http://indyscan-elasticsearch.esnet:9200",
+    "ES_INDEX": "txs-sovbuilder"
+  },
+  "workersBuildersTemplate": [
+    {
+      "builder": "rtwSerialization",
+      "params": {
+        "indyNetworkId": "{{{INDY_NETWORK}}}",
+        "genesisPath": "{{{cfgdir}}}/genesis/{{{INDY_NETWORK}}}.txn",
+        "esIndex": "{{{ES_INDEX}}}",
+        "esUrl": "{{{ES_URL}}}",
+        "workerTiming": "SLOW"
+      }
+    },
+    {
+      "builder": "rtwExpansion",
+      "params": {
+        "indyNetworkId": "{{{INDY_NETWORK}}}",
+        "esUrl": "{{{ES_URL}}}",
+        "esIndex": "{{{ES_INDEX}}}",
+        "workerTiming": "SLOW"
+      }
+    }
+  ]
+}
+
+

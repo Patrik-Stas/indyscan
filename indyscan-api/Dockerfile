@@ -7,13 +7,8 @@ RUN apk add -y make
 RUN apk add -y g++
 RUN apk add -y python
 
-WORKDIR /usr/src/app/indyscan-txtype
-COPY indyscan-txtype ./
-RUN npm install --only=prod
-
 WORKDIR /usr/src/app/indyscan-storage
 COPY indyscan-storage ./
-RUN npm install --only=prod
 
 WORKDIR /usr/src/app/indyscan-api
 COPY indyscan-api/package*.json ./
@@ -23,7 +18,6 @@ COPY indyscan-api ./
 FROM node:12.14.0-alpine3.9 as PRODUCTION
 
 RUN apk update && apk upgrade
-COPY --from=BUILD /usr/src/app/indyscan-txtype /usr/src/app/indyscan-txtype
 COPY --from=BUILD /usr/src/app/indyscan-storage /usr/src/app/indyscan-storage
 COPY --from=BUILD /usr/src/app/indyscan-api /usr/src/app/indyscan-api
 WORKDIR /usr/src/app/indyscan-api

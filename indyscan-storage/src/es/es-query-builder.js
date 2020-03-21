@@ -1,54 +1,65 @@
-const txTypeUtils = require('indyscan-txtype')
+// const txTypeUtils = require('indyscan-txtype')
+const _ = require('lodash')
 
 function esFilterByTxTypeNames (txNames) {
   return {
-    'terms': {
-      'indyscan.txn.type': txTypeUtils.txNamesToTypes(txNames)
+    terms: {
+      'idata.expansion.idata.txn.typeName': txNames
     }
   }
 }
 
 function esFilterSubledgerName (subledgerName) {
   return {
-    'term': {
-      'indyscan.subledger.name': subledgerName
-    }
-  }
-}
-
-function esFilterHasTimestamp () {
-  return {
-    'exists': {
-      'field': 'indyscan.txnMetadata.txnTime'
+    term: {
+      'imeta.subledger': {
+        value: subledgerName
+      }
     }
   }
 }
 
 function esFilterBySeqNo (seqNo) {
   return {
-    'term': {
-      'indyscan.txnMetadata.seqNo': {
-        'value': seqNo
+    term: {
+      'imeta.seqNo': {
+        value: seqNo
       }
     }
   }
 }
 
-function esFilterAboveSeqNo (seqNo) {
+function esFilterContainsFormat (format) {
   return {
-    'range': {
-      'indyscan.txnMetadata.seqNo': {
-        'gte': seqNo
+    exists: {
+      field: `idata.${format}`
+    }
+  }
+}
+
+function esFilterHasTimestamp () {
+  return {
+    exists: {
+      field: 'idata.expansion.idata.txnMetadata.txnTime'
+    }
+  }
+}
+
+function esFilterSeqNoGte (seqNo) {
+  return {
+    range: {
+      'imeta.seqNo': {
+        gte: seqNo
       }
     }
   }
 }
 
-function esFilterBelowSeqNo (seqNo) {
+function esFilterSeqNoLt (seqNo) {
   return {
-    'range': {
-      'indyscan.txnMetadata.seqNo': {
-        'lt': seqNo
+    range: {
+      'imeta.seqNo': {
+        lt: seqNo
       }
     }
   }
@@ -56,9 +67,9 @@ function esFilterBelowSeqNo (seqNo) {
 
 function esFilterTxnAfterTime (utime) {
   return {
-    'range': {
-      'indyscan.txnMetadata.txnTime': {
-        'gte': new Date(utime * 1000).toISOString()
+    range: {
+      'idata.expansion.idata.txnMetadata.txnTime': {
+        gte: new Date(utime * 1000).toISOString()
       }
     }
   }
@@ -66,9 +77,9 @@ function esFilterTxnAfterTime (utime) {
 
 function esFilterTxnBeforeTime (utime) {
   return {
-    'range': {
-      'indyscan.txnMetadata.txnTime': {
-        'lt': new Date(utime * 1000).toISOString()
+    range: {
+      'idata.expansion.idata.txnMetadata.txnTime': {
+        lt: new Date(utime * 1000).toISOString()
       }
     }
   }
@@ -76,22 +87,58 @@ function esFilterTxnBeforeTime (utime) {
 
 function esFullTextsearch (text) {
   return {
-    'simple_query_string': {
-      'query': text,
-      'default_operator': 'and'
+    simple_query_string: {
+      query: text,
+      default_operator: 'and'
     }
   }
 }
 
 function esOrFilters (...filters) {
-  let nonNullFilters = filters.filter(f => !!f)
-  return { 'bool': { 'should': [...nonNullFilters] } }
+  const finalQueries = _.concat(...filters).filter(f => !!f)
+  if (finalQueries.length === 0) {
+    return {}
+  }
+  return { bool: { should: [...finalQueries] } }
 }
 
 function esAndFilters (...filters) {
-  let nonNullFilters = filters.filter(f => !!f)
-  return { 'bool': { 'filter': [...nonNullFilters] } }
+  const finalQueries = _.concat(...filters).filter(f => !!f)
+  if (finalQueries.length === 0) {
+    return {}
+  }
+  return { bool: { filter: [...finalQueries] } }
 }
+
+//
+// function _toArrayOfQueries(query) {
+//   if (query === undefined || query === null) {
+//     return []
+//   }
+//   if (Array.isArray(query)) {
+//     return query
+//   }
+//   if (typeof query === 'object') {
+//     return [query]
+//   }
+//   throw Error(`Can't processes query ${JSON.stringify(query, null, 2)}.`)
+// }
+//
+// function toArrayOfQueries(...queries) {
+//   let final = queries.reduce((previous, current) => {
+//     console.log(`previous = ${JSON.stringify(previous)}`)
+//     console.log(`current = ${JSON.stringify(current)}`)
+//     if (current) {
+//       console.log('pushing current to previous')
+//       previous.push(_toArrayOfQueries(current))
+//     }
+//     console.log(`returning previous = ${JSON.stringify(previous)}`)
+//     return previous
+//   }, [])
+//   console.log(`FINAL`)
+//   console.log(JSON.stringify(final))
+//   return final.flat()
+// }
 
 module.exports.esFilterSubledgerName = esFilterSubledgerName
 module.exports.esFilterByTxTypeNames = esFilterByTxTypeNames
@@ -99,8 +146,10 @@ module.exports.esFilterTxnAfterTime = esFilterTxnAfterTime
 module.exports.esFilterTxnBeforeTime = esFilterTxnBeforeTime
 module.exports.esFilterBySeqNo = esFilterBySeqNo
 module.exports.esFilterHasTimestamp = esFilterHasTimestamp
-module.exports.esFilterAboveSeqNo = esFilterAboveSeqNo
-module.exports.esFilterBelowSeqNo = esFilterBelowSeqNo
+module.exports.esFilterSeqNoGte = esFilterSeqNoGte
+module.exports.esFilterSeqNoLt = esFilterSeqNoLt
 module.exports.esAndFilters = esAndFilters
 module.exports.esOrFilters = esOrFilters
 module.exports.esFullTextsearch = esFullTextsearch
+module.exports.esFilterContainsFormat = esFilterContainsFormat
+// module.exports.toArrayOfQueries = toArrayOfQueries

@@ -133,8 +133,7 @@ resource "null_resource" "recreate_environment" {
       "export POOL_ADDRESS='${coalesce(var.dns_hostname, aws_instance.indyscan.public_ip)}'",
       "export INDYPOOL_IMAGE_TAG=\"indypool-$POOL_ADDRESS:latest\"",
       "yes | ~/indyscan/indypool/build-pool.sh",
-      "rm -r ~/.indy_client/pool/INDYPOOL_INDYSCAN ||:",
-      "docker run --rm --name tmp-indypool \"$INDYPOOL_IMAGE_TAG\" cat /var/lib/indy/sandbox/pool_transactions_genesis > ~/indyscan/app-config-daemon/genesis/INDYPOOL_INDYSCAN.txn"
+      "docker run --rm --name tmp-indypool \"$INDYPOOL_IMAGE_TAG\" cat /var/lib/indy/sandbox/pool_transactions_genesis > ~/indyscan/app-configs-daemon/genesis/INDYSCANPOOL.txn"
     ]
   }
 
@@ -166,8 +165,12 @@ resource "null_resource" "recreate_environment" {
 
 resource "null_resource" "provision_genesis_locally" {
 
+  triggers = {
+    key = var.trigger_reset_environment
+  }
+
   depends_on = [
-    null_resource.recreate_environment
+    null_resource.recreate_environment,
   ]
 
   provisioner "local-exec" {
@@ -175,7 +178,7 @@ resource "null_resource" "provision_genesis_locally" {
   }
 
   provisioner "local-exec" {
-    command = "scp -o \"StrictHostKeyChecking no\" -i ${var.private_key_path} ubuntu@${aws_instance.indyscan.public_ip}:~/indyscan/app-config-daemon/genesis/INDYPOOL_INDYSCAN.txn ${path.module}/tmp/${var.local_network_name}.txn"
+    command = "scp -o \"StrictHostKeyChecking no\" -i ${var.private_key_path} ubuntu@${aws_instance.indyscan.public_ip}:~/indyscan/app-configs-daemon/genesis/INDYSCANPOOL.txn ${path.module}/tmp/${var.local_network_name}.txn"
   }
 
   provisioner "local-exec" {
@@ -183,7 +186,7 @@ resource "null_resource" "provision_genesis_locally" {
   }
 
   provisioner "local-exec" {
-    command = "ls -lah \"$HOME\"/.indy_client/pool/${var.local_network_name}/${var.local_network_name}.txn"
+    command = "echo \"Genesis file for your AWS Indypool is located at: $HOME/.indy_client/pool/${var.local_network_name}/${var.local_network_name}.txn\""
   }
 }
 

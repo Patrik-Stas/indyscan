@@ -23,6 +23,7 @@ const palette = top100()[7]
 
 class TxListItem extends Component {
   render () {
+    console.log(`rendering transaction ${this.props.txn}`)
     const { baseUrl, description, ledger, network, txn } = this.props
     const { seqNo, txnTimeIso8601, typeName, from } = extractTxDataBasic(txn)
     const data = extractTxDataDetailsHumanReadable(txn, 5)

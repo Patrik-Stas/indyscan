@@ -18,9 +18,9 @@ class TxListCompact extends Component {
         </TableHeader>
         <TableBody>
           {this.props.txs.map((txn) => {
-            // const description = describeTransaction(txn)
             return (
               <TxListItem
+                key={txn.idata.seqNo}
                 baseUrl={this.props.baseUrl}
                 network={this.props.network}
                 ledger={this.props.ledger}
