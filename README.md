@@ -1,6 +1,11 @@
-    # Indyscan
-### Indyscan - Hyperledger Indy Transaction Explorer
+# Indyscan
+## Hyperledger Indy Transaction Explorer
 ![](indyscan-webapp/static/indyscan-logo.png)
+
+### Indyscan 4.0.0 Released! 
+Indyscan 4.0.0 lays new foundation for new improvements on user interface layer. 
+
+See [changelog](changelog.md) to see new goodies. 
 
 # How it works
 The `indyscan-daemon` checks ledger for new transactions. Transactions are stored in Elasticsearch. 
