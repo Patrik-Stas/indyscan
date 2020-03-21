@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 
+# Running this script with no parameters will build docker image for indypool with hostname: indyscanpool
+# If you want to build the pool for different url instead of "indyscanpool", for exaple "localhost", you can do so
+# by setting environment variable "POOL_ADDRESS"  to desired value, prior to executing the script.
+# Example: POOL_ADDRESS=localhost ./build-pool.sh
+
 REPO_OWNER="hyperledger"
 INDY_VERSION="v1.14.2"
 TMP_INDYSDK=$(dirname "$0")/tmp-indysdk
 
-DOCKER_BUILD_PARAMS=$1
+DOCKER_BUILD_PARAMS="$1"
 
 if [ ! -d "$TMP_INDYSDK" ]; then
     git clone "https://github.com/${REPO_OWNER}/indy-sdk.git" "$TMP_INDYSDK"
@@ -35,7 +40,7 @@ fi
 echo "Building image!"
 
 cd "$TMP_INDYSDK" || exit 1
-docker build "$DOCKER_BUILD_PARAMS" --build-arg pool_ip="$POOL_ADDRESS" -f "ci/indy-pool.dockerfile" -t "$INDYPOOL_IMAGE_TAG" .
+docker build ${DOCKER_BUILD_PARAMS} --build-arg pool_ip="$POOL_ADDRESS" -f "ci/indy-pool.dockerfile" -t "$INDYPOOL_IMAGE_TAG" .
 
 echo "Image built"
 docker image ls "$INDYPOOL_IMAGE_TAG"
