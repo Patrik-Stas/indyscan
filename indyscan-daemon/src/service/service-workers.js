@@ -16,16 +16,25 @@ function createServiceWorkers (serviceTargets) {
     logger.info(`Get workers, worker query =${JSON.stringify(workerQuery)}`)
     let resWorkers = Object.values(workers)
     if (workerQuery) {
-      if (workerQuery.operationType) {
-        resWorkers = resWorkers.filter(worker => worker.getWorkerInfo().operationType === workerQuery.operationType)
+      const {workerIds, operationTypes, subledgers, targetEsIndices} = workerQuery
+      if (workerIds) {
+        resWorkers = resWorkers.filter(worker => workerIds.includes(worker.getWorkerInfo().componentId))
       }
-      if (workerQuery.subledger) {
-        resWorkers = resWorkers.filter(worker => worker.getWorkerInfo().subledger === workerQuery.subledger)
+      if (operationTypes) {
+        resWorkers = resWorkers.filter(worker => operationTypes.includes(worker.getWorkerInfo().operationType))
       }
-      if (workerQuery.targetEsIndex) {
+      if (subledgers) {
+        resWorkers = resWorkers.filter(worker => subledgers.includes(worker.getWorkerInfo().subledger))
+      }
+      if (targetEsIndices) {
         resWorkers = resWorkers.filter(worker => {
-          const target = serviceTargets.getTargetInfo(worker.getWorkerInfo().targetComponentId)
-          return target.esIndex === workerQuery.targetEsIndex
+          const workerTarget = serviceTargets.getTargetInfo(worker.getWorkerInfo().targetComponentId)
+          const workerTargetEsIndex = workerTarget.esIndex
+          if (workerTargetEsIndex) {
+            return targetEsIndices.includes(workerTargetEsIndex)
+          } else {
+            return false
+          }
         })
       }
     }
@@ -36,17 +45,24 @@ function createServiceWorkers (serviceTargets) {
     return getWorkers(workerQuery).map(worker => worker.getWorkerInfo())
   }
 
-  function enableAll () {
-    const workers = getWorkers()
+  function enableWorkers (workerQuery) {
+    const workers = getWorkers(workerQuery)
     for (const worker of workers) {
       worker.enable()
     }
   }
 
-  function disableAll () {
-    const workers = getWorkers()
+  function disableWorkers (workerQuery) {
+    const workers = getWorkers(workerQuery)
     for (const worker of workers) {
       worker.disable()
+    }
+  }
+
+  function flipWorkersState (workerQuery)  {
+    const workers = getWorkers(workerQuery)
+    for (const worker of workers) {
+      worker.flipState()
     }
   }
 
@@ -58,27 +74,13 @@ function createServiceWorkers (serviceTargets) {
     return worker
   }
 
-  function enableOne (id) {
-    getWorker(id).enable()
-  }
-
-  function disableOne (id) {
-    getWorker(id).disable()
-  }
-
-  function flipStateOne (id) {
-    getWorker(id).flipState()
-  }
-
   return {
     getWorkers,
     getWorkersInfo,
     registerWorker,
-    enableAll,
-    disableAll,
-    enableOne,
-    disableOne,
-    flipStateOne
+    enableWorkers,
+    disableWorkers,
+    flipWorkersState
   }
 }
 

@@ -13,7 +13,6 @@ async function postRequest (url, payload) {
   return res.data
 }
 
-
 // async function returnNullFor404 (axiosCallableReturningResponseData) {
 //   try {
 //     const data = await axiosCallableReturningResponseData()
@@ -25,16 +24,28 @@ async function postRequest (url, payload) {
 //   }
 // }
 
-async function getWorkers (baseUrl, operationType, subledger, targetEsIndex ) {
-  const query = qs.stringify({ operationType, subledger, targetEsIndex })
-  return getRequest(`${baseUrl}/api/workers?${query}`)
+async function getWorkers (baseUrl, query) {
+  const queryString = qs.stringify(query)
+  return getRequest(`${baseUrl}/api/workers?${queryString}`)
 }
 
-async function stopWorkers (baseUrl) {
-  const query = qs.stringify({ enabled: false })
-  return postRequest(`${baseUrl}/api/workers?${query}`)
+async function disableWorkers (baseUrl, query) {
+  const queryString = qs.stringify({ enabled: false, ... query })
+  return postRequest(`${baseUrl}/api/workers?${queryString}`)
 }
 
+async function enableWorkers (baseUrl) {
+  const queryString = qs.stringify({ enabled: true, ... query })
+  return postRequest(`${baseUrl}/api/workers?${queryString}`)
+}
+
+async function flipWorkers (baseUrl, query) {
+  const queryString = qs.stringify({ flipState: true, ... query })
+  return postRequest(`${baseUrl}/api/workers?${queryString}`)
+}
 
 module.exports.getWorkers = getWorkers
-module.exports.stopWorkers = stopWorkers
+module.exports.disableWorkers = disableWorkers
+module.exports.enableWorkers = enableWorkers
+module.exports.flipWorkers = flipWorkers
+

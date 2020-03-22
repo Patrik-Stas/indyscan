@@ -10,6 +10,7 @@ import axios from 'axios'
 import { WorkersTable } from '../../components/WorkersTable'
 import util from 'util'
 import _ from 'lodash'
+import daemonApiClient from "indyscan-daemon-api-client"
 
 class Workers extends Component {
 
@@ -20,7 +21,7 @@ class Workers extends Component {
 
   async reloadData () {
     try {
-      const { data: workersInfo } = await axios.get('/api/workers')
+      const { data: workersInfo } = await daemonApiClient.getWorkers()
       this.setState({ workersInfo })
     } catch (e) {
       console.log(e)
