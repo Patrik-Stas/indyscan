@@ -1,4 +1,5 @@
 import {
+  Worker,
   Workers
 } from './Base';
 
@@ -11,6 +12,7 @@ import Widgets from './Widgets';
 
 export {
   Workers,
+  Worker,
   Badges,
   Typography,
   Colors,

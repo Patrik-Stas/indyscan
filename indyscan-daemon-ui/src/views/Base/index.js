@@ -1,6 +1,8 @@
 import Workers from './Workers';
+import Worker from './Worker';
 
 export {
-  Workers
+  Workers,
+  Worker
 };
 

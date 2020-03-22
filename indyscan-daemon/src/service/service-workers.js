@@ -41,8 +41,20 @@ function createServiceWorkers (serviceTargets) {
     return resWorkers
   }
 
+  function getWorker (id) {
+    return workers[id]
+  }
+
   function getWorkersInfo (workerQuery) {
     return getWorkers(workerQuery).map(worker => worker.getWorkerInfo())
+  }
+
+  function getWorkerInfo (id) {
+    const worker = getWorker(id)
+    if (!worker) {
+      return undefined
+    }
+    return worker.getWorkerInfo()
   }
 
   function enableWorkers (workerQuery) {
@@ -66,17 +78,10 @@ function createServiceWorkers (serviceTargets) {
     }
   }
 
-  function getWorker (id) {
-    const worker = workers[id]
-    if (!worker) {
-      throw Error(`Worker ${id} not found.`)
-    }
-    return worker
-  }
-
   return {
     getWorkers,
     getWorkersInfo,
+    getWorkerInfo,
     registerWorker,
     enableWorkers,
     disableWorkers,

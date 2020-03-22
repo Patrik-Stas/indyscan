@@ -31,6 +31,16 @@ module.exports = function (app, serviceWorkers) {
     })
   )
 
+  app.get('/api/workers/:id',
+    asyncHandler(async function (req, res) {
+      const workerInfo = await serviceWorkers.getWorkerInfo(req.params.id)
+      if (!workerInfo) {
+        return res.status(404).send()
+      }
+      res.status(200).send(workerInfo)
+    })
+  )
+
   app.post('/api/workers',
     asyncHandler(async function (req, res) {
       const serviceWorkersQuery = apiWorkersQueryToServiceQuery(req.query)
@@ -46,7 +56,7 @@ module.exports = function (app, serviceWorkers) {
           serviceWorkers.disableWorkers(serviceWorkersQuery)
         }
       }
-      const workersInfo = await serviceWorkers.getWorkersInfo()
+      const workersInfo = await serviceWorkers.getWorkersInfo(serviceWorkersQuery)
       res.status(200).send(workersInfo)
     })
   )
