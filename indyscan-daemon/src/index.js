@@ -42,9 +42,6 @@ async function buildWorkers (builder, builderParams) {
 async function run () {
   const serviceTargets = createServiceTargets()
   const serviceWorkers = createServiceWorkers(serviceTargets)
-  if (envConfig.SERVER_ENABLED) {
-    startServer(serviceWorkers)
-  }
   let allWorkers = []
   let allSources = []
   let allTargets = []
@@ -95,6 +92,9 @@ async function run () {
     }
   } else {
     logger.info('Worker autostart is disabled.')
+  }
+  if (envConfig.SERVER_ENABLED) {
+    startServer(serviceWorkers)
   }
 }
 

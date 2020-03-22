@@ -5,6 +5,7 @@ const { getDefaultPreset } = require('../config/presets-consumer')
 const { resolvePreset } = require('../config/presets-consumer')
 const { runWithTimer } = require('../time/util')
 const sleep = require('sleep-promise')
+const EventEmitter = require('events');
 
 function getExpandedTimingConfig (providedTimingSetup) {
   let presetData
@@ -36,6 +37,7 @@ function validateTimingConfig (timingConfig) {
 }
 
 async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterator, iteratorTxFormat, transformer, target, timing, operationType }) {
+  const eventEmitter = new EventEmitter()
   const loggerMetadata = {
     metadaemon: {
       indyNetworkId,
@@ -127,24 +129,28 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
   function txProcessed (txMeta, txData, processedTx) {
     processedTxCount++
     timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
+    eventEmitter.emit('tx-processed', getWorkerInfo())
     logger.info(`Cycle '${requestCycleCount}' processed tx ${JSON.stringify(txMeta)}.`, loggerMetadata)
   }
 
   function txNotAvailable () {
     txNotAvailableCount++
     timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
+    eventEmitter.emit('tx-not-available', getWorkerInfo())
     logger.warn(`Cycle '${requestCycleCount}': iterator exhausted.`, loggerMetadata)
   }
 
   function resolutionError (e) {
     cycleExceptionCount++
     timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
+    eventEmitter.emit('tx-resolution-error', getWorkerInfo())
     logger.error(`Cycle '${requestCycleCount}' failed to resolve next tx. Details: ${e.message} ${e.stack}`, loggerMetadata)
   }
 
   function ingestionError (e, txMeta, processedTx) {
     cycleExceptionCount++
     timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
+    eventEmitter.emit('tx-ingestion-error', getWorkerInfo())
     logger.error(`Cycle '${requestCycleCount}' failed to store tx ${JSON.stringify(txMeta)}: ${JSON.stringify(processedTx)} Error details: ${util.inspect(e, false, 10)}`, loggerMetadata)
   }
 
@@ -253,6 +259,7 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     while (enabled) { // eslint-disable-line
       requestCycleCount++
       try {
+        eventEmitter.emit('cycle-starts', getWorkerInfo())
         await runWithTimer(
           tryConsumeNextTransactionAndWait,
           (duration) => processDurationResult('consumption-iteration-full', duration)
@@ -313,12 +320,17 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     }
   }
 
+  function getEventEmitter () {
+    return eventEmitter
+  }
+
   function getObjectId () {
     return componentId
   }
 
   return {
     getWorkerInfo,
+    getEventEmitter,
     getObjectId,
     enable,
     disable,
