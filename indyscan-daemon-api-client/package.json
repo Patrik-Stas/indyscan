@@ -1,0 +1,33 @@
+{
+  "name": "indyscan-daemon-api-client",
+  "version": "4.0.0",
+  "author": "Patrik Staš",
+  "license": "ISC",
+  "description": "IndyScan Daemon HTTP API client.",
+  "main": "src/index.js",
+  "scripts": {
+    "lint": "standard",
+    "lint:fix": "standard --fix",
+    "build": "cross-env BABEL_ENV=production babel src --out-dir dist",
+    "istxs": "node ./script/istxs.js --url 'http://localhost:3000' --network SOVRIN_TESTNET -l domain -a 20 -b 30 -f [\\\"CLAIM_DEF\\\"]",
+    "istx": "node ./script/istx.js --url 'http://localhost:3000' --network SOVRIN_TESTNET -l domain -s 5",
+    "isseries": "node ./script/isseries.js --url 'http://localhost:3000' --network SOVRIN_TESTNET -l domain",
+    "test:integration": "ENVIRONMENT=localhost jest test/integration",
+    "test:unit": "echo 'TODO: Implement unit tests.'"
+  },
+  "devDependencies": {
+    "command-line-args": "^5.1.1",
+    "command-line-usage": "^5.0.5",
+    "cross-env": "^5.2.0",
+    "dotenv": "^7.0.0",
+    "standard": "^14.3.1",
+    "@types/jest": "^23.3.14",
+    "jest": "^25.0.0",
+    "jest-cli": "^25.0.0",
+    "@elastic/elasticsearch": "^7.3.0"
+  },
+  "dependencies": {
+    "axios": "^0.18.1",
+    "query-string": "^6.4.2"
+  }
+}
