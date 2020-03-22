@@ -292,19 +292,24 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     return {
       initialized,
       enabled,
-      indyNetworkId,
-      operationType,
       componentId,
+      indyNetworkId,
+      subledger,
+      operationType,
       transformerInfo: transformer.describe(),
       targetComponentId: target.getObjectId(),
       iteratorComponentId: iterator.getObjectId(),
-      iteratorInfo: iterator.describe(),
-      targetInfo: target.describe(),
-      processedTxCount,
-      requestCycleCount,
-      txNotAvailableCount,
-      cycleExceptionCount,
-      avgDurations: getAverageDurations()
+      iteratorDescription: iterator.describe(),
+      iteratorInfo: iterator.getIteratorInfo(),
+      targetDescription: target.describe(),
+      targetInfo: target.getTargetInfo(),
+      stats: {
+        processedTxCount,
+        requestCycleCount,
+        txNotAvailableCount,
+        cycleExceptionCount,
+        avgDurations: getAverageDurations()
+      }
     }
   }
 

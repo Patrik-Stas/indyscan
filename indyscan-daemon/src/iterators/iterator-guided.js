@@ -42,7 +42,24 @@ function createIteratorGuided ({ indyNetworkId, operationType, componentId, sour
     return `Guided iterator on ${source.getObjectId()} [format:${guidanceFormat}]`
   }
 
+  function getSource() {
+    return source
+  }
+
+  function getIteratorInfo() {
+    return {
+      indyNetworkId,
+      operationType,
+      componentId,
+      sourceInfo: source.getSourceInfo(),
+      sourceSeqNoGuidanceInfo: sourceSeqNoGuidance.getSourceInfo(),
+      guidanceFormat
+    }
+  }
+
   return {
+    getIteratorInfo,
+    getSource,
     getNextTx,
     getObjectId,
     describe

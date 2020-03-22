@@ -83,7 +83,19 @@ async function createSourceLedger ({ indyNetworkId, operationType, componentId, 
     return `Ledger ${indyNetworkId}`
   }
 
+  function getSourceInfo() {
+    return {
+      indyNetworkId,
+      operationType,
+      implementation: 'ledger',
+      componentId,
+      name,
+      genesisPath
+    }
+  }
+
   return {
+    getSourceInfo,
     getObjectId,
     getTxData,
     getHighestSeqno,

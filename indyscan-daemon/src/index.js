@@ -5,6 +5,7 @@ const sleep = require('sleep-promise')
 const util = require('util')
 const { startServer } = require('./server/server')
 const { createServiceWorkers } = require('./service/service-workers')
+const { createServiceTargets } = require('./service/service-targets')
 const Mustache = require('mustache')
 const { getWorkerConfigPaths } = require('./config/env')
 const fs = require('fs')
@@ -39,11 +40,16 @@ async function buildWorkers (builder, builderParams) {
 }
 
 async function run () {
-  const serviceWorkers = createServiceWorkers()
+  const serviceTargets = createServiceTargets()
+  const serviceWorkers = createServiceWorkers(serviceTargets)
   if (envConfig.SERVER_ENABLED) {
     startServer(serviceWorkers)
   }
-  let workers = []
+  let allWorkers = []
+  let allSources = []
+  let allTargets = []
+  let allTransformer = []
+  let allIterators = []
   try {
     const workerConfigPaths = getWorkerConfigPaths()
     await sleep(2000)
@@ -56,23 +62,34 @@ async function run () {
       const workerBuilders = JSON.parse(Mustache.render(JSON.stringify(workersBuildersTemplate), env))
       for (const workerBuilder of workerBuilders) {
         const { builder, params } = workerBuilder
-        const workerGroup = await buildWorkers(builder, params)
-        workers.push(workerGroup)
+        const {workers, sources, targets, transformers, iterators} = await buildWorkers(builder, params)
+        allWorkers.push(workers)
+        allSources.push(sources)
+        allTargets.push(targets)
+        allTransformer.push(transformers)
+        allIterators.push(iterators)
       }
     }
   } catch (e) {
     console.error(util.inspect(e))
     return
   }
-  workers = _.flatten(workers)
-  logger.info(`Built all workers. Workers total ${workers.length}`)
-  for (const worker of workers) {
+  allWorkers = _.flatten(allWorkers)
+  allSources = _.flatten(allSources) // eslint-disable-line
+  allTargets = _.flatten(allTargets)
+  allTransformer = _.flatten(allTransformer) // eslint-disable-line
+  allIterators = _.flatten(allIterators) // eslint-disable-line
+  logger.info(`Built all workers. Workers total ${allWorkers.length}`)
+  for (const worker of allWorkers) {
     serviceWorkers.registerWorker(worker)
+  }
+  for (const target of allTargets) {
+    serviceTargets.registerTarget(target)
   }
 
   if (envConfig.AUTOSTART) {
     logger.info('Autostarting all workers.')
-    const workers = serviceWorkers.getAllWorkers()
+    const workers = serviceWorkers.getWorkers()
     for (const worker of workers) {
       worker.enable()
     }

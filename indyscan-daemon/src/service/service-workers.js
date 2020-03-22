@@ -1,6 +1,6 @@
 const logger = require('../logging/logger-main')
 
-function createServiceWorkers () {
+function createServiceWorkers (serviceTargets) {
   const workers = {}
 
   function registerWorker (worker) {
@@ -12,23 +12,39 @@ function createServiceWorkers () {
     workers[id] = worker
   }
 
-  function getAllWorkers () {
-    return Object.values(workers)
+  function getWorkers (workerQuery) {
+    logger.info(`Get workers, worker query =${JSON.stringify(workerQuery)}`)
+    let resWorkers = Object.values(workers)
+    if (workerQuery) {
+      if (workerQuery.operationType) {
+        resWorkers = resWorkers.filter(worker => worker.getWorkerInfo().operationType === workerQuery.operationType)
+      }
+      if (workerQuery.subledger) {
+        resWorkers = resWorkers.filter(worker => worker.getWorkerInfo().subledger === workerQuery.subledger)
+      }
+      if (workerQuery.targetEsIndex) {
+        resWorkers = resWorkers.filter(worker => {
+          const target = serviceTargets.getTargetInfo(worker.getWorkerInfo().targetComponentId)
+          return target.esIndex === workerQuery.targetEsIndex
+        })
+      }
+    }
+    return resWorkers
   }
 
-  function getAllWorkersInfo () {
-    return getAllWorkers().map(worker => worker.getWorkerInfo())
+  function getWorkersInfo (workerQuery) {
+    return getWorkers(workerQuery).map(worker => worker.getWorkerInfo())
   }
 
   function enableAll () {
-    const workers = getAllWorkers()
+    const workers = getWorkers()
     for (const worker of workers) {
       worker.enable()
     }
   }
 
   function disableAll () {
-    const workers = getAllWorkers()
+    const workers = getWorkers()
     for (const worker of workers) {
       worker.disable()
     }
@@ -55,8 +71,8 @@ function createServiceWorkers () {
   }
 
   return {
-    getAllWorkers,
-    getAllWorkersInfo,
+    getWorkers,
+    getWorkersInfo,
     registerWorker,
     enableAll,
     disableAll,

@@ -9,22 +9,21 @@ async function createNetOpRtwSerialization ({ indyNetworkId, genesisPath, esUrl,
   const operationType = 'ledgercpy'
   const sourceLedger = await createSourceLedger({
     operationType,
-    componentId: `${operationType}.source.ledger`,
+    componentId: `${indyNetworkId}.${operationType}.source.ledger`,
     name: indyNetworkId,
     genesisPath
   })
-
   const sourceEs = await createSourceElasticsearch({
     indyNetworkId,
     operationType,
-    componentId: `${operationType}.source.es`,
+    componentId: `${indyNetworkId}.${operationType}.source.es`,
     index: esIndex,
     url: esUrl
   })
   const targetEs = await createTargetElasticsearch({
     indyNetworkId,
     operationType,
-    componentId: `${operationType}.target.es`,
+    componentId: `${indyNetworkId}.${operationType}.target.es`,
     url: esUrl,
     index: esIndex,
     replicas: 0
@@ -32,13 +31,13 @@ async function createNetOpRtwSerialization ({ indyNetworkId, genesisPath, esUrl,
   const transformer = await createTransformerOriginal2Serialized({
     indyNetworkId,
     operationType,
-    componentId: 'transformer.original2serialized'
+    componentId: `${indyNetworkId}.transformer.original2serialized`
   })
   const guidanceFormat = transformer.getOutputFormat()
   const iterateLedgerByDbOriginalTxs = createIteratorGuided({
     indyNetworkId,
     operationType,
-    componentId: `${operationType}.iterator.guided.${guidanceFormat}`,
+    componentId: `${indyNetworkId}.${operationType}.iterator.guided.${guidanceFormat}`,
     source: sourceLedger,
     sourceSeqNoGuidance: sourceEs,
     guidanceFormat
@@ -59,7 +58,7 @@ async function createNetOpRtwSerialization ({ indyNetworkId, genesisPath, esUrl,
     })
     workers.push(worker)
   }
-  return workers
+  return {workers, sources: [sourceEs, sourceLedger], targets: [targetEs], transformers: [transformer], iterators: [iterateLedgerByDbOriginalTxs]}
 }
 
 module.exports.createNetOpRtwSerialization = createNetOpRtwSerialization

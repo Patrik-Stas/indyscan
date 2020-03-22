@@ -76,10 +76,10 @@ export class WorkersTable extends Component {
                       <td>
                         <Badge>{worker.transformerInfo}</Badge>
                       </td>
-                      <td>{worker.requestCycleCount}</td>
-                      <td>{worker.processedTxCount}</td>
-                      <td>{worker.txNotAvailableCount}</td>
-                      <td>{worker.cycleExceptionCount}</td>
+                      <td>{worker.stats.requestCycleCount}</td>
+                      <td>{worker.stats.processedTxCount}</td>
+                      <td>{worker.stats.txNotAvailableCount}</td>
+                      <td>{worker.stats.cycleExceptionCount}</td>
                       {/*<JSONPretty id="json-pretty" data={worker}/>*/}
                     </tr>
                   )

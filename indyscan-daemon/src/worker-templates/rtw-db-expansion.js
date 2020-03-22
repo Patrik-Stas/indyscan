@@ -12,26 +12,26 @@ async function createNetOpRtwExpansion ({ indyNetworkId, esUrl, esIndex, workerT
   const sourceEs = await createSourceElasticsearch({
     indyNetworkId,
     operationType,
-    componentId: `${operationType}.source.es`,
+    componentId: `${indyNetworkId}.${operationType}.source.es`,
     url: esUrl,
     index: esIndex
   })
   const targetEs = await createTargetElasticsearch({
     indyNetworkId,
     operationType,
-    componentId: `${operationType}.target.es`,
+    componentId: `${indyNetworkId}.${operationType}.target.es`,
     url: esUrl,
     index: esIndex
   })
   const deserializer = await createTransformerSerialized2Original({
     indyNetworkId,
     operationType,
-    componentId: 'transformer.Serialized2Original'
+    componentId: `${indyNetworkId}.transformer.Serialized2Original`
   })
   const expander = await createTransformerOriginal2Expansion({
     indyNetworkId,
     operationType,
-    componentId: 'transformer.Original2Expansion',
+    componentId: `${indyNetworkId}.transformer.Original2Expansion`,
     sourceLookups: sourceEs
   })
 
@@ -45,7 +45,7 @@ async function createNetOpRtwExpansion ({ indyNetworkId, esUrl, esIndex, workerT
   const iterateLedgerByDbExpansionTxs = createIteratorGuided({
     indyNetworkId,
     operationType,
-    componentId: `${operationType}.iterator.guided.${guidanceFormat}`,
+    componentId: `${indyNetworkId}.${operationType}.iterator.guided.${guidanceFormat}`,
     source: sourceEs,
     sourceSeqNoGuidance: sourceEs,
     guidanceFormat
@@ -67,7 +67,7 @@ async function createNetOpRtwExpansion ({ indyNetworkId, esUrl, esIndex, workerT
     })
     workers.push(worker)
   }
-  return workers
+  return {workers, sources: [sourceEs], targets: [targetEs], transformers: [transformer], iterators: [iterateLedgerByDbExpansionTxs]}
 }
 
 module.exports.createNetOpRtwExpansion = createNetOpRtwExpansion

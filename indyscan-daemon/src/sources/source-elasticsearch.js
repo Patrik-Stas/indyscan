@@ -47,7 +47,19 @@ async function createSourceElasticsearch ({ indyNetworkId, operationType, compon
     return `Elasticsearch ${indyNetworkId}/${index}`
   }
 
+  function getSourceInfo () {
+    return {
+      indyNetworkId,
+      operationType,
+      implementation: 'elasticsearch',
+      componentId,
+      esUrl: url,
+      esIndex: index
+    }
+  }
+
   return {
+    getSourceInfo,
     getObjectId,
     getTxData,
     getHighestSeqno,

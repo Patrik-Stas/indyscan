@@ -3,7 +3,17 @@ const { asyncHandler } = require('../middleware')
 module.exports = function (app, serviceWorkers) {
   app.get('/api/workers',
     asyncHandler(async function (req, res) {
-      const workersInfo = await serviceWorkers.getAllWorkersInfo()
+      let workerQuery = {}
+      if (req.query.operationType) {
+        workerQuery.operationType = req.query.operationType
+      }
+      if (req.query.subledger) {
+        workerQuery.subledger = req.query.subledger
+      }
+      if (req.query.targetEsIndex) {
+        workerQuery.targetEsIndex = req.query.targetEsIndex
+      }
+      const workersInfo = await serviceWorkers.getWorkersInfo(workerQuery)
       res.status(200).send(workersInfo)
     })
   )
@@ -28,7 +38,7 @@ module.exports = function (app, serviceWorkers) {
       } else {
         serviceWorkers.disableAll()
       }
-      const workersInfo = await serviceWorkers.getAllWorkersInfo()
+      const workersInfo = await serviceWorkers.getWorkersInfo()
       res.status(200).send(workersInfo)
     })
   )
