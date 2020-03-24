@@ -38,6 +38,7 @@ services:
     networks:
       - esnet
     environment:
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
       - xpack.security.enabled=false
       - discovery.type=single-node
     ulimits:
