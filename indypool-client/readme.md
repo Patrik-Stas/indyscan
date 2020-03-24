@@ -2,7 +2,7 @@
 This is simple tool to test your connectivity to a Indy network. 
 
 # Install dependencies
-`npm run install`
+`npm install`
 
 # How to test your network
 Assuming you have created network genesis file for network `FOO` 
