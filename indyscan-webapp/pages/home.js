@@ -8,6 +8,7 @@ import TxPreviewList from '../components/TxPreviewList/TxPreviewList'
 import Footer from '../components/Footer/Footer'
 import fetch from 'isomorphic-fetch'
 import { secondsToDhms } from '../txtools'
+import io from 'socket.io-client'
 import util from 'util'
 
 class HomePage extends Component {
@@ -31,6 +32,32 @@ class HomePage extends Component {
     }
   }
 
+  constructor(props) {
+    super()
+    console.log(`CONSTRUCTOR ${JSON.stringify(props)}`)
+    this.state = {
+      domainExpansionTxs: this.props.domainExpansionTxs,
+      poolExpansionTxs: this.props.poolExpansionTxs,
+      configExpansionTxs: this.props.configExpansionTxs
+    }
+  }
+
+  onProcessedTx (txData) {
+    // console.log(`New txdata ${JSON.stringify(txData)}`)
+    // console.log(`This= ${util.inspect(this)}`)
+    console.log(`State= ${JSON.stringify(this.state)}`)
+    let txs = this.state.txs
+    txs.push(txData)
+    this.setState({txs})
+  }
+
+  componentDidMount () {
+    const websocketsUrl = 'http://localhost:3709'
+    console.log(`Connecting to websocket server ${websocketsUrl}`)
+    let ioClient = io.connect(websocketsUrl)
+    ioClient.on('tx-processed',  this.onProcessedTx.bind(this) )
+  }
+
   calculateTimeSinceLastTransaction = function calculateTimeSinceLastTransaction (expansionTxs) {
     const timestamps = expansionTxs.map(tx => (tx && tx.idata && tx.idata.txnMetadata) ? (Date.parse(tx.idata.txnMetadata.txnTime) / 1000) : undefined).filter(t => !!t)
     const utimeMaxTx = Math.max(...timestamps)
@@ -44,7 +71,7 @@ class HomePage extends Component {
       <Grid>
         <GridRow style={{ backgroundColor: 'white', marginBottom: '-1em' }}>
           <GridColumn width={16}>
-            <PageHeader page='home' network={network} baseUrl={baseUrl} />
+            <PageHeader page='home' network={network} baseUrl={baseUrl}/>
           </GridColumn>
         </GridRow>
         <GridRow>
@@ -63,7 +90,7 @@ class HomePage extends Component {
             </GridRow>
             <GridRow centered style={{ marginTop: '2em' }}>
               <Grid.Column>
-                <TxPreviewList indyscanTxs={domainExpansionTxs} network={network} subledger='domain' />
+                <TxPreviewList indyscanTxs={domainExpansionTxs} network={network} subledger='domain'/>
               </Grid.Column>
             </GridRow>
           </GridColumn>
@@ -74,7 +101,7 @@ class HomePage extends Component {
             </GridRow>
             <GridRow centered style={{ marginTop: '2em' }}>
               <Grid.Column>
-                <TxPreviewList indyscanTxs={poolExpansionTxs} network={network} subledger='pool' />
+                <TxPreviewList indyscanTxs={poolExpansionTxs} network={network} subledger='pool'/>
               </Grid.Column>
             </GridRow>
           </GridColumn>
@@ -85,7 +112,7 @@ class HomePage extends Component {
             </GridRow>
             <GridRow centered style={{ marginTop: '2em' }}>
               <Grid.Column>
-                <TxPreviewList indyscanTxs={configExpansionTxs} network={network} subledger='config' />
+                <TxPreviewList indyscanTxs={configExpansionTxs} network={network} subledger='config'/>
               </Grid.Column>
             </GridRow>
           </GridColumn>
@@ -93,7 +120,7 @@ class HomePage extends Component {
         </GridRow>
         <GridRow>
           <GridColumn>
-            <Footer displayVersion={this.props.version} />
+            <Footer displayVersion={this.props.version}/>
           </GridColumn>
         </GridRow>
       </Grid>

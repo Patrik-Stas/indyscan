@@ -36,9 +36,12 @@ function startServer (serviceWorkers) {
   for (const worker of workers) {
     const emitter = worker.getEventEmitter()
     logger.info(`Registering hook on emitter of worker ${worker.getObjectId()}`)
-    emitter.on('tx-processed', (worker, txData) => {
-      logger.debug(`Emitting processed transaction from worker worker ${worker.getObjectId()}.`)
-      io.emit('tx-processed', {worker, txData}) // This will emit the event to all connected sockets
+    emitter.on('tx-processed', (workerInfo, txData) => {
+      if (workerInfo.operationType === 'expansion' && workerInfo.targetInfo.esIndex) {
+        const room = workerInfo.targetInfo.esIndex
+        logger.debug(`Emitting to room ${room} processed transaction from worker worker ${workerInfo.componentId}.`)
+        io.to(room).emit('tx-processed', { workerInfo, txData }) // This will emit the event to all connected sockets
+      }
     })
   }
 }

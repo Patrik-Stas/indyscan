@@ -12,7 +12,7 @@
         "genesisPath": "{{{cfgdir}}}/genesis/{{{INDY_NETWORK}}}.txn",
         "esIndex": "{{{ES_INDEX}}}",
         "esUrl": "{{{ES_URL}}}",
-        "workerTiming": "MEDIUM"
+        "workerTiming": "SLOW"
       }
     },
     {
@@ -21,7 +21,7 @@
         "indyNetworkId": "{{{INDY_NETWORK}}}",
         "esUrl": "{{{ES_URL}}}",
         "esIndex": "{{{ES_INDEX}}}",
-        "workerTiming": "MEDIUM"
+        "workerTiming": "SLOW"
       }
     }
   ]

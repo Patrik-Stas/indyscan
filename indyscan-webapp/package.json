@@ -58,6 +58,7 @@
     "react-tooltip": "^3.10.0",
     "semantic-ui-react": "^0.84.0",
     "sleep-promise": "^8.0.1",
+    "socket.io-client": "^2.3.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {
