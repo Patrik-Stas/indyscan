@@ -62,6 +62,13 @@ async function searchOneDocument (esClient, esIndex, query) {
   return body.hits.hits[0]._source
 }
 
+async function deleteDyQuery (esClient, esIndex, query) {
+  return esClient.deleteByQuery({
+    index: esIndex,
+    body: { query }
+  })
+}
+
 async function upsertSubdocument (esClient, esIndex, id, subdoc) {
   return esClient.update({
     index: esIndex,
@@ -109,3 +116,4 @@ module.exports.upsertSubdocument = upsertSubdocument
 module.exports.getDocument = getDocument
 module.exports.setMapping = setMapping
 module.exports.getMapping = getMapping
+module.exports.deleteDyQuery = deleteDyQuery

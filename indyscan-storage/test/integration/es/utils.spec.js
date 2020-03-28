@@ -1,5 +1,6 @@
 /* eslint-env jest */
 const sleep = require('sleep-promise')
+const { deleteDyQuery } = require('../../../src/es/utils')
 const { indexExists } = require('../../../src/es/utils')
 const { upsertSubdocument } = require('../../../src/es/utils')
 const { getDocument } = require('../../../src/es/utils')
@@ -35,16 +36,16 @@ async function doesIndexExist (esClient, index) {
 
 describe('basic es utils tests', () => {
   it('should create ES index if doesnt exist', async () => {
-    await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
+    await assureEsIndex(esClient, index, 0)
     const exists = await doesIndexExist(esClient, index)
     expect(exists).toBeTruthy()
   })
 
   it('should be okay to call assureEsIndex repeatedly', async () => {
-    await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
+    await assureEsIndex(esClient, index, 0)
     const exists = await doesIndexExist(esClient, index)
     expect(exists).toBeTruthy()
-    await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
+    await assureEsIndex(esClient, index, 0)
     const exists2 = await doesIndexExist(esClient, index)
     expect(exists2).toBeTruthy()
   })
@@ -59,7 +60,7 @@ describe('basic es utils tests', () => {
 
   it('should search, find and return one document', async () => {
     // arrange
-    await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
+    await assureEsIndex(esClient, index, 0)
     await esClient.index({
       id: 'foobar123',
       index,
@@ -82,15 +83,29 @@ describe('basic es utils tests', () => {
     expect(document.foo.baz).toBe(256)
   })
 
-  it('should add new format representations of tx', async () => {
-    const docId = 'wololooo'
-    await assureEsIndex(esClient, index, 0, createWinstonLoggerDummy())
-    await upsertSubdocument(esClient, index, docId, { format1: { a: 'a' } })
-    await upsertSubdocument(esClient, index, docId, { format2: { b: 'b' } })
+  it('should delete documents by query', async () => {
+    await assureEsIndex(esClient, index, 0)
+    await upsertSubdocument(esClient, index, `doc1`, { seqNo: 1 })
+    await upsertSubdocument(esClient, index, `doc2`, { seqNo: 2 })
+    await upsertSubdocument(esClient, index, `doc3`, { seqNo: 3 })
+    await upsertSubdocument(esClient, index, `doc4`, { seqNo: 4 })
+    await upsertSubdocument(esClient, index, `doc4`, { seqNo: 4 })
     await sleep(1000) // takes time to index the stuff
-    const doc = await getDocument(esClient, index, docId)
-    expect(doc).toBeDefined()
-    expect(doc.format1.a).toBe('a')
-    expect(doc.format2.b).toBe('b')
+    const query = {
+      range: {
+        'seqNo': {
+          gte: 3
+        }
+      }
+    }
+    expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 3 } } })).toBeDefined()
+    expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 4 } } })).toBeDefined()
+    expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 5 } } })).toBeDefined()
+    await deleteDyQuery(esClient, index, query)
+    await sleep(1000) // takes time to index the stuff
+    expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 3 } } })).toBeDefined()
+    expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 4 } } })).toBeNull()
+    expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 5 } } })).toBeNull()
   })
+
 })

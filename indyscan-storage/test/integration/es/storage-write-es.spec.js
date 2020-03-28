@@ -6,6 +6,9 @@ const { searchOneDocument } = require('../../../src/es/utils')
 const { createStorageWriteEs } = require('../../../src')
 const { Client } = require('@elastic/elasticsearch')
 const toCanonicalJson = require('canonical-json')
+const { esFilterSubledgerName } = require('../../../src/es/es-query-builder')
+const { esAndFilters } = require('../../../src/es/es-query-builder')
+const { esFilterBySeqNo } = require('../../../src/es/es-query-builder')
 
 const URL_ES = process.env.URL_ES || 'http://localhost:9200'
 let esClient
@@ -95,23 +98,23 @@ describe('writing txdata to elasticsearch', () => {
     // assert
     const mapping = await getMapping(esClient, testIndex)
     const expectedBody = toCanonicalJson({
-      [testIndex]: {
-        mappings: {
-          properties: {
-            imeta: {
-              properties: {
-                seqNo: {
-                  type: 'integer'
-                },
-                subledger: {
-                  type: 'keyword'
+        [testIndex]: {
+          mappings: {
+            properties: {
+              imeta: {
+                properties: {
+                  seqNo: {
+                    type: 'integer'
+                  },
+                  subledger: {
+                    type: 'keyword'
+                  }
                 }
               }
             }
           }
         }
       }
-    }
     )
     expect(toCanonicalJson(mapping.body)).toBe(expectedBody)
   })
@@ -135,30 +138,30 @@ describe('writing txdata to elasticsearch', () => {
     const mapping = await getMapping(esClient, testIndex)
 
     expect(toCanonicalJson(mapping.body)).toBe(toCanonicalJson({
-      [testIndex]: {
-        mappings: {
-          properties: {
-            idata: {
-              properties: {
-                'format-foo': {
-                  properties: {
-                    idata: {
-                      properties: {
-                        aaa: {
-                          type: 'integer'
+        [testIndex]: {
+          mappings: {
+            properties: {
+              idata: {
+                properties: {
+                  'format-foo': {
+                    properties: {
+                      idata: {
+                        properties: {
+                          aaa: {
+                            type: 'integer'
+                          }
                         }
-                      }
-                    },
-                    imeta: imetaMapping
+                      },
+                      imeta: imetaMapping
+                    }
                   }
                 }
-              }
-            },
-            imeta: imetaMapping
+              },
+              imeta: imetaMapping
+            }
           }
         }
       }
-    }
     ))
 
     const mappingBar = {
@@ -172,42 +175,42 @@ describe('writing txdata to elasticsearch', () => {
     // assert
     const mappingNew = await getMapping(esClient, testIndex)
     expect(toCanonicalJson(mappingNew.body)).toBe(toCanonicalJson({
-      [testIndex]: {
-        mappings: {
-          properties: {
-            idata: {
-              properties: {
-                'format-foo': {
-                  properties: {
-                    idata: {
-                      properties: {
-                        aaa: {
-                          type: 'integer'
+        [testIndex]: {
+          mappings: {
+            properties: {
+              idata: {
+                properties: {
+                  'format-foo': {
+                    properties: {
+                      idata: {
+                        properties: {
+                          aaa: {
+                            type: 'integer'
+                          }
                         }
-                      }
-                    },
-                    imeta: imetaMapping
-                  }
-                },
-                'format-bar': {
-                  properties: {
-                    idata: {
-                      properties: {
-                        bbb: {
-                          type: 'keyword'
+                      },
+                      imeta: imetaMapping
+                    }
+                  },
+                  'format-bar': {
+                    properties: {
+                      idata: {
+                        properties: {
+                          bbb: {
+                            type: 'keyword'
+                          }
                         }
-                      }
-                    },
-                    imeta: imetaMapping
+                      },
+                      imeta: imetaMapping
+                    }
                   }
                 }
-              }
-            },
-            imeta: imetaMapping
+              },
+              imeta: imetaMapping
+            }
           }
         }
       }
-    }
     ))
 
     await deleteIndex(esClient, testIndex)
@@ -256,5 +259,37 @@ describe('writing txdata to elasticsearch', () => {
     }))
 
     await deleteIndex(esClient, testIndex)
+  })
+
+  it('should delete subledger transactions above seqNo', async () => {
+    // arrange
+    const writeStorage = await createStorageWriteEs(esClient, index, 0)
+
+    // act
+    await writeStorage.addTx('domain', 1, 'format-bar', { hello: 'world1' })
+    await writeStorage.addTx('domain', 2, 'format-bar', { hello: 'world2' })
+    await writeStorage.addTx('domain', 3, 'format-bar', { hello: 'world3' })
+    await writeStorage.addTx('domain', 4, 'format-bar', { hello: 'world4' })
+    await writeStorage.addTx('domain', 5, 'format-bar', { hello: 'world5' })
+
+    await writeStorage.addTx('config', 5, 'format-bar', { hello: 'world5' })
+    await writeStorage.addTx('pool', 5, 'format-bar', { hello: 'world5' })
+    await sleep(1000)
+
+
+    const domainTx3 = await searchOneDocument(esClient, index, esAndFilters(esFilterBySeqNo(3), esFilterSubledgerName('domain')))
+    expect(domainTx3).toBeDefined()
+
+    await writeStorage.deleteTxsByGteSeqNo('domain', 3)
+    await sleep(1000)
+
+    // domain ledger txs should be deleted by seqno
+    expect(await searchOneDocument(esClient, index, esAndFilters(esFilterBySeqNo(3), esFilterSubledgerName('domain')))).toBeNull()
+    expect(await searchOneDocument(esClient, index, esAndFilters(esFilterBySeqNo(4), esFilterSubledgerName('domain')))).toBeNull()
+    expect(await searchOneDocument(esClient, index, esAndFilters(esFilterBySeqNo(5), esFilterSubledgerName('domain')))).toBeNull()
+
+    // other subledgers should be untouched
+    expect(await searchOneDocument(esClient, index, esAndFilters(esFilterBySeqNo(5), esFilterSubledgerName('pool')))).toBeDefined()
+    expect(await searchOneDocument(esClient, index, esAndFilters(esFilterBySeqNo(5), esFilterSubledgerName('config')))).toBeDefined()
   })
 })

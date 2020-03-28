@@ -13,6 +13,11 @@ createEsTransformedTx - function taking 1 argument, a transaction as found on le
 logger (optional) - winston logger
  */
 
+const { esFilterSubledgerName } = require('./es-query-builder')
+const { deleteDyQuery } = require('./utils')
+const { esFilterSeqNoLt } = require('./es-query-builder')
+const { esFilterSeqNoGte } = require('./es-query-builder')
+const { esAndFilters } = require('./es-query-builder')
 const { SUBLEDGERS } = require('./consts')
 const { setMapping } = require('./utils')
 const { upsertSubdocument } = require('./utils')
@@ -78,8 +83,14 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger =
     return upsertSubdocument(esClient, esIndex, docId, persistData)
   }
 
+  async function deleteTxsByGteSeqNo(subledger, seqNoGte) {
+    const seqNoRangeQuery = esAndFilters(esFilterSeqNoGte(seqNoGte), esFilterSeqNoLt(1000000000), esFilterSubledgerName(subledger))
+    return deleteDyQuery(esClient, esIndex, seqNoRangeQuery)
+  }
+
   return {
     addTx,
+    deleteTxsByGteSeqNo,
     setFormatMappings
   }
 }
