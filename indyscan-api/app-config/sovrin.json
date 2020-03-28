@@ -1,7 +1,8 @@
 [
   {
-    "id": "sovmain",
+    "id": "SOVRIN_MAINNET",
     "aliases": [
+      "sovmain",
       "SOVRIN_MAINNET"
     ],
     "ui": {
@@ -14,13 +15,14 @@
     }
   },
   {
-    "id": "sovstaging",
+    "id": "SOVRIN_STAGINGNET",
     "ui": {
       "priority": 2,
       "display": "StagingNet",
       "description": "StagingNet is area where end-users of products can test in a pre-production environment."
     },
     "aliases": [
+      "sovstaging",
       "SOVRIN_TESTNET"
     ],
     "es" : {
@@ -28,12 +30,15 @@
     }
   },
   {
-    "id": "sovbuilder",
+    "id": "SOVRIN_BUILDERNET",
     "ui": {
       "priority": 1,
       "display": "BuilderNet",
       "description": "BuilderNet is network to try out their product before giving their end-users a go at it."
     },
+    "aliases": [
+      "sovbuilder"
+    ],
     "es" : {
       "index": "txs-sovbuilder"
     }

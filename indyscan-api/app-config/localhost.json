@@ -1,6 +1,6 @@
 [
   {
-    "id": "indylocal",
+    "id": "HOST_DOCKER_INTERNAL",
     "display": "IndyNetwork",
     "es" : {
       "index": "txs-localhost"

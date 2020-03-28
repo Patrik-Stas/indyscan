@@ -16,6 +16,30 @@ function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLoggi
   }
 }
 
+function linkEmitterToSocket(io, emitter, indyNetworkId, subledger) {
+  logger.info(`Linking worker emitter to websockets. indyNetworkId=${indyNetworkId} subledger=${subledger}, `)
+  let namespace = indyNetworkId
+  let nsp = io.of(`/${namespace}`)
+
+  nsp.on('connection', function (_socket) {
+    logger.info(`New connection at namespace /${namespace}`)
+  })
+
+  emitter.on('tx-processed', ({workerData, txData}) => {
+    const payload = { workerData, txData }
+    const websocketEvent = 'tx-processed'
+    logger.debug(`Namespace "${namespace}" broadcasting "${websocketEvent}" with payload: ${JSON.stringify(payload)}.`)
+    nsp.emit(websocketEvent, payload)
+  })
+
+  emitter.on('rescan-scheduled', ({workerData, msTillRescan}) => {
+    const payload = { workerData, msTillRescan }
+    const websocketEvent = "rescan-scheduled"
+    logger.debug(`Namespace "${namespace}" broadcasting "${websocketEvent}" with payload: ${JSON.stringify(payload)}.`)
+    nsp.emit(websocketEvent, payload)
+  })
+}
+
 function startServer (serviceWorkers) {
   logger.info('Starting daemon express server!')
   const app = express()
@@ -28,21 +52,19 @@ function startServer (serviceWorkers) {
   let server = app.listen(envConfig.SERVER_PORT, () => logger.info(`Daemon server started at port ${envConfig.SERVER_PORT}!`))
 
   let io = socketio(server)
+
   io.on('connection', function (socket) {
     logger.info(`New websocket connection!`)
   })
 
-  const workers = serviceWorkers.getWorkers()
+  let workers = serviceWorkers.getWorkers()
+
   for (const worker of workers) {
     const emitter = worker.getEventEmitter()
-    logger.info(`Registering hook on emitter of worker ${worker.getObjectId()}`)
-    emitter.on('tx-processed', (workerInfo, txData) => {
-      if (workerInfo.operationType === 'expansion' && workerInfo.targetInfo.esIndex) {
-        const room = workerInfo.targetInfo.esIndex
-        logger.debug(`Emitting to room ${room} processed transaction from worker worker ${workerInfo.componentId}.`)
-        io.to(room).emit('tx-processed', { workerInfo, txData }) // This will emit the event to all connected sockets
-      }
-    })
+    const { subledger, operationType, indyNetworkId } = worker.getWorkerInfo()
+    if (operationType === 'expansion') {
+      linkEmitterToSocket(io, emitter, indyNetworkId, subledger)
+    }
   }
 }
 

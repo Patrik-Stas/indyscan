@@ -5,7 +5,7 @@ const { getDefaultPreset } = require('../config/presets-consumer')
 const { resolvePreset } = require('../config/presets-consumer')
 const { runWithTimer } = require('../time/util')
 const sleep = require('sleep-promise')
-const EventEmitter = require('events');
+const EventEmitter = require('events')
 
 function getExpandedTimingConfig (providedTimingSetup) {
   let presetData
@@ -126,41 +126,58 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     return avgDurations
   }
 
-  function txProcessed (txMeta, txData, processedTx) {
+  function eventSharedPayload () {
+    return {
+      componentId,
+      indyNetworkId,
+      subledger,
+      operationType
+    }
+  }
+
+  function txProcessed (txMeta, txDataAfter) {
     processedTxCount++
     timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
-    eventEmitter.emit('tx-processed', getWorkerInfo())
+    const workerData = eventSharedPayload()
+    eventEmitter.emit('tx-processed', { workerData, txData: txDataAfter })
+    eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
     logger.info(`Cycle '${requestCycleCount}' processed tx ${JSON.stringify(txMeta)}.`, loggerMetadata)
   }
 
   function txNotAvailable () {
     txNotAvailableCount++
     timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
-    eventEmitter.emit('tx-not-available', getWorkerInfo())
+    const workerData = eventSharedPayload()
+    eventEmitter.emit('tx-not-available', { workerInfo: getWorkerInfo() })
+    eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
     logger.warn(`Cycle '${requestCycleCount}': iterator exhausted.`, loggerMetadata)
   }
 
   function resolutionError (e) {
     cycleExceptionCount++
     timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
+    const workerData = eventSharedPayload()
     eventEmitter.emit('tx-resolution-error', getWorkerInfo())
+    eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
     logger.error(`Cycle '${requestCycleCount}' failed to resolve next tx. Details: ${e.message} ${e.stack}`, loggerMetadata)
   }
 
   function ingestionError (e, txMeta, processedTx) {
     cycleExceptionCount++
     timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
+    const workerData = eventSharedPayload()
     eventEmitter.emit('tx-ingestion-error', getWorkerInfo())
+    eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
     logger.error(`Cycle '${requestCycleCount}' failed to store tx ${JSON.stringify(txMeta)}: ${JSON.stringify(processedTx)} Error details: ${util.inspect(e, false, 10)}`, loggerMetadata)
   }
 
   async function processTransaction (txData, txFormat) {
     let processedTx = txData
-    let txDataProcessedFormat = txFormat
+    let processedTxFormat = txFormat
     try {
       const result = await transformer.processTx(processedTx)
       processedTx = result.processedTx
-      txDataProcessedFormat = result.format
+      processedTxFormat = result.format
     } catch (e) {
       const errMsg = `Stopping pipeline as cycle '${requestCycleCount}' critically failed to transform tx ` +
         `${JSON.stringify(txData)} using transformer ${transformer.getObjectId()}. Details: ${e.message} ${e.stack}`
@@ -173,13 +190,13 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
       logger.error(errMsg, loggerMetadata)
       throw Error(errMsg)
     }
-    if (!txDataProcessedFormat) {
+    if (!processedTxFormat) {
       const errMsg = `Stopping pipeline on critical error. Transformer ${transformer.getObjectId()} did ` +
         'did format of its output txData.'
       logger.error(errMsg, loggerMetadata)
       throw Error(errMsg)
     }
-    return { processedTx, format: txDataProcessedFormat }
+    return { processedTx, processedTxFormat }
   }
 
   function printAverageDurations () {
@@ -198,7 +215,7 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     printAverageDurations()
 
     // get it
-    let txData, txMeta
+    let txDataBefore, txMeta
     try {
       logger.info(`Cycle '${requestCycleCount}' requesting next transaction.`, loggerMetadata)
       const res = await getNextTxTimed(subledger, iteratorTxFormat)
@@ -208,7 +225,7 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
         return
       }
       const { tx, meta } = res
-      txData = tx
+      txDataBefore = tx
       txMeta = meta
     } catch (e) {
       resolutionError(e)
@@ -223,13 +240,13 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     }
 
     // process it
-    const { processedTx, format: txDataProcessedFormat } = await processTransaction(txData, txMeta.format)
+    const { processedTx: txDataAfter, processedTxFormat } = await processTransaction(txDataBefore, txMeta.format)
 
     try {
-      await addTxTimed(txMeta.subledger, txMeta.seqNo, txDataProcessedFormat, processedTx)
-      txProcessed(txMeta, txData, processedTx)
+      await addTxTimed(txMeta.subledger, txMeta.seqNo, processedTxFormat, txDataAfter)
+      txProcessed(txMeta, txDataAfter)
     } catch (e) {
-      ingestionError(e, txMeta, processedTx)
+      ingestionError(e, txMeta, txDataAfter)
     }
   }
 
