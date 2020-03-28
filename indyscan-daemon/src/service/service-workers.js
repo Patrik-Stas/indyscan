@@ -1,6 +1,6 @@
 const logger = require('../logging/logger-main')
 
-function createServiceWorkers (serviceTargets) {
+function createServiceWorkers () {
   const workers = {}
 
   function registerWorker (worker) {
@@ -18,7 +18,7 @@ function createServiceWorkers (serviceTargets) {
     if (workerQuery) {
       const {workerIds, operationTypes, subledgers, targetEsIndices} = workerQuery
       if (workerIds) {
-        resWorkers = resWorkers.filter(worker => workerIds.includes(worker.getWorkerInfo().componentId))
+        resWorkers = resWorkers.filter(worker => workerIds.includes(worker.getWorkerInfo().workerId))
       }
       if (operationTypes) {
         resWorkers = resWorkers.filter(worker => operationTypes.includes(worker.getWorkerInfo().operationType))
@@ -28,7 +28,7 @@ function createServiceWorkers (serviceTargets) {
       }
       if (targetEsIndices) {
         resWorkers = resWorkers.filter(worker => {
-          const workerTarget = serviceTargets.getTargetInfo(worker.getWorkerInfo().targetComponentId)
+          const workerTarget = worker.getWorkerInfo().targetInfo
           const workerTargetEsIndex = workerTarget.esIndex
           if (workerTargetEsIndex) {
             return targetEsIndices.includes(workerTargetEsIndex)

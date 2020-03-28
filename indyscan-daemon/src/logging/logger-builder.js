@@ -1,17 +1,19 @@
 const winston = require('winston')
+const mkdirp = require('mkdirp')
 const Elasticsearch = require('winston-elasticsearch')
 const { format } = require('winston')
 const { timestamp, printf } = format
 
-function createLogger (loggerName, consoleLogsLevel = 'warn') {
-  const myFormat = printf(({ level, message, timestamp, metadaemon }) => {
-    return `${timestamp} [${metadaemon && metadaemon.componentId ? metadaemon.componentId : '--'}] ${level}: ${message}`
-  })
+const myFormat = printf(({ level, message, timestamp, metadaemon }) => {
+  return `${timestamp} [${metadaemon && metadaemon.workerId ? metadaemon.workerId : '--'}] ${level}: ${message}`
+})
 
+function createLogger (loggerName, consoleLogsLevel = 'warn') {
   winston.loggers.add(loggerName, {
     transports: [
       new winston.transports.Console({
         level: consoleLogsLevel,
+        label: loggerName,
         format: winston.format.combine(
           timestamp(),
           myFormat,
@@ -20,7 +22,60 @@ function createLogger (loggerName, consoleLogsLevel = 'warn') {
       })
     ]
   })
+  addFileTransport(loggerName)
   return winston.loggers.get(loggerName)
+}
+
+function addFileTransport(loggerName) {
+  const logDirectory = './logs'
+  let logger = winston.loggers.get(loggerName)
+    mkdirp(`${logDirectory}`, function (err) {
+      if (err) {
+        console.log(`Failed creating logs directory ${basePath}`)
+        console.error(err)
+      } else {
+        logger.add(new winston.transports.File({
+          filename: `${logDirectory}/error/${loggerName}.log`,
+          label: loggerName,
+          level: 'error',
+          format: winston.format.combine(
+            timestamp(),
+            myFormat,
+            winston.format.colorize({ all: true })
+          )
+        }))
+        logger.add(new winston.transports.File({
+          filename: `${logDirectory}/warn/${loggerName}.log`,
+          label: loggerName,
+          level: 'warn',
+          format: winston.format.combine(
+            timestamp(),
+            myFormat,
+            winston.format.colorize({ all: true })
+          )
+        }))
+        logger.add(new winston.transports.File({
+          filename: `${logDirectory}/info/${loggerName}.log`,
+          label: loggerName,
+          level: 'info',
+          format: winston.format.combine(
+            timestamp(),
+            myFormat,
+            winston.format.colorize({ all: true })
+          )
+        }))
+        logger.add(new winston.transports.File({
+          filename: `${logDirectory}/debug/${loggerName}.log`,
+          label: loggerName,
+          level: 'debug',
+          format: winston.format.combine(
+            timestamp(),
+            myFormat,
+            winston.format.colorize({ all: true })
+          )
+        }))
+      }
+    })
 }
 
 function addElasticTransport (logger, loggingUrl, indexPrefix, logLevel) {
@@ -51,7 +106,7 @@ function addElasticTransport (logger, loggingUrl, indexPrefix, logLevel) {
                 properties: {
                   indyNetworkId: { type: 'keyword', index: true },
                   operationType: { type: 'keyword', index: true },
-                  componentId: { type: 'keyword', index: true },
+                  workerId: { type: 'keyword', index: true },
                   componentType: { type: 'keyword', index: true },
                   workerRtwOutputFormat: { type: 'keyword', index: true }
                 }

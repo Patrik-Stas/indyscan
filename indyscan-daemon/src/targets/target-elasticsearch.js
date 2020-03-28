@@ -1,4 +1,4 @@
-const logger = require('../logging/logger-main')
+const globalLogger = require('../logging/logger-main')
 const { createStorageWriteEs } = require('indyscan-storage')
 const sleep = require('sleep-promise')
 const axios = require('axios')
@@ -11,18 +11,16 @@ async function waitUntilElasticIsReady (esUrl) {
       await axios.get(`${esUrl}/_cat`)
       isReady = true
     } catch (e) {
-      logger.warn(`Waiting for ElasticSearch ${esUrl} to come up.`)
+      globalLogger.warn(`Waiting for ElasticSearch ${esUrl} to come up.`)
       await sleep(2000)
     }
   }
 }
 
-async function createTargetElasticsearch ({ indyNetworkId, operationType, componentId, url, index, replicas = 0 }) {
+async function createTargetElasticsearch ({ indyNetworkId, url, index, replicas = 0 }) {
   const loggerMetadata = {
     metadaemon: {
       indyNetworkId,
-      operationType,
-      componentId,
       componentType: 'target-es'
     }
   }
@@ -32,23 +30,19 @@ async function createTargetElasticsearch ({ indyNetworkId, operationType, compon
   const esClient = new elasticsearch.Client({ node: url })
   let storageWrite
   try {
-    storageWrite = await createStorageWriteEs(esClient, index, replicas, logger)
+    storageWrite = await createStorageWriteEs(esClient, index, replicas)
   } catch (err) {
     throw Error(`Failed to create ES storage for index ${index}. Details: ${err.message} ${err.stack}`)
   }
 
-  async function addTxData (subledger, seqNo, format, txData) {
-    return storageWrite.addTx(subledger, seqNo, format, txData)
+  async function addTxData (subledger, seqNo, format, txData, logger = globalLogger) {
+    return storageWrite.addTx(subledger, seqNo, format, txData, logger)
   }
 
-  async function setMappings (formatName, indexMappings) {
+  async function setMappings (formatName, indexMappings, logger = globalLogger) {
     logger.info(`Setting up mappings for ES ${url}, index ${index}, tx format ${formatName}!`, loggerMetadata)
     logger.debug(`Mapping details: ${JSON.stringify(indexMappings, null, 2)}`, loggerMetadata)
-    return storageWrite.setFormatMappings(formatName, indexMappings)
-  }
-
-  function getObjectId () {
-    return componentId
+    return storageWrite.setFormatMappings(formatName, indexMappings, logger)
   }
 
   function describe () {
@@ -58,7 +52,6 @@ async function createTargetElasticsearch ({ indyNetworkId, operationType, compon
   function getTargetInfo () {
     return {
       indyNetworkId,
-      componentId,
       esUrl: url,
       esIndex: index,
       esIndexReplicas: replicas
@@ -66,7 +59,6 @@ async function createTargetElasticsearch ({ indyNetworkId, operationType, compon
   }
 
   return {
-    getObjectId,
     addTxData,
     setMappings,
     describe,

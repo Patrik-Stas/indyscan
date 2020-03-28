@@ -3,7 +3,7 @@ const txUnknown = require('indyscan-storage/test/resource/sample-txs/tx-madeup-u
 const _ = require('lodash')
 const { createTransformerOriginal2Expansion } = require('../../../src/transformers/transformer-original2expansion')
 
-const processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
+const processor = createTransformerOriginal2Expansion({ sourceLookups: undefined })
 
 describe('unrecognized transaction transformations', () => {
   it('should not modify original argument', async () => {

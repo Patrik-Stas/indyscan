@@ -2,8 +2,8 @@
 const { createTransformerSerialized2Original } = require('../../../src/transformers/transformer-serialized2original')
 const { createTransformerOriginal2Serialized } = require('../../../src/transformers/transformer-original2serialized')
 
-const serialized2Original = createTransformerSerialized2Original({ id: 'foo' })
-const original2Serialized = createTransformerOriginal2Serialized({ id: 'noop-processor' })
+const serialized2Original = createTransformerSerialized2Original({})
+const original2Serialized = createTransformerOriginal2Serialized({})
 
 describe('noop processor testsuite', () => {
   it('should not modify any data that comes in and return copy of it', async () => {

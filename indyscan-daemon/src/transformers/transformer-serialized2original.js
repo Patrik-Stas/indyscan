@@ -1,12 +1,10 @@
-const logger = require('../logging/logger-main')
-const { intializeEsTarget } = require('./target-inits')
+const globalLogger = require('../logging/logger-main')
 
-function createTransformerSerialized2Original ({ indyNetworkId, operationType, componentId }) {
+function createTransformerSerialized2Original ({ indyNetworkId, operationType }) {
   const loggerMetadata = {
     metadaemon: {
       indyNetworkId,
       operationType,
-      componentId,
       componentType: 'transformer-serialized2original'
     }
   }
@@ -34,13 +32,9 @@ function createTransformerSerialized2Original ({ indyNetworkId, operationType, c
     throw Error('Output is not intended to be sent to ES.')
   }
 
-  async function initializeTarget (target) {
+  async function initializeTarget (target, logger = globalLogger) {
     logger.info('Initializing target.', loggerMetadata)
-    return intializeEsTarget(target, getOutputFormat(), getElasticsearchTargetMappings())
-  }
-
-  function getObjectId () {
-    return componentId
+    return target.setMappings(getOutputFormat(), getElasticsearchTargetMappings(), logger)
   }
 
   function describe () {
@@ -50,7 +44,6 @@ function createTransformerSerialized2Original ({ indyNetworkId, operationType, c
   return {
     processTx,
     initializeTarget,
-    getObjectId,
     getOutputFormat,
     getInputFormat,
     describe

@@ -46,12 +46,7 @@ function createSourceMemory ({ id, dataspace }) {
     return 0
   }
 
-  function getObjectId () {
-    return id
-  }
-
   return {
-    getObjectId,
     getTxData,
     getHighestSeqno
   }

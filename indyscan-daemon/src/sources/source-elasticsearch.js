@@ -1,19 +1,9 @@
-const logger = require('../logging/logger-main')
 const { createStorageReadEs } = require('indyscan-storage')
 const { Client } = require('@elastic/elasticsearch')
 
-async function createSourceElasticsearch ({ indyNetworkId, operationType, componentId, url, index }) {
+async function createSourceElasticsearch ({ indyNetworkId, url, index }) {
   const esClient = new Client({ node: url })
-  const storageRead = createStorageReadEs(esClient, index, logger)
-
-  const loggerMetadata = { // eslint-disable-line
-    metadaemon: {
-      indyNetworkId,
-      operationType,
-      componentId,
-      componentType: 'source-es'
-    }
-  }
+  const storageRead = createStorageReadEs(esClient, index)
 
   async function getTxData (subledger, seqNo, format) {
     const queryFormat = (format === 'original') ? 'serialized' : format
@@ -39,10 +29,6 @@ async function createSourceElasticsearch ({ indyNetworkId, operationType, compon
     return storageRead.findMaxSeqNo(subledger, format)
   }
 
-  function getObjectId () {
-    return componentId
-  }
-
   function describe () {
     return `Elasticsearch ${indyNetworkId}/${index}`
   }
@@ -50,9 +36,7 @@ async function createSourceElasticsearch ({ indyNetworkId, operationType, compon
   function getSourceInfo () {
     return {
       indyNetworkId,
-      operationType,
       implementation: 'elasticsearch',
-      componentId,
       esUrl: url,
       esIndex: index
     }
@@ -60,7 +44,6 @@ async function createSourceElasticsearch ({ indyNetworkId, operationType, compon
 
   return {
     getSourceInfo,
-    getObjectId,
     getTxData,
     getHighestSeqno,
     describe

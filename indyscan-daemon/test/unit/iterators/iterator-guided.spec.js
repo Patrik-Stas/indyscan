@@ -27,9 +27,9 @@ beforeEach(async () => {
     config: {}
   }
 
-  txSource1 = createSourceMemory({ id: 'inmem1-source', dataspace: dataspace1 })
-  txSource2 = createSourceMemory({ id: 'inmem2-source', dataspace: dataspace2 })
-  txTarget2 = createTargetMemory({ id: 'inmem2-target', dataspace: dataspace2 })
+  txSource1 = createSourceMemory({ dataspace: dataspace1 })
+  txSource2 = createSourceMemory({ dataspace: dataspace2 })
+  txTarget2 = createTargetMemory({ dataspace: dataspace2 })
 })
 
 describe('basic iterator testsuite', () => {

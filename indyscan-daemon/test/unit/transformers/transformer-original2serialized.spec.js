@@ -1,7 +1,7 @@
 /* eslint-env jest */
 const { createTransformerOriginal2Serialized } = require('../../../src/transformers/transformer-original2serialized')
 
-const processor = createTransformerOriginal2Serialized({ id: 'noop-processor' })
+const processor = createTransformerOriginal2Serialized({})
 
 describe('original to serializer transformation', () => {
   it('should not modify any data that comes in and return copy of it', async () => {

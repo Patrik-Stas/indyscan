@@ -10,7 +10,7 @@ function createWinstonLoggerDummy () {
   return logger
 }
 
-async function assureEsIndex (esClient, esIndex, replicaCount, logger) {
+async function assureEsIndex (esClient, esIndex, replicaCount, logger = createWinstonLoggerDummy()) {
   const exists = await indexExists(esClient, esIndex)
   if (!exists) {
     return createEsIndex(esClient, esIndex, replicaCount, logger)
@@ -26,7 +26,7 @@ async function indexExists (esClient, index) {
   return indexExists
 }
 
-async function createEsIndex (esClient, esIndex, replicaCount, logger) {
+async function createEsIndex (esClient, esIndex, replicaCount, logger = createWinstonLoggerDummy()) {
   logger.info(`Creating ES Index ${esIndex}!`)
   const createIndexRes = await esClient.indices.create({
     index: esIndex,

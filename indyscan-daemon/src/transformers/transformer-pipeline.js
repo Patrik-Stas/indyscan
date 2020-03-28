@@ -1,6 +1,6 @@
-const logger = require('../logging/logger-main')
+const globalLogger = require('../logging/logger-main')
 
-function createTransformerPipeline ({ indyNetworkId, operationType, componentId, transformers }) {
+function createTransformerPipeline ({ indyNetworkId, operationType, transformers }) {
   const firstTransformer = transformers[0]
   const lastTransformer = transformers[transformers.length - 1]
 
@@ -8,7 +8,6 @@ function createTransformerPipeline ({ indyNetworkId, operationType, componentId,
     metadaemon: {
       indyNetworkId,
       operationType,
-      componentId,
       componentType: 'transformer-pipeline'
     }
   }
@@ -38,7 +37,7 @@ function createTransformerPipeline ({ indyNetworkId, operationType, componentId,
     }
 
     if (tmpProcessedTxFormat !== getOutputFormat()) {
-      throw Error(`${componentId} proclaims it returns format ${getOutputFormat()} but it actually tried to return format ${tmpProcessedTxFormat}.`)
+      throw Error(`Transformer declares return format ${getOutputFormat()} but it actually tried to return format ${tmpProcessedTxFormat}.`)
     }
     const processedTx = tmpProcessedTx
     const format = tmpProcessedTxFormat
@@ -61,19 +60,14 @@ function createTransformerPipeline ({ indyNetworkId, operationType, componentId,
     return `${firstTransformer.getInputFormat()} -> ${lastTransformer.getOutputFormat()}`
   }
 
-  async function initializeTarget (target) {
+  async function initializeTarget (target, logger = globalLogger) {
     logger.info('Initializing target.', loggerMetadata)
-    return lastTransformer.initializeTarget(target)
-  }
-
-  function getObjectId () {
-    return componentId
+    return lastTransformer.initializeTarget(target, logger)
   }
 
   return {
     processTx,
     initializeTarget,
-    getObjectId,
     getOutputFormat,
     getInputFormat,
     describe

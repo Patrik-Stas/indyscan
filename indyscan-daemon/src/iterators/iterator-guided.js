@@ -1,11 +1,9 @@
-const logger = require('../logging/logger-main')
+const globalLogger = require('../logging/logger-main')
 
-function createIteratorGuided ({ indyNetworkId, operationType, componentId, source, sourceSeqNoGuidance, guidanceFormat }) {
+function createIteratorGuided ({ indyNetworkId, source, sourceSeqNoGuidance, guidanceFormat }) {
   const loggerMetadata = {
     metadaemon: {
       indyNetworkId,
-      operationType,
-      componentId,
       componentType: 'iterator-guided'
     }
   }
@@ -14,7 +12,7 @@ function createIteratorGuided ({ indyNetworkId, operationType, componentId, sour
   - Return undefined if no next transaction currently available
   - Throw if an error occurs
    */
-  async function getNextTx (subledger, format) {
+  async function getNextTx (subledger, format, logger = globalLogger) {
     logger.debug(`requested nextTx from subledger '${subledger}' in format '${format}'.`, loggerMetadata)
     const seqNo = await sourceSeqNoGuidance.getHighestSeqno(subledger, guidanceFormat) + 1
     logger.debug(`The seqNo ${seqNo} is to be queried from subledger '${subledger}' in format '${format}'.`, loggerMetadata)
@@ -34,12 +32,8 @@ function createIteratorGuided ({ indyNetworkId, operationType, componentId, sour
     return undefined
   }
 
-  function getObjectId () {
-    return componentId
-  }
-
   function describe () {
-    return `Guided iterator on ${source.getObjectId()} [format:${guidanceFormat}]`
+    return `Guided iterator on source "${source.describe()}" [format:${guidanceFormat}]`
   }
 
   function getSource() {
@@ -49,8 +43,6 @@ function createIteratorGuided ({ indyNetworkId, operationType, componentId, sour
   function getIteratorInfo() {
     return {
       indyNetworkId,
-      operationType,
-      componentId,
       sourceInfo: source.getSourceInfo(),
       sourceSeqNoGuidanceInfo: sourceSeqNoGuidance.getSourceInfo(),
       guidanceFormat
@@ -61,7 +53,6 @@ function createIteratorGuided ({ indyNetworkId, operationType, componentId, sour
     getIteratorInfo,
     getSource,
     getNextTx,
-    getObjectId,
     describe
   }
 }

@@ -5,7 +5,7 @@ const dataspace = {
   pool: {},
   config: {}
 }
-const target = createTargetMemory({ id: 'inmem-target', dataspace })
+const target = createTargetMemory({ dataspace })
 
 describe('basic inmemory target testsuite', () => {
   it('should store various formats for multiple ledgers', async () => {

@@ -1,12 +1,10 @@
-const logger = require('../logging/logger-main')
-const { intializeEsTarget } = require('./target-inits')
+const globalLogger = require('../logging/logger-main')
 
-function createTransformerOriginal2Serialized ({ indyNetworkId, operationType, componentId }) {
+function createTransformerOriginal2Serialized ({ indyNetworkId, operationType }) {
   const loggerMetadata = {
     metadaemon: {
       indyNetworkId,
       operationType,
-      componentId,
       componentType: 'transformer-original2serialized'
     }
   }
@@ -33,13 +31,9 @@ function createTransformerOriginal2Serialized ({ indyNetworkId, operationType, c
     }
   }
 
-  async function initializeTarget (target) {
+  async function initializeTarget (target, logger = globalLogger) {
     logger.info('Initializing target.', loggerMetadata)
-    return intializeEsTarget(target, getOutputFormat(), getElasticsearchTargetMappings())
-  }
-
-  function getObjectId () {
-    return componentId
+    return target.setMappings(getOutputFormat(), getElasticsearchTargetMappings(), logger)
   }
 
   function describe () {
@@ -49,7 +43,6 @@ function createTransformerOriginal2Serialized ({ indyNetworkId, operationType, c
   return {
     processTx,
     initializeTarget,
-    getObjectId,
     getOutputFormat,
     getInputFormat,
     describe

@@ -43,6 +43,7 @@ COPY --from=BUILD --chown=indyscan:indyscan /home/indyscan/indyscan-daemon /home
 USER root
 RUN chown -R indyscan:indyscan /home/indyscan
 USER indyscan
+RUN mkdir -p /home/indyscan/indyscan-daemon/logs
 RUN mkdir -p /home/indyscan/.indy_client/wallet
 RUN mkdir -p /home/indyscan/.indy_client/pool
 

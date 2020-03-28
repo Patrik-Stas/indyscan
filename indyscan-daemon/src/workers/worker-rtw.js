@@ -1,11 +1,12 @@
 const { createTimerLock } = require('../time/scan-timer')
 const util = require('util')
-const logger = require('../logging/logger-main')
 const { getDefaultPreset } = require('../config/presets-consumer')
 const { resolvePreset } = require('../config/presets-consumer')
 const { runWithTimer } = require('../time/util')
 const sleep = require('sleep-promise')
 const EventEmitter = require('events')
+const {createLogger} = require('../logging/logger-builder')
+const { envConfig } = require('../config/env')
 
 function getExpandedTimingConfig (providedTimingSetup) {
   let presetData
@@ -36,19 +37,19 @@ function validateTimingConfig (timingConfig) {
   }
 }
 
-async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterator, iteratorTxFormat, transformer, target, timing, operationType }) {
+async function createWorkerRtw ({ indyNetworkId, subledger, operationType, iterator, iteratorTxFormat, transformer, target, timing }) {
   const eventEmitter = new EventEmitter()
+  const workerId = `${indyNetworkId}.${subledger}.${operationType}`
+  const logger = createLogger(workerId, envConfig.LOG_LEVEL)
   const loggerMetadata = {
     metadaemon: {
+      workerId,
       indyNetworkId,
-      componentType: 'worker-rtw',
-      componentId,
-      operationType,
-      workerRtwOutputFormat: transformer.getOutputFormat()
+      operationType
     }
   }
 
-  if (!componentId) {
+  if (!workerId) {
     const errMsg = 'WorkerRTW missing id parameter.'
     logger.error(errMsg, loggerMetadata)
     throw Error(errMsg)
@@ -81,12 +82,11 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
   timing = getExpandedTimingConfig(timing)
   validateTimingConfig(timing)
   const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timing
-  logger.info(`Pipeline ${componentId} using iterator ${iterator.getObjectId()}`, loggerMetadata)
 
   let initialized = false
 
   async function initialize () {
-    await transformer.initializeTarget(target)
+    await transformer.initializeTarget(target, logger)
     initialized = true
   }
 
@@ -128,7 +128,7 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
 
   function eventSharedPayload () {
     return {
-      componentId,
+      workerId,
       indyNetworkId,
       subledger,
       operationType
@@ -252,14 +252,14 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
 
   async function getNextTxTimed (subledger, format) {
     return runWithTimer(
-      async () => iterator.getNextTx(subledger, format),
+      async () => iterator.getNextTx(subledger, format, logger),
       (duration) => processDurationResult('tx-resolution', duration)
     )
   }
 
   async function addTxTimed (subledger, seqNo, format, txData) {
     return runWithTimer(
-      async () => target.addTxData(subledger, seqNo, format, txData),
+      async () => target.addTxData(subledger, seqNo, format, txData, logger),
       (duration) => processDurationResult('tx-storagewrite', duration)
     )
   }
@@ -316,13 +316,11 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     return {
       initialized,
       enabled,
-      componentId,
+      workerId,
       indyNetworkId,
       subledger,
       operationType,
       transformerInfo: transformer.describe(),
-      targetComponentId: target.getObjectId(),
-      iteratorComponentId: iterator.getObjectId(),
       iteratorDescription: iterator.describe(),
       iteratorInfo: iterator.getIteratorInfo(),
       targetDescription: target.describe(),
@@ -342,7 +340,7 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
   }
 
   function getObjectId () {
-    return componentId
+    return workerId
   }
 
   return {

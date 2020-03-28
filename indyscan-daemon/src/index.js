@@ -5,7 +5,6 @@ const sleep = require('sleep-promise')
 const util = require('util')
 const { startServer } = require('./server/server')
 const { createServiceWorkers } = require('./service/service-workers')
-const { createServiceTargets } = require('./service/service-targets')
 const Mustache = require('mustache')
 const { getWorkerConfigPaths } = require('./config/env')
 const fs = require('fs')
@@ -40,8 +39,7 @@ async function buildWorkers (builder, builderParams) {
 }
 
 async function run () {
-  const serviceTargets = createServiceTargets()
-  const serviceWorkers = createServiceWorkers(serviceTargets)
+  const serviceWorkers = createServiceWorkers()
   let allWorkers = []
   let allSources = []
   let allTargets = []
@@ -73,15 +71,12 @@ async function run () {
   }
   allWorkers = _.flatten(allWorkers)
   allSources = _.flatten(allSources) // eslint-disable-line
-  allTargets = _.flatten(allTargets)
+  allTargets = _.flatten(allTargets) // eslint-disable-line
   allTransformer = _.flatten(allTransformer) // eslint-disable-line
   allIterators = _.flatten(allIterators) // eslint-disable-line
   logger.info(`Built all workers. Workers total ${allWorkers.length}`)
   for (const worker of allWorkers) {
     serviceWorkers.registerWorker(worker)
-  }
-  for (const target of allTargets) {
-    serviceTargets.registerTarget(target)
   }
 
   if (envConfig.AUTOSTART) {

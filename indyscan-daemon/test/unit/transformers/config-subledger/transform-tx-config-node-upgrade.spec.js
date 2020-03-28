@@ -3,7 +3,7 @@ const { createTransformerOriginal2Expansion } = require('../../../../src/transfo
 const txNodeUpgrade = require('indyscan-storage/test/resource/sample-txs/tx-config-node-upgrade')
 const _ = require('lodash')
 
-const processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
+const processor = createTransformerOriginal2Expansion({ sourceLookups: undefined })
 
 describe('config/node-upgrade transaction transformations', () => {
   it('should andd typeName and subledger for config NODE_UPGRADE transaction', async () => {
