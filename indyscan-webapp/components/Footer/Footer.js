@@ -8,7 +8,7 @@ class Footer extends Component {
         <Divider/>
         <Grid>
           <Grid.Row>
-            <Grid.Column floated='center' textAlign='center' style={{ fontSize: '1rem' }}>
+            <Grid.Column textAlign='center' style={{ fontSize: '1rem' }}>
               <span style={{ marginRight: 10 }}>Support internet, your privacy and this project by using </span>
               <a href='https://brave.com/ind682'><img style={{ height: '1.4rem' }} src='/static/brave-bat-partnership.png'/></a>
               <p/>

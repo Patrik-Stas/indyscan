@@ -9,7 +9,7 @@ import Footer from '../components/Footer/Footer'
 import fetch from 'isomorphic-fetch'
 import { secondsToDhms } from '../txtools'
 import io from 'socket.io-client'
-import util from 'util'
+import _ from 'lodash'
 
 class HomePage extends Component {
   static async getInitialProps ({ req, query }) {
@@ -32,30 +32,100 @@ class HomePage extends Component {
     }
   }
 
-  constructor(props) {
+  constructor (props) {
+    console.log(`HOME constructor`)
     super()
-    console.log(`CONSTRUCTOR ${JSON.stringify(props)}`)
     this.state = {
-      domainExpansionTxs: this.props.domainExpansionTxs,
-      poolExpansionTxs: this.props.poolExpansionTxs,
-      configExpansionTxs: this.props.configExpansionTxs
+      domainExpansionTxs: props.domainExpansionTxs,
+      poolExpansionTxs: props.poolExpansionTxs,
+      configExpansionTxs: props.configExpansionTxs
     }
   }
 
-  onProcessedTx (txData) {
-    // console.log(`New txdata ${JSON.stringify(txData)}`)
-    // console.log(`This= ${util.inspect(this)}`)
-    console.log(`State= ${JSON.stringify(this.state)}`)
-    let txs = this.state.txs
-    txs.push(txData)
-    this.setState({txs})
+  addNewDomainTx (txData) {
+    let domainExpansionTxs = _.cloneDeep(this.state.domainExpansionTxs)
+    domainExpansionTxs.unshift(txData)
+    if (domainExpansionTxs.length > 10) {
+      domainExpansionTxs.pop()
+    }
+    this.setState({ domainExpansionTxs })
+  }
+
+  addNewConfigTx (txData) {
+    let configExpansionTxs = _.cloneDeep(this.state.configExpansionTxs)
+    configExpansionTxs.unshift(txData)
+    if (configExpansionTxs.length > 10) {
+      configExpansionTxs.pop()
+    }
+    this.setState({ configExpansionTxs })
+  }
+
+  addNewPoolTx (txData) {
+    let poolExpansionTxs = _.cloneDeep(this.state.poolExpansionTxs)
+    poolExpansionTxs.unshift(txData)
+    if (poolExpansionTxs.length > 10) {
+      poolExpansionTxs.pop()
+    }
+    this.setState({ poolExpansionTxs })
+  }
+
+  onProcessedTx (payload) {
+    // const {workerData, txData} = payload
+    const { txData } = payload
+    if (txData.imeta.subledger === 'domain') {
+      this.addNewDomainTx(txData)
+    }
+    if (txData.imeta.subledger === 'pool') {
+      this.addNewPoolTx(txData)
+    }
+    if (txData.imeta.subledger === 'config') {
+      this.addNewConfigTx(txData)
+    }
+  }
+
+  onRescanScheduled (txData) {
+    const { workerData: { subledger }, msTillRescan } = txData
+    console.log(`Rescheduled ${subledger} until ${msTillRescan}`)
+  }
+
+  componentWillReceiveProps (newProps) {
+    this.setState({ domainExpansionTxs: newProps.domainExpansionTxs })
+    this.setState({ configExpansionTxs: newProps.configExpansionTxs })
+    this.setState({ poolExpansionTxs: newProps.poolExpansionTxs })
+  }
+
+  refreshTimesSinceLast () {
+    const { domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.state
+    const sinceLastDomain = this.calculateTimeSinceLastTransaction(domainExpansionTxs)
+    const sinceLastPool = this.calculateTimeSinceLastTransaction(poolExpansionTxs)
+    const sinceLastConfig = this.calculateTimeSinceLastTransaction(configExpansionTxs)
+    this.setState({ sinceLastDomain })
+    this.setState({ sinceLastPool })
+    this.setState({ sinceLastConfig })
   }
 
   componentDidMount () {
+    console.log(`HOME componentDidMount`)
     const websocketsUrl = 'http://localhost:3709'
-    console.log(`Connecting to websocket server ${websocketsUrl}`)
-    let ioClient = io.connect(websocketsUrl)
-    ioClient.on('tx-processed',  this.onProcessedTx.bind(this) )
+    const namespace = this.props.networkDetails.id
+    const websocketTarget = `${websocketsUrl}/${namespace}`
+    console.log(`Connecting to websocket server ${websocketTarget}`)
+    let ioClient = io.connect(websocketTarget)
+
+    ioClient.on('connection', function (_socket) {
+      logger.info(`New connection at namespace`)
+    })
+
+    ioClient.on('rescan-scheduled', this.onRescanScheduled.bind(this))
+    ioClient.on('tx-processed', this.onProcessedTx.bind(this))
+
+    this.refreshTimesSinceLast()
+    this.interval = setInterval(this.refreshTimesSinceLast.bind(this), 1000)
+  }
+
+  componentWillUnmount () {
+    console.log(`HOME componentWillUnmount`)
+    clearInterval(this.interval)
   }
 
   calculateTimeSinceLastTransaction = function calculateTimeSinceLastTransaction (expansionTxs) {
@@ -66,7 +136,8 @@ class HomePage extends Component {
   }
 
   render () {
-    const { network, networkDetails, baseUrl, domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.props
+    const { network, networkDetails, baseUrl } = this.props
+    const { domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.state
     return (
       <Grid>
         <GridRow style={{ backgroundColor: 'white', marginBottom: '-1em' }}>
@@ -86,7 +157,7 @@ class HomePage extends Component {
           <GridColumn width={5} align='left'>
             <GridRow align='left'>
               <h2>Domain txs</h2>
-              <h4>Last tx {this.calculateTimeSinceLastTransaction(domainExpansionTxs)} ago</h4>
+              <h5>Last tx {this.state.sinceLastDomain} ago</h5>
             </GridRow>
             <GridRow centered style={{ marginTop: '2em' }}>
               <Grid.Column>
@@ -97,7 +168,7 @@ class HomePage extends Component {
           <GridColumn width={6} align='center'>
             <GridRow align='left'>
               <h2>Pool txs</h2>
-              <h4>Last tx {this.calculateTimeSinceLastTransaction(poolExpansionTxs)} ago</h4>
+              <h5>Last tx {this.state.sinceLastPool} ago</h5>
             </GridRow>
             <GridRow centered style={{ marginTop: '2em' }}>
               <Grid.Column>
@@ -108,7 +179,7 @@ class HomePage extends Component {
           <GridColumn width={5} align='right'>
             <GridRow align='left'>
               <h2>Config txs</h2>
-              <h4>Last tx {this.calculateTimeSinceLastTransaction(configExpansionTxs)} ago</h4>
+              <h5>Last tx {this.state.sinceLastConfig} ago</h5>
             </GridRow>
             <GridRow centered style={{ marginTop: '2em' }}>
               <Grid.Column>

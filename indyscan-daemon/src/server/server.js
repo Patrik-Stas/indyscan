@@ -17,8 +17,9 @@ function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLoggi
 }
 
 function linkEmitterToSocket(io, emitter, indyNetworkId, subledger) {
-  logger.info(`Linking worker emitter to websockets. indyNetworkId=${indyNetworkId} subledger=${subledger}, `)
   let namespace = indyNetworkId
+  logger.info(`Linking worker emitter to ws namespace ${namespace}. indyNetworkId=${indyNetworkId} subledger=${subledger}, `)
+
   let nsp = io.of(`/${namespace}`)
 
   nsp.on('connection', function (_socket) {
@@ -53,7 +54,7 @@ function startServer (serviceWorkers) {
 
   let io = socketio(server)
 
-  io.on('connection', function (socket) {
+  io.on('connection', function (_socket) {
     logger.info(`New websocket connection!`)
   })
 

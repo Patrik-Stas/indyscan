@@ -4,6 +4,12 @@ import { ItemGroup } from 'semantic-ui-react'
 import React, { Component } from 'react'
 
 class TxPreviewList extends Component {
+
+  // static getDerivedStateFromProps(props, state) {
+  //   console.log(`getDerivedStateFromProps in TxPreviewList`)
+  //   return null
+  // }
+
   render () {
     const { indyscanTxs, network, subledger } = this.props
     return (

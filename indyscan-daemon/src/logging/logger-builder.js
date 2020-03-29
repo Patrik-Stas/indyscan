@@ -8,7 +8,7 @@ const myFormat = printf(({ level, message, timestamp, metadaemon }) => {
   return `${timestamp} [${metadaemon && metadaemon.workerId ? metadaemon.workerId : '--'}] ${level}: ${message}`
 })
 
-function createLogger (loggerName, consoleLogsLevel = 'warn') {
+function createLogger (loggerName, consoleLogsLevel, enableLogFiles) {
   winston.loggers.add(loggerName, {
     transports: [
       new winston.transports.Console({
@@ -22,7 +22,13 @@ function createLogger (loggerName, consoleLogsLevel = 'warn') {
       })
     ]
   })
-  addFileTransport(loggerName)
+  if (enableLogFiles) {
+    addFileTransport(loggerName)
+  }
+  const { LOG_ES_URL } = process.env
+  if (LOG_ES_URL) {
+    addElasticTransport(loggerName, esLoggingUrl, 'logs-daemon', 'debug')
+  }
   return winston.loggers.get(loggerName)
 }
 
@@ -78,8 +84,9 @@ function addFileTransport(loggerName) {
     })
 }
 
-function addElasticTransport (logger, loggingUrl, indexPrefix, logLevel) {
-  console.log(`Adding ELASTICSEARCH LOGGING TRANSPORT... Url: ${loggingUrl}, indexPrefix: ${indexPrefix}, logLevel ${logLevel}`)
+function addElasticTransport (loggerName, loggingUrl, indexPrefix, logLevel) {
+  console.log(`Adding Elasticsearch transport for logger ${loggerName}... Url: ${loggingUrl}, indexPrefix: ${indexPrefix}, logLevel ${logLevel}`)
+  let logger = winston.loggers.get(loggerName)
   const esTransport = new Elasticsearch({
     indexPrefix,
     ensureMappingTemplate: true,

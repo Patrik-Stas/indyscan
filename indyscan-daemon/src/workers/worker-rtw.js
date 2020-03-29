@@ -5,7 +5,7 @@ const { resolvePreset } = require('../config/presets-consumer')
 const { runWithTimer } = require('../time/util')
 const sleep = require('sleep-promise')
 const EventEmitter = require('events')
-const {createLogger} = require('../logging/logger-builder')
+const { createLogger } = require('../logging/logger-builder')
 const { envConfig } = require('../config/env')
 
 function getExpandedTimingConfig (providedTimingSetup) {
@@ -40,7 +40,7 @@ function validateTimingConfig (timingConfig) {
 async function createWorkerRtw ({ indyNetworkId, subledger, operationType, iterator, iteratorTxFormat, transformer, target, timing }) {
   const eventEmitter = new EventEmitter()
   const workerId = `${indyNetworkId}.${subledger}.${operationType}`
-  const logger = createLogger(workerId, envConfig.LOG_LEVEL)
+  const logger = createLogger(workerId, envConfig.LOG_LEVEL, envConfig.ENABLE_LOGFILES)
   const loggerMetadata = {
     metadaemon: {
       workerId,
@@ -139,7 +139,14 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
     processedTxCount++
     timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
     const workerData = eventSharedPayload()
-    eventEmitter.emit('tx-processed', { workerData, txData: txDataAfter })
+    const txData = {
+      idata: txDataAfter,
+      imeta: {
+        seqNo: txMeta.seqNo,
+        subledger
+      }
+    }
+    eventEmitter.emit('tx-processed', { workerData, txData })
     eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
     logger.info(`Cycle '${requestCycleCount}' processed tx ${JSON.stringify(txMeta)}.`, loggerMetadata)
   }

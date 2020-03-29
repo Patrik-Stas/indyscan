@@ -6,6 +6,10 @@
   "description": "Application scanning Hyperledger Indy blockchain for fetching and processing transactions.",
   "main": "src/index.js",
   "scripts": {
+    "rmlogs": "rimraf ./logs",
+    "watchinfo": "tail -f ./logs/info/*",
+    "watchwarn": "tail -f ./logs/warn/*",
+    "watcherror": "tail -f ./logs/error/*",
     "lint": "standard",
     "lint:fix": "standard --fix",
     "dev": "cross-env NODE_ENV=development nodemon src/index.js",
