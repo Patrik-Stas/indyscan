@@ -6,6 +6,7 @@ const logger = require('../logging/logger-main')
 var pretty = require('express-prettify')
 const { logRequests, logResponses } = require('./middleware')
 const socketio = require('socket.io')
+const util = require('util')
 
 function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLogging) {
   if (enableRequestLogging) {
@@ -16,28 +17,22 @@ function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLoggi
   }
 }
 
-function linkEmitterToSocket(io, emitter, indyNetworkId, subledger) {
+function linkEmitterToSocket (io, emitter, indyNetworkId, subledger) {
   let namespace = indyNetworkId
   logger.info(`Linking worker emitter to ws namespace ${namespace}. indyNetworkId=${indyNetworkId} subledger=${subledger}, `)
 
-  let nsp = io.of(`/${namespace}`)
-
-  nsp.on('connection', function (_socket) {
-    logger.info(`New connection at namespace /${namespace}`)
-  })
-
-  emitter.on('tx-processed', ({workerData, txData}) => {
+  emitter.on('tx-processed', ({ workerData, txData }) => {
     const payload = { workerData, txData }
     const websocketEvent = 'tx-processed'
     logger.debug(`Namespace "${namespace}" broadcasting "${websocketEvent}" with payload: ${JSON.stringify(payload)}.`)
-    nsp.emit(websocketEvent, payload)
+    io.to(indyNetworkId).emit(websocketEvent, payload)
   })
 
-  emitter.on('rescan-scheduled', ({workerData, msTillRescan}) => {
+  emitter.on('rescan-scheduled', ({ workerData, msTillRescan }) => {
     const payload = { workerData, msTillRescan }
-    const websocketEvent = "rescan-scheduled"
+    const websocketEvent = 'rescan-scheduled'
     logger.debug(`Namespace "${namespace}" broadcasting "${websocketEvent}" with payload: ${JSON.stringify(payload)}.`)
-    nsp.emit(websocketEvent, payload)
+    io.to(indyNetworkId).emit(websocketEvent, payload)
   })
 }
 
@@ -54,8 +49,21 @@ function startServer (serviceWorkers) {
 
   let io = socketio(server)
 
-  io.on('connection', function (_socket) {
-    logger.info(`New websocket connection!`)
+  io.on('connection', function (socket) {
+    logger.info(`New connection ${socket.id}`)
+
+    socket.on('switch-room', (room) => {
+      logger.info(`Received 'switch-room' from ws connection: ${socket.id}`)
+      if (socket.room) {
+        logger.info(`Leaving current room ${socket.room}.`)
+        socket.leave(socket.room)
+        socket.room = undefined
+      }
+      logger.info(`Joining new room ${room}.`)
+      socket.join(room)
+      socket.room = room
+      socket.emit('switched-room-notification', { text: `Entered room ${room}` })
+    })
   })
 
   let workers = serviceWorkers.getWorkers()

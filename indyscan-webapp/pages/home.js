@@ -88,14 +88,35 @@ class HomePage extends Component {
     console.log(`Rescheduled ${subledger} until ${msTillRescan}`)
   }
 
-  componentWillReceiveProps (newProps) {
-    this.setState({ domainExpansionTxs: newProps.domainExpansionTxs })
-    this.setState({ configExpansionTxs: newProps.configExpansionTxs })
-    this.setState({ poolExpansionTxs: newProps.poolExpansionTxs })
+  connectSockets(websocketsUrl) {
+    console.log(`Connecting to websocket server ${websocketsUrl}`)
+    this.ioClient = io.connect(websocketsUrl)
+
+    this.ioClient.on('connection', function (_socket) {
+      logger.info(`New connection at namespace`)
+    })
+
+    this.ioClient.on('rescan-scheduled', this.onRescanScheduled.bind(this))
+    this.ioClient.on('tx-processed', this.onProcessedTx.bind(this))
+    this.ioClient.on('switched-room-notification', (payload) => console.log(`switched-room-notification: ${JSON.stringify(payload)}`))
   }
 
-  refreshTimesSinceLast () {
-    const { domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.state
+  switchSocketRoom(indyNetworkId) {
+    console.log(`Switching room to ${indyNetworkId}`)
+    this.ioClient.emit('switch-room', indyNetworkId);
+  }
+
+  componentWillReceiveProps (newProps) {
+    console.log(`componentWillReceiveProps>>>`)
+    this.setState({ domainExpansionTxs: newProps.domainExpansionTxs })
+    this.setState({ poolExpansionTxs: newProps.poolExpansionTxs })
+    this.setState({ configExpansionTxs: newProps.configExpansionTxs })
+
+    this.switchSocketRoom(newProps.networkDetails.id)
+    this.refreshTimesSinceLast(newProps.domainExpansionTxs, newProps.poolExpansionTxs, newProps.configExpansionTxs)
+  }
+
+  refreshTimesSinceLast (domainExpansionTxs, poolExpansionTxs, configExpansionTxs) {
     const sinceLastDomain = this.calculateTimeSinceLastTransaction(domainExpansionTxs)
     const sinceLastPool = this.calculateTimeSinceLastTransaction(poolExpansionTxs)
     const sinceLastConfig = this.calculateTimeSinceLastTransaction(configExpansionTxs)
@@ -104,27 +125,23 @@ class HomePage extends Component {
     this.setState({ sinceLastConfig })
   }
 
+  refreshTimesSinceLastByState () {
+    const {domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.state
+    this.refreshTimesSinceLast(domainExpansionTxs, poolExpansionTxs, configExpansionTxs)
+  }
+
   componentDidMount () {
     console.log(`HOME componentDidMount`)
     const websocketsUrl = 'http://localhost:3709'
-    const namespace = this.props.networkDetails.id
-    const websocketTarget = `${websocketsUrl}/${namespace}`
-    console.log(`Connecting to websocket server ${websocketTarget}`)
-    let ioClient = io.connect(websocketTarget)
-
-    ioClient.on('connection', function (_socket) {
-      logger.info(`New connection at namespace`)
-    })
-
-    ioClient.on('rescan-scheduled', this.onRescanScheduled.bind(this))
-    ioClient.on('tx-processed', this.onProcessedTx.bind(this))
-
-    this.refreshTimesSinceLast()
-    this.interval = setInterval(this.refreshTimesSinceLast.bind(this), 1000)
+    this.connectSockets(websocketsUrl)
+    this.switchSocketRoom(this.props.networkDetails.id)
+    this.refreshTimesSinceLastByState()
+    this.interval = setInterval(this.refreshTimesSinceLastByState.bind(this), 1000)
   }
 
   componentWillUnmount () {
     console.log(`HOME componentWillUnmount`)
+    this.refreshTimesSinceLastByState()
     clearInterval(this.interval)
   }
 
