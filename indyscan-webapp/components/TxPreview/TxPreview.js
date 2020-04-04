@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import './TxPreview.scss'
 import Link from 'next/link'
 import { extractTxDataBasic } from '../../txtools'
+// import moment from 'moment'
+import moment from 'moment-timezone'
 
 const MAX_DID_LENTH = 25
 
@@ -15,17 +17,21 @@ class TxPreview extends Component {
     const fromDidDisplayed = from
       ? (from.length < MAX_DID_LENTH) ? from : `${from.substring(0, (MAX_DID_LENTH - 3))}...`
       : 'n/a'
-
+    const localTime = moment.utc(txnTimeIso8601).tz(moment.tz.guess()).format('do MMMM YYYY, HH:mm:ss a')
+    // const utcTime = moment.utc(txnTimeIso8601).format('do MMMM YYYY, H:mm:ss')
     return (
 
       <div className="txitem data-content">
-        <Link href={href} as={as}>
-          <a><span style={{ fontSize: '1.7em', marginRight: '0.4em', marginBottom: '0.2em' }}>{seqNo}</span></a>
-        </Link>
-        <span style={{ fontSize: '1.5em' }}>{typeName}</span>
-        <span style={{ display: 'block', marginBottom: '0.1em' }}><b>TX Time:</b> {`${(new Date(txnTimeIso8601)).toLocaleString('en-GB')} UTC`}</span>
-        <span style={{ display: 'block' }}><b>From DID:</b> {fromDidDisplayed}</span>
-
+        <div style={{ fontSize: '1.2em'}}>
+          <Link href={href} as={as}>
+            <a><span style={{ marginRight: '0.4em', marginBottom: '0.2em' }}>{seqNo}</span></a>
+          </Link>
+          <span>{typeName}</span>
+        </div>
+        <div style={{ marginTop: '0.6em', fontSize: '0.85em' }}>
+          <span style={{ display: 'block', marginBottom: '0.1em' }}><b>Local Time:</b> {localTime}</span>
+          <span style={{ display: 'block' }}><b>From  DID: </b>{fromDidDisplayed}</span>
+        </div>
       </div>
 
     )

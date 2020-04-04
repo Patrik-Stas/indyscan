@@ -7,6 +7,7 @@ import { getTxLinkData } from '../../routing'
 import { extractTxDataBasic, extractTxDataDetailsHumanReadable } from '../../txtools'
 import { renderKeyValuesAsBadges } from '../Common'
 import top100 from '../palettes'
+import moment from 'moment'
 
 function filterTxDetails (keyValues) {
   let keys = Object.keys((keyValues))
@@ -36,7 +37,7 @@ class TxListItem extends Component {
           <ReactTooltip />
           <p data-tip={description}>{typeName}</p>
         </TableCell>
-        <TableCell>{`${(txnTimeIso8601 ? new Date(txnTimeIso8601) : 'Genesis tx').toLocaleString('en-GB')}`}</TableCell>
+        <TableCell>{`${(txnTimeIso8601 ? moment.utc(txnTimeIso8601).format('do MMMM YYYY, H:mm:ss') : 'Genesis tx').toLocaleString('en-GB')}`}</TableCell>
         <TableCell>{from}</TableCell>
         <TableCell>{renderKeyValuesAsBadges(seqNo, filteredData, palette[2])}</TableCell>
       </TableRow>

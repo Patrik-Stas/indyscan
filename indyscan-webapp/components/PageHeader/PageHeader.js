@@ -4,8 +4,6 @@ import Navbar from '../Navbar/Navbar'
 import { Divider, Grid, GridColumn, GridRow } from 'semantic-ui-react'
 import MenuLink from '../MenuLink/MenuLink'
 import Link from 'next/link'
-import { CSSTransition } from 'react-transition-group'
-import IndyscanHeader from '../IndyscanHeader/IndyscanHeader'
 
 const { getNetworks } = require('indyscan-api-client')
 
@@ -66,24 +64,25 @@ class PageHeader extends Component {
     const { href: homeLinkHref, as: homeLinkAs } = this.buildNextLinkHome(network)
     return (
       <div>
-        <Grid id='page-header'>
-          <GridRow>
-            <h1>
-              <Link href={homeLinkHref} as={homeLinkAs}><a className='menulink' style={{ color: 'darkcyan' }}>
-                  <IndyscanHeader/>
-              </a></Link>
-            </h1>
-          </GridRow>
-          <GridRow style={{ marginTop: '-2em' }}>
-            <h5>Hyperledger Indy transaction explorer</h5>
-          </GridRow>
-        </Grid>
-        <Grid  container doubling stackable>
+        <div id='page-header'>
+          <div id='indyscanlogo'>
+            <img style={{ height: '7em' }} src="/static/radar.png" alt="Indyscan logo"/>
+          </div>
+          <div id='indyscan-caption'>
+            <Link href={homeLinkHref} as={homeLinkAs}><a className='menulink' style={{ color: 'darkcyan' }}>
+              <h1>Indyscan</h1>
+            </a></Link>
+            <div >
+              <h2>Hyperledger Indy transaction explorer</h2>
+            </div>
+          </div>
+        </div>
+        <Grid container doubling stackable>
           {
             this.state.networks &&
             <GridRow>
               <GridColumn width={11}>
-                  {this.renderNetworks(this.state.networks || [network], network)}
+                {this.renderNetworks(this.state.networks || [network], network)}
               </GridColumn>
               <GridColumn align='right' width={5}>
                 <Navbar page={this.props.page} network={this.props.network}/>

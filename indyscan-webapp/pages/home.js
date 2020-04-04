@@ -173,7 +173,12 @@ class HomePage extends Component {
   }
 
   calculateTimeSinceLastTransaction = function calculateTimeSinceLastTransaction (expansionTxs) {
-    const timestamps = expansionTxs.map(tx => (tx && tx.idata && tx.idata.txnMetadata) ? (Date.parse(tx.idata.txnMetadata.txnTime) / 1000) : undefined).filter(t => !!t)
+    const timestamps = expansionTxs
+      .map(tx => {
+        return (tx && tx.idata && tx.idata.txnMetadata) ?
+          (Date.parse(tx.idata.txnMetadata.txnTime) / 1000)
+          : undefined
+      }).filter(t => !!t)
     const utimeMaxTx = Math.max(...timestamps)
     const utimeNow = Math.floor(new Date() / 1000)
     return secondsToDhms(utimeNow - utimeMaxTx)
@@ -246,7 +251,6 @@ class HomePage extends Component {
           </Grid>
         </CSSTransition>
         <Grid>
-
           <GridRow>
             <GridColumn>
               <Footer displayVersion={this.props.version}/>

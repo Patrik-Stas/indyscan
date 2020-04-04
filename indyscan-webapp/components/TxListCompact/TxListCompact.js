@@ -6,7 +6,7 @@ import "./TxListCompact.scss"
 class TxListCompact extends Component {
   render () {
     return (
-        <Table className="data-content" striped celled selectable>
+        <Table striped celled selectable>
           <TableHeader>
             <TableRow>
               <TableHeaderCell>TxNo</TableHeaderCell>
@@ -16,7 +16,7 @@ class TxListCompact extends Component {
               <TableHeaderCell>Info</TableHeaderCell>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="data-content" >
             {this.props.txs.map((txn) => {
               return (
                 <TxListItem

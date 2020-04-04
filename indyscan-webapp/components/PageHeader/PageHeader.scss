@@ -1,8 +1,28 @@
 #page-header {
   margin-top: 2em;
   margin-bottom: 1em;
+
+  //border: 1px solid black;
+  overflow: hidden; /* will contain if #first is longer than #second */
 }
 
+
+#indyscanlogo {
+  float:left; /* add this */
+}
+#indyscan-caption {
+  margin-top: 1.2em;
+  //border: 1px solid green;
+  overflow: hidden; /* if you don't want #second to wrap below #first */
+}
+
+#indyscan-caption h1 {
+  font-size: 2.2em;
+}
+
+#indyscan-caption h2 {
+  font-size: 1.2em;
+}
 
 .pagemenu-enter {
   opacity: 0;
