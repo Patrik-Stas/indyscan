@@ -47,7 +47,7 @@ async function startServer () {
 
       server.get('/home/:network', (req, res) => {
         const mergedQuery = Object.assign({}, req.query, req.params)
-        logger.debug(`Custom express routing handler: /home/:network\nmerged query: ${JSON.stringify(mergedQuery)}`)
+        logger.info(`Custom express routing handler: /home/:network\nmerged query: ${JSON.stringify(mergedQuery)}`)
         return app.render(req, res, '/home', mergedQuery)
       })
 

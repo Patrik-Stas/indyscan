@@ -8,6 +8,7 @@ import { extractTxDataBasic, extractTxDataDetailsHumanReadable } from '../../txt
 import { renderKeyValuesAsBadges } from '../Common'
 import top100 from '../palettes'
 import moment from 'moment'
+import TimeAgoText from '../TimeAgoText/TimeAgoText'
 
 function filterTxDetails (keyValues) {
   let keys = Object.keys((keyValues))
@@ -37,7 +38,13 @@ class TxListItem extends Component {
           <ReactTooltip />
           <p data-tip={description}>{typeName}</p>
         </TableCell>
-        <TableCell>{`${(txnTimeIso8601 ? moment.utc(txnTimeIso8601).format('do MMMM YYYY, H:mm:ss') : 'Genesis tx').toLocaleString('en-GB')}`}</TableCell>
+        <TableCell style={{ overflow: 'hidden', width:'30em'}}>
+          <span>
+          {`${(txnTimeIso8601 ? moment.utc(txnTimeIso8601).format('do MMMM YYYY, H:mm:ss') : 'Genesis tx').toLocaleString('en-GB')}`}
+          </span>
+          <br/>
+          <TimeAgoText sinceEpoch={new Date(txnTimeIso8601)} className='txlistitem-graytext'/>
+        </TableCell>
         <TableCell>{from}</TableCell>
         <TableCell>{renderKeyValuesAsBadges(seqNo, filteredData, palette[2])}</TableCell>
       </TableRow>

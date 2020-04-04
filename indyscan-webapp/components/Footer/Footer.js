@@ -10,7 +10,8 @@ class Footer extends Component {
           <Grid.Row>
             <Grid.Column textAlign='center' style={{ fontSize: '1rem' }}>
               <span style={{ marginRight: 10 }}>Support internet, your privacy and this project by using </span>
-              <a href='https://brave.com/ind682'><img style={{ height: '1.4rem' }} src='/static/brave-bat-partnership.png'/></a>
+              <a href='https://brave.com/ind682'><img style={{ height: '1.4rem' }}
+                                                      src='/static/brave-bat-partnership.png'/></a>
               <p/>
               <span
                 style={{ marginRight: 10 }}>Do you find IndyScan useful? You can support it via paypal </span>

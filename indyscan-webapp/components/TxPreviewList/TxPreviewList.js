@@ -4,11 +4,12 @@ import { ItemGroup } from 'semantic-ui-react'
 import React, { Component } from 'react'
 import { CSSTransition } from 'react-transition-group'
 import './TxPreviewList.scss'
+
 class TxPreviewList extends Component {
 
   //https://reactjs.org/docs/react-component.html#shouldcomponentupdate
-  shouldComponentUpdate(nextProps) {
-    return (this.props.indyscanTxs[0].imeta.seqNo !== nextProps.indyscanTxs[0].imeta.seqNo);
+  shouldComponentUpdate (nextProps) {
+    return (this.props.indyscanTxs[0].imeta.seqNo !== nextProps.indyscanTxs[0].imeta.seqNo)
   }
 
   render () {
@@ -22,16 +23,16 @@ class TxPreviewList extends Component {
           <TxPreview key={`preview-${network}-${subledger}-xyz`}
                      indyscanTx={firstTx}
                      network={network}
-                     ledger={subledger} />
+                     ledger={subledger}/>
         </CSSTransition>
         {
           indyscanTxs.slice(1).map((indyscanTx, index) => {
             const { seqNo } = extractTxDataBasic(indyscanTx)
             return (
-              <TxPreview  key={`preview-${network}-${subledger}-${seqNo}`}
-                indyscanTx={indyscanTx}
-                network={network}
-                ledger={subledger} />
+              <TxPreview key={`preview-${network}-${subledger}-${seqNo}`}
+                         indyscanTx={indyscanTx}
+                         network={network}
+                         ledger={subledger}/>
             )
           })
         }

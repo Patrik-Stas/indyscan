@@ -2,12 +2,8 @@ import React from 'react'
 import './TxDisplay.scss'
 import { GridRow, Item, Label, List } from 'semantic-ui-react'
 import { renderValuesAsBadges } from '../Common'
-import {
-  converTxDataBasicToHumanReadable,
-  extractTxDataBasic,
-  extractTxDataDetailsHumanReadable,
-  secondsToDhms
-} from '../../txtools'
+import { converTxDataBasicToHumanReadable, extractTxDataBasic, extractTxDataDetailsHumanReadable, } from '../../txtools'
+import TimeAgoText from '../TimeAgoText/TimeAgoText'
 
 function renderKeyValuePair (key, value, keyValueId, color = 'red') {
   return (
@@ -41,31 +37,18 @@ function renderKeyValues (obj, groupId, color) {
   return items
 }
 
-function calculateTimeSinceTx (time) {
-  const timestamp = (Date.parse(time) / 1000)
-  const utimeNow = Math.floor(new Date() / 1000)
-  return secondsToDhms(utimeNow - timestamp)
-}
-
-function renderTimeAgoText (txnTimeIso8601) {
-  if (txnTimeIso8601 === undefined) {
-    return 'Genesis'
-  } else return calculateTimeSinceTx(txnTimeIso8601)
-}
-
 const TxDisplay = ({ txIndyscan, txLedger }) => {
   const keyValTxDetailsHumanReadable = extractTxDataDetailsHumanReadable(txIndyscan)
   const keyValTxBasic = extractTxDataBasic(txIndyscan)
-  const { txnId, seqNo, txnTimeIso8601, typeName, rootHash, from } = keyValTxBasic // eslint-disable-line
+  const { txnTimeIso8601, typeName } = keyValTxBasic // eslint-disable-line
   const keyValBasicHumanReadable = converTxDataBasicToHumanReadable(keyValTxBasic)
-  // const displayKeyValues = Object.assign(keyValBasicHumanReadable, keyValTxDetailsHumanReadable)
   return (
     <GridRow>
       <Item.Group>
         <Item>
           <Item.Content>
-            <Item.Header>{typeName}</Item.Header>
-            <Item.Meta>{renderTimeAgoText(txnTimeIso8601)}</Item.Meta>
+            <Item.Header>{typeName} TX</Item.Header>
+            <Item.Meta><TimeAgoText sinceEpoch={new Date(txnTimeIso8601)} className='txdisplay-graytext'/></Item.Meta>
             <Item.Description>
               <List divided>
                 {renderKeyValues(keyValBasicHumanReadable, 'txbasic', 'blue')}

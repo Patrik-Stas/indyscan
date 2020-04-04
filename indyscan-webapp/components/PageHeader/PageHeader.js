@@ -66,13 +66,15 @@ class PageHeader extends Component {
       <div>
         <div id='page-header'>
           <div id='indyscanlogo'>
-            <img style={{ height: '7em' }} src="/static/radar.png" alt="Indyscan logo"/>
+            <Link href={homeLinkHref} as={homeLinkAs}><a className='menulink' style={{ color: 'darkcyan' }}>
+              <img style={{ height: '7em' }} src="/static/radar.png" alt="Indyscan logo"/>
+            </a></Link>
           </div>
           <div id='indyscan-caption'>
             <Link href={homeLinkHref} as={homeLinkAs}><a className='menulink' style={{ color: 'darkcyan' }}>
               <h1>Indyscan</h1>
             </a></Link>
-            <div >
+            <div>
               <h2>Hyperledger Indy transaction explorer</h2>
             </div>
           </div>
@@ -82,14 +84,15 @@ class PageHeader extends Component {
             this.state.networks &&
             <GridRow>
               <GridColumn width={11}>
+                <div style={{ 'display': 'inline', color: 'gray', fontSize: '0.8em', marginRight: '1em' }}>Networks:
+                </div>
                 {this.renderNetworks(this.state.networks || [network], network)}
               </GridColumn>
               <GridColumn align='right' width={5}>
-                <Navbar page={this.props.page} network={this.props.network}/>
+                <Navbar style={{ 'display': 'inline' }} page={this.props.page} network={this.props.network}/>
               </GridColumn>
             </GridRow>
           }
-
         </Grid>
         <Divider/>
       </div>

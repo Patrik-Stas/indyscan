@@ -3,24 +3,12 @@ import TxListCompact from '../components/TxListCompact/TxListCompact'
 import React, { Component } from 'react'
 import { getTxCount, getTxs } from 'indyscan-api-client'
 import PageHeader from '../components/PageHeader/PageHeader'
-import {
-  Grid,
-  GridColumn,
-  GridRow,
-  Pagination,
-  Checkbox,
-  Input,
-  Icon,
-  Radio,
-  Label,
-  Container as SemanticContainer
-} from 'semantic-ui-react'
+import { Checkbox, Grid, GridColumn, GridRow, Icon, Input, Label, Pagination, Radio } from 'semantic-ui-react'
 import { getBaseUrl } from '../routing'
 import Footer from '../components/Footer/Footer'
 import { getConfigTxNames, getDomainsTxNames, getPoolTxNames } from 'indyscan-txtype'
 import AwesomeDebouncePromise from 'awesome-debounce-promise'
 import Router from 'next/router'
-import util from 'util'
 import { CSSTransition } from 'react-transition-group'
 
 class Txs extends Component {
@@ -166,7 +154,8 @@ class Txs extends Component {
             <Radio slider checked={sortFromRecent === 'true'} onChange={() => { this.flipSortFromRecent() }}/>
             <span style={{ marginLeft: 15 }}>From the most recent</span>
           </GridColumn>
-          <CSSTransition key={JSON.stringify(this.props)} appear={true} in={true} timeout={500} classNames="txsanimation">
+          <CSSTransition key={JSON.stringify(this.props)} appear={true} in={true} timeout={500}
+                         classNames="txsanimation">
             <GridColumn floated='right' width={2}>
               <span style={{ fontSize: '2em', marginRight: '0.2em' }}>{txCount}</span>
               <span style={{ fontSize: '1.2em' }}> txs</span>
@@ -178,13 +167,14 @@ class Txs extends Component {
                       onPageChange={(e, data) => this.handleClick(e, data)}/>
         </GridRow>
         <GridRow>
-          <CSSTransition key={JSON.stringify(this.props)} appear={true} in={true} timeout={500} classNames="txsanimation">
-          <GridColumn>
-            <TxListCompact baseUrl={baseUrl}
-                           network={network}
-                           ledger={ledger}
-                           txs={indyscanTxs}/>
-          </GridColumn>
+          <CSSTransition key={JSON.stringify(this.props)} appear={true} in={true} timeout={500}
+                         classNames="txsanimation">
+            <GridColumn>
+              <TxListCompact baseUrl={baseUrl}
+                             network={network}
+                             ledger={ledger}
+                             txs={indyscanTxs}/>
+            </GridColumn>
           </CSSTransition>
         </GridRow>
         <GridRow centered>

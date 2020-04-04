@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
 import '../scss/style.scss'
-import { getTxs, getNetwork } from 'indyscan-api-client'
+import { getNetwork, getTxs } from 'indyscan-api-client'
 import { getBaseUrl } from '../routing'
-import { Button, Grid, GridColumn, GridRow } from 'semantic-ui-react'
+import { Grid, GridColumn, GridRow } from 'semantic-ui-react'
 import PageHeader from '../components/PageHeader/PageHeader'
 import TxPreviewList from '../components/TxPreviewList/TxPreviewList'
 import Footer from '../components/Footer/Footer'
 import fetch from 'isomorphic-fetch'
-import { secondsToDhms } from '../txtools'
 import io from 'socket.io-client'
 import _ from 'lodash'
 import { CSSTransition } from 'react-transition-group'
@@ -141,47 +140,17 @@ class HomePage extends Component {
     this.setState({ animateFirst: false })
 
     this.switchSocketRoom(newProps.networkDetails.id)
-    this.refreshTimesSinceLast(newProps.domainExpansionTxs, newProps.poolExpansionTxs, newProps.configExpansionTxs)
-  }
-
-  refreshTimesSinceLast (domainExpansionTxs, poolExpansionTxs, configExpansionTxs) {
-    const sinceLastDomain = this.calculateTimeSinceLastTransaction(domainExpansionTxs)
-    const sinceLastPool = this.calculateTimeSinceLastTransaction(poolExpansionTxs)
-    const sinceLastConfig = this.calculateTimeSinceLastTransaction(configExpansionTxs)
-    this.setState({ sinceLastDomain })
-    this.setState({ sinceLastPool })
-    this.setState({ sinceLastConfig })
-  }
-
-  refreshTimesSinceLastByState () {
-    const { domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.state
-    this.refreshTimesSinceLast(domainExpansionTxs, poolExpansionTxs, configExpansionTxs)
   }
 
   componentDidMount () {
     const websocketsUrl = 'http://localhost:3709'
     this.connectSockets(websocketsUrl)
     this.switchSocketRoom(this.props.networkDetails.id)
-    this.refreshTimesSinceLastByState()
-    this.interval = setInterval(this.refreshTimesSinceLastByState.bind(this), 1000)
     this.interval = setInterval(this.recalcProgress.bind(this), 500)
   }
 
   componentWillUnmount () {
-    this.refreshTimesSinceLastByState()
     clearInterval(this.interval)
-  }
-
-  calculateTimeSinceLastTransaction = function calculateTimeSinceLastTransaction (expansionTxs) {
-    const timestamps = expansionTxs
-      .map(tx => {
-        return (tx && tx.idata && tx.idata.txnMetadata) ?
-          (Date.parse(tx.idata.txnMetadata.txnTime) / 1000)
-          : undefined
-      }).filter(t => !!t)
-    const utimeMaxTx = Math.max(...timestamps)
-    const utimeNow = Math.floor(new Date() / 1000)
-    return secondsToDhms(utimeNow - utimeMaxTx)
   }
 
   render () {
@@ -212,7 +181,7 @@ class HomePage extends Component {
                 <GridRow align='left'>
                   <h2><span style={{ marginRight: '1em' }}><CircularProgressbar value={this.state.scanProgressDomain}/></span>Domain
                     txs</h2>
-                  <h5>Last tx {this.state.sinceLastDomain} ago</h5>
+                  {/*<h5>Last tx {this.state.sinceLastDomain} ago</h5>*/}
                 </GridRow>
                 <GridRow centered style={{ marginTop: '2em' }}>
                   <Grid.Column>
@@ -225,7 +194,6 @@ class HomePage extends Component {
                 <GridRow align='left'>
                   <h2><span style={{ marginRight: '1em' }}><CircularProgressbar
                     value={this.state.scanProgressPool}/></span>Pool txs </h2>
-                  <h5>Last tx {this.state.sinceLastPool} ago</h5>
                 </GridRow>
                 <GridRow centered style={{ marginTop: '2em' }}>
                   <Grid.Column>
@@ -238,7 +206,6 @@ class HomePage extends Component {
                 <GridRow align='left'>
                   <h2><span style={{ marginRight: '1em' }}><CircularProgressbar value={this.state.scanProgressConfig}/></span>Config
                     txs </h2>
-                  <h5>Last tx {this.state.sinceLastConfig} ago</h5>
                 </GridRow>
                 <GridRow centered style={{ marginTop: '2em' }}>
                   <Grid.Column>
