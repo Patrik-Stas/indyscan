@@ -53,16 +53,30 @@ function startServer (serviceWorkers) {
   let workers = serviceWorkers.getWorkers()
 
   io.on('connection', function (socket) {
-    logger.info(`New connection ${socket.id}`)
+    logger.info(`Websocket client '${socket.id}' connected`)
+
+    socket.on('disconnect', (reason) => {
+      if (reason === 'io server disconnect') {
+        logger.info(`Websocket client '${socket.id}' disconnected. Reason: '${reason}'`)
+      }
+    });
+
+    socket.on('connect_error', (error) => {
+      logger.error(`Websocket client '${socket.id}' connection error: ${util.inspect(error)}`)
+    });
 
     socket.on('switch-room', (indyNetworkId) => {
-      logger.info(`Received 'switch-room' from ws connection: ${socket.id}`)
+      if (!indyNetworkId || typeof (indyNetworkId) !== 'string') {
+        logger.warn(`Websocket client '${socket.id}' sent switch-room with invalid argument '${util.inspect(indyNetworkId)}'.`)
+        socket.emit('switch-room-error', {message: "'switch-room' ws message parameter must be string"})
+      }
+      logger.info(`Websocket client '${socket.id}' sent switch-room to '${indyNetworkId}'`)
       if (socket.room) {
-        logger.info(`Leaving current room ${socket.room}.`)
+        logger.info(`Leaving current room '${socket.room}'.`)
         socket.leave(socket.room)
         socket.room = undefined
       }
-      logger.info(`Joining new room ${indyNetworkId}.`)
+      logger.info(`Joining new room '${indyNetworkId}'.`)
       socket.join(indyNetworkId)
       socket.room = indyNetworkId
       socket.emit('switched-room-notification', { text: `Entered room ${indyNetworkId}` })

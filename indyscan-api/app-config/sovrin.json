@@ -10,6 +10,7 @@
       "display": "MainNet",
       "description": "MainNet is live network for production use."
     },
+    "websocketsUrl": "http://localhost:3709",
     "es" : {
       "index": "txs-sovmain"
     }
@@ -25,6 +26,7 @@
       "sovstaging",
       "SOVRIN_TESTNET"
     ],
+    "websocketsUrl": "http://localhost:3709",
     "es" : {
       "index": "txs-sovstaging"
     }
@@ -39,6 +41,7 @@
     "aliases": [
       "sovbuilder"
     ],
+    "websocketsUrl": "http://localhost:3709",
     "es" : {
       "index": "txs-sovbuilder"
     }

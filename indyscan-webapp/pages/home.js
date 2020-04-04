@@ -11,6 +11,7 @@ import io from 'socket.io-client'
 import _ from 'lodash'
 import { CSSTransition } from 'react-transition-group'
 import { CircularProgressbar } from 'react-circular-progressbar'
+import util from 'util'
 
 class HomePage extends Component {
   static async getInitialProps ({ req, query }) {
@@ -34,7 +35,6 @@ class HomePage extends Component {
   }
 
   constructor (props) {
-    console.log(`HOME constructor`)
     super()
     this.state = {
       domainExpansionTxs: props.domainExpansionTxs,
@@ -107,6 +107,10 @@ class HomePage extends Component {
     return (timePassed / totalDuration) * 100
   }
 
+  areWebsocketsAvailable() {
+    return (this.props.networkDetails && this.props.networkDetails.websocketsUrl)
+  }
+
   recalcProgress () {
     const { domainRescanStart, domainRescanDone } = this.state
     const { poolRescanStart, poolRescanDone } = this.state
@@ -117,16 +121,18 @@ class HomePage extends Component {
   }
 
   connectSockets (websocketsUrl) {
-    console.log(`Connecting to websocket server ${websocketsUrl}`)
-    this.ioClient = io.connect(websocketsUrl)
+    console.log(`connectSockets ... ${util.inspect(this.ioClient)}`)
+    if (!this.ioClient) {
+      this.ioClient = io.connect(websocketsUrl)
 
-    this.ioClient.on('connection', function (_socket) {
-      logger.info(`New connection at namespace`)
-    })
+      this.ioClient.on('connection', function (_socket) {
+        logger.info(`New connection at namespace`)
+      })
 
-    this.ioClient.on('rescan-scheduled', this.onRescanScheduled.bind(this))
-    this.ioClient.on('tx-processed', this.onProcessedTx.bind(this))
-    this.ioClient.on('switched-room-notification', (payload) => console.log(`switched-room-notification: ${JSON.stringify(payload)}`))
+      this.ioClient.on('rescan-scheduled', this.onRescanScheduled.bind(this))
+      this.ioClient.on('tx-processed', this.onProcessedTx.bind(this))
+      this.ioClient.on('switched-room-notification', (payload) => console.log(`switched-room-notification: ${JSON.stringify(payload)}`))
+    }
   }
 
   switchSocketRoom (indyNetworkId) {
@@ -139,14 +145,18 @@ class HomePage extends Component {
     this.setState({ configExpansionTxs: newProps.configExpansionTxs })
     this.setState({ animateFirst: false })
 
-    this.switchSocketRoom(newProps.networkDetails.id)
+    if (this.areWebsocketsAvailable()) {
+      this.switchSocketRoom(newProps.networkDetails.id)
+    }
   }
 
   componentDidMount () {
-    const websocketsUrl = 'http://localhost:3709'
-    this.connectSockets(websocketsUrl)
-    this.switchSocketRoom(this.props.networkDetails.id)
-    this.interval = setInterval(this.recalcProgress.bind(this), 500)
+    const {websocketsUrl} = this.props.networkDetails
+    if (websocketsUrl) {
+      this.connectSockets(websocketsUrl)
+      this.switchSocketRoom(this.props.networkDetails.id)
+    }
+    this.interval = setInterval(this.recalcProgress.bind(this), 350)
   }
 
   componentWillUnmount () {
@@ -179,7 +189,7 @@ class HomePage extends Component {
             <GridRow>
               <GridColumn align='left'>
                 <GridRow align='left'>
-                  <h2><span style={{ marginRight: '1em' }}><CircularProgressbar value={this.state.scanProgressDomain}/></span>Domain
+                  <h2><span style={{ marginRight: '1em' }}>{this.areWebsocketsAvailable() && <CircularProgressbar value={this.state.scanProgressDomain}/>}</span>Domain
                     txs</h2>
                   {/*<h5>Last tx {this.state.sinceLastDomain} ago</h5>*/}
                 </GridRow>
@@ -192,8 +202,7 @@ class HomePage extends Component {
               </GridColumn>
               <GridColumn align='center'>
                 <GridRow align='left'>
-                  <h2><span style={{ marginRight: '1em' }}><CircularProgressbar
-                    value={this.state.scanProgressPool}/></span>Pool txs </h2>
+                  <h2><span style={{ marginRight: '1em' }}>{this.areWebsocketsAvailable() && <CircularProgressbar value={this.state.scanProgressPool}/>}</span>Pool txs </h2>
                 </GridRow>
                 <GridRow centered style={{ marginTop: '2em' }}>
                   <Grid.Column>
@@ -204,8 +213,7 @@ class HomePage extends Component {
               </GridColumn>
               <GridColumn align='right'>
                 <GridRow align='left'>
-                  <h2><span style={{ marginRight: '1em' }}><CircularProgressbar value={this.state.scanProgressConfig}/></span>Config
-                    txs </h2>
+                  <h2><span style={{ marginRight: '1em' }}>{this.areWebsocketsAvailable() && <CircularProgressbar value={this.state.scanProgressConfig}/>}</span>Config txs </h2>
                 </GridRow>
                 <GridRow centered style={{ marginTop: '2em' }}>
                   <Grid.Column>

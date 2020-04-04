@@ -16,7 +16,6 @@ class TxPreviewList extends Component {
     const { indyscanTxs, network, subledger, animateFirst } = this.props
     const firstTx = indyscanTxs[0]
     const firstTxSeqNo = firstTx.imeta.seqNo
-    console.log(firstTxSeqNo)
     return (
       <ItemGroup>
         <CSSTransition key={firstTxSeqNo} appear={animateFirst} in={true} timeout={1000} classNames="txitem">

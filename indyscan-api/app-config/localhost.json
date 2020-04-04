@@ -5,6 +5,7 @@
     "es" : {
       "index": "txs-localhost"
     },
+    "websocketsUrl": "http://localhost:3709",
     "description": "MainNet is live network for production use."
   }
 ]
