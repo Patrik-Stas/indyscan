@@ -2,3 +2,19 @@
   margin-top: 2em;
   margin-bottom: 1em;
 }
+
+
+.pagemenu-enter {
+  opacity: 0;
+}
+.pagemenu-enter-active {
+  opacity: 1;
+  transition: opacity 2000ms;
+}
+.pagemenu-exit {
+  opacity: 1;
+}
+.pagemenu-exit-active {
+  opacity: 0;
+  transition: opacity 2000ms;
+}

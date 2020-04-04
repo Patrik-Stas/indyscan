@@ -7,6 +7,7 @@ var pretty = require('express-prettify')
 const { logRequests, logResponses } = require('./middleware')
 const socketio = require('socket.io')
 const util = require('util')
+const { buildWorkersQuery } = require('../../../indyscan-daemon-api-client/src/query-builder')
 
 function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLogging) {
   if (enableRequestLogging) {
@@ -49,24 +50,29 @@ function startServer (serviceWorkers) {
 
   let io = socketio(server)
 
+  let workers = serviceWorkers.getWorkers()
+
   io.on('connection', function (socket) {
     logger.info(`New connection ${socket.id}`)
 
-    socket.on('switch-room', (room) => {
+    socket.on('switch-room', (indyNetworkId) => {
       logger.info(`Received 'switch-room' from ws connection: ${socket.id}`)
       if (socket.room) {
         logger.info(`Leaving current room ${socket.room}.`)
         socket.leave(socket.room)
         socket.room = undefined
       }
-      logger.info(`Joining new room ${room}.`)
-      socket.join(room)
-      socket.room = room
-      socket.emit('switched-room-notification', { text: `Entered room ${room}` })
+      logger.info(`Joining new room ${indyNetworkId}.`)
+      socket.join(indyNetworkId)
+      socket.room = indyNetworkId
+      socket.emit('switched-room-notification', { text: `Entered room ${indyNetworkId}` })
+      let networkExpansionWorkers = serviceWorkers.getWorkers(buildWorkersQuery('expansion', undefined, undefined, undefined, indyNetworkId ))
+      for (const worker of networkExpansionWorkers) {
+        let rescanScheduledPayload = worker.requestRescheduleStatus()
+        socket.emit('rescan-scheduled', rescanScheduledPayload)
+      }
     })
   })
-
-  let workers = serviceWorkers.getWorkers()
 
   for (const worker of workers) {
     const emitter = worker.getEventEmitter()

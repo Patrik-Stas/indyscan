@@ -3,13 +3,25 @@ import TxListCompact from '../components/TxListCompact/TxListCompact'
 import React, { Component } from 'react'
 import { getTxCount, getTxs } from 'indyscan-api-client'
 import PageHeader from '../components/PageHeader/PageHeader'
-import { Grid, GridColumn, GridRow, Pagination, Checkbox, Input, Icon, Radio, Label } from 'semantic-ui-react'
+import {
+  Grid,
+  GridColumn,
+  GridRow,
+  Pagination,
+  Checkbox,
+  Input,
+  Icon,
+  Radio,
+  Label,
+  Container as SemanticContainer
+} from 'semantic-ui-react'
 import { getBaseUrl } from '../routing'
 import Footer from '../components/Footer/Footer'
 import { getConfigTxNames, getDomainsTxNames, getPoolTxNames } from 'indyscan-txtype'
 import AwesomeDebouncePromise from 'awesome-debounce-promise'
 import Router from 'next/router'
-import util from "util"
+import util from 'util'
+import { CSSTransition } from 'react-transition-group'
 
 class Txs extends Component {
   updateUrl (baseUrl, network, ledger, page, pageSize, filterTxNames = '[]', search = null, sortFromRecent = true) {
@@ -54,7 +66,7 @@ class Txs extends Component {
     this.updateUrl,
     200,
     {}
-  );
+  )
 
   async setSearch (newSearch) {
     let { baseUrl, network, ledger, pageSize, filterTxNames, sortFromRecent } = this.props
@@ -108,8 +120,8 @@ class Txs extends Component {
         const box = (
           <GridColumn key={`filter-checkbox-${txName}`} width={4}>
             <Checkbox style={{ marginTop: '10px' }}
-              onChange={(event, data) => { this.setParamsFilter(txName, data.checked) }}
-              checked={this.props.filterTxNames.includes(txName)}
+                      onChange={(event, data) => { this.setParamsFilter(txName, data.checked) }}
+                      checked={this.props.filterTxNames.includes(txName)}
             />
             <Label style={{ marginLeft: 10 }}>{txName}</Label>
           </GridColumn>)
@@ -133,14 +145,10 @@ class Txs extends Component {
       <Grid>
         <GridRow>
           <GridColumn>
-            <PageHeader page={ledger || 'home'} network={network} baseUrl={baseUrl} />
+            <PageHeader page={ledger || 'home'} network={network} baseUrl={baseUrl}/>
           </GridColumn>
         </GridRow>
-        <GridRow centered style={{ marginBottom: '2em' }}>
-          <Pagination activePage={page} totalPages={pageCount}
-            onPageChange={(e, data) => this.handleClick(e, data)} />
-        </GridRow>
-        <GridRow>
+        <GridRow style={{ marginTop: '1em' }}>
           {this.renderSelectButtons()}
         </GridRow>
         <GridRow style={{ margin: '1em' }}>
@@ -148,36 +156,44 @@ class Txs extends Component {
             <Input
               onChange={this.handleChange.bind(this)}
               style={{ width: '100%' }}
-              icon={<Icon name='search' inverted circular link />}
+              icon={<Icon name='search' inverted circular link/>}
               placeholder='Search...'
             />
           </GridColumn>
-          <GridColumn width={1} />
+          <GridColumn width={1}/>
           <GridColumn width={5}>
             <span style={{ marginRight: 15 }}>From the oldest</span>
-            <Radio slider checked={sortFromRecent === 'true'} onChange={() => { this.flipSortFromRecent() }} />
+            <Radio slider checked={sortFromRecent === 'true'} onChange={() => { this.flipSortFromRecent() }}/>
             <span style={{ marginLeft: 15 }}>From the most recent</span>
           </GridColumn>
-          <GridColumn floated='right' width={2}>
-            <span style={{ fontSize: '2em', marginRight: '0.2em' }}>{txCount}</span>
-            <span style={{ fontSize: '1.2em' }}> txs</span>
-          </GridColumn>
+          <CSSTransition key={JSON.stringify(this.props)} appear={true} in={true} timeout={500} classNames="txsanimation">
+            <GridColumn floated='right' width={2}>
+              <span style={{ fontSize: '2em', marginRight: '0.2em' }}>{txCount}</span>
+              <span style={{ fontSize: '1.2em' }}> txs</span>
+            </GridColumn>
+          </CSSTransition>
+        </GridRow>
+        <GridRow centered style={{ marginBottom: '0.1em' }}>
+          <Pagination activePage={page} totalPages={pageCount}
+                      onPageChange={(e, data) => this.handleClick(e, data)}/>
         </GridRow>
         <GridRow>
+          <CSSTransition key={JSON.stringify(this.props)} appear={true} in={true} timeout={500} classNames="txsanimation">
           <GridColumn>
             <TxListCompact baseUrl={baseUrl}
-              network={network}
-              ledger={ledger}
-              txs={indyscanTxs} />
+                           network={network}
+                           ledger={ledger}
+                           txs={indyscanTxs}/>
           </GridColumn>
+          </CSSTransition>
         </GridRow>
         <GridRow centered>
           <Pagination activePage={page} totalPages={pageCount}
-            onPageChange={(e, data) => this.handleClick(e, data)} />
+                      onPageChange={(e, data) => this.handleClick(e, data)}/>
         </GridRow>
         <GridRow>
           <GridColumn>
-            <Footer />
+            <Footer/>
           </GridColumn>
         </GridRow>
       </Grid>

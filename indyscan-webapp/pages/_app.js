@@ -1,6 +1,7 @@
 import React from 'react'
 import App, { Container } from 'next/app'
 import { Container as SemanticContainer } from 'semantic-ui-react'
+import { CSSTransition } from 'react-transition-group'
 
 export default class MyApp extends App {
   static async getInitialProps ({ Component, router, ctx }) {
@@ -17,7 +18,9 @@ export default class MyApp extends App {
       <Container>
         <title>HL Indy Tx Explorer</title>
         <SemanticContainer>
-          <Component {...pageProps} />
+          <CSSTransition appear={true} in={true} timeout={300} classNames="pageanimation">
+            <Component {...pageProps} />
+          </CSSTransition>
         </SemanticContainer>
       </Container>
     )

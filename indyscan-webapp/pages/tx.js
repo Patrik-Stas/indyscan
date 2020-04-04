@@ -73,7 +73,7 @@ class Tx extends Component {
     const palette = top100()[7]
     const mytheme = {
       main: `line-height:1.3;color:${palette[0]};background:white;overflow:auto;border-style:solid;
-             border-color:${palette[1]};border-width:1px;padding:4em`,
+             border-color:${palette[1]};border-width:1px;padding:4em;font-family:Lucida Console,Monaco,monospace`,
       key: `color:${palette[1]};`,
       string: `color:${palette[2]};`,
       value: `color:${palette[3]};`,
@@ -92,19 +92,18 @@ class Tx extends Component {
         </GridRow>
         <GridRow>
           <GridColumn width={3} textAlign='center'>
-            <Link href={hrefNext
-            } as={asNext}><a className='menulink'>Next tx</a></Link>
+            <Link href={hrefNext} as={asNext}><a style={{ fontSize: '1.2em'}}>Next tx</a></Link>
           </GridColumn>
           <GridColumn width={10} textAlign='center'>
             <h4>{`${network} / ${ledger} / ${seqNo}`}</h4>
           </GridColumn>
           <GridColumn width={3} textAlign='center'>
-            <Link href={hrefPrev} as={asPrev}><a className='menulink'>Prev tx</a></Link>
+            <Link href={hrefPrev} as={asPrev}><a style={{ fontSize: '1.2em'}}>Prev tx</a></Link>
           </GridColumn>
         </GridRow>
         {displayMessage && displayMessage}
         {txExpansion &&
-          <GridRow>
+          <GridRow className="data-content">
             <TxDisplay txIndyscan={txExpansion} txLedger={txSerialized} />
           </GridRow>
         }

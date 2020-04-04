@@ -18,7 +18,7 @@ export default class MyDocument extends Document {
           <a href='https://github.com/Patrik-Stas/indyscan' className='github-corner'
             aria-label='View source on GitHub'>
             <svg width='120' height='120' viewBox='0 0 250 250'
-              style={{ fill: 'darkcyan', color: '#fff', position: 'absolute', top: 0, border: 0, right: 0 }}
+              style={{ fill: 'darkcyan', color: '#fff', position: 'absolute', top: 0, border: 0, right: 0, zIndex:1000 }}
               aria-hidden='true'>
               <path d='M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z' />
               <path

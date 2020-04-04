@@ -1,5 +1,4 @@
-.txPreview {
-  background-color: lightgrey;
-  margin: 10px;
-  width: 80%;
+.animatedTx {
+  transition: background-color 0.5s ease;
+  background-color: red;
 }

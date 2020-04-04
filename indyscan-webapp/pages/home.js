@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import '../scss/style.scss'
 import { getTxs, getNetwork } from 'indyscan-api-client'
 import { getBaseUrl } from '../routing'
-import { Grid, GridColumn, GridRow } from 'semantic-ui-react'
+import { Button, Grid, GridColumn, GridRow } from 'semantic-ui-react'
 import PageHeader from '../components/PageHeader/PageHeader'
 import TxPreviewList from '../components/TxPreviewList/TxPreviewList'
 import Footer from '../components/Footer/Footer'
@@ -10,6 +10,8 @@ import fetch from 'isomorphic-fetch'
 import { secondsToDhms } from '../txtools'
 import io from 'socket.io-client'
 import _ from 'lodash'
+import { CSSTransition } from 'react-transition-group'
+import { CircularProgressbar } from 'react-circular-progressbar'
 
 class HomePage extends Component {
   static async getInitialProps ({ req, query }) {
@@ -70,6 +72,7 @@ class HomePage extends Component {
   }
 
   onProcessedTx (payload) {
+    this.setState({ animateFirst: true })
     // const {workerData, txData} = payload
     const { txData } = payload
     if (txData.imeta.subledger === 'domain') {
@@ -83,12 +86,38 @@ class HomePage extends Component {
     }
   }
 
-  onRescanScheduled (txData) {
-    const { workerData: { subledger }, msTillRescan } = txData
-    console.log(`Rescheduled ${subledger} until ${msTillRescan}`)
+  onRescanScheduled (payload) {
+    const { workerData: { subledger }, msTillRescan } = payload
+    const rescanStart = Math.round((new Date()).getTime())
+    const rescanDone = rescanStart + Math.round(msTillRescan)
+    if (subledger === 'domain') {
+      this.setState({ domainRescanStart: rescanStart, domainRescanDone: rescanDone })
+    }
+    if (subledger === 'pool') {
+      this.setState({ poolRescanStart: rescanStart, poolRescanDone: rescanDone })
+    }
+    if (subledger === 'config') {
+      this.setState({ configRescanStart: rescanStart, configRescanDone: rescanDone })
+    }
   }
 
-  connectSockets(websocketsUrl) {
+  getPercentage (rescanStart, rescanDone) {
+    const now = Math.round((new Date()).getTime())
+    const totalDuration = rescanDone - rescanStart
+    const timePassed = now - rescanStart
+    return (timePassed / totalDuration) * 100
+  }
+
+  recalcProgress () {
+    const { domainRescanStart, domainRescanDone } = this.state
+    const { poolRescanStart, poolRescanDone } = this.state
+    const { configRescanStart, configRescanDone } = this.state
+    this.setState({ scanProgressDomain: this.getPercentage(domainRescanStart, domainRescanDone) })
+    this.setState({ scanProgressPool: this.getPercentage(poolRescanStart, poolRescanDone) })
+    this.setState({ scanProgressConfig: this.getPercentage(configRescanStart, configRescanDone) })
+  }
+
+  connectSockets (websocketsUrl) {
     console.log(`Connecting to websocket server ${websocketsUrl}`)
     this.ioClient = io.connect(websocketsUrl)
 
@@ -101,16 +130,15 @@ class HomePage extends Component {
     this.ioClient.on('switched-room-notification', (payload) => console.log(`switched-room-notification: ${JSON.stringify(payload)}`))
   }
 
-  switchSocketRoom(indyNetworkId) {
-    console.log(`Switching room to ${indyNetworkId}`)
-    this.ioClient.emit('switch-room', indyNetworkId);
+  switchSocketRoom (indyNetworkId) {
+    this.ioClient.emit('switch-room', indyNetworkId)
   }
 
   componentWillReceiveProps (newProps) {
-    console.log(`componentWillReceiveProps>>>`)
     this.setState({ domainExpansionTxs: newProps.domainExpansionTxs })
     this.setState({ poolExpansionTxs: newProps.poolExpansionTxs })
     this.setState({ configExpansionTxs: newProps.configExpansionTxs })
+    this.setState({ animateFirst: false })
 
     this.switchSocketRoom(newProps.networkDetails.id)
     this.refreshTimesSinceLast(newProps.domainExpansionTxs, newProps.poolExpansionTxs, newProps.configExpansionTxs)
@@ -126,21 +154,20 @@ class HomePage extends Component {
   }
 
   refreshTimesSinceLastByState () {
-    const {domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.state
+    const { domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.state
     this.refreshTimesSinceLast(domainExpansionTxs, poolExpansionTxs, configExpansionTxs)
   }
 
   componentDidMount () {
-    console.log(`HOME componentDidMount`)
     const websocketsUrl = 'http://localhost:3709'
     this.connectSockets(websocketsUrl)
     this.switchSocketRoom(this.props.networkDetails.id)
     this.refreshTimesSinceLastByState()
     this.interval = setInterval(this.refreshTimesSinceLastByState.bind(this), 1000)
+    this.interval = setInterval(this.recalcProgress.bind(this), 500)
   }
 
   componentWillUnmount () {
-    console.log(`HOME componentWillUnmount`)
     this.refreshTimesSinceLastByState()
     clearInterval(this.interval)
   }
@@ -156,62 +183,77 @@ class HomePage extends Component {
     const { network, networkDetails, baseUrl } = this.props
     const { domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.state
     return (
-      <Grid>
-        <GridRow style={{ backgroundColor: 'white', marginBottom: '-1em' }}>
-          <GridColumn width={16}>
-            <PageHeader page='home' network={network} baseUrl={baseUrl}/>
-          </GridColumn>
-        </GridRow>
-        <GridRow>
-          <p>
-            {
-              (networkDetails.description) &&
-              <h3>{networkDetails.description}</h3>
-            }
-          </p>
-        </GridRow>
-        <GridRow>
-          <GridColumn width={5} align='left'>
-            <GridRow align='left'>
-              <h2>Domain txs</h2>
-              <h5>Last tx {this.state.sinceLastDomain} ago</h5>
+      <div>
+        <Grid>
+          <GridRow style={{ backgroundColor: 'white', marginBottom: '-1em' }}>
+            <GridColumn>
+              <PageHeader page='home' network={network} baseUrl={baseUrl}/>
+            </GridColumn>
+          </GridRow>
+          <GridRow>
+            <p>
+              {
+                (networkDetails.description) &&
+                <h3>{networkDetails.description}</h3>
+              }
+            </p>
+          </GridRow>
+        </Grid>
+        <CSSTransition key={JSON.stringify(this.props)} appear={true} in={true} timeout={300}
+                       classNames="txsanimation">
+          <Grid columns={3} container doubling stackable>
+            <GridRow>
+              <GridColumn align='left'>
+                <GridRow align='left'>
+                  <h2><span style={{ marginRight: '1em' }}><CircularProgressbar value={this.state.scanProgressDomain}/></span>Domain
+                    txs</h2>
+                  <h5>Last tx {this.state.sinceLastDomain} ago</h5>
+                </GridRow>
+                <GridRow centered style={{ marginTop: '2em' }}>
+                  <Grid.Column>
+                    <TxPreviewList animateFirst={this.state.animateFirst} indyscanTxs={domainExpansionTxs}
+                                   network={network} subledger='domain'/>
+                  </Grid.Column>
+                </GridRow>
+              </GridColumn>
+              <GridColumn align='center'>
+                <GridRow align='left'>
+                  <h2><span style={{ marginRight: '1em' }}><CircularProgressbar
+                    value={this.state.scanProgressPool}/></span>Pool txs </h2>
+                  <h5>Last tx {this.state.sinceLastPool} ago</h5>
+                </GridRow>
+                <GridRow centered style={{ marginTop: '2em' }}>
+                  <Grid.Column>
+                    <TxPreviewList animateFirst={this.state.animateFirst} indyscanTxs={poolExpansionTxs}
+                                   network={network} subledger='pool'/>
+                  </Grid.Column>
+                </GridRow>
+              </GridColumn>
+              <GridColumn align='right'>
+                <GridRow align='left'>
+                  <h2><span style={{ marginRight: '1em' }}><CircularProgressbar value={this.state.scanProgressConfig}/></span>Config
+                    txs </h2>
+                  <h5>Last tx {this.state.sinceLastConfig} ago</h5>
+                </GridRow>
+                <GridRow centered style={{ marginTop: '2em' }}>
+                  <Grid.Column>
+                    <TxPreviewList animateFirst={this.state.animateFirst} indyscanTxs={configExpansionTxs}
+                                   network={network} subledger='config'/>
+                  </Grid.Column>
+                </GridRow>
+              </GridColumn>
             </GridRow>
-            <GridRow centered style={{ marginTop: '2em' }}>
-              <Grid.Column>
-                <TxPreviewList indyscanTxs={domainExpansionTxs} network={network} subledger='domain'/>
-              </Grid.Column>
-            </GridRow>
-          </GridColumn>
-          <GridColumn width={6} align='center'>
-            <GridRow align='left'>
-              <h2>Pool txs</h2>
-              <h5>Last tx {this.state.sinceLastPool} ago</h5>
-            </GridRow>
-            <GridRow centered style={{ marginTop: '2em' }}>
-              <Grid.Column>
-                <TxPreviewList indyscanTxs={poolExpansionTxs} network={network} subledger='pool'/>
-              </Grid.Column>
-            </GridRow>
-          </GridColumn>
-          <GridColumn width={5} align='right'>
-            <GridRow align='left'>
-              <h2>Config txs</h2>
-              <h5>Last tx {this.state.sinceLastConfig} ago</h5>
-            </GridRow>
-            <GridRow centered style={{ marginTop: '2em' }}>
-              <Grid.Column>
-                <TxPreviewList indyscanTxs={configExpansionTxs} network={network} subledger='config'/>
-              </Grid.Column>
-            </GridRow>
-          </GridColumn>
+          </Grid>
+        </CSSTransition>
+        <Grid>
 
-        </GridRow>
-        <GridRow>
-          <GridColumn>
-            <Footer displayVersion={this.props.version}/>
-          </GridColumn>
-        </GridRow>
-      </Grid>
+          <GridRow>
+            <GridColumn>
+              <Footer displayVersion={this.props.version}/>
+            </GridColumn>
+          </GridRow>
+        </Grid>
+      </div>
     )
   }
 }

@@ -16,9 +16,12 @@ function createServiceWorkers () {
     logger.info(`Get workers, worker query =${JSON.stringify(workerQuery)}`)
     let resWorkers = Object.values(workers)
     if (workerQuery) {
-      const {workerIds, operationTypes, subledgers, targetEsIndices} = workerQuery
+      const {workerIds, operationTypes, subledgers, targetEsIndices, indyNetworkIds} = workerQuery
       if (workerIds) {
         resWorkers = resWorkers.filter(worker => workerIds.includes(worker.getWorkerInfo().workerId))
+      }
+      if (indyNetworkIds) {
+        resWorkers = resWorkers.filter(worker => indyNetworkIds.includes(worker.getWorkerInfo().indyNetworkId))
       }
       if (operationTypes) {
         resWorkers = resWorkers.filter(worker => operationTypes.includes(worker.getWorkerInfo().operationType))
@@ -79,6 +82,7 @@ function createServiceWorkers () {
   }
 
   return {
+    getWorker,
     getWorkers,
     getWorkersInfo,
     getWorkerInfo,

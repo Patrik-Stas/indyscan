@@ -135,6 +135,12 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
     }
   }
 
+  function requestRescheduleStatus() {
+    const workerData = eventSharedPayload()
+    const payload = {workerData, msTillRescan: timerLock.getMsTillUnlock() }
+    return payload
+  }
+
   function txProcessed (txMeta, txDataAfter) {
     processedTxCount++
     timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
@@ -351,6 +357,7 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
   }
 
   return {
+    requestRescheduleStatus,
     getWorkerInfo,
     getEventEmitter,
     getObjectId,
