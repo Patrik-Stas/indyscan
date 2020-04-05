@@ -16,7 +16,7 @@ fi
 echo "Building image!"
 
 cd .. # we need to have full monorepo context loaded
-docker build "$DOCKER_BUILD_PARAMS" -f "./$PROJECT_NAME/Dockerfile" -t "$IMAGE_TAG" .
+docker build ${DOCKER_BUILD_PARAMS} -f "./$PROJECT_NAME/Dockerfile" -t "$IMAGE_TAG" .
 docker tag "$IMAGE_TAG" "$IMAGE_TAG_LATEST"
 
 echo "Images built"

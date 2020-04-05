@@ -23,7 +23,7 @@ if [ "$yesno" != "y" ]; then
 fi
 echo "Building image!"
 
-docker build "$DOCKER_BUILD_PARAMS" \
+docker build ${DOCKER_BUILD_PARAMS} \
              --build-arg "INDYSDK_REPO=$INDYSDK_REPO" \
              --build-arg "INDYSDK_REVISION=$INDYSDK_REVISION" \
              -t "$DOCKER_TAG" \
