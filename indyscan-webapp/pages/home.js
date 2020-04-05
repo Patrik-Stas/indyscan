@@ -9,11 +9,9 @@ import Footer from '../components/Footer/Footer'
 import fetch from 'isomorphic-fetch'
 import _ from 'lodash'
 import { CSSTransition } from 'react-transition-group'
-import { CircularProgressbar } from 'react-circular-progressbar'
 import util from 'util'
 import getWebsocketClient from '../context/socket-client'
 import NetworkInfo from '../components/NetworkInfo/NetworkInfo'
-import { SemipolarSpinner } from 'react-epic-spinners'
 import SubledgerHeader from '../components/SubledgerHeader/SubledgerHeader'
 
 class HomePage extends Component {
@@ -47,7 +45,7 @@ class HomePage extends Component {
   }
 
   addNewDomainTx (txData) {
-    let domainExpansionTxs = _.cloneDeep(this.state.domainExpansionTxs)
+    let domainExpansionTxs = _.cloneDeep(this.props.domainExpansionTxs)
     domainExpansionTxs.unshift(txData)
     if (domainExpansionTxs.length > 10) {
       domainExpansionTxs.pop()
@@ -56,7 +54,7 @@ class HomePage extends Component {
   }
 
   addNewConfigTx (txData) {
-    let configExpansionTxs = _.cloneDeep(this.state.configExpansionTxs)
+    let configExpansionTxs = _.cloneDeep(this.props.configExpansionTxs)
     configExpansionTxs.unshift(txData)
     if (configExpansionTxs.length > 10) {
       configExpansionTxs.pop()
@@ -65,7 +63,7 @@ class HomePage extends Component {
   }
 
   addNewPoolTx (txData) {
-    let poolExpansionTxs = _.cloneDeep(this.state.poolExpansionTxs)
+    let poolExpansionTxs = _.cloneDeep(this.props.poolExpansionTxs)
     poolExpansionTxs.unshift(txData)
     if (poolExpansionTxs.length > 10) {
       poolExpansionTxs.pop()
@@ -90,6 +88,7 @@ class HomePage extends Component {
 
   onRescanScheduled (payload) {
     const { workerData: { subledger }, msTillRescan } = payload
+    console.log(`rescan-scheduled = ${subledger} ${msTillRescan}`)
     const rescanStart = Math.round((new Date()).getTime())
     const rescanDone = rescanStart + Math.round(msTillRescan)
     if (subledger === 'domain') {
@@ -120,39 +119,62 @@ class HomePage extends Component {
   }
 
   componentWillReceiveProps (newProps) {
-    this.setState({ domainExpansionTxs: newProps.domainExpansionTxs })
-    this.setState({ poolExpansionTxs: newProps.poolExpansionTxs })
-    this.setState({ configExpansionTxs: newProps.configExpansionTxs })
-    this.setState({ animateFirst: false })
-    const socket = getWebsocketClient()
-    if (socket) {
-      socket.on('connection', function (_socket) {
-        logger.info(`app.js WS connection established.`)
-      })
+    // console.log(`componentWillReceiveProps`)
+    // const { networkDetails } = newProps.pageProps
+    // this.configureSocketForCurrentNetwork(networkDetails)
+    // this.setState({ domainExpansionTxs: newProps.domainExpansionTxs })
+    // this.setState({ poolExpansionTxs: newProps.poolExpansionTxs })
+    // this.setState({ configExpansionTxs: newProps.configExpansionTxs })
+    // this.setState({ animateFirst: false })
+  }
 
-      socket.off('rescan-scheduled')
-      socket.off('tx-processed')
-      socket.off('switched-room-notification')
 
-      socket.on('rescan-scheduled', this.onRescanScheduled.bind(this))
-      socket.on('tx-processed', this.onTxProcessed.bind(this))
-      socket.on('switched-room-notification', (activeWsRoom) => {
-        this.setState({activeWsRoom})
-      })
+  configureSocketForCurrentNetwork(networkDetails) {
+    if (networkDetails) {
+      const { id: indyNetworkId } = networkDetails
+      if (indyNetworkId) {
+        let socket = getWebsocketClient()
+        console.log(`home.js configureSocketForCurrentNetwork ${indyNetworkId}`)
+
+        socket.on('connection', function (_socket) {
+          logger.info(`app.js WS connection established.`)
+        })
+
+        socket.on('switched-room-notification', (activeWsRoom) => {
+          console.log(`switched-room-notification: Entered room ${activeWsRoom}`)
+          this.setState({activeWsRoom})
+          socket.on('rescan-scheduled', this.onRescanScheduled.bind(this))
+          socket.on('tx-processed', this.onTxProcessed.bind(this))
+          console.log(`Registered hooks on the socket! ${socket.hasListeners()}`)
+        })
+
+        console.log(`Sending switch-room request for ${indyNetworkId}`)
+        socket.emit('switch-room', indyNetworkId)
+      }
     }
   }
 
   componentDidMount () {
+    const { networkDetails } = this.props
+    this.configureSocketForCurrentNetwork(networkDetails)
     this.interval = setInterval(this.recalcProgress.bind(this), 350)
   }
 
   componentWillUnmount () {
+    console.log(`componentWillUnmount`)
     clearInterval(this.interval)
+    const socket = getWebsocketClient()
+    if (socket) {
+      console.log(`CLEANING socket listeres. Had listeners=${socket.hasListeners()}`)
+      socket.off('rescan-scheduled')
+      socket.off('tx-processed')
+      socket.off('switched-room-notification')
+    }
   }
 
   render () {
     const { network, networkDetails, baseUrl } = this.props
-    const { domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.state
+    const { domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.props
     const { scanProgressDomain, scanProgressPool, scanProgressConfig } = this.state
     const isInteractive = (!!this.state.activeWsRoom)
     return (

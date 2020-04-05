@@ -51,7 +51,7 @@ class TxPreview extends Component {
     let txnDate
     if (indyscanTx.idata && indyscanTx.idata.txnMetadata && indyscanTx.idata.txnMetadata.txnTime) {
       txnDate =  new Date(indyscanTx.idata.txnMetadata.txnTime)
-      txnDateLocalString = moment.utc(txnTimeIso8601).tz(moment.tz.guess()).format('do MMMM YYYY, HH:mm:ss a')
+      txnDateLocalString = moment.utc(txnTimeIso8601).tz(moment.tz.guess()).format('DD MMMM YYYY, HH:mm:ss a')
     }
 
     return (

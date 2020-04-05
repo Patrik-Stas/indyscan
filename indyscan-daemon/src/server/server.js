@@ -18,20 +18,21 @@ function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLoggi
 }
 
 function linkEmitterToSocket (io, emitter, indyNetworkId, subledger) {
-  const namespace = indyNetworkId
-  logger.info(`Linking worker emitter to ws namespace ${namespace}. indyNetworkId=${indyNetworkId} subledger=${subledger}, `)
+  logger.info(`Linking worker emitter to sockets for indyNetworkId=${indyNetworkId} subledger=${subledger}, `)
 
   emitter.on('tx-processed', ({ workerData, txData }) => {
     const payload = { workerData, txData }
     const websocketEvent = 'tx-processed'
-    logger.debug(`Namespace "${namespace}" broadcasting "${websocketEvent}" with payload: ${JSON.stringify(payload)}.`)
+    const ids = io.sockets.clients(indyNetworkId).map(socket => socket.id)
+    logger.info(`Namespace broadcasting "${websocketEvent}" with payload: ${JSON.stringify(payload)} to ids=${JSON.stringify(ids)}`)
     io.to(indyNetworkId).emit(websocketEvent, payload)
   })
 
   emitter.on('rescan-scheduled', ({ workerData, msTillRescan }) => {
     const payload = { workerData, msTillRescan }
     const websocketEvent = 'rescan-scheduled'
-    logger.debug(`Namespace "${namespace}" broadcasting "${websocketEvent}" with payload: ${JSON.stringify(payload)}.`)
+    const ids = io.sockets.clients(indyNetworkId).map(socket => socket.id)
+    logger.info(`Namespace broadcasting "${websocketEvent}" with payload: ${JSON.stringify(payload)} to ids=${JSON.stringify(ids)}`)
     io.to(indyNetworkId).emit(websocketEvent, payload)
   })
 }
@@ -81,6 +82,7 @@ function startServer (serviceWorkers) {
       const networkExpansionWorkers = serviceWorkers.getWorkers(workerQuery)
       for (const worker of networkExpansionWorkers) {
         const rescanScheduledPayload = worker.requestRescheduleStatus()
+        // logger.info(`Sending rescan-scheduled for client ${socket.id}. Payload = ${JSON.stringify(rescanScheduledPayload)}`)
         socket.emit('rescan-scheduled', rescanScheduledPayload)
       }
     })

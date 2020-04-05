@@ -8,11 +8,6 @@ function getWebsocketClient () {
     return socketClient
   }
   socketClient = io.connect('')
-  // console.log(`app.js connected to ${websocketsUrl}`)
-
-  socketClient.on('connection', function (_socket) {
-    logger.info(`app.js WS connection established.`)
-  })
   return socketClient
 }
 

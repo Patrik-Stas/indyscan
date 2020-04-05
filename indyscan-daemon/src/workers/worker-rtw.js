@@ -38,6 +38,7 @@ function validateTimingConfig (timingConfig) {
 }
 
 async function createWorkerRtw ({ indyNetworkId, subledger, operationType, iterator, iteratorTxFormat, transformer, target, timing }) {
+  console.log(`BUILDING WORKER for ${indyNetworkId}... timit= ${timing}`)
   const eventEmitter = new EventEmitter()
   const workerId = `${indyNetworkId}.${subledger}.${operationType}`
   const logger = createLogger(workerId, envConfig.LOG_LEVEL, envConfig.ENABLE_LOGFILES)
@@ -80,6 +81,7 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
     throw Error(errMsg)
   }
   timing = getExpandedTimingConfig(timing)
+  logger.info(`Worker ${workerId} using timing ${JSON.stringify(timing)}`)
   validateTimingConfig(timing)
   const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timing
 

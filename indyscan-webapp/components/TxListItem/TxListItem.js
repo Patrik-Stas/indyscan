@@ -39,7 +39,7 @@ class TxListItem extends Component {
         </TableCell>
         <TableCell style={{ overflow: 'hidden', width:'30em'}}>
           <span>
-          {`${(txnTimeIso8601 ? moment.utc(txnTimeIso8601).format('do MMMM YYYY, H:mm:ss') : 'Genesis tx').toLocaleString('en-GB')}`}
+          {`${(txnTimeIso8601 ? moment.utc(txnTimeIso8601).format('DD MMMM YYYY, H:mm:ss') : 'Genesis tx').toLocaleString('en-GB')}`}
           </span>
           <br/>
           <TimeAgoText sinceEpoch={new Date(txnTimeIso8601)} className='txlistitem-graytext'/>
