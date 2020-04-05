@@ -8,7 +8,7 @@
       "priority": 3,
       "display": "MainNet",
       "display-long": "Sovrin MainNet",
-      "description": "Public permissioned network for production use cases.",
+      "description": "Sovrin network for production use cases.",
       "logo-address": "/static/sovrin.png"
     },
     "es" : {
