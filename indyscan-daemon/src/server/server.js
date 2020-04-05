@@ -19,7 +19,7 @@ function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLoggi
 }
 
 function linkEmitterToSocket (io, emitter, indyNetworkId, subledger) {
-  let namespace = indyNetworkId
+  const namespace = indyNetworkId
   logger.info(`Linking worker emitter to ws namespace ${namespace}. indyNetworkId=${indyNetworkId} subledger=${subledger}, `)
 
   emitter.on('tx-processed', ({ workerData, txData }) => {
@@ -46,11 +46,11 @@ function startServer (serviceWorkers) {
   setupLoggingMiddlleware(app, envConfig.LOG_HTTP_REQUESTS === 'true', envConfig.LOG_HTTP_RESPONSES === 'true')
 
   apiWorkers(app, serviceWorkers)
-  let server = app.listen(envConfig.SERVER_PORT, () => logger.info(`Daemon server started at port ${envConfig.SERVER_PORT}!`))
+  const server = app.listen(envConfig.SERVER_PORT, () => logger.info(`Daemon server started at port ${envConfig.SERVER_PORT}!`))
 
-  let io = socketio(server)
+  const io = socketio(server)
 
-  let workers = serviceWorkers.getWorkers()
+  const workers = serviceWorkers.getWorkers()
 
   io.on('connection', function (socket) {
     logger.info(`Websocket client '${socket.id}' connected`)
@@ -59,16 +59,16 @@ function startServer (serviceWorkers) {
       if (reason === 'io server disconnect') {
         logger.info(`Websocket client '${socket.id}' disconnected. Reason: '${reason}'`)
       }
-    });
+    })
 
     socket.on('connect_error', (error) => {
       logger.error(`Websocket client '${socket.id}' connection error: ${util.inspect(error)}`)
-    });
+    })
 
     socket.on('switch-room', (indyNetworkId) => {
       if (!indyNetworkId || typeof (indyNetworkId) !== 'string') {
         logger.warn(`Websocket client '${socket.id}' sent switch-room with invalid argument '${util.inspect(indyNetworkId)}'.`)
-        socket.emit('switch-room-error', {message: "'switch-room' ws message parameter must be string"})
+        socket.emit('switch-room-error', { message: "'switch-room' ws message parameter must be string" })
       }
       logger.info(`Websocket client '${socket.id}' sent switch-room to '${indyNetworkId}'`)
       if (socket.room) {
@@ -80,9 +80,9 @@ function startServer (serviceWorkers) {
       socket.join(indyNetworkId)
       socket.room = indyNetworkId
       socket.emit('switched-room-notification', { text: `Entered room ${indyNetworkId}` })
-      let networkExpansionWorkers = serviceWorkers.getWorkers(buildWorkersQuery('expansion', undefined, undefined, undefined, indyNetworkId ))
+      const networkExpansionWorkers = serviceWorkers.getWorkers(buildWorkersQuery('expansion', undefined, undefined, undefined, indyNetworkId))
       for (const worker of networkExpansionWorkers) {
-        let rescanScheduledPayload = worker.requestRescheduleStatus()
+        const rescanScheduledPayload = worker.requestRescheduleStatus()
         socket.emit('rescan-scheduled', rescanScheduledPayload)
       }
     })

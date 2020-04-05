@@ -27,66 +27,66 @@ function createLogger (loggerName, consoleLogsLevel, enableLogFiles) {
   }
   const { LOG_ES_URL } = process.env
   if (LOG_ES_URL) {
-    addElasticTransport(loggerName, esLoggingUrl, 'logs-daemon', 'debug')
+    addElasticTransport(loggerName, LOG_ES_URL, 'logs-daemon', 'debug')
   }
   return winston.loggers.get(loggerName)
 }
 
-function addFileTransport(loggerName) {
+function addFileTransport (loggerName) {
   const logDirectory = './logs'
-  let logger = winston.loggers.get(loggerName)
-    mkdirp(`${logDirectory}`, function (err) {
-      if (err) {
-        console.log(`Failed creating logs directory ${basePath}`)
-        console.error(err)
-      } else {
-        logger.add(new winston.transports.File({
-          filename: `${logDirectory}/error/${loggerName}.log`,
-          label: loggerName,
-          level: 'error',
-          format: winston.format.combine(
-            timestamp(),
-            myFormat,
-            winston.format.colorize({ all: true })
-          )
-        }))
-        logger.add(new winston.transports.File({
-          filename: `${logDirectory}/warn/${loggerName}.log`,
-          label: loggerName,
-          level: 'warn',
-          format: winston.format.combine(
-            timestamp(),
-            myFormat,
-            winston.format.colorize({ all: true })
-          )
-        }))
-        logger.add(new winston.transports.File({
-          filename: `${logDirectory}/info/${loggerName}.log`,
-          label: loggerName,
-          level: 'info',
-          format: winston.format.combine(
-            timestamp(),
-            myFormat,
-            winston.format.colorize({ all: true })
-          )
-        }))
-        logger.add(new winston.transports.File({
-          filename: `${logDirectory}/debug/${loggerName}.log`,
-          label: loggerName,
-          level: 'debug',
-          format: winston.format.combine(
-            timestamp(),
-            myFormat,
-            winston.format.colorize({ all: true })
-          )
-        }))
-      }
-    })
+  const logger = winston.loggers.get(loggerName)
+  mkdirp(`${logDirectory}`, function (err) {
+    if (err) {
+      console.log(`Failed creating logs directory ${logDirectory}`)
+      console.error(err)
+    } else {
+      logger.add(new winston.transports.File({
+        filename: `${logDirectory}/error/${loggerName}.log`,
+        label: loggerName,
+        level: 'error',
+        format: winston.format.combine(
+          timestamp(),
+          myFormat,
+          winston.format.colorize({ all: true })
+        )
+      }))
+      logger.add(new winston.transports.File({
+        filename: `${logDirectory}/warn/${loggerName}.log`,
+        label: loggerName,
+        level: 'warn',
+        format: winston.format.combine(
+          timestamp(),
+          myFormat,
+          winston.format.colorize({ all: true })
+        )
+      }))
+      logger.add(new winston.transports.File({
+        filename: `${logDirectory}/info/${loggerName}.log`,
+        label: loggerName,
+        level: 'info',
+        format: winston.format.combine(
+          timestamp(),
+          myFormat,
+          winston.format.colorize({ all: true })
+        )
+      }))
+      logger.add(new winston.transports.File({
+        filename: `${logDirectory}/debug/${loggerName}.log`,
+        label: loggerName,
+        level: 'debug',
+        format: winston.format.combine(
+          timestamp(),
+          myFormat,
+          winston.format.colorize({ all: true })
+        )
+      }))
+    }
+  })
 }
 
 function addElasticTransport (loggerName, loggingUrl, indexPrefix, logLevel) {
   console.log(`Adding Elasticsearch transport for logger ${loggerName}... Url: ${loggingUrl}, indexPrefix: ${indexPrefix}, logLevel ${logLevel}`)
-  let logger = winston.loggers.get(loggerName)
+  const logger = winston.loggers.get(loggerName)
   const esTransport = new Elasticsearch({
     indexPrefix,
     ensureMappingTemplate: true,

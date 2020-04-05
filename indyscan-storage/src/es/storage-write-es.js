@@ -83,7 +83,7 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger =
     return upsertSubdocument(esClient, esIndex, docId, persistData)
   }
 
-  async function deleteTxsByGteSeqNo(subledger, seqNoGte) {
+  async function deleteTxsByGteSeqNo (subledger, seqNoGte) {
     const seqNoRangeQuery = esAndFilters(esFilterSeqNoGte(seqNoGte), esFilterSeqNoLt(1000000000), esFilterSubledgerName(subledger))
     return deleteDyQuery(esClient, esIndex, seqNoRangeQuery)
   }

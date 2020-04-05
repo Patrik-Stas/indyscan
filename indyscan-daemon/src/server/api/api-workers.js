@@ -1,12 +1,12 @@
 const { asyncHandler } = require('../middleware')
 
-function assureArray(value) {
+function assureArray (value) {
   return Array.isArray(value) ? value : [value]
 }
 
-function apiWorkersQueryToServiceQuery(requestQuery) {
-  const {filterIds, filterOperationTypes, filterSubledgers, filterTargetEsIndices} = requestQuery
-  let workerQuery = {}
+function apiWorkersQueryToServiceQuery (requestQuery) {
+  const { filterIds, filterOperationTypes, filterSubledgers, filterTargetEsIndices } = requestQuery
+  const workerQuery = {}
   if (filterIds) {
     workerQuery.workerIds = assureArray(filterIds)
   }

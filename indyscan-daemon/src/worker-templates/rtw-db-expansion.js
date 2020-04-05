@@ -54,7 +54,7 @@ async function createNetOpRtwExpansion ({ indyNetworkId, esUrl, esIndex, workerT
     })
     workers.push(worker)
   }
-  return {workers, sources: [sourceEs], targets: [targetEs], transformers: [transformer], iterators: [iterateLedgerByDbExpansionTxs]}
+  return { workers, sources: [sourceEs], targets: [targetEs], transformers: [transformer], iterators: [iterateLedgerByDbExpansionTxs] }
 }
 
 module.exports.createNetOpRtwExpansion = createNetOpRtwExpansion

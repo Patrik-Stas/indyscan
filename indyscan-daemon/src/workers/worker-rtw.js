@@ -135,9 +135,9 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
     }
   }
 
-  function requestRescheduleStatus() {
+  function requestRescheduleStatus () {
     const workerData = eventSharedPayload()
-    const payload = {workerData, msTillRescan: timerLock.getMsTillUnlock() }
+    const payload = { workerData, msTillRescan: timerLock.getMsTillUnlock() }
     return payload
   }
 

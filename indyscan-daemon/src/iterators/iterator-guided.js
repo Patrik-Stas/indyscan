@@ -36,11 +36,11 @@ function createIteratorGuided ({ indyNetworkId, source, sourceSeqNoGuidance, gui
     return `Guided iterator on source "${source.describe()}" [format:${guidanceFormat}]`
   }
 
-  function getSource() {
+  function getSource () {
     return source
   }
 
-  function getIteratorInfo() {
+  function getIteratorInfo () {
     return {
       indyNetworkId,
       sourceInfo: source.getSourceInfo(),

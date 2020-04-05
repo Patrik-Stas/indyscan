@@ -1,12 +1,12 @@
 const { createStorageWriteEs } = require('indyscan-storage')
 const elasticsearch = require('@elastic/elasticsearch')
 
-const index = `txs-sovmain`
-const subledger = `domain`
+const index = 'txs-sovmain'
+const subledger = 'domain'
 const url = 'http://localhost:9200'
 const seqNoGte = 401
 
-async function run() {
+async function run () {
   const esClient = new elasticsearch.Client({ node: url })
   let storageWrite
   try {
@@ -16,7 +16,7 @@ async function run() {
   }
   console.log(`Going to delete txs above seqNo ${seqNoGte} on ES ${url}, index ${index}, subledger ${subledger}`)
   await storageWrite.deleteTxsByGteSeqNo(subledger, seqNoGte)
-  console.log(`Deletion complete.`)
+  console.log('Deletion complete.')
 }
 
 run()

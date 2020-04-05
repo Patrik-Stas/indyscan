@@ -57,7 +57,7 @@ async function run () {
       const workerBuilders = JSON.parse(Mustache.render(JSON.stringify(workersBuildersTemplate), env))
       for (const workerBuilder of workerBuilders) {
         const { builder, params } = workerBuilder
-        const {workers, sources, targets, transformers, iterators} = await buildWorkers(builder, params)
+        const { workers, sources, targets, transformers, iterators } = await buildWorkers(builder, params)
         allWorkers.push(workers)
         allSources.push(sources)
         allTargets.push(targets)

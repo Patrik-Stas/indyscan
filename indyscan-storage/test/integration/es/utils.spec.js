@@ -3,9 +3,7 @@ const sleep = require('sleep-promise')
 const { deleteDyQuery } = require('../../../src/es/utils')
 const { indexExists } = require('../../../src/es/utils')
 const { upsertSubdocument } = require('../../../src/es/utils')
-const { getDocument } = require('../../../src/es/utils')
 const { searchOneDocument } = require('../../../src/es/utils')
-const { createWinstonLoggerDummy } = require('../../../src/es/utils')
 const { assureEsIndex } = require('../../../src/es/utils')
 const { Client } = require('@elastic/elasticsearch')
 
@@ -107,5 +105,4 @@ describe('basic es utils tests', () => {
     expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 4 } } })).toBeNull()
     expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 5 } } })).toBeNull()
   })
-
 })

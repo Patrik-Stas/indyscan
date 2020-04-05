@@ -98,23 +98,23 @@ describe('writing txdata to elasticsearch', () => {
     // assert
     const mapping = await getMapping(esClient, testIndex)
     const expectedBody = toCanonicalJson({
-        [testIndex]: {
-          mappings: {
-            properties: {
-              imeta: {
-                properties: {
-                  seqNo: {
-                    type: 'integer'
-                  },
-                  subledger: {
-                    type: 'keyword'
-                  }
+      [testIndex]: {
+        mappings: {
+          properties: {
+            imeta: {
+              properties: {
+                seqNo: {
+                  type: 'integer'
+                },
+                subledger: {
+                  type: 'keyword'
                 }
               }
             }
           }
         }
       }
+    }
     )
     expect(toCanonicalJson(mapping.body)).toBe(expectedBody)
   })
@@ -138,30 +138,30 @@ describe('writing txdata to elasticsearch', () => {
     const mapping = await getMapping(esClient, testIndex)
 
     expect(toCanonicalJson(mapping.body)).toBe(toCanonicalJson({
-        [testIndex]: {
-          mappings: {
-            properties: {
-              idata: {
-                properties: {
-                  'format-foo': {
-                    properties: {
-                      idata: {
-                        properties: {
-                          aaa: {
-                            type: 'integer'
-                          }
+      [testIndex]: {
+        mappings: {
+          properties: {
+            idata: {
+              properties: {
+                'format-foo': {
+                  properties: {
+                    idata: {
+                      properties: {
+                        aaa: {
+                          type: 'integer'
                         }
-                      },
-                      imeta: imetaMapping
-                    }
+                      }
+                    },
+                    imeta: imetaMapping
                   }
                 }
-              },
-              imeta: imetaMapping
-            }
+              }
+            },
+            imeta: imetaMapping
           }
         }
       }
+    }
     ))
 
     const mappingBar = {
@@ -175,42 +175,42 @@ describe('writing txdata to elasticsearch', () => {
     // assert
     const mappingNew = await getMapping(esClient, testIndex)
     expect(toCanonicalJson(mappingNew.body)).toBe(toCanonicalJson({
-        [testIndex]: {
-          mappings: {
-            properties: {
-              idata: {
-                properties: {
-                  'format-foo': {
-                    properties: {
-                      idata: {
-                        properties: {
-                          aaa: {
-                            type: 'integer'
-                          }
+      [testIndex]: {
+        mappings: {
+          properties: {
+            idata: {
+              properties: {
+                'format-foo': {
+                  properties: {
+                    idata: {
+                      properties: {
+                        aaa: {
+                          type: 'integer'
                         }
-                      },
-                      imeta: imetaMapping
-                    }
-                  },
-                  'format-bar': {
-                    properties: {
-                      idata: {
-                        properties: {
-                          bbb: {
-                            type: 'keyword'
-                          }
+                      }
+                    },
+                    imeta: imetaMapping
+                  }
+                },
+                'format-bar': {
+                  properties: {
+                    idata: {
+                      properties: {
+                        bbb: {
+                          type: 'keyword'
                         }
-                      },
-                      imeta: imetaMapping
-                    }
+                      }
+                    },
+                    imeta: imetaMapping
                   }
                 }
-              },
-              imeta: imetaMapping
-            }
+              }
+            },
+            imeta: imetaMapping
           }
         }
       }
+    }
     ))
 
     await deleteIndex(esClient, testIndex)
@@ -275,7 +275,6 @@ describe('writing txdata to elasticsearch', () => {
     await writeStorage.addTx('config', 5, 'format-bar', { hello: 'world5' })
     await writeStorage.addTx('pool', 5, 'format-bar', { hello: 'world5' })
     await sleep(1000)
-
 
     const domainTx3 = await searchOneDocument(esClient, index, esAndFilters(esFilterBySeqNo(3), esFilterSubledgerName('domain')))
     expect(domainTx3).toBeDefined()

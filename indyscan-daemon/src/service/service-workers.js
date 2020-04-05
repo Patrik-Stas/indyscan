@@ -16,7 +16,7 @@ function createServiceWorkers () {
     logger.info(`Get workers, worker query =${JSON.stringify(workerQuery)}`)
     let resWorkers = Object.values(workers)
     if (workerQuery) {
-      const {workerIds, operationTypes, subledgers, targetEsIndices, indyNetworkIds} = workerQuery
+      const { workerIds, operationTypes, subledgers, targetEsIndices, indyNetworkIds } = workerQuery
       if (workerIds) {
         resWorkers = resWorkers.filter(worker => workerIds.includes(worker.getWorkerInfo().workerId))
       }
@@ -74,7 +74,7 @@ function createServiceWorkers () {
     }
   }
 
-  function flipWorkersState (workerQuery)  {
+  function flipWorkersState (workerQuery) {
     const workers = getWorkers(workerQuery)
     for (const worker of workers) {
       worker.flipState()

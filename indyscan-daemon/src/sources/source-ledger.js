@@ -42,7 +42,7 @@ async function createSourceLedger ({ indyNetworkId, name, genesisPath }) {
     let waitingForConnection = 0
     while (isConnecting) { // eslint-disable-line
       if (waitingForConnection > 10 * 1000) {
-        throw Error(`No connection available, reconnection in the process. Try later.`)
+        throw Error('No connection available, reconnection in the process. Try later.')
       }
       await sleep(100)
       waitingForConnection += 100
@@ -69,14 +69,14 @@ async function createSourceLedger ({ indyNetworkId, name, genesisPath }) {
   }
 
   function getHighestSeqno (_subledger) {
-    throw Error(`getHighestSeqno is not implemented for ledger source. Not expected to be used.`)
+    throw Error('getHighestSeqno is not implemented for ledger source. Not expected to be used.')
   }
 
   function describe () {
     return `Ledger ${indyNetworkId}`
   }
 
-  function getSourceInfo() {
+  function getSourceInfo () {
     return {
       indyNetworkId,
       implementation: 'ledger',

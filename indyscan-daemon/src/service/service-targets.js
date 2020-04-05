@@ -20,7 +20,7 @@ function createServiceTargets () {
     return target
   }
 
-  function getTargetInfo(id) {
+  function getTargetInfo (id) {
     const target = getTarget(id)
     return target.getTargetInfo()
   }
