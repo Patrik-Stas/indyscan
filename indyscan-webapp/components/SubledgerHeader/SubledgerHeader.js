@@ -10,7 +10,12 @@ class SubledgerHeader extends Component {
   }
 
   render () {
-    let { subledger, progress } = this.props
+    let { subledger, progress, isInteractive } = this.props
+    if (!isInteractive) {
+      return <h2>
+        <span className="status-wrapper">{subledger} txs</span>
+      </h2>
+    }
     if (progress === undefined) {
       progress = 0
     }

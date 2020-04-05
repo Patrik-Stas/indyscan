@@ -4,6 +4,9 @@ import io from 'socket.io-client'
 const socketClients = {}
 
 function getWebsocketClient (websocketsUrl) {
+  if (!websocketsUrl) {
+    return undefined
+  }
   if (socketClients[websocketsUrl]) {
     return socketClients[websocketsUrl]
   }

@@ -79,7 +79,7 @@ function startServer (serviceWorkers) {
       logger.info(`Joining new room '${indyNetworkId}'.`)
       socket.join(indyNetworkId)
       socket.room = indyNetworkId
-      socket.emit('switched-room-notification', { text: `Entered room ${indyNetworkId}` })
+      socket.emit('switched-room-notification', indyNetworkId)
       const networkExpansionWorkers = serviceWorkers.getWorkers(buildWorkersQuery('expansion', undefined, undefined, undefined, indyNetworkId))
       for (const worker of networkExpansionWorkers) {
         const rescanScheduledPayload = worker.requestRescheduleStatus()

@@ -142,7 +142,9 @@ class HomePage extends Component {
 
       socket.on('rescan-scheduled', this.onRescanScheduled.bind(this))
       socket.on('tx-processed', this.onTxProcessed.bind(this))
-      socket.on('switched-room-notification', (payload) => console.log(`switched-room-notification: ${JSON.stringify(payload)}`))
+      socket.on('switched-room-notification', (activeWsRoom) => {
+        this.setState({activeWsRoom})
+      })
     }
   }
 
@@ -158,6 +160,7 @@ class HomePage extends Component {
     const { network, networkDetails, baseUrl } = this.props
     const { domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.state
     const { scanProgressDomain, scanProgressPool, scanProgressConfig } = this.state
+    const isInteractive = (!!this.state.activeWsRoom)
     return (
       <div>
         <Grid>
@@ -174,7 +177,7 @@ class HomePage extends Component {
             <GridRow>
               <GridColumn align='left'>
                 <GridRow align='left'>
-                  <SubledgerHeader subledger='Domain' progress={scanProgressDomain}/>
+                  <SubledgerHeader isInteractive={isInteractive} subledger='Domain' progress={scanProgressDomain}/>
                 </GridRow>
                 <GridRow centered style={{ marginTop: '2em' }}>
                   <Grid.Column>
@@ -185,7 +188,7 @@ class HomePage extends Component {
               </GridColumn>
               <GridColumn align='center'>
                 <GridRow align='left'>
-                  <SubledgerHeader subledger='Pool' progress={scanProgressPool}/>
+                  <SubledgerHeader isInteractive={isInteractive} subledger='Pool' progress={scanProgressPool}/>
                 </GridRow>
                 <GridRow centered style={{ marginTop: '2em' }}>
                   <Grid.Column>
@@ -196,7 +199,7 @@ class HomePage extends Component {
               </GridColumn>
               <GridColumn align='right'>
                 <GridRow align='left'>
-                  <SubledgerHeader subledger='Config' progress={scanProgressConfig}/>
+                  <SubledgerHeader isInteractive={isInteractive} subledger='Config' progress={scanProgressConfig}/>
                 </GridRow>
                 <GridRow centered style={{ marginTop: '2em' }}>
                   <Grid.Column>
