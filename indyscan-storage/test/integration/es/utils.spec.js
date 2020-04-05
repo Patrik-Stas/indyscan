@@ -83,26 +83,26 @@ describe('basic es utils tests', () => {
 
   it('should delete documents by query', async () => {
     await assureEsIndex(esClient, index, 0)
-    await upsertSubdocument(esClient, index, `doc1`, { seqNo: 1 })
-    await upsertSubdocument(esClient, index, `doc2`, { seqNo: 2 })
-    await upsertSubdocument(esClient, index, `doc3`, { seqNo: 3 })
-    await upsertSubdocument(esClient, index, `doc4`, { seqNo: 4 })
-    await upsertSubdocument(esClient, index, `doc4`, { seqNo: 4 })
+    await upsertSubdocument(esClient, index, 'doc1', { seqNo: 1 })
+    await upsertSubdocument(esClient, index, 'doc2', { seqNo: 2 })
+    await upsertSubdocument(esClient, index, 'doc3', { seqNo: 3 })
+    await upsertSubdocument(esClient, index, 'doc4', { seqNo: 4 })
+    await upsertSubdocument(esClient, index, 'doc4', { seqNo: 4 })
     await sleep(1000) // takes time to index the stuff
     const query = {
       range: {
-        'seqNo': {
+        seqNo: {
           gte: 3
         }
       }
     }
-    expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 3 } } })).toBeDefined()
-    expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 4 } } })).toBeDefined()
-    expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 5 } } })).toBeDefined()
+    expect(await searchOneDocument(esClient, index, { term: { seqNo: { value: 3 } } })).toBeDefined()
+    expect(await searchOneDocument(esClient, index, { term: { seqNo: { value: 4 } } })).toBeDefined()
+    expect(await searchOneDocument(esClient, index, { term: { seqNo: { value: 5 } } })).toBeDefined()
     await deleteDyQuery(esClient, index, query)
     await sleep(1000) // takes time to index the stuff
-    expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 3 } } })).toBeDefined()
-    expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 4 } } })).toBeNull()
-    expect(await searchOneDocument(esClient, index, { term: { 'seqNo': { value: 5 } } })).toBeNull()
+    expect(await searchOneDocument(esClient, index, { term: { seqNo: { value: 3 } } })).toBeDefined()
+    expect(await searchOneDocument(esClient, index, { term: { seqNo: { value: 4 } } })).toBeNull()
+    expect(await searchOneDocument(esClient, index, { term: { seqNo: { value: 5 } } })).toBeNull()
   })
 })

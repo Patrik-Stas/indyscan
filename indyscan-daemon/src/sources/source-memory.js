@@ -47,12 +47,12 @@ function createSourceMemory ({ id, dataspace }) {
   }
 
   function describe () {
-    return `Inmemory tx source.`
+    return 'Inmemory tx source.'
   }
 
   function getSourceInfo () {
     return {
-      implementation: 'inmemory',
+      implementation: 'inmemory'
     }
   }
 
