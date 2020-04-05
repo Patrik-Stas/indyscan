@@ -87,6 +87,7 @@ services:
       - SERVER_ENABLED=true
       - SERVER_PORT=3709
       - AUTOSTART=true
+      - ENABLE_LOGFILES=false
     volumes:
       - ./app-configs-daemon/:/home/indyscan/indyscan-daemon/app-configs-docker
 
@@ -103,7 +104,6 @@ services:
       - PORT=3708
       - LOG_HTTP_REQUESTS=true
       - LOG_HTTP_RESPONSES=true
-      - ENABLE_LOGFILES=false
     networks:
       - indyscan
       - esnet
