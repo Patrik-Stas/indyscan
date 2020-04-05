@@ -9,21 +9,27 @@ class TxPreviewList extends Component {
 
   //https://reactjs.org/docs/react-component.html#shouldcomponentupdate
   shouldComponentUpdate (nextProps) {
-    return (this.props.indyscanTxs[0].imeta.seqNo !== nextProps.indyscanTxs[0].imeta.seqNo)
+    const previousTxs = this.props.indyscanTxs
+    const nextTxs = nextProps.indyscanTxs
+    if (previousTxs && nextTxs && previousTxs[0] && nextTxs[0]) {
+      return (previousTxs[0].imeta.seqNo !== nextTxs[0].imeta.seqNo)
+    }
+    return true
   }
 
   render () {
     const { indyscanTxs, network, subledger, animateFirst } = this.props
     const firstTx = indyscanTxs[0]
-    const firstTxSeqNo = firstTx.imeta.seqNo
     return (
       <ItemGroup>
-        <CSSTransition key={firstTxSeqNo} appear={animateFirst} in={true} timeout={1000} classNames="txitem">
+        {firstTx &&
+        <CSSTransition key={firstTx.imeta.seqNo} appear={animateFirst} in={true} timeout={1000} classNames="txitem">
           <TxPreview key={`preview-${network}-${subledger}-xyz`}
                      indyscanTx={firstTx}
                      network={network}
                      ledger={subledger}/>
         </CSSTransition>
+        }
         {
           indyscanTxs.slice(1).map((indyscanTx, index) => {
             const { seqNo } = extractTxDataBasic(indyscanTx)

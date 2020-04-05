@@ -7,7 +7,6 @@ var pretty = require('express-prettify')
 const { logRequests, logResponses } = require('./middleware')
 const socketio = require('socket.io')
 const util = require('util')
-const { buildWorkersQuery } = require('../../../indyscan-daemon-api-client/src/query-builder')
 
 function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLogging) {
   if (enableRequestLogging) {
@@ -78,7 +77,8 @@ function startServer (serviceWorkers) {
       socket.join(indyNetworkId)
       socket.room = indyNetworkId
       socket.emit('switched-room-notification', indyNetworkId)
-      const networkExpansionWorkers = serviceWorkers.getWorkers(buildWorkersQuery('expansion', undefined, undefined, undefined, indyNetworkId))
+      const workerQuery = {operationTypes: ['expansion'], indyNetworkIds: [indyNetworkId]}
+      const networkExpansionWorkers = serviceWorkers.getWorkers(workerQuery)
       for (const worker of networkExpansionWorkers) {
         const rescanScheduledPayload = worker.requestRescheduleStatus()
         socket.emit('rescan-scheduled', rescanScheduledPayload)

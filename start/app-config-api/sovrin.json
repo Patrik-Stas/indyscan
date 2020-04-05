@@ -1,6 +1,6 @@
 [
   {
-    "id": "sovmain",
+    "id": "SOVRIN_MAINNET",
     "aliases": [
       "SOVRIN_MAINNET"
     ],
@@ -13,11 +13,11 @@
     },
     "websocketsUrl": "http://indyscan-daemon.indyscan:3709",
     "es" : {
-      "index": "txs-sovrin-mainnet"
+      "index": "txs-sovmain"
     }
   },
   {
-    "id": "sovstaging",
+    "id": "SOVRIN_STAGINGNET",
     "ui": {
       "priority": 2,
       "display": "StagingNet",
@@ -32,11 +32,11 @@
     ],
     "websocketsUrl": "http://indyscan-daemon.indyscan:3709",
     "es" : {
-      "index": "txs-sovrin-stagingnet"
+      "index": "txs-sovstaging"
     }
   },
   {
-    "id": "sovbuilder",
+    "id": "SOVRIN_BUILDERNET",
     "ui": {
       "priority": 1,
       "display": "BuilderNet",
@@ -48,7 +48,7 @@
     },
     "websocketsUrl": "http://indyscan-daemon.indyscan:3709",
     "es" : {
-      "index": "txs-sovrin-buildernet"
+      "index": "txs-sovbuilder"
     }
   }
 ]
