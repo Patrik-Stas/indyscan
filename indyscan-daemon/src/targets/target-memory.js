@@ -35,9 +35,21 @@ function createTargetMemory ({ id, dataspace }) {
 
   async function setMappings (formatName, indexMappings, logger) {}
 
+
+  function describe () {
+    return `Target inmemory.`
+  }
+
+  function getTargetInfo () {
+    return {}
+  }
+
+
   return {
     addTxData,
-    setMappings
+    setMappings,
+    describe,
+    getTargetInfo
   }
 }
 
