@@ -56,9 +56,7 @@ function startServer (serviceWorkers) {
     logger.info(`Websocket client '${socket.id}' connected`)
 
     socket.on('disconnect', (reason) => {
-      if (reason === 'io server disconnect') {
-        logger.info(`Websocket client '${socket.id}' disconnected. Reason: '${reason}'`)
-      }
+      logger.info(`Websocket client '${socket.id}' disconnected. Reason: '${reason}'`)
     })
 
     socket.on('connect_error', (error) => {
