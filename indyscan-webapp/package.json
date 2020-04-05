@@ -56,6 +56,7 @@
     "react-chartjs-2": "^2.7.6",
     "react-circular-progressbar": "^2.0.3",
     "react-dom": "^16.8.6",
+    "react-epic-spinners": "^0.4.1",
     "react-json-pretty": "^2.1.0",
     "react-tooltip": "^3.10.0",
     "react-transition-group": "^4.3.0",

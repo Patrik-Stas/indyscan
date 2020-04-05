@@ -20,7 +20,7 @@ class TxListCompact extends Component {
           {this.props.txs.map((txn) => {
             return (
               <TxListItem
-                key={txn.idata.seqNo}
+                key={txn.imeta.seqNo}
                 baseUrl={this.props.baseUrl}
                 network={this.props.network}
                 ledger={this.props.ledger}
