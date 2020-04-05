@@ -110,11 +110,6 @@ class HomePage extends Component {
     return (timePassed / totalDuration) * 100
   }
 
-  areWebsocketsAvailable () {
-    // return (this.props.networkDetails && this.props.networkDetails.websocketsUrl)
-    return true
-  }
-
   recalcProgress () {
     const { domainRescanStart, domainRescanDone } = this.state
     const { poolRescanStart, poolRescanDone } = this.state
@@ -129,8 +124,7 @@ class HomePage extends Component {
     this.setState({ poolExpansionTxs: newProps.poolExpansionTxs })
     this.setState({ configExpansionTxs: newProps.configExpansionTxs })
     this.setState({ animateFirst: false })
-    const { websocketsUrl } = newProps.networkDetails
-    const socket = getWebsocketClient(websocketsUrl)
+    const socket = getWebsocketClient()
     if (socket) {
       socket.on('connection', function (_socket) {
         logger.info(`app.js WS connection established.`)

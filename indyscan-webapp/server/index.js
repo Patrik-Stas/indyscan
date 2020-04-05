@@ -68,6 +68,12 @@ async function startServer () {
         proxy({ target: appConfig.INDYSCAN_API_URL, changeOrigin: true })
       )
 
+
+      server.use(
+        '/socket.io',
+        proxy({ target: appConfig.DAEMON_WS_URL, ws: true, changeOrigin: true })
+      )
+
       server.get('*', (req, res) => {
         return handle(req, res)
       })

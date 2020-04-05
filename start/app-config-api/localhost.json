@@ -10,7 +10,6 @@
     "es" : {
       "index": "txs-indyscanpool"
     },
-    "websocketsUrl": "http://indyscan-daemon.indyscan:3709",
     "description": "Local docker Indy network."
   }
 ]

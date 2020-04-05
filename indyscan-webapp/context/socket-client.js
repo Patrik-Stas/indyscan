@@ -1,23 +1,19 @@
 // import util from 'util'
 import io from 'socket.io-client'
 
-const socketClients = {}
+let socketClient
 
-function getWebsocketClient (websocketsUrl) {
-  if (!websocketsUrl) {
-    return undefined
+function getWebsocketClient () {
+  if (socketClient) {
+    return socketClient
   }
-  if (socketClients[websocketsUrl]) {
-    return socketClients[websocketsUrl]
-  }
-  let socket = io.connect(websocketsUrl)
+  socketClient = io.connect('')
   // console.log(`app.js connected to ${websocketsUrl}`)
 
-  socket.on('connection', function (_socket) {
-    logger.info(`app.js WS connection to ${websocketsUrl} established.`)
+  socketClient.on('connection', function (_socket) {
+    logger.info(`app.js WS connection established.`)
   })
-  socketClients[websocketsUrl] = socket
-  return socket
+  return socketClient
 }
 
 export default getWebsocketClient

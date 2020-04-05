@@ -119,6 +119,7 @@ services:
     logging: *ui-logging
     environment:
       - INDYSCAN_API_URL=http://indyscan-api.indyscan:3708
+      - DAEMON_WS_URL=http://indyscan-daemon.indyscan:3709
       - PORT=3707
       - LOG_LEVEL=warn
       - LOG_HTTP_REQUESTS=false

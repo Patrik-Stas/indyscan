@@ -14,17 +14,17 @@ export default class MyApp extends App {
     return { pageProps }
   }
 
-  switchSocketRoom (websocketsUrl, indyNetworkId) {
-    let socket = getWebsocketClient(websocketsUrl)
+  switchSocketRoom (indyNetworkId) {
+    let socket = getWebsocketClient()
     // console.log(`app.js switchSocketRoom ${indyNetworkId}`)
     socket.emit('switch-room', indyNetworkId)
   }
 
   tryEnterWsRoomForNetwork(networkDetails) {
     if (networkDetails) {
-      const { websocketsUrl, id: indyNetworkId } = networkDetails
-      if (websocketsUrl && indyNetworkId) {
-        this.switchSocketRoom(websocketsUrl, indyNetworkId)
+      const { id: indyNetworkId } = networkDetails
+      if (indyNetworkId) {
+        this.switchSocketRoom(indyNetworkId)
       }
     }
   }
