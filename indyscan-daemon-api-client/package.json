@@ -16,19 +16,15 @@
     "test:unit": "echo 'TODO: Implement unit tests.'"
   },
   "devDependencies": {
-    "command-line-args": "^5.1.1",
-    "command-line-usage": "^5.0.5",
     "cross-env": "^5.2.0",
     "dotenv": "^7.0.0",
     "standard": "^14.3.1",
     "@types/jest": "^23.3.14",
     "jest": "^25.0.0",
-    "jest-cli": "^25.0.0",
-    "@elastic/elasticsearch": "^7.3.0"
+    "jest-cli": "^25.0.0"
   },
   "dependencies": {
     "axios": "^0.18.1",
-    "query-string": "^6.4.2",
-    "socket.io-client": "^2.3.0"
+    "query-string": "^6.4.2"
   }
 }

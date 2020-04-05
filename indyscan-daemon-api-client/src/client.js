@@ -6,8 +6,6 @@ async function getRequest (url) {
   return res.data
 }
 
-
-
 async function postRequest (url, payload) {
   const res = await axios.post(url, payload)
   return res.data

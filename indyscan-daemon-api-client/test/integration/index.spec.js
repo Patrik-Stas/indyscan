@@ -1,6 +1,5 @@
 /* eslint-env jest */
 require('jest')
-const { buildWorkersQuery } = require('../../src/query-builder')
 const { daemonClient, daemonQueryBuilder } = require('../../src')
 const { loadEnvVariables } = require('./config-loader')
 
