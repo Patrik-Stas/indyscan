@@ -18,7 +18,7 @@ class NetworkInfo extends Component {
             <h1 className="network-header">
               <img style={{ height: '1.5em', marginRight:'1em', marginBottom:'-0.3em' }} src="/static/sovrin.png" alt="Sovrin logo"/>{networkDetails.ui['display-long'] ? networkDetails.ui['display-long'] : (networkDetails.ui['display']) ? networkDetails.ui['display'] : networkDetails.id}
             </h1>
-            <ul className="home-graytext">
+            <ul className="home-networkinfo">
               {
                 (networkDetails.ui.description) && <li>{networkDetails.ui.description}</li>
               }
