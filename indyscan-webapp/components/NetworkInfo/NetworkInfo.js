@@ -19,7 +19,7 @@ class NetworkInfo extends Component {
 
   getNetworkImage () {
     const { networkDetails } = this.props
-    if (networkDetails && networkDetails.ui) {
+    if (networkDetails && networkDetails.ui && networkDetails.ui['logo-address']) {
       return networkDetails.ui['logo-address']
     }
     return '/static/hlindy.png'
@@ -57,7 +57,7 @@ class NetworkInfo extends Component {
           <GridColumn>
             <h1 className="network-header">
               <img style={{ height: '1.5em', marginRight: '1em', marginBottom: '-0.3em' }} src={this.getNetworkImage()}
-                   alt="Sovrin logo"/>{this.getNetworkCaptionText()}
+                   alt="Network logo"/>{this.getNetworkCaptionText()}
             </h1>
             <ul className="home-networkinfo">
               <li>{this.getNetworkDescription()}</li>

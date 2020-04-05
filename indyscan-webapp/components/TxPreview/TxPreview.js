@@ -45,10 +45,15 @@ class TxPreview extends Component {
     const as = `/tx/${network}/${ledger}/${seqNo}`
     const fromDidDisplayed = from
       ? (from.length < MAX_DID_LENTH) ? from : `${from.substring(0, (MAX_DID_LENTH - 3))}...`
-      : 'n/a'
-    const localTime = moment.utc(txnTimeIso8601).tz(moment.tz.guess()).format('do MMMM YYYY, HH:mm:ss a')
+      : 'N/A'
     // const utcTime = moment.utc(txnTimeIso8601).format('do MMMM YYYY, H:mm:ss')
-    const txnTime = (indyscanTx.idata && indyscanTx.idata.txnMetadata) ? new Date(indyscanTx.idata.txnMetadata.txnTime) : undefined
+    let txnDateLocalString = "N/A"
+    let txnDate
+    if (indyscanTx.idata && indyscanTx.idata.txnMetadata && indyscanTx.idata.txnMetadata.txnTime) {
+      txnDate =  new Date(indyscanTx.idata.txnMetadata.txnTime)
+      txnDateLocalString = moment.utc(txnTimeIso8601).tz(moment.tz.guess()).format('do MMMM YYYY, HH:mm:ss a')
+    }
+
     return (
 
       <div className="txitem data-content">
@@ -60,8 +65,8 @@ class TxPreview extends Component {
         </div>
         <div style={{ marginTop: '0.6em', fontSize: '0.85em' }}>
           <span style={{ display: 'block' }}><b>From  DID: </b>{fromDidDisplayed}</span>
-          <span style={{ display: 'block', marginBottom: '0.1em' }}><b>Local Time:</b> {localTime}</span>
-          <TimeAgoText sinceEpoch={txnTime} className='txitem-graytext' style={{ display: 'block' }}/>
+          <span style={{ display: 'block', marginBottom: '0.1em' }}><b>Local Time:</b> {txnDateLocalString}</span>
+          <TimeAgoText sinceEpoch={txnDate} className='txitem-graytext' style={{ display: 'block' }}/>
         </div>
       </div>
 

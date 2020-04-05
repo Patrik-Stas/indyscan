@@ -21,17 +21,25 @@ class TimeAgoText extends Component {
   }
 
   componentDidMount () {
-    this.refreshTimesSinceLast()
-    this.interval = setInterval(this.refreshTimesSinceLast.bind(this), 1000)
+    if (this.props.sinceEpoch) {
+      this.refreshTimesSinceLast()
+      this.interval = setInterval(this.refreshTimesSinceLast.bind(this), 1000)
+    }
   }
 
   componentWillUnmount () {
-    clearInterval(this.interval)
+    if (this.interval) {
+      clearInterval(this.interval)
+    }
   }
 
   render () {
+    const {sinceSinceTx} = this.state
     return (
-      <span className={this.props.className}>{this.state.sinceSinceTx} ago</span>
+      (!!sinceSinceTx)
+        ? <span className={this.props.className}>{sinceSinceTx} ago</span>
+        : <span><b><i>Genesis transaction</i></b></span>
+
     )
   }
 }
