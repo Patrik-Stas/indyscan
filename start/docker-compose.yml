@@ -24,7 +24,7 @@ x-ui-logging:
 services:
   indyscan-indypool:
     container_name: indyscanpool
-    image: ${INDYSCAN_INDYPOOL_IMAGE:-pstas/indypool:indyscanpool-v1.14.2}
+    image: ${INDYSCAN_INDYPOOL_IMAGE:-pstas/indypool:indyscanpool-v1.15.0}
     logging: *es-logging
     networks:
       - indyscan
