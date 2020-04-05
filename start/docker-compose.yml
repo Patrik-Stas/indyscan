@@ -96,12 +96,14 @@ services:
     container_name: indyscan-api
     logging: *service-logging
     environment:
+      - NETWORKS_CONFIG_PATH=${INDYSCAN_API_CONFIG_PATH:-/home/indyscan/indyscan-api/app-config-docker/localhost.json}
       - ES_URL=http://indyscan-elasticsearch.esnet:9200
+      - AUTOSTART=true
       - LOG_LEVEL=debug
       - PORT=3708
       - LOG_HTTP_REQUESTS=true
       - LOG_HTTP_RESPONSES=true
-      - NETWORKS_CONFIG_PATH=${INDYSCAN_API_CONFIG_PATH:-/home/indyscan/indyscan-api/app-config-docker/localhost.json}
+      - ENABLE_LOGFILES=false
     networks:
       - indyscan
       - esnet
