@@ -125,7 +125,7 @@ class HomePage extends Component {
     // this.setState({ domainExpansionTxs: newProps.domainExpansionTxs })
     // this.setState({ poolExpansionTxs: newProps.poolExpansionTxs })
     // this.setState({ configExpansionTxs: newProps.configExpansionTxs })
-    // this.setState({ animateFirst: false })
+    this.setState({ animateFirst: true })
   }
 
 
