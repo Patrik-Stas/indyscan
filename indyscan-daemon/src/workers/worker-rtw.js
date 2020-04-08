@@ -154,36 +154,40 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
         subledger
       }
     }
+    logger.info(`Transaction seqno=${txMeta.seqNo} processed. Emitting 'tx-processed', 'rescan-scheduled'`)
     eventEmitter.emit('tx-processed', { workerData, txData })
     eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
-    logger.info(`Cycle '${requestCycleCount}' processed tx ${JSON.stringify(txMeta)}.`, loggerMetadata)
   }
 
-  function txNotAvailable () {
+  // TODO: in all of this even-reacting functions, rename txMeta or reduce signature requirmenets to require just "seqNo" if possible
+  function txNotAvailable (queryMeta) {
     txNotAvailableCount++
     timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
     const workerData = eventSharedPayload()
+    logger.info(`Transaction seqno=${queryMeta.seqNo} not available. Emitting 'tx-not-available', 'rescan-scheduled'`)
     eventEmitter.emit('tx-not-available', { workerInfo: getWorkerInfo() })
     eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
-    logger.warn(`Cycle '${requestCycleCount}': iterator exhausted.`, loggerMetadata)
   }
 
-  function resolutionError (e) {
+  function resolutionError (queryMeta, error) {
     cycleExceptionCount++
     timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
     const workerData = eventSharedPayload()
+    logger.warn(`Transaction seqno=${queryMeta.seqNo} resolution error ${util.inspect(error)}. ` +
+      `Emitting 'tx-resolution-error', 'rescan-scheduled'`)
     eventEmitter.emit('tx-resolution-error', getWorkerInfo())
     eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
-    logger.error(`Cycle '${requestCycleCount}' failed to resolve next tx. Details: ${e.message} ${e.stack}`, loggerMetadata)
   }
 
-  function ingestionError (e, txMeta, processedTx) {
+  function ingestionError (error, queryMeta, processedTx) {
     cycleExceptionCount++
     timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
     const workerData = eventSharedPayload()
+    logger.error(`Transaction ${queryMeta.seqNo} ingestion error. Couldn't ingest transaction` +
+      `${JSON.stringify(processedTx)} due to storage ingestion error ${util.inspect(error)} ` +
+      `Emitting: 'tx-ingestion-error', 'rescan-scheduled'.`)
     eventEmitter.emit('tx-ingestion-error', getWorkerInfo())
     eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
-    logger.error(`Cycle '${requestCycleCount}' failed to store tx ${JSON.stringify(txMeta)}: ${JSON.stringify(processedTx)} Error details: ${util.inspect(e, false, 10)}`, loggerMetadata)
   }
 
   async function processTransaction (txData, txFormat) {
@@ -230,38 +234,44 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
     printAverageDurations()
 
     // get it
-    let txDataBefore, txMeta
-    try {
-      logger.info(`Cycle '${requestCycleCount}' requesting next transaction.`, loggerMetadata)
-      const res = await getNextTxTimed(subledger, iteratorTxFormat)
-      // was available?
-      if (!res) {
-        txNotAvailable()
-        return
-      }
-      const { tx, meta } = res
-      txDataBefore = tx
-      txMeta = meta
-    } catch (e) {
-      resolutionError(e)
-      return
-    }
-
-    if (!txMeta || !txMeta.subledger || !txMeta.seqNo || !txMeta.format) {
-      const errMsg = 'Stopping pipeline on critical error. Iterator did not return sufficient meta information' +
-        `about tx. Meta ${JSON.stringify(txMeta)}`
-      logger.error(errMsg, loggerMetadata)
-      throw Error(errMsg)
+    let txDataBefore
+    logger.info(`Cycle '${requestCycleCount}' requesting next transaction.`, loggerMetadata)
+    const iteratorRes = await getNextTxTimed(subledger, iteratorTxFormat)
+    const { queryMeta, queryStatus } = iteratorRes
+    if (!queryMeta) { throw Error(`Iterator returned invalid response. 'queryMeta' missing in response. `) }
+    if (!queryStatus) { throw Error(`Iterator returned invalid response. 'queryStatus' missing in response. `) }
+    switch (queryStatus) {
+      case 'CANT_DETERMINE_SEQNO_TO_QUERY':
+        return resolutionError(queryMeta, iteratorRes.error)
+      case 'CURRENTLY_EXHAUSTED':
+        return txNotAvailable(queryMeta)
+      case 'RESOLUTION_ERROR':
+        return resolutionError(queryMeta, iteratorRes.error)
+      case 'RESOLUTION_SUCCESS':
+        if (!queryMeta || !queryMeta.subledger || !queryMeta.seqNo || !queryMeta.format) {
+          const errMsg = 'Stopping pipeline on critical error. Iterator did not return sufficient meta information' +
+            `about tx. Meta ${JSON.stringify(queryMeta)}`
+          logger.error(errMsg, loggerMetadata)
+          throw Error(errMsg)
+        }
+        if (!iteratorRes.tx) {
+          throw Error(`Iterator returned invalid response. Status was RESOLUTION_SUCCESS but did not include transaction data.`)
+        }
+        txDataBefore = iteratorRes.tx
+        break
+      default:
+        throw Error(`Iterator returned unrecognized status '${queryStatus}'.`)
     }
 
     // process it
-    const { processedTx: txDataAfter, processedTxFormat } = await processTransaction(txDataBefore, txMeta.format)
+    const { processedTx: txDataAfter, processedTxFormat } = await processTransaction(txDataBefore, queryMeta.format)
 
+    // store it and schedule next iteration
     try {
-      await addTxTimed(txMeta.subledger, txMeta.seqNo, processedTxFormat, txDataAfter)
-      txProcessed(txMeta, txDataAfter)
-    } catch (e) {
-      ingestionError(e, txMeta, txDataAfter)
+      await addTxTimed(queryMeta.subledger, queryMeta.seqNo, processedTxFormat, txDataAfter)
+      txProcessed(queryMeta, txDataAfter)
+    } catch (error) {
+      ingestionError(error, queryMeta, txDataAfter)
     }
   }
 

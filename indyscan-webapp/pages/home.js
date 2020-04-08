@@ -45,7 +45,15 @@ class HomePage extends Component {
   }
 
   addNewDomainTx (txData) {
-    let domainExpansionTxs = _.cloneDeep(this.props.domainExpansionTxs)
+    let domainExpansionTxs = _.cloneDeep(this.state.domainExpansionTxs)
+    if (domainExpansionTxs[0].imeta.seqNo === txData.imeta.seqNo) {
+      // When scanner runs too fast (it might happen that one transaction in daemon is processed twice, causing
+      // duplicate notification about the same transaction from UI perspective. If we'd add this transaction,
+      // we bump into problem with animations, because 2 transactions in list would have generated the same
+      // key (as that is derived from seqNo and subledger).
+      // This early return is preventing this from happening
+      return
+    }
     domainExpansionTxs.unshift(txData)
     if (domainExpansionTxs.length > 10) {
       domainExpansionTxs.pop()
@@ -54,7 +62,10 @@ class HomePage extends Component {
   }
 
   addNewConfigTx (txData) {
-    let configExpansionTxs = _.cloneDeep(this.props.configExpansionTxs)
+    let configExpansionTxs = _.cloneDeep(this.state.configExpansionTxs)
+    if (configExpansionTxs[0].imeta.seqNo === txData.imeta.seqNo) {
+      return
+    }
     configExpansionTxs.unshift(txData)
     if (configExpansionTxs.length > 10) {
       configExpansionTxs.pop()
@@ -63,7 +74,10 @@ class HomePage extends Component {
   }
 
   addNewPoolTx (txData) {
-    let poolExpansionTxs = _.cloneDeep(this.props.poolExpansionTxs)
+    let poolExpansionTxs = _.cloneDeep(this.state.poolExpansionTxs)
+    if (poolExpansionTxs[0].imeta.seqNo === txData.imeta.seqNo) {
+      return
+    }
     poolExpansionTxs.unshift(txData)
     if (poolExpansionTxs.length > 10) {
       poolExpansionTxs.pop()
@@ -119,13 +133,11 @@ class HomePage extends Component {
   }
 
   componentWillReceiveProps (newProps) {
-    // console.log(`componentWillReceiveProps`)
-    // const { networkDetails } = newProps.pageProps
-    // this.configureSocketForCurrentNetwork(networkDetails)
-    // this.setState({ domainExpansionTxs: newProps.domainExpansionTxs })
-    // this.setState({ poolExpansionTxs: newProps.poolExpansionTxs })
-    // this.setState({ configExpansionTxs: newProps.configExpansionTxs })
-    this.setState({ animateFirst: true })
+    console.log(`componentWillReceiveProps`)
+    this.setState({ domainExpansionTxs: newProps.domainExpansionTxs })
+    this.setState({ poolExpansionTxs: newProps.poolExpansionTxs })
+    this.setState({ configExpansionTxs: newProps.configExpansionTxs })
+    this.setState({ animateFirst: false })
   }
 
 
@@ -174,7 +186,7 @@ class HomePage extends Component {
 
   render () {
     const { network, networkDetails, baseUrl } = this.props
-    const { domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.props
+    const { domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.state
     const { scanProgressDomain, scanProgressPool, scanProgressConfig } = this.state
     const isInteractive = (!!this.state.activeWsRoom)
     return (
