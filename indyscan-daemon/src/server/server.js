@@ -16,10 +16,9 @@ function setupLoggingMiddlleware (app, enableRequestLogging, enableResponseLoggi
   }
 }
 
-
-function linkExpansionWorkersToSockets(socketioManager, serviceWorkers) {
-  logger.info(`Linking workers with sockets.`)
-  const workerQuery = { operationTypes: ['expansion']}
+function linkExpansionWorkersToSockets (socketioManager, serviceWorkers) {
+  logger.info('Linking workers with sockets.')
+  const workerQuery = { operationTypes: ['expansion'] }
   const workers = serviceWorkers.getWorkers(workerQuery)
   for (const worker of workers) {
     const emitter = worker.getEventEmitter()
@@ -32,7 +31,7 @@ function linkExpansionWorkersToSockets(socketioManager, serviceWorkers) {
   }
 }
 
-function createRoomJoinReactor(serviceWorkers) {
+function createRoomJoinReactor (serviceWorkers) {
   function onRoomJoined (room, socket) {
     const workerQuery = { operationTypes: ['expansion'], indyNetworkIds: [room] }
     const workers = serviceWorkers.getWorkers(workerQuery)
@@ -44,7 +43,7 @@ function createRoomJoinReactor(serviceWorkers) {
   return onRoomJoined
 }
 
-function setupWebsockets(expressServer, serviceWorkers) {
+function setupWebsockets (expressServer, serviceWorkers) {
   const socketioManager = createSocketioManager(expressServer)
   socketioManager.setupBasicSocketioListeners(createRoomJoinReactor(serviceWorkers))
   linkExpansionWorkersToSockets(socketioManager, serviceWorkers)

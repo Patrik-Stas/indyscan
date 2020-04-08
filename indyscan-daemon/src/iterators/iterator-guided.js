@@ -1,7 +1,6 @@
 const globalLogger = require('../logging/logger-main')
 
 function createIteratorGuided ({ indyNetworkId, source, sourceSeqNoGuidance, guidanceFormat }) {
-
   async function getNextTx (subledger, format, logger = globalLogger) {
     let seqNo
     try {

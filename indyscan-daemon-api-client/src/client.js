@@ -32,17 +32,17 @@ async function getWorkers (baseUrl, query) {
 }
 
 async function disableWorkers (baseUrl, query) {
-  const queryString = qs.stringify({ enabled: false, ... query })
+  const queryString = qs.stringify({ enabled: false, ...query })
   return postRequest(`${baseUrl}/api/workers?${queryString}`)
 }
 
 async function enableWorkers (baseUrl, query) {
-  const queryString = qs.stringify({ enabled: true, ... query })
+  const queryString = qs.stringify({ enabled: true, ...query })
   return postRequest(`${baseUrl}/api/workers?${queryString}`)
 }
 
 async function flipWorkers (baseUrl, query) {
-  const queryString = qs.stringify({ flipState: true, ... query })
+  const queryString = qs.stringify({ flipState: true, ...query })
   return postRequest(`${baseUrl}/api/workers?${queryString}`)
 }
 
@@ -51,4 +51,3 @@ module.exports.getWorker = getWorker
 module.exports.disableWorkers = disableWorkers
 module.exports.enableWorkers = enableWorkers
 module.exports.flipWorkers = flipWorkers
-

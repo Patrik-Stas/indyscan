@@ -97,7 +97,7 @@ describe('basic iterator testsuite', () => {
 
     txTarget2.addTxData('pool', 1, 'format-pool', tx1)
 
-    const { tx, queryStatus: queryStatus2, queryMeta: meta2 } =await iterator.getNextTx('pool', 'format-pool')
+    const { tx, queryStatus: queryStatus2, queryMeta: meta2 } = await iterator.getNextTx('pool', 'format-pool')
     expect(queryStatus2).toBe('CURRENTLY_EXHAUSTED')
     expect(tx).toBeUndefined()
     expect(tx1.pool).toBe('pooldata')
@@ -107,8 +107,8 @@ describe('basic iterator testsuite', () => {
   })
 
   it('should return status CANT_DETERMINE_SEQNO_TO_QUERY with known query metadata if guiding storage fails', async () => {
-    const iterator = createIteratorGuided({ id: 'test-iterator', source: txSource1, sourceSeqNoGuidance: "FOOBAR", guidanceFormat: 'format-pool' })
-    const { tx, queryStatus, queryMeta} = await iterator.getNextTx('pool', 'format-pool')
+    const iterator = createIteratorGuided({ id: 'test-iterator', source: txSource1, sourceSeqNoGuidance: 'FOOBAR', guidanceFormat: 'format-pool' })
+    const { tx, queryStatus, queryMeta } = await iterator.getNextTx('pool', 'format-pool')
     expect(queryStatus).toBe('CANT_DETERMINE_SEQNO_TO_QUERY')
     expect(tx).toBeUndefined()
     expect(queryMeta.format).toBe('format-pool')
@@ -116,8 +116,8 @@ describe('basic iterator testsuite', () => {
   })
 
   it('should return status RESOLUTION_ERROR with query metadata if no next transaction available', async () => {
-    const iterator = createIteratorGuided({ id: 'test-iterator', source: "FOOBAR", sourceSeqNoGuidance: txSource2, guidanceFormat: 'format-pool' })
-    const { tx, queryStatus, queryMeta} = await iterator.getNextTx('pool', 'format-pool')
+    const iterator = createIteratorGuided({ id: 'test-iterator', source: 'FOOBAR', sourceSeqNoGuidance: txSource2, guidanceFormat: 'format-pool' })
+    const { tx, queryStatus, queryMeta } = await iterator.getNextTx('pool', 'format-pool')
     expect(queryStatus).toBe('RESOLUTION_ERROR')
     expect(tx).toBeUndefined()
     expect(queryMeta.format).toBe('format-pool')

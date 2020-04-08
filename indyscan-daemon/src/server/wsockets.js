@@ -2,8 +2,8 @@ const socketio = require('socket.io')
 const util = require('util')
 const logger = require('../logging/logger-main')
 
-function createSocketioManager(expressServer) {
-  logger.info(`Creating socketio manager`)
+function createSocketioManager (expressServer) {
+  logger.info('Creating socketio manager')
   const io = socketio(expressServer)
 
   function forwardEmitterEventToWebsocket (emitter, eventName, forwardToRoom, subledger) {
@@ -12,21 +12,20 @@ function createSocketioManager(expressServer) {
     emitter.on(eventName, (payload) => {
       io.of('/').in(`${forwardToRoom}`).clients((error, clients) => {
         if (error) {
-          logger.error(`Problem listing clients to print info.`)
+          logger.error('Problem listing clients to print info.')
         }
         logger.info(`Broadcasting into room ${forwardToRoom}: "${eventName}" to ids=${JSON.stringify(clients)}`)
-      });
+      })
       io.to(forwardToRoom).emit(eventName, payload)
     })
   }
-
 
   /**
    * Joins given socket into specified room and calls callback
    * @param {function} onRoomJoined - function to be called when room is changed. Should take 2 parameters - name of
    * room being joined and socket instance of the ws client joining the room
    */
-  function socketJoinRoom(onRoomJoined, socket, room) {
+  function socketJoinRoom (onRoomJoined, socket, room) {
     logger.info(`Joining new room '${room}'.`)
     socket.join(room)
     socket.room = room
@@ -34,14 +33,14 @@ function createSocketioManager(expressServer) {
     onRoomJoined(room, socket)
   }
 
-  function socketLeaveRoom(socket) {
+  function socketLeaveRoom (socket) {
     logger.info(`Leaving current room '${socket.room}'.`)
     socket.leave(socket.room)
     socket.room = undefined
   }
 
-  function setupBasicSocketioListeners(onRoomJoined) {
-    logger.info(`Setting up socketio event listeners.`)
+  function setupBasicSocketioListeners (onRoomJoined) {
+    logger.info('Setting up socketio event listeners.')
     io.on('connection', function (socket) {
       logger.info(`Websocket client '${socket.id}' connected`)
 
@@ -72,6 +71,5 @@ function createSocketioManager(expressServer) {
     forwardEmitterEventToWebsocket
   }
 }
-
 
 module.exports.createSocketioManager = createSocketioManager

@@ -174,7 +174,7 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
     timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
     const workerData = eventSharedPayload()
     logger.warn(`Transaction seqno=${queryMeta.seqNo} resolution error ${util.inspect(error)}. ` +
-      `Emitting 'tx-resolution-error', 'rescan-scheduled'`)
+      'Emitting \'tx-resolution-error\', \'rescan-scheduled\'')
     eventEmitter.emit('tx-resolution-error', getWorkerInfo())
     eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
   }
@@ -185,7 +185,7 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
     const workerData = eventSharedPayload()
     logger.error(`Transaction ${queryMeta.seqNo} ingestion error. Couldn't ingest transaction` +
       `${JSON.stringify(processedTx)} due to storage ingestion error ${util.inspect(error)} ` +
-      `Emitting: 'tx-ingestion-error', 'rescan-scheduled'.`)
+      'Emitting: \'tx-ingestion-error\', \'rescan-scheduled\'.')
     eventEmitter.emit('tx-ingestion-error', getWorkerInfo())
     eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
   }
@@ -238,8 +238,8 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
     logger.info(`Cycle '${requestCycleCount}' requesting next transaction.`, loggerMetadata)
     const iteratorRes = await getNextTxTimed(subledger, iteratorTxFormat)
     const { queryMeta, queryStatus } = iteratorRes
-    if (!queryMeta) { throw Error(`Iterator returned invalid response. 'queryMeta' missing in response. `) }
-    if (!queryStatus) { throw Error(`Iterator returned invalid response. 'queryStatus' missing in response. `) }
+    if (!queryMeta) { throw Error('Iterator returned invalid response. \'queryMeta\' missing in response. ') }
+    if (!queryStatus) { throw Error('Iterator returned invalid response. \'queryStatus\' missing in response. ') }
     switch (queryStatus) {
       case 'CANT_DETERMINE_SEQNO_TO_QUERY':
         return resolutionError(queryMeta, iteratorRes.error)
@@ -255,7 +255,7 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
           throw Error(errMsg)
         }
         if (!iteratorRes.tx) {
-          throw Error(`Iterator returned invalid response. Status was RESOLUTION_SUCCESS but did not include transaction data.`)
+          throw Error('Iterator returned invalid response. Status was RESOLUTION_SUCCESS but did not include transaction data.')
         }
         txDataBefore = iteratorRes.tx
         break

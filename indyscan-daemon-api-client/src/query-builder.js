@@ -1,4 +1,4 @@
-function buildWorkersQuery(operationTypes, subledgers, targetEsIndices, workersIds, indyNetworkIds) {
+function buildWorkersQuery (operationTypes, subledgers, targetEsIndices, workersIds, indyNetworkIds) {
   return {
     filterIndyNetworkIds: indyNetworkIds,
     filterOperationTypes: operationTypes,
