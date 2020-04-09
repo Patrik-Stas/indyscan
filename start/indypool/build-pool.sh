@@ -7,7 +7,7 @@
 
 REPO_OWNER="hyperledger"
 INDY_VERSION="v1.15.0"
-TMP_INDYSDK=$(dirname "$0")/tmp-indysdk
+TMP_INDYSDK=/tmp/indyscan-indysdk
 
 DOCKER_BUILD_PARAMS="$1"
 
