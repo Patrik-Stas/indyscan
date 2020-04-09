@@ -10,7 +10,7 @@ function createWinstonLoggerDummy () {
   return logger
 }
 
-async function assureEsIndex (esClient, esIndex, replicaCount, logger) {
+async function assureEsIndex (esClient, esIndex, replicaCount, logger = createWinstonLoggerDummy()) {
   const exists = await indexExists(esClient, esIndex)
   if (!exists) {
     return createEsIndex(esClient, esIndex, replicaCount, logger)
@@ -26,7 +26,7 @@ async function indexExists (esClient, index) {
   return indexExists
 }
 
-async function createEsIndex (esClient, esIndex, replicaCount, logger) {
+async function createEsIndex (esClient, esIndex, replicaCount, logger = createWinstonLoggerDummy()) {
   logger.info(`Creating ES Index ${esIndex}!`)
   const createIndexRes = await esClient.indices.create({
     index: esIndex,
@@ -60,6 +60,13 @@ async function searchOneDocument (esClient, esIndex, query) {
     return null
   }
   return body.hits.hits[0]._source
+}
+
+async function deleteDyQuery (esClient, esIndex, query) {
+  return esClient.deleteByQuery({
+    index: esIndex,
+    body: { query }
+  })
 }
 
 async function upsertSubdocument (esClient, esIndex, id, subdoc) {
@@ -109,3 +116,4 @@ module.exports.upsertSubdocument = upsertSubdocument
 module.exports.getDocument = getDocument
 module.exports.setMapping = setMapping
 module.exports.getMapping = getMapping
+module.exports.deleteDyQuery = deleteDyQuery

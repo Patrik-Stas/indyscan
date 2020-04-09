@@ -3,7 +3,7 @@ const txAuthRule = require('indyscan-storage/test/resource/sample-txs/tx-config-
 const _ = require('lodash')
 const { createTransformerOriginal2Expansion } = require('../../../../src/transformers/transformer-original2expansion')
 
-const processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
+const processor = createTransformerOriginal2Expansion({ sourceLookups: undefined })
 
 describe('config/auth-rule transaction transformations', () => {
   it('should add typeName and subledger for config AUTH_RULE transaction', async () => {

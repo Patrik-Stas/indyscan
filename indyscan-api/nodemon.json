@@ -5,6 +5,7 @@
   "ext": "js json",
   "env": {
     "ES_URL": "http://localhost:9200",
+    "DAEMON_URL": "http://localhost:3709",
     "LOG_LEVEL": "info",
     "PORT" : 3708,
     "LOG_HTTP_REQUESTS" : true,

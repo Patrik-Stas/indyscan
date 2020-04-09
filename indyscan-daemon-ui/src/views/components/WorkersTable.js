@@ -7,6 +7,7 @@ import {
   Table
 } from 'reactstrap'
 import _ from 'lodash'
+import { Link } from 'react-router-dom'
 
 export function getWorkerStatusStyle (enabled) {
   if (enabled) {
@@ -22,6 +23,10 @@ export function getWorkerInitializedStatusStyle (enabled) {
   } else {
     return { text: 'uninitialized', color: 'danger' }
   }
+}
+
+export function renderWorkerLink(workerId) {
+  return <Link to={`/worker/${workerId}`} className="nav-link" >{workerId}</Link>
 }
 
 export class WorkersTable extends Component {
@@ -72,15 +77,14 @@ export class WorkersTable extends Component {
                           : <td><Badge color="primary">{worker.operationType}</Badge></td>
                       }
 
-                      <td>{worker.componentId}</td>
+                      <td>{renderWorkerLink(worker.componentId)}</td>
                       <td>
                         <Badge>{worker.transformerInfo}</Badge>
                       </td>
-                      <td>{worker.requestCycleCount}</td>
-                      <td>{worker.processedTxCount}</td>
-                      <td>{worker.txNotAvailableCount}</td>
-                      <td>{worker.cycleExceptionCount}</td>
-                      {/*<JSONPretty id="json-pretty" data={worker}/>*/}
+                      <td>{worker.stats.requestCycleCount}</td>
+                      <td>{worker.stats.processedTxCount}</td>
+                      <td>{worker.stats.txNotAvailableCount}</td>
+                      <td>{worker.stats.cycleExceptionCount}</td>
                     </tr>
                   )
                 }).value()

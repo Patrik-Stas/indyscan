@@ -1,4 +1,4 @@
-FROM indyscan-indysdk:v1.14.2 as NODEJS
+FROM indyscan-indysdk:v1.15.0 as NODEJS
 
 USER root
 RUN groupadd -g 1001 indyscan && \
@@ -43,6 +43,7 @@ COPY --from=BUILD --chown=indyscan:indyscan /home/indyscan/indyscan-daemon /home
 USER root
 RUN chown -R indyscan:indyscan /home/indyscan
 USER indyscan
+RUN mkdir -p /home/indyscan/indyscan-daemon/logs
 RUN mkdir -p /home/indyscan/.indy_client/wallet
 RUN mkdir -p /home/indyscan/.indy_client/pool
 

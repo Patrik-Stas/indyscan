@@ -13,16 +13,18 @@ createEsTransformedTx - function taking 1 argument, a transaction as found on le
 logger (optional) - winston logger
  */
 
+const { esFilterSubledgerName } = require('./es-query-builder')
+const { deleteDyQuery } = require('./utils')
+const { esFilterSeqNoLt } = require('./es-query-builder')
+const { esFilterSeqNoGte } = require('./es-query-builder')
+const { esAndFilters } = require('./es-query-builder')
 const { SUBLEDGERS } = require('./consts')
 const { setMapping } = require('./utils')
 const { upsertSubdocument } = require('./utils')
 const { assureEsIndex } = require('./utils')
 const { createWinstonLoggerDummy } = require('./utils')
 
-async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger) {
-  if (logger === undefined) {
-    logger = createWinstonLoggerDummy()
-  }
+async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger = createWinstonLoggerDummy()) {
   const whoami = `StorageWrite/${esIndex} : `
 
   await assureEsIndex(esClient, esIndex, esReplicaCount, logger)
@@ -35,7 +37,7 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger) 
 
   const util = require('util')
 
-  async function setFormatMappings (formatName, fieldMappings) {
+  async function setFormatMappings (formatName, fieldMappings, logger = createWinstonLoggerDummy()) {
     logger.info(`${whoami} Setting up mappings for ES Index ${esIndex}!`)
     const esMappingDefinition = { properties: {} }
     for (const [field, fieldMapping] of Object.entries(fieldMappings)) {
@@ -59,7 +61,7 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger) 
     return lowerCased
   }
 
-  async function addTx (subledger, seqNo, format, txData) {
+  async function addTx (subledger, seqNo, format, txData, logger = createWinstonLoggerDummy()) {
     subledger = lowercasedSubledger(subledger)
     logger.debug(`${whoami} Storing for subledger:${subledger} seqno:${seqNo} in format:${format}. Data: ${JSON.stringify(txData, null, 2)}!`)
     const persistData = {
@@ -81,8 +83,14 @@ async function createStorageWriteEs (esClient, esIndex, esReplicaCount, logger) 
     return upsertSubdocument(esClient, esIndex, docId, persistData)
   }
 
+  async function deleteTxsByGteSeqNo (subledger, seqNoGte) {
+    const seqNoRangeQuery = esAndFilters(esFilterSeqNoGte(seqNoGte), esFilterSeqNoLt(1000000000), esFilterSubledgerName(subledger))
+    return deleteDyQuery(esClient, esIndex, seqNoRangeQuery)
+  }
+
   return {
     addTx,
+    deleteTxsByGteSeqNo,
     setFormatMappings
   }
 }

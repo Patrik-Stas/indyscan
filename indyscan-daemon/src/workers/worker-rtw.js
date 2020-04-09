@@ -1,10 +1,12 @@
 const { createTimerLock } = require('../time/scan-timer')
 const util = require('util')
-const logger = require('../logging/logger-main')
 const { getDefaultPreset } = require('../config/presets-consumer')
 const { resolvePreset } = require('../config/presets-consumer')
 const { runWithTimer } = require('../time/util')
 const sleep = require('sleep-promise')
+const EventEmitter = require('events')
+const { createLogger } = require('../logging/logger-builder')
+const { envConfig } = require('../config/env')
 
 function getExpandedTimingConfig (providedTimingSetup) {
   let presetData
@@ -35,18 +37,20 @@ function validateTimingConfig (timingConfig) {
   }
 }
 
-async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterator, iteratorTxFormat, transformer, target, timing, operationType }) {
+async function createWorkerRtw ({ indyNetworkId, subledger, operationType, iterator, iteratorTxFormat, transformer, target, timing }) {
+  console.log(`BUILDING WORKER for ${indyNetworkId}... timit= ${timing}`)
+  const eventEmitter = new EventEmitter()
+  const workerId = `${indyNetworkId}.${subledger}.${operationType}`
+  const logger = createLogger(workerId, envConfig.LOG_LEVEL, envConfig.ENABLE_LOGFILES)
   const loggerMetadata = {
     metadaemon: {
+      workerId,
       indyNetworkId,
-      componentType: 'worker-rtw',
-      componentId,
-      operationType,
-      workerRtwOutputFormat: transformer.getOutputFormat()
+      operationType
     }
   }
 
-  if (!componentId) {
+  if (!workerId) {
     const errMsg = 'WorkerRTW missing id parameter.'
     logger.error(errMsg, loggerMetadata)
     throw Error(errMsg)
@@ -77,14 +81,14 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     throw Error(errMsg)
   }
   timing = getExpandedTimingConfig(timing)
+  logger.info(`Worker ${workerId} using timing ${JSON.stringify(timing)}`)
   validateTimingConfig(timing)
   const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timing
-  logger.info(`Pipeline ${componentId} using iterator ${iterator.getObjectId()}`, loggerMetadata)
 
   let initialized = false
 
   async function initialize () {
-    await transformer.initializeTarget(target)
+    await transformer.initializeTarget(target, logger)
     initialized = true
   }
 
@@ -124,37 +128,75 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     return avgDurations
   }
 
-  function txProcessed (txMeta, txData, processedTx) {
+  function eventSharedPayload () {
+    return {
+      workerId,
+      indyNetworkId,
+      subledger,
+      operationType
+    }
+  }
+
+  function requestRescheduleStatus () {
+    const workerData = eventSharedPayload()
+    const payload = { workerData, msTillRescan: timerLock.getMsTillUnlock() }
+    return payload
+  }
+
+  function txProcessed (txMeta, txDataAfter) {
     processedTxCount++
     timerLock.addBlockTime(timeoutOnSuccess, jitterRatio)
-    logger.info(`Cycle '${requestCycleCount}' processed tx ${JSON.stringify(txMeta)}.`, loggerMetadata)
+    const workerData = eventSharedPayload()
+    const txData = {
+      idata: txDataAfter,
+      imeta: {
+        seqNo: txMeta.seqNo,
+        subledger
+      }
+    }
+    logger.info(`Transaction seqno=${txMeta.seqNo} processed. Emitting 'tx-processed', 'rescan-scheduled'`)
+    eventEmitter.emit('tx-processed', { workerData, txData })
+    eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
   }
 
-  function txNotAvailable () {
+  // TODO: in all of this even-reacting functions, rename txMeta or reduce signature requirmenets to require just "seqNo" if possible
+  function txNotAvailable (queryMeta) {
     txNotAvailableCount++
     timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
-    logger.warn(`Cycle '${requestCycleCount}': iterator exhausted.`, loggerMetadata)
+    const workerData = eventSharedPayload()
+    logger.info(`Transaction seqno=${queryMeta.seqNo} not available. Emitting 'tx-not-available', 'rescan-scheduled'`)
+    eventEmitter.emit('tx-not-available', { workerInfo: getWorkerInfo() })
+    eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
   }
 
-  function resolutionError (e) {
+  function resolutionError (queryMeta, error) {
     cycleExceptionCount++
     timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
-    logger.error(`Cycle '${requestCycleCount}' failed to resolve next tx. Details: ${e.message} ${e.stack}`, loggerMetadata)
+    const workerData = eventSharedPayload()
+    logger.warn(`Transaction seqno=${queryMeta.seqNo} resolution error ${util.inspect(error)}. ` +
+      'Emitting \'tx-resolution-error\', \'rescan-scheduled\'')
+    eventEmitter.emit('tx-resolution-error', getWorkerInfo())
+    eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
   }
 
-  function ingestionError (e, txMeta, processedTx) {
+  function ingestionError (error, queryMeta, processedTx) {
     cycleExceptionCount++
     timerLock.addBlockTime(timeoutOnTxIngestionError, jitterRatio)
-    logger.error(`Cycle '${requestCycleCount}' failed to store tx ${JSON.stringify(txMeta)}: ${JSON.stringify(processedTx)} Error details: ${util.inspect(e, false, 10)}`, loggerMetadata)
+    const workerData = eventSharedPayload()
+    logger.error(`Transaction ${queryMeta.seqNo} ingestion error. Couldn't ingest transaction` +
+      `${JSON.stringify(processedTx)} due to storage ingestion error ${util.inspect(error)} ` +
+      'Emitting: \'tx-ingestion-error\', \'rescan-scheduled\'.')
+    eventEmitter.emit('tx-ingestion-error', getWorkerInfo())
+    eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
   }
 
   async function processTransaction (txData, txFormat) {
     let processedTx = txData
-    let txDataProcessedFormat = txFormat
+    let processedTxFormat = txFormat
     try {
       const result = await transformer.processTx(processedTx)
       processedTx = result.processedTx
-      txDataProcessedFormat = result.format
+      processedTxFormat = result.format
     } catch (e) {
       const errMsg = `Stopping pipeline as cycle '${requestCycleCount}' critically failed to transform tx ` +
         `${JSON.stringify(txData)} using transformer ${transformer.getObjectId()}. Details: ${e.message} ${e.stack}`
@@ -167,13 +209,13 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
       logger.error(errMsg, loggerMetadata)
       throw Error(errMsg)
     }
-    if (!txDataProcessedFormat) {
+    if (!processedTxFormat) {
       const errMsg = `Stopping pipeline on critical error. Transformer ${transformer.getObjectId()} did ` +
         'did format of its output txData.'
       logger.error(errMsg, loggerMetadata)
       throw Error(errMsg)
     }
-    return { processedTx, format: txDataProcessedFormat }
+    return { processedTx, processedTxFormat }
   }
 
   function printAverageDurations () {
@@ -192,51 +234,57 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     printAverageDurations()
 
     // get it
-    let txData, txMeta
-    try {
-      logger.info(`Cycle '${requestCycleCount}' requesting next transaction.`, loggerMetadata)
-      const res = await getNextTxTimed(subledger, iteratorTxFormat)
-      // was available?
-      if (!res) {
-        txNotAvailable()
-        return
-      }
-      const { tx, meta } = res
-      txData = tx
-      txMeta = meta
-    } catch (e) {
-      resolutionError(e)
-      return
-    }
-
-    if (!txMeta || !txMeta.subledger || !txMeta.seqNo || !txMeta.format) {
-      const errMsg = 'Stopping pipeline on critical error. Iterator did not return sufficient meta information' +
-        `about tx. Meta ${JSON.stringify(txMeta)}`
-      logger.error(errMsg, loggerMetadata)
-      throw Error(errMsg)
+    let txDataBefore
+    logger.info(`Cycle '${requestCycleCount}' requesting next transaction.`, loggerMetadata)
+    const iteratorRes = await getNextTxTimed(subledger, iteratorTxFormat)
+    const { queryMeta, queryStatus } = iteratorRes
+    if (!queryMeta) { throw Error('Iterator returned invalid response. \'queryMeta\' missing in response. ') }
+    if (!queryStatus) { throw Error('Iterator returned invalid response. \'queryStatus\' missing in response. ') }
+    switch (queryStatus) {
+      case 'CANT_DETERMINE_SEQNO_TO_QUERY':
+        return resolutionError(queryMeta, iteratorRes.error)
+      case 'CURRENTLY_EXHAUSTED':
+        return txNotAvailable(queryMeta)
+      case 'RESOLUTION_ERROR':
+        return resolutionError(queryMeta, iteratorRes.error)
+      case 'RESOLUTION_SUCCESS':
+        if (!queryMeta || !queryMeta.subledger || !queryMeta.seqNo || !queryMeta.format) {
+          const errMsg = 'Stopping pipeline on critical error. Iterator did not return sufficient meta information' +
+            `about tx. Meta ${JSON.stringify(queryMeta)}`
+          logger.error(errMsg, loggerMetadata)
+          throw Error(errMsg)
+        }
+        if (!iteratorRes.tx) {
+          throw Error('Iterator returned invalid response. Status was RESOLUTION_SUCCESS but did not include transaction data.')
+        }
+        txDataBefore = iteratorRes.tx
+        break
+      default:
+        throw Error(`Iterator returned unrecognized status '${queryStatus}'.`)
     }
 
     // process it
-    const { processedTx, format: txDataProcessedFormat } = await processTransaction(txData, txMeta.format)
+    const { processedTx: txDataAfter, processedTxFormat } = await processTransaction(txDataBefore, queryMeta.format)
 
+    // store it and schedule next iteration
     try {
-      await addTxTimed(txMeta.subledger, txMeta.seqNo, txDataProcessedFormat, processedTx)
-      txProcessed(txMeta, txData, processedTx)
-    } catch (e) {
-      ingestionError(e, txMeta, processedTx)
+      await addTxTimed(queryMeta.subledger, queryMeta.seqNo, processedTxFormat, txDataAfter)
+      txProcessed(queryMeta, txDataAfter)
+    } catch (error) {
+      ingestionError(error, queryMeta, txDataAfter)
     }
   }
 
   async function getNextTxTimed (subledger, format) {
     return runWithTimer(
-      async () => iterator.getNextTx(subledger, format),
+      async () => iterator.getNextTx(subledger, format, logger),
       (duration) => processDurationResult('tx-resolution', duration)
     )
   }
 
   async function addTxTimed (subledger, seqNo, format, txData) {
     return runWithTimer(
-      async () => target.addTxData(subledger, seqNo, format, txData),
+      async () => target.addTxData(subledger, seqNo, format, txData, logger),
       (duration) => processDurationResult('tx-storagewrite', duration)
     )
   }
@@ -253,6 +301,7 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     while (enabled) { // eslint-disable-line
       requestCycleCount++
       try {
+        eventEmitter.emit('cycle-starts', getWorkerInfo())
         await runWithTimer(
           tryConsumeNextTransactionAndWait,
           (duration) => processDurationResult('consumption-iteration-full', duration)
@@ -292,28 +341,37 @@ async function createWorkerRtw ({ indyNetworkId, componentId, subledger, iterato
     return {
       initialized,
       enabled,
+      workerId,
       indyNetworkId,
+      subledger,
       operationType,
-      componentId,
       transformerInfo: transformer.describe(),
-      targetComponentId: target.getObjectId(),
-      iteratorComponentId: iterator.getObjectId(),
-      iteratorInfo: iterator.describe(),
-      targetInfo: target.describe(),
-      processedTxCount,
-      requestCycleCount,
-      txNotAvailableCount,
-      cycleExceptionCount,
-      avgDurations: getAverageDurations()
+      iteratorDescription: iterator.describe(),
+      iteratorInfo: iterator.getIteratorInfo(),
+      targetDescription: target.describe(),
+      targetInfo: target.getTargetInfo(),
+      stats: {
+        processedTxCount,
+        requestCycleCount,
+        txNotAvailableCount,
+        cycleExceptionCount,
+        avgDurations: getAverageDurations()
+      }
     }
   }
 
+  function getEventEmitter () {
+    return eventEmitter
+  }
+
   function getObjectId () {
-    return componentId
+    return workerId
   }
 
   return {
+    requestRescheduleStatus,
     getWorkerInfo,
+    getEventEmitter,
     getObjectId,
     enable,
     disable,

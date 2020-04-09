@@ -46,12 +46,19 @@ function createSourceMemory ({ id, dataspace }) {
     return 0
   }
 
-  function getObjectId () {
-    return id
+  function describe () {
+    return 'Inmemory tx source.'
+  }
+
+  function getSourceInfo () {
+    return {
+      implementation: 'inmemory'
+    }
   }
 
   return {
-    getObjectId,
+    getSourceInfo,
+    describe,
     getTxData,
     getHighestSeqno
   }

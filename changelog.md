@@ -1,7 +1,20 @@
 # Yet to come next
-- Websocket integration between daemon and webapp
 - New TX representation `state` - will provide history of all states DID has ever was at.  
 - Graphs, histograms in webapp 
+
+# 4.1.0
+- Websockets => interactive webapp! Transactions on homepage displayed in realtime as they are discovered.
+- Redesigned UI, use custom styled boxes on homepage instead of semantic-ui Items.
+- Display amount of time passed since transaction was written
+- Fix bug with wrong times (UTC/Local time mismatch in webapp)
+- Use 1 winston logger per 1 daemon worker. Add option to log into files.
+- Display network description and network logo
+- Add clickable scanner logo top webapp header
+- Various UI improvements
+- Update IndySDK to 1.15.0
+- Indyscan Daemon: Only worker objects have IDs.
+- Indyscan Daemon and Indyscan API are linked by IndyNetworkId.
+
 
 # 4.0.0
 - Big `indyscan-daemon` rewrite - it's more flexible and capable supporting range of workloads.

@@ -33,16 +33,21 @@ function createTargetMemory ({ id, dataspace }) {
     dataspace[subledger][seqNo][format] = txData
   }
 
-  async function setMappings (formatName, indexMappings) {}
+  async function setMappings (formatName, indexMappings, logger) {}
 
-  function getObjectId () {
-    return id
+  function describe () {
+    return 'Target inmemory.'
+  }
+
+  function getTargetInfo () {
+    return {}
   }
 
   return {
-    getObjectId,
     addTxData,
-    setMappings
+    setMappings,
+    describe,
+    getTargetInfo
   }
 }
 

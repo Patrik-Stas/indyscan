@@ -4,7 +4,7 @@ SCRIPT_DIR_PATH=$(dirname "$0")
 DOCKER_BUILD_PARAMS=$1
 
 INDYSDK_REPO_OWNER="hyperledger"
-INDYSDK_REVISION="v1.14.2"
+INDYSDK_REVISION="v1.15.0"
 NAME=""
 
 DOCKER_TAG="indyscan-indysdk:$INDYSDK_REVISION"
@@ -23,7 +23,7 @@ if [ "$yesno" != "y" ]; then
 fi
 echo "Building image!"
 
-docker build "$DOCKER_BUILD_PARAMS" \
+docker build ${DOCKER_BUILD_PARAMS} \
              --build-arg "INDYSDK_REPO=$INDYSDK_REPO" \
              --build-arg "INDYSDK_REVISION=$INDYSDK_REVISION" \
              -t "$DOCKER_TAG" \

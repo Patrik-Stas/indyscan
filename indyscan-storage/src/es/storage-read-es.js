@@ -19,10 +19,7 @@ esClient - elasticsearch client
 esIndex - name of the index to read/write data from/to
 logger (optional) - winston logger
  */
-function createStorageReadEs (esClient, esIndex, logger) {
-  if (logger === undefined) {
-    logger = createWinstonLoggerDummy()
-  }
+function createStorageReadEs (esClient, esIndex) {
   const whoami = `StorageRead/${esIndex} : `
 
   function createSubledgerQuery (subledgerName) {
@@ -34,7 +31,7 @@ function createStorageReadEs (esClient, esIndex, logger) {
     return esFilterSubledgerName(lowerCased)
   }
 
-  async function getTxCount (subledger, queries = []) {
+  async function getTxCount (subledger, queries = [], logger = createWinstonLoggerDummy()) {
     const query = esAndFilters(createSubledgerQuery(subledger), queries)
     const request = {
       index: esIndex,
@@ -73,7 +70,7 @@ function createStorageReadEs (esClient, esIndex, logger) {
     return tx.idata[format]
   }
 
-  async function executeEsSearch (searchRequest) {
+  async function executeEsSearch (searchRequest, logger = createWinstonLoggerDummy()) {
     try {
       logger.debug(`${whoami} Submitting ES request ${JSON.stringify(searchRequest, null, 2)}`)
       const { body } = await esClient.search(searchRequest)

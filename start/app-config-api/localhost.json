@@ -1,7 +1,12 @@
 [
   {
-    "id": "indyscanpool",
+    "id": "INDYSCANPOOL",
     "display": "IndyscanPool",
+    "ui": {
+      "priority": 1,
+      "display": "Indyscan Indypool",
+      "description": "You local Indy Network for development"
+    },
     "es" : {
       "index": "txs-indyscanpool"
     },

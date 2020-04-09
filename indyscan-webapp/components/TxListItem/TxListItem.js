@@ -7,6 +7,8 @@ import { getTxLinkData } from '../../routing'
 import { extractTxDataBasic, extractTxDataDetailsHumanReadable } from '../../txtools'
 import { renderKeyValuesAsBadges } from '../Common'
 import top100 from '../palettes'
+import moment from 'moment'
+import TimeAgoText from '../TimeAgoText/TimeAgoText'
 
 function filterTxDetails (keyValues) {
   let keys = Object.keys((keyValues))
@@ -23,7 +25,6 @@ const palette = top100()[7]
 
 class TxListItem extends Component {
   render () {
-    console.log(`rendering transaction ${this.props.txn}`)
     const { baseUrl, description, ledger, network, txn } = this.props
     const { seqNo, txnTimeIso8601, typeName, from } = extractTxDataBasic(txn)
     const data = extractTxDataDetailsHumanReadable(txn, 5)
@@ -36,7 +37,13 @@ class TxListItem extends Component {
           <ReactTooltip />
           <p data-tip={description}>{typeName}</p>
         </TableCell>
-        <TableCell>{`${(txnTimeIso8601 ? new Date(txnTimeIso8601) : 'Genesis tx').toLocaleString('en-GB')}`}</TableCell>
+        <TableCell style={{ overflow: 'hidden', width:'30em'}}>
+          <span>
+          {`${(txnTimeIso8601 ? moment.utc(txnTimeIso8601).format('DD MMMM YYYY, H:mm:ss') : 'Genesis tx').toLocaleString('en-GB')}`}
+          </span>
+          <br/>
+          <TimeAgoText sinceEpoch={new Date(txnTimeIso8601)} className='txlistitem-graytext'/>
+        </TableCell>
         <TableCell>{from}</TableCell>
         <TableCell>{renderKeyValuesAsBadges(seqNo, filteredData, palette[2])}</TableCell>
       </TableRow>

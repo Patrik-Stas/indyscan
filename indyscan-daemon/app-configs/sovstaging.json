@@ -21,7 +21,7 @@
         "indyNetworkId": "{{{INDY_NETWORK}}}",
         "esUrl": "{{{ES_URL}}}",
         "esIndex": "{{{ES_INDEX}}}",
-        "workerTiming": "MEDIUM"
+        "workerTiming": "MEDIUN"
       }
     }
   ]

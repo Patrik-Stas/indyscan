@@ -32,8 +32,8 @@ afterEach(async () => {
 
 describe('integration for target elasticsearch', () => {
   it('should store transaction to elasticsearch', async () => {
-    const target = await createTargetElasticsearch({ id: 'foo', url: 'http://localhost:9200', index, replicas: 0 })
-    const source = await createSourceElasticsearch({ id: 'foo', url: 'http://localhost:9200', index })
+    const target = await createTargetElasticsearch({ url: 'http://localhost:9200', index, replicas: 0 })
+    const source = await createSourceElasticsearch({ url: 'http://localhost:9200', index })
     await target.addTxData('domain', 1, 'format-foo', { foo: 'foo1' })
     await target.addTxData('domain', 1, 'format-bar', { bar: 'bar-data' })
     await target.addTxData('domain', 2, 'format-foo', { foo: 'foo1' })
@@ -60,8 +60,8 @@ describe('integration for target elasticsearch', () => {
   })
 
   it('should be able to return format "original" based on "serialized" format data', async () => {
-    const target = await createTargetElasticsearch({ id: 'foo', url: 'http://localhost:9200', index, replicas: 0 })
-    const source = await createSourceElasticsearch({ id: 'foo', url: 'http://localhost:9200', index })
+    const target = await createTargetElasticsearch({ url: 'http://localhost:9200', index, replicas: 0 })
+    const source = await createSourceElasticsearch({ url: 'http://localhost:9200', index })
     const originalTx = { foo: 'foo1' }
 
     await target.addTxData('domain', 1, 'serialized', { json: JSON.stringify(originalTx) })

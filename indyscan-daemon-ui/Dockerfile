@@ -1,13 +1,23 @@
 ################## build api-client, prepare dirs and basic files
-FROM node:8.11.3-alpine as BASE
+FROM node:12.14.0-alpine3.9 as BASE
 
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh python make g++
 RUN mkdir -p /home/node/indyscan-daemon-ui && chown -R node:node /home/node/indyscan-daemon-ui
 
+################## build the app
+
+# For some reason, using the commende bellow creates /home/node/indyscan-daemon-api-client directory owned by root ....
+#USER node
+#COPY --chown=node:node ./indyscan-daemon-api-client ./
+
+# .... hence following awkward workaround instead...
+WORKDIR /home/node/indyscan-daemon-api-client
+COPY ./indyscan-daemon-api-client ./
+RUN chown -R node:node /home/node/indyscan-daemon-api-client
+
 USER node
 
-################## build the app
 WORKDIR /home/node/indyscan-daemon-ui
 COPY --chown=node:node ./indyscan-daemon-ui/package.json ./
 COPY --chown=node:node ./indyscan-daemon-ui/package-lock.json ./

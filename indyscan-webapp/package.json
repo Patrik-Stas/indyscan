@@ -1,6 +1,6 @@
 {
   "name": "indyscan-webapp",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Web application to browse Hyperledger Indy blockchain transactions.",
   "main": "index.js",
   "scripts": {
@@ -44,7 +44,8 @@
     "joi": "^14.3.1",
     "lodash": "^4.17.14",
     "moment": "^2.24.0",
-    "next": "^9.1.7",
+    "moment-timezone": "^0.5.28",
+    "next": "^9.3.4",
     "next-routes": "^1.4.2",
     "node-sass": "^4.12.0",
     "pkginfo": "^0.4.1",
@@ -53,11 +54,15 @@
     "rc-pagination": "^1.20.1",
     "react": "^16.8.6",
     "react-chartjs-2": "^2.7.6",
+    "react-circular-progressbar": "^2.0.3",
     "react-dom": "^16.8.6",
+    "react-epic-spinners": "^0.4.1",
     "react-json-pretty": "^2.1.0",
     "react-tooltip": "^3.10.0",
+    "react-transition-group": "^4.3.0",
     "semantic-ui-react": "^0.84.0",
     "sleep-promise": "^8.0.1",
+    "socket.io-client": "^2.3.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {

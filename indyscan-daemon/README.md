@@ -36,12 +36,15 @@ SERVER_PORT=3709
 LOG_HTTP_REQUESTS=true
 LOG_HTTP_RESPONSES=true
 AUTOSTART=true
+ENABLE_LOGFILES=true
 ```
 
 Details:
 - `WORKER_CONFIGS` - comma separated list of paths to worker configurations (more about that later).
 
 - `LOG_LEVEL` - Specifies verbosity of output. Accepted values: `error`, `warn`, `info`, `debug`, `silly`.
+
+- `ENABLE_LOGFILES` - If `ENABLE_LOGFILES` is `true`, each winston logger also stores logs into files in `logs` directory.
 
 - `LOG_ES_URL` - If specified, all logs will be sent to elasticsearch on specified URL.
 

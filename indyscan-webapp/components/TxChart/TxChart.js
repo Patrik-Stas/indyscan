@@ -21,7 +21,7 @@ function createChartsDataset (timeSeries, label, borderColor) {
 
 const TxsChart = ({ timeseries, label, type, color }) => {
   if (timeseries.length === 0) {
-    return <div />
+    return <div/>
   }
   const { labels, dataset } = createChartsDataset(timeseries, label, color)
   const plotData = {
@@ -29,7 +29,7 @@ const TxsChart = ({ timeseries, label, type, color }) => {
     datasets: [dataset]
   }
   return (
-    <Line id={`${type}-txchart`} data={plotData} />
+    <Line id={`${type}-txchart`} data={plotData}/>
   )
 }
 

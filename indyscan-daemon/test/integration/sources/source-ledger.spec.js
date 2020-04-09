@@ -9,7 +9,6 @@ describe('ledger tx resolution', () => {
   beforeAll(async () => {
     jest.setTimeout(1000 * 30)
     mainnetSource = await createSourceLedger({
-      id: 'testsource',
       name: 'integration-test-mainnet-source',
       genesisPath: path.resolve(__dirname, '../../../app-config/genesis/SOVRIN_MAINNET.txn')
     })

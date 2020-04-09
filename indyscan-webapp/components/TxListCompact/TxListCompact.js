@@ -1,7 +1,7 @@
 import TxListItem from '../TxListItem/TxListItem'
 import { Table, TableBody, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react'
 import React, { Component } from 'react'
-// import { describeTransaction } from 'indyscan-txtype'
+import './TxListCompact.scss'
 
 class TxListCompact extends Component {
   render () {
@@ -16,11 +16,11 @@ class TxListCompact extends Component {
             <TableHeaderCell>Info</TableHeaderCell>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className="data-content">
           {this.props.txs.map((txn) => {
             return (
               <TxListItem
-                key={txn.idata.seqNo}
+                key={txn.imeta.seqNo}
                 baseUrl={this.props.baseUrl}
                 network={this.props.network}
                 ledger={this.props.ledger}

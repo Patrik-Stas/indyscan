@@ -3,7 +3,7 @@ const txRevocEntry = require('indyscan-storage/test/resource/sample-txs/tx-domai
 const _ = require('lodash')
 const { createTransformerOriginal2Expansion } = require('../../../../src/transformers/transformer-original2expansion')
 
-const processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: undefined })
+const processor = createTransformerOriginal2Expansion({ sourceLookups: undefined })
 
 describe('domain/revoc-entry transaction transformations', () => {
   it('should add typeName and subledger for domain REVOC_REG_ENTRY transaction', async () => {

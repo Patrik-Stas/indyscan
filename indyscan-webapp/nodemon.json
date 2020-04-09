@@ -5,6 +5,7 @@
   "ext": "js json",
   "env": {
     "INDYSCAN_API_URL": "http://localhost:3708",
+    "DAEMON_WS_URL": "http://localhost:3709",
     "PORT" : 3707,
     "LOG_LEVEL": "debug",
     "LOG_HTTP_REQUESTS" : true,

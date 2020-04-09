@@ -9,13 +9,17 @@ class Navbar extends Component {
   }
 
   render () {
-    const { network, page } = this.props
+    const { network, page, style } = this.props
     return (
-      <div>
-        <MenuLink active={page === 'home'} href={`/home?network=${network}`} as={`/home/${network}`}>Home</MenuLink >
-        <MenuLink active={page === 'domain'} href={`/txs?network=${network}&ledger=domain`} as={`/txs/${network}/domain`}>Domain</MenuLink >
-        <MenuLink active={page === 'pool'} href={`/txs?network=${network}&ledger=pool`} as={`/txs/${network}/pool`}>Pool</MenuLink >
-        <MenuLink active={page === 'config'} href={`/txs?network=${network}&ledger=config`} as={`/txs/${network}/config`}>Config</MenuLink >
+      <div style={style}>
+        <MenuLink active={page === 'home'} href={`/home?network=${network}`} as={`/home/${network}`}>Home</MenuLink>
+        <div style={{ 'display': 'inline', color: 'gray', fontSize: '0.8em', marginRight: '1em' }}>Subledgers:</div>
+        <MenuLink active={page === 'domain'} href={`/txs?network=${network}&ledger=domain`}
+                  as={`/txs/${network}/domain`}>Domain</MenuLink>
+        <MenuLink active={page === 'pool'} href={`/txs?network=${network}&ledger=pool`}
+                  as={`/txs/${network}/pool`}>Pool</MenuLink>
+        <MenuLink active={page === 'config'} href={`/txs?network=${network}&ledger=config`}
+                  as={`/txs/${network}/config`}>Config</MenuLink>
       </div>
     )
   }

@@ -47,7 +47,7 @@ async function startServer () {
 
       server.get('/home/:network', (req, res) => {
         const mergedQuery = Object.assign({}, req.query, req.params)
-        logger.debug(`Custom express routing handler: /home/:network\nmerged query: ${JSON.stringify(mergedQuery)}`)
+        logger.info(`Custom express routing handler: /home/:network\nmerged query: ${JSON.stringify(mergedQuery)}`)
         return app.render(req, res, '/home', mergedQuery)
       })
 
@@ -66,6 +66,12 @@ async function startServer () {
       server.use(
         '/api',
         proxy({ target: appConfig.INDYSCAN_API_URL, changeOrigin: true })
+      )
+
+
+      server.use(
+        '/socket.io',
+        proxy({ target: appConfig.DAEMON_WS_URL, ws: true, changeOrigin: true })
       )
 
       server.get('*', (req, res) => {

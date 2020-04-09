@@ -1,26 +1,34 @@
 [
   {
-    "id": "sovmain",
+    "id": "SOVRIN_MAINNET",
     "aliases": [
+      "sovmain",
       "SOVRIN_MAINNET"
     ],
     "ui": {
       "priority": 3,
       "display": "MainNet",
-      "description": "MainNet is live network for production use."
+      "display-long": "Sovrin MainNet",
+      "description": "Sovrin network for production use cases.",
+      "logo-address": "/static/sovrin.png"
     },
     "es" : {
       "index": "txs-sovmain"
     }
   },
   {
-    "id": "sovstaging",
+    "id": "SOVRIN_STAGINGNET",
     "ui": {
       "priority": 2,
       "display": "StagingNet",
-      "description": "StagingNet is area where end-users of products can test in a pre-production environment."
+      "display-long": "Sovrin StagingNet",
+      "description": "Network for to try out proof of concepts, demos, and other non-production but stable use cases.",
+      "tutorial": "Get your DID and start writing on the network",
+      "tutorial-link": "https://selfserve.sovrin.org/",
+      "logo-address": "/static/sovrin.png"
     },
     "aliases": [
+      "sovstaging",
       "SOVRIN_TESTNET"
     ],
     "es" : {
@@ -28,12 +36,19 @@
     }
   },
   {
-    "id": "sovbuilder",
+    "id": "SOVRIN_BUILDERNET",
     "ui": {
       "priority": 1,
       "display": "BuilderNet",
-      "description": "BuilderNet is network to try out their product before giving their end-users a go at it."
+      "display-long": "Sovrin BuilderNet",
+      "description": "For active development of your solution.",
+      "tutorial": "Get your DID and start writing on the network",
+      "tutorial-link": "https://selfserve.sovrin.org/",
+      "logo-address": "/static/sovrin.png"
     },
+    "aliases": [
+      "sovbuilder"
+    ],
     "es" : {
       "index": "txs-sovbuilder"
     }

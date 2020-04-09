@@ -1,12 +1,43 @@
 import React, { Component } from 'react'
 import './TxPreview.scss'
-import { Item } from 'semantic-ui-react'
 import Link from 'next/link'
-import { extractTxDataBasic } from '../../txtools'
+import { extractTxDataBasic, secondsToDhms } from '../../txtools'
+// import moment from 'moment'
+import moment from 'moment-timezone'
+import TimeAgoText from '../TimeAgoText/TimeAgoText'
 
 const MAX_DID_LENTH = 25
 
 class TxPreview extends Component {
+
+  constructor () {
+    super();
+    this.state = {}
+  }
+
+  calculateTimeSinceLastTransaction = function calculateTimeSinceLastTransaction (expansionTx) {
+    const txnTime = (expansionTx.idata && expansionTx.idata.txnMetadata) ?
+      (Date.parse(expansionTx.idata.txnMetadata.txnTime))
+      : undefined
+    const utimeNow = Math.floor(new Date())
+    return secondsToDhms((utimeNow - txnTime) / 1000)
+  }
+
+  refreshTimesSinceLast () {
+    let sinceSinceTx = this.calculateTimeSinceLastTransaction(this.props.indyscanTx)
+    sinceSinceTx = (sinceSinceTx) ? sinceSinceTx : 'Unknown'
+    this.setState({ sinceSinceTx })
+  }
+
+  componentDidMount () {
+    this.refreshTimesSinceLast()
+    this.interval = setInterval(this.refreshTimesSinceLast.bind(this), 1000)
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.interval)
+  }
+
   render () {
     const { baseUrl, network, ledger, indyscanTx } = this.props
     const { seqNo, txnTimeIso8601, typeName, from } = extractTxDataBasic(indyscanTx)
@@ -14,18 +45,30 @@ class TxPreview extends Component {
     const as = `/tx/${network}/${ledger}/${seqNo}`
     const fromDidDisplayed = from
       ? (from.length < MAX_DID_LENTH) ? from : `${from.substring(0, (MAX_DID_LENTH - 3))}...`
-      : 'n/a'
+      : 'N/A'
+    // const utcTime = moment.utc(txnTimeIso8601).format('do MMMM YYYY, H:mm:ss')
+    let txnDateLocalString = "N/A"
+    let txnDate
+    if (indyscanTx.idata && indyscanTx.idata.txnMetadata && indyscanTx.idata.txnMetadata.txnTime) {
+      txnDate =  new Date(indyscanTx.idata.txnMetadata.txnTime)
+      txnDateLocalString = moment.utc(txnTimeIso8601).tz(moment.tz.guess()).format('DD MMMM YYYY, HH:mm:ss a')
+    }
+
     return (
-      <Item style={{ marginBottom: '2em' }}>
-        <Item.Image size='tiny'>
-          <Link href={href} as={as}><a><span style={{ fontSize: '2.5em' }}>{seqNo}</span></a></Link>
-        </Item.Image>
-        <Item.Content>
-          <Item.Header>{typeName}</Item.Header>
-          <Item.Meta>{`${(new Date(txnTimeIso8601)).toLocaleString('en-GB')} UTC`}</Item.Meta>
-          <Item.Description>From: {fromDidDisplayed}</Item.Description>
-        </Item.Content>
-      </Item>
+
+      <div className="txitem data-content">
+        <div style={{ fontSize: '1.2em' }}>
+          <Link href={href} as={as}>
+            <a><span style={{ marginRight: '0.4em', marginBottom: '0.2em' }}>{seqNo}</span></a>
+          </Link>
+          <span>{typeName}</span>
+        </div>
+        <div style={{ marginTop: '0.6em', fontSize: '0.85em' }}>
+          <span style={{ display: 'block' }}><b>From  DID: </b>{fromDidDisplayed}</span>
+          <span style={{ display: 'block', marginBottom: '0.1em' }}><b>Local Time:</b> {txnDateLocalString}</span>
+          <TimeAgoText sinceEpoch={txnDate} className='txitem-graytext' style={{ display: 'block' }}/>
+        </div>
+      </div>
 
     )
   }

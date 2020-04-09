@@ -1,21 +1,18 @@
-const logger = require('../logging/logger-main')
 const geoip = require('geoip-lite')
 const _ = require('lodash')
-const { intializeEsTarget } = require('./target-inits')
 const { transformPoolUpgrade } = require('./expansion/config/pool-upgrade')
 const { createClaimDefTransform } = require('./expansion/domain/claim-def')
 const { createNodeTransform } = require('./expansion/pool/node')
 const { transformNymAttrib } = require('./expansion/domain/nym-attrib')
 const { txTypeToTxName } = require('indyscan-txtype/src/types')
+const globalLogger = require('../logging/logger-main')
 
 const geoipLiteLookupIp = geoip.lookup.bind(geoip)
 
-function createTransformerOriginal2Expansion ({ indyNetworkId, operationType, componentId, sourceLookups }) {
+function createTransformerOriginal2Expansion ({ indyNetworkId, sourceLookups }) {
   const loggerMetadata = {
     metadaemon: {
       indyNetworkId,
-      componentId,
-      operationType,
       componentType: 'transformer-original2expansion'
     }
   }
@@ -188,13 +185,9 @@ function createTransformerOriginal2Expansion ({ indyNetworkId, operationType, co
     }
   }
 
-  async function initializeTarget (target) {
+  async function initializeTarget (target, logger = globalLogger) {
     logger.info('Initializing target.', loggerMetadata)
-    return intializeEsTarget(target, getOutputFormat(), getElasticsearchMappingDirectives())
-  }
-
-  function getObjectId () {
-    return componentId
+    return target.setMappings(getOutputFormat(), getElasticsearchMappingDirectives(), logger)
   }
 
   function describe () {
@@ -206,7 +199,6 @@ function createTransformerOriginal2Expansion ({ indyNetworkId, operationType, co
     initializeTarget,
     getOutputFormat,
     getInputFormat,
-    getObjectId,
     describe
   }
 }

@@ -12,57 +12,84 @@ function createServiceWorkers () {
     workers[id] = worker
   }
 
-  function getAllWorkers () {
-    return Object.values(workers)
+  function getWorkers (workerQuery) {
+    logger.info(`Get workers, worker query =${JSON.stringify(workerQuery)}`)
+    let resWorkers = Object.values(workers)
+    if (workerQuery) {
+      const { workerIds, operationTypes, subledgers, targetEsIndices, indyNetworkIds } = workerQuery
+      if (workerIds) {
+        resWorkers = resWorkers.filter(worker => workerIds.includes(worker.getWorkerInfo().workerId))
+      }
+      if (indyNetworkIds) {
+        resWorkers = resWorkers.filter(worker => indyNetworkIds.includes(worker.getWorkerInfo().indyNetworkId))
+      }
+      if (operationTypes) {
+        resWorkers = resWorkers.filter(worker => operationTypes.includes(worker.getWorkerInfo().operationType))
+      }
+      if (subledgers) {
+        resWorkers = resWorkers.filter(worker => subledgers.includes(worker.getWorkerInfo().subledger))
+      }
+      if (targetEsIndices) {
+        resWorkers = resWorkers.filter(worker => {
+          const workerTarget = worker.getWorkerInfo().targetInfo
+          const workerTargetEsIndex = workerTarget.esIndex
+          if (workerTargetEsIndex) {
+            return targetEsIndices.includes(workerTargetEsIndex)
+          } else {
+            return false
+          }
+        })
+      }
+    }
+    return resWorkers
   }
 
-  function getAllWorkersInfo () {
-    return getAllWorkers().map(worker => worker.getWorkerInfo())
+  function getWorker (id) {
+    return workers[id]
   }
 
-  function enableAll () {
-    const workers = getAllWorkers()
+  function getWorkersInfo (workerQuery) {
+    return getWorkers(workerQuery).map(worker => worker.getWorkerInfo())
+  }
+
+  function getWorkerInfo (id) {
+    const worker = getWorker(id)
+    if (!worker) {
+      return undefined
+    }
+    return worker.getWorkerInfo()
+  }
+
+  function enableWorkers (workerQuery) {
+    const workers = getWorkers(workerQuery)
     for (const worker of workers) {
       worker.enable()
     }
   }
 
-  function disableAll () {
-    const workers = getAllWorkers()
+  function disableWorkers (workerQuery) {
+    const workers = getWorkers(workerQuery)
     for (const worker of workers) {
       worker.disable()
     }
   }
 
-  function getWorker (id) {
-    const worker = workers[id]
-    if (!worker) {
-      throw Error(`Worker ${id} not found.`)
+  function flipWorkersState (workerQuery) {
+    const workers = getWorkers(workerQuery)
+    for (const worker of workers) {
+      worker.flipState()
     }
-    return worker
-  }
-
-  function enableOne (id) {
-    getWorker(id).enable()
-  }
-
-  function disableOne (id) {
-    getWorker(id).disable()
-  }
-
-  function flipStateOne (id) {
-    getWorker(id).flipState()
   }
 
   return {
-    getAllWorkers,
-    getAllWorkersInfo,
+    getWorker,
+    getWorkers,
+    getWorkersInfo,
+    getWorkerInfo,
     registerWorker,
-    enableAll,
-    disableAll,
-    enableOne,
-    disableOne,
-    flipStateOne
+    enableWorkers,
+    disableWorkers,
+    flipWorkersState
   }
 }
 

@@ -1,0 +1,19 @@
+#txslist {
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+/* appear - on page load */
+.txslist-appear {
+  opacity: 0;
+  height: 0;
+  margin-bottom: 100px;
+  background-color: red;
+}
+
+.txslist-appear.txslist-appear-active {
+  opacity: 1;
+  height: 300px;
+  transition: opacity 500ms linear;
+}
+

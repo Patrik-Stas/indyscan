@@ -14,7 +14,7 @@ const dataspace = {
 const txSource = createSourceMemory({ id: 'inmem-mock', dataspace })
 const txTarget = createTargetMemory({ id: 'inmem-mock', dataspace })
 txTarget.addTxData('domain', 74631, 'original', txSchemaDef)
-const processor = createTransformerOriginal2Expansion({ id: 'foo', sourceLookups: txSource })
+const processor = createTransformerOriginal2Expansion({ sourceLookups: txSource })
 
 describe('domain/claim-def transaction transformations', () => {
   it('should transform domain CLAIM_DEF transaction', async () => {

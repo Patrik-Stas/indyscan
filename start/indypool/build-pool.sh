@@ -6,8 +6,8 @@
 # Example: POOL_ADDRESS=localhost ./build-pool.sh
 
 REPO_OWNER="hyperledger"
-INDY_VERSION="v1.14.2"
-TMP_INDYSDK=$(dirname "$0")/tmp-indysdk
+INDY_VERSION="v1.15.0"
+TMP_INDYSDK=/tmp/indyscan-indysdk
 
 DOCKER_BUILD_PARAMS="$1"
 

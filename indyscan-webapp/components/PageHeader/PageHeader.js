@@ -15,23 +15,23 @@ class PageHeader extends Component {
     }
   }
 
-  buildNextLinkHome(networkId) {
+  buildNextLinkHome (networkId) {
     return {
-      "href": `/home?network=${networkId}`,
-      "as": `/home/${networkId}`
+      'href': `/home?network=${networkId}`,
+      'as': `/home/${networkId}`
     }
   }
 
-  buildNextLink(page, network) {
+  buildNextLink (page, network) {
     if (page === 'home') {
       return {
-        "href": `/home?network=${network.id}`,
-        "as": `/home/${network.id}`
+        'href': `/home?network=${network.id}`,
+        'as': `/home/${network.id}`
       }
     } else {
       return {
-        "href": `/txs?network=${network.id}&ledger=${page}`,
-        "as": `/txs/${network.id}/${page}`
+        'href': `/txs?network=${network.id}&ledger=${page}`,
+        'as': `/txs/${network.id}/${page}`
       }
     }
   }
@@ -40,7 +40,7 @@ class PageHeader extends Component {
     let networkMenuLinks = []
     for (let i = 0; i < networks.length; i++) {
       const network = networks[i]
-      const {href, as} = this.buildNextLink(this.props.page, network)
+      const { href, as } = this.buildNextLink(this.props.page, network)
       networkMenuLinks.push(
         <MenuLink
           key={`netlink-${network.id}`}
@@ -61,32 +61,40 @@ class PageHeader extends Component {
 
   render () {
     const { network } = this.props
-    const {href: homeLinkHref, as: homeLinkAs} = this.buildNextLinkHome(network)
+    const { href: homeLinkHref, as: homeLinkAs } = this.buildNextLinkHome(network)
     return (
       <div>
-        <Grid id='page-header'>
-          <GridRow>
-            <h1>
-              <Link href={homeLinkHref} as={homeLinkAs}><a className='menulink' style={{ color: 'darkcyan' }}><div>IndyScan</div></a></Link>
-            </h1>
-          </GridRow>
-          <GridRow style={{ marginTop: '-2em' }}>
-            <h5>Hyperledger Indy transaction explorer</h5>
-          </GridRow>
+        <div id='page-header'>
+          <div id='indyscanlogo'>
+            <Link href={homeLinkHref} as={homeLinkAs}><a className='menulink' style={{ color: 'darkcyan' }}>
+              <img style={{ height: '7em' }} src="/static/radar.png" alt="Indyscan logo"/>
+            </a></Link>
+          </div>
+          <div id='indyscan-caption'>
+            <Link href={homeLinkHref} as={homeLinkAs}><a className='menulink' style={{ color: 'darkcyan' }}>
+              <h1>Indyscan</h1>
+            </a></Link>
+            <div>
+              <h2>Hyperledger Indy transaction explorer</h2>
+            </div>
+          </div>
+        </div>
+        <Grid container doubling stackable>
           {
             this.state.networks &&
             <GridRow>
               <GridColumn width={11}>
+                <div style={{ 'display': 'inline', color: 'gray', fontSize: '0.8em', marginRight: '1em' }}>Networks:
+                </div>
                 {this.renderNetworks(this.state.networks || [network], network)}
               </GridColumn>
               <GridColumn align='right' width={5}>
-                <Navbar page={this.props.page} network={this.props.network} />
+                <Navbar style={{ 'display': 'inline' }} page={this.props.page} network={this.props.network}/>
               </GridColumn>
             </GridRow>
           }
-
         </Grid>
-        <Divider />
+        <Divider/>
       </div>
     )
   }

@@ -2,14 +2,14 @@ import React, { Component } from 'react'
 import {
   Button,
   Card,
-  CardBody, CardHeader,
+  CardBody,
   Col,
   Row,
 } from 'reactstrap'
 import axios from 'axios'
 import { WorkersTable } from '../../components/WorkersTable'
-import util from 'util'
 import _ from 'lodash'
+import {daemonClient, daemonQueryBuilder} from "indyscan-daemon-api-client"
 
 class Workers extends Component {
 
@@ -20,7 +20,7 @@ class Workers extends Component {
 
   async reloadData () {
     try {
-      const { data: workersInfo } = await axios.get('/api/workers')
+      const workersInfo  = await daemonClient.getWorkers('')
       this.setState({ workersInfo })
     } catch (e) {
       console.log(e)
@@ -28,21 +28,22 @@ class Workers extends Component {
   }
 
   async componentDidMount () {
-    console.log(`Mounted.`)
     await this.reloadData()
   }
 
   async onSwitchWorker (workerId) {
-    console.log(`Click worker ${util.inspect(workerId)}`)
-    await axios.post(`/api/workers/${workerId}?flipState=true`, )
+    await daemonClient.flipWorkers('', daemonQueryBuilder.buildWorkersQuery(null, null, null, workerId))
+    await this.reloadData()
   }
 
   async enableAllWorkers () {
-    await axios.post(`/api/workers?enabled=true`)
+    await daemonClient.enableWorkers('')
+    await this.reloadData()
   }
 
   async disableAllWorkers () {
-    await axios.post(`/api/workers?enabled=false`)
+    await daemonClient.disableWorkers('')
+    await this.reloadData()
   }
 
   renderContent () {
@@ -50,7 +51,7 @@ class Workers extends Component {
     let networkTables = []
     for (const [indyNetworkId, workerInfos] of Object.entries(networkWorkerInfos)) {
       networkTables.push(
-        <WorkersTable key={indyNetworkId} networkId={indyNetworkId} workers={workerInfos} onSwitchWorker={this.onSwitchWorker}/>
+        <WorkersTable key={indyNetworkId} networkId={indyNetworkId} workers={workerInfos} onSwitchWorker={this.onSwitchWorker.bind(this)}/>
       )
     }
 
@@ -59,10 +60,10 @@ class Workers extends Component {
         <Card>
 
           <Button size="sm" color="success"
-                  onClick={this.enableAllWorkers}><i className="fa"></i>Enable all</Button>
+                  onClick={this.enableAllWorkers.bind(this)}><i className="fa"></i>Enable all</Button>
 
           <Button size="sm" color="danger"
-                  onClick={this.disableAllWorkers}><i className="fa"></i>Disable all</Button>
+                  onClick={this.disableAllWorkers.bind(this)}><i className="fa"></i>Disable all</Button>
           <CardBody>
             {networkTables}
           </CardBody>

@@ -7,10 +7,10 @@ const PRESET_SLOW = {
 }
 
 const PRESET_MEDIUM = {
-  timeoutOnSuccess: 6 * 1000,
+  timeoutOnSuccess: 4 * 1000,
   timeoutOnTxIngestionError: 60 * 1000,
   timeoutOnLedgerResolutionError: 60 * 1000,
-  timeoutOnTxNoFound: 20 * 1000,
+  timeoutOnTxNoFound: 9 * 1000,
   jitterRatio: 0.1
 }
 

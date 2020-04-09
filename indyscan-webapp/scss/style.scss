@@ -34,3 +34,43 @@ nav {
     animation: octocat-wave 560ms ease-in-out
   }
 }
+
+#pageanimation {
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+/* appear - on page load */
+.pageanimation-appear {
+  opacity: 0;
+  z-index: 1;
+}
+.pageanimation-appear.pageanimation-appear-active {
+  opacity: 1;
+  transition: opacity 300ms linear;
+}
+
+#txsanimation {
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+/* appear - on page load */
+.txsanimation-appear {
+  opacity: 0;
+  z-index: 1;
+}
+.txsanimation-appear.txsanimation-appear-active {
+  opacity: 1;
+  transition: opacity 300ms linear;
+}
+
+.data-content {
+  font-family: "Lucida Console", Monaco, monospace
+}
+
+
+.home-networkinfo {
+  font-size: 0.95em;
+  color: black;
+}

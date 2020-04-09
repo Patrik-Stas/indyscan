@@ -1,24 +1,4 @@
 /* eslint-env jest */
-
-// const createTxResolverWithError = () => {
-//   let errCount = 0
-//
-//   return async function txResolverWithError (subledger, seqNo) {
-//     return new Promise(function (resolve, reject) {
-//       if (errCount === 0 && seqNo === 2) {
-//         errCount++
-//         reject(Error(`Simulated transaction resolution error. ErrCount:${errCount}`))
-//       } else {
-//         resolve({
-//           network,
-//           subledger,
-//           txnMetadata: { seqNo }
-//         })
-//       }
-//     })
-//   }
-// }
-
 const { createWorkerRtw } = require('../../../src/workers/worker-rtw')
 const { createTransformerOriginal2Serialized } = require('../../../src/transformers/transformer-original2serialized')
 const { createTargetMemory } = require('../../../src/targets/target-memory')
@@ -50,10 +30,10 @@ const dataspace2 = {
   config: {}
 }
 const operationType = 'unit-test'
-const sourceLedgerSim = createSourceMemory({ operationType, componentId: 'ledger-source-simulation', dataspace: dataspace1 })
-const sourceDbSim = createSourceMemory({ operationType, componentId: 'db-source-simulation', dataspace: dataspace2 })
-const targetDbSim = createTargetMemory({ operationType, componentId: 'db-target-simulation', dataspace: dataspace2 })
-const originalSerializer = createTransformerOriginal2Serialized({ operationType: operationType, componentId: 'serializer' })
+const sourceLedgerSim = createSourceMemory({ operationType, dataspace: dataspace1 })
+const sourceDbSim = createSourceMemory({ operationType, dataspace: dataspace2 })
+const targetDbSim = createTargetMemory({ operationType, dataspace: dataspace2 })
+const originalSerializer = createTransformerOriginal2Serialized({ operationType: operationType })
 
 describe('ledger tx resolution', () => {
   beforeAll(async () => {
@@ -69,15 +49,11 @@ describe('ledger tx resolution', () => {
       jitterRatio: 0
     }
     const iteratorGuided = createIteratorGuided({
-      componentId: 'unit-test-iterator',
-      operationType: 'unit-test',
       source: sourceLedgerSim,
       sourceSeqNoGuidance: sourceDbSim,
       guidanceFormat: 'serialized'
     })
     const workerRtw = await createWorkerRtw({
-      componentId: 'unit-test-rtw',
-      operationType: 'unit-test',
       subledger: 'domain',
       iterator: iteratorGuided,
       iteratorTxFormat: TX_FORMAT_IN,

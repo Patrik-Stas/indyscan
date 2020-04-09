@@ -11,8 +11,8 @@ beforeEach(async () => {
     pool: {},
     config: {}
   }
-  target = createTargetMemory({ id: 'inmem-target', dataspace })
-  txSource = createSourceMemory({ id: 'inmem-source', dataspace })
+  target = createTargetMemory({ dataspace })
+  txSource = createSourceMemory({ dataspace })
 })
 
 describe('basic inmemory target testsuite', () => {

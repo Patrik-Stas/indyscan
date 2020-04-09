@@ -1,5 +1,36 @@
-.txPreview {
-  background-color: lightgrey;
-  margin: 10px;
-  width: 80%;
+.txitem {
+  opacity: 1;
+  height: 120px;
+  overflow: hidden;
+  text-align: left;
+  padding: 1.25em;
+
+  margin-top: 1em;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid rgba(96, 178, 178, 0.25);
+}
+
+.txitem-appear {
+  opacity: 0;
+  height: 0;
+  padding: 0;
+  background-color: #bbbbbb;
+  -webkit-transform: translateY(-30px);
+  transform: translateY(-30px);
+}
+
+.txitem-appear-active {
+  opacity: 1;
+  transition: 1000ms ease;
+  height: 120px;
+  padding: 1.25em;
+  background-color: #f9f9f9;
+  -webkit-transform: translateY(0px);
+  transform: translateY(0px);
+}
+
+.txitem-graytext {
+  font-size: .95em;
+  color: grey;
 }
