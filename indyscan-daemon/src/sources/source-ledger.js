@@ -5,7 +5,7 @@ const sleep = require('sleep-promise')
 async function createSourceLedger ({ indyNetworkId, name, genesisPath }) {
   let client = null
   let isConnecting = false
-  let consecutiveTxResolutionFailures
+  let consecutiveTxResolutionFailures = 0
 
   const loggerMetadata = {
     metadaemon: {
@@ -47,24 +47,16 @@ async function createSourceLedger ({ indyNetworkId, name, genesisPath }) {
       await sleep(100)
       waitingForConnection += 100
     }
-    if (!client) {
-      await reconnect()
-    }
     try {
-      return client.getTx(subledger, seqNo)
+      if (!client || consecutiveTxResolutionFailures !== 0) {
+        await tryReconnect()
+      }
+      const result = await client.getTx(subledger, seqNo)
+      consecutiveTxResolutionFailures = 0
+      return result
     } catch (err) {
       consecutiveTxResolutionFailures++
-      if (consecutiveTxResolutionFailures > 10) {
-        consecutiveTxResolutionFailures = 0
-        await reconnect()
-        try {
-          return client.getTx(subledger, seqNo)
-        } catch (err) {
-          throw Error(`Problem getting tx ${name}/${subledger}/${seqNo} after successful network reconnection has been done.`)
-        }
-      } else {
-        throw Error(`Problem getting tx ${name}/${subledger}/${seqNo}. Resolver consecutive failure count: ${consecutiveTxResolutionFailures}`)
-      }
+      throw Error(`Problem getting tx ${name}/${subledger}/${seqNo}. Resolver consecutive failure count: ${consecutiveTxResolutionFailures}`)
     }
   }
 
