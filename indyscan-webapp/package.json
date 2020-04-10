@@ -1,6 +1,6 @@
 {
   "name": "indyscan-webapp",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "Web application to browse Hyperledger Indy blockchain transactions.",
   "main": "index.js",
   "scripts": {
@@ -9,6 +9,8 @@
     "dev": "nodemon server/index.js",
     "test:unit": "jest tests/unit",
     "build": "next build",
+    "start": "next start",
+    "serve:dev": "NODE_ENV=dev node server/index.js",
     "serve": "NODE_ENV=production node server/index.js",
     "serve:localhost": "node server/index.js"
   },
