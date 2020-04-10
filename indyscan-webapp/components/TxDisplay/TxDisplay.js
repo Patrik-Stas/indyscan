@@ -1,6 +1,16 @@
 import React from 'react'
 import './TxDisplay.scss'
-import { GridRow, Item, Label, List } from 'semantic-ui-react'
+import {
+  GridRow,
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemHeader,
+  ItemMeta,
+  Label,
+  List
+} from 'semantic-ui-react'
 import { renderValuesAsBadges } from '../Common'
 import { converTxDataBasicToHumanReadable, extractTxDataBasic, extractTxDataDetailsHumanReadable, } from '../../txtools'
 import TimeAgoText from '../TimeAgoText/TimeAgoText'
@@ -44,20 +54,20 @@ const TxDisplay = ({ txIndyscan, txLedger }) => {
   const keyValBasicHumanReadable = converTxDataBasicToHumanReadable(keyValTxBasic)
   return (
     <GridRow>
-      <Item.Group>
+      <ItemGroup>
         <Item>
-          <Item.Content>
-            <Item.Header>{typeName} TX</Item.Header>
-            <Item.Meta><TimeAgoText sinceEpoch={new Date(txnTimeIso8601)} className='txdisplay-graytext'/></Item.Meta>
-            <Item.Description>
+          <ItemContent>
+            <ItemHeader>{typeName} TX</ItemHeader>
+            <ItemMeta><TimeAgoText sinceEpoch={new Date(txnTimeIso8601)} className='txdisplay-graytext'/></ItemMeta>
+            <ItemDescription>
               <List divided>
                 {renderKeyValues(keyValBasicHumanReadable, 'txbasic', 'blue')}
                 {renderKeyValues(keyValTxDetailsHumanReadable, 'txdetails', 'green')}
               </List>
-            </Item.Description>
-          </Item.Content>
+            </ItemDescription>
+          </ItemContent>
         </Item>
-      </Item.Group>
+      </ItemGroup>
     </GridRow>
   )
 }
