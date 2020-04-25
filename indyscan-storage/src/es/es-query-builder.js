@@ -28,6 +28,20 @@ function esFilterBySeqNo (seqNo) {
   }
 }
 
+function esSortSeqNoDescending() {
+  return { 'imeta.seqNo': { order: 'desc' } }
+}
+
+function esFilterFormatFieldValue(format, field, value) {
+  return {
+    term: {
+      [`idata.${format}.idata.${field}`] : {
+        value
+      }
+    }
+  }
+}
+
 function esFilterContainsFormat (format) {
   return {
     exists: {
@@ -133,3 +147,5 @@ module.exports.esAndFilters = esAndFilters
 module.exports.esOrFilters = esOrFilters
 module.exports.esFullTextsearch = esFullTextsearch
 module.exports.esFilterContainsFormat = esFilterContainsFormat
+module.exports.esFilterFormatFieldValue = esFilterFormatFieldValue
+module.exports.esSortSeqNoDescending = esSortSeqNoDescending
