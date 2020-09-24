@@ -6,16 +6,18 @@ RUN apk update && apk upgrade && \
 RUN apk add -y make
 RUN apk add -y g++
 RUN apk add -y python
+RUN npm install -g yarn
 
 WORKDIR /usr/src/app/indyscan-storage
 COPY indyscan-storage ./
 
 WORKDIR /usr/src/app/indyscan-api
 COPY indyscan-api/package*.json ./
-RUN npm install --only=prod
+RUN yarn install --production
 COPY indyscan-api ./
 
 FROM node:12.14.0-alpine3.9 as PRODUCTION
+RUN npm install -g yarn
 
 RUN apk update && apk upgrade
 COPY --from=BUILD /usr/src/app/indyscan-storage /usr/src/app/indyscan-storage
@@ -37,4 +39,4 @@ LABEL org.label-schema.name="IndyscanAPI"
 LABEL org.label-schema.description="Indyscan API"
 LABEL org.label-schema.vcs-url="https://github.com/Patrik-Stas/indyscan"
 
-CMD npm run start
+CMD yarn run start

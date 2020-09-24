@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y curl
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get install -y nodejs
 RUN apt-get -y remove curl && apt-get -y autoremove
+RUN npm install -g yarn
 
 FROM NODEJS as BUILD
 
@@ -31,7 +32,7 @@ COPY --chown=indyscan:indyscan indyscan-storage ./
 
 WORKDIR /home/indyscan/indyscan-daemon
 COPY --chown=indyscan:indyscan indyscan-daemon/package*.json ./
-RUN npm install --only=prod
+RUN yarn install --production
 COPY --chown=indyscan:indyscan indyscan-daemon ./
 
 FROM NODEJS as PRODUCTION
@@ -58,4 +59,4 @@ USER root
 RUN apt-get update && apt-get install -y curl
 USER indyscan
 
-CMD npm run start
+CMD yarn run start

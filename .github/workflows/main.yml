@@ -13,15 +13,15 @@ jobs:
     - name: Install dependencies
       run: |
         echo "Installing indyscan-storage"
-        (cd indyscan-storage && npm install)
+        (cd indyscan-storage && yarn install)
     - name: Linter
       run: |
         echo "Linting indyscan-storage"
-        (cd indyscan-storage && npm run lint)
+        (cd indyscan-storage && yarn run lint)
     - name: Unit tests
       run: |
         echo "Unit testing indyscan-storage"
-        (cd indyscan-storage && npm run test:unit)
+        (cd indyscan-storage && yarn run test:unit)
 
   lint-and-test-txtype:
     runs-on: ubuntu-16.04
@@ -33,15 +33,15 @@ jobs:
       - name: Install dependencies
         run: |
           echo "Installing indyscan-txtype"
-          (cd indyscan-txtype && npm install)
+          (cd indyscan-txtype && yarn install)
       - name: Linter
         run: |
           echo "Linting indyscan-txtype"
-          (cd indyscan-txtype && npm run lint)
+          (cd indyscan-txtype && yarn run lint)
       - name: Unit tests
         run: |
           echo "Unit testing indyscan-txtype"
-          (cd indyscan-txtype && npm run test:unit)
+          (cd indyscan-txtype && yarn run test:unit)
 
   lint-and-test-api-client:
     runs-on: ubuntu-16.04
@@ -53,15 +53,15 @@ jobs:
       - name: Install dependencies
         run: |
           echo "Installing indyscan-api-client"
-          (cd indyscan-api-client && npm install)
+          (cd indyscan-api-client && yarn install)
       - name: Linter
         run: |
           echo "Linting indyscan-api-client"
-          (cd indyscan-api-client && npm run lint)
+          (cd indyscan-api-client && yarn run lint)
       - name: Unit tests
         run: |
           echo "Unit testing indyscan-ap-client"
-          (cd indyscan-api-client && npm run test:unit)
+          (cd indyscan-api-client && yarn run test:unit)
 
 
   lint-and-test-api:
@@ -74,19 +74,19 @@ jobs:
       - name: Install dependencies
         run: |
           echo "Installing indyscan-storage"
-          (cd indyscan-storage && npm install)
+          (cd indyscan-storage && yarn install)
           echo "Installing indyscan-txtype"
-          (cd indyscan-txtype && npm install)
+          (cd indyscan-txtype && yarn install)
           echo "Installing indyscan-api"
-          (cd indyscan-api && npm install)
+          (cd indyscan-api && yarn install)
       - name: Linter
         run: |
           echo "Linting indyscan-api"
-          (cd indyscan-api && npm run lint)
+          (cd indyscan-api && yarn run lint)
       - name: Unit tests
         run: |
           echo "Unit testing indyscan-api"
-          (cd indyscan-api && npm run test:unit)
+          (cd indyscan-api && yarn run test:unit)
 
   lint-and-test-webapp:
     runs-on: ubuntu-16.04
@@ -98,15 +98,15 @@ jobs:
       - name: Install dependencies
         run: |
           echo "Installing indyscan-webapp"
-          (cd indyscan-webapp && npm install)
+          (cd indyscan-webapp && yarn install)
 #      - name: Linter  # TEMPORARILY DISABLED: Some problems after latest audit fix, standardjs failing to lint on this project
 #        run: |
 #          echo "Linting indyscan-webapp"
-#          (cd indyscan-webapp && npm run lint)
+#          (cd indyscan-webapp && yarn run lint)
       - name: Unit tests
         run: |
           echo "Unit testing indyscan-webapp"
-          (cd indyscan-webapp && npm run test:unit)
+          (cd indyscan-webapp && yarn run test:unit)
 
   build-nextjs-webapp:
     runs-on: ubuntu-16.04
@@ -118,11 +118,11 @@ jobs:
       - name: Install dependencies
         run: |
           echo "Installing indyscan-webapp"
-          (cd indyscan-webapp && npm install)
+          (cd indyscan-webapp && yarn install)
       - name: Build nextjs
         run: |
           echo "Building nextjs indyscan-webapp"
-          (cd indyscan-webapp && npm run build)
+          (cd indyscan-webapp && yarn run build)
 
   build-docker-api:
     runs-on: ubuntu-16.04
