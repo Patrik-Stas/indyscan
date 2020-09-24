@@ -6,7 +6,7 @@ RUN apk update && apk upgrade && \
 RUN apk add -y make
 RUN apk add -y g++
 RUN apk add -y python
-
+RUN npm install -g yarn
 
 WORKDIR /usr/src/app/indyscan-api-client
 COPY indyscan-api-client ./
@@ -16,9 +16,9 @@ COPY indyscan-txtype ./
 
 WORKDIR /usr/src/app/indyscan-webapp
 COPY indyscan-webapp ./
-RUN npm install
-RUN npm run build
-RUN npm prune --production
+RUN yarn install
+RUN yarn run build
+RUN yarn install --production --ignore-scripts --prefer-offline  ## https://github.com/yarnpkg/yarn/issues/696
 
 FROM node:12.14.0-alpine3.9 as PRODUCTION
 
@@ -27,6 +27,8 @@ COPY --from=BUILD /usr/src/app/indyscan-webapp /usr/src/app/indyscan-webapp
 COPY --from=BUILD /usr/src/app/indyscan-api-client /usr/src/app/indyscan-api-client
 COPY --from=BUILD /usr/src/app/indyscan-txtype /usr/src/app/indyscan-txtype
 WORKDIR /usr/src/app/indyscan-webapp
+
+RUN npm install -g yarn
 
 ENV PORT ${PORT:-"3707"}
 ENV INDYSCAN_API_URL ${INDYSCAN_API_URL:-"3708"}
@@ -41,4 +43,4 @@ LABEL org.label-schema.name="indyscan-webapp"
 LABEL org.label-schema.descriptsion="Serverside rendered UI for viewing Hyperledger Indy transactions via Indyscan API"
 LABEL org.label-schema.vcs-url="https://github.com/Patrik-Stas/indyscan"
 
-CMD npm run serve
+CMD yarn run serve

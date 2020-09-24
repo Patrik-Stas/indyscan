@@ -6,5 +6,5 @@ TARGET_PROJECTS=("indyscan-storage" "indyscan-txtype" "indyscan-daemon" "indysca
 for project in "${TARGET_PROJECTS[@]}";
 do
   echo "Linting and fixing $project"
-  cd "../$project" && npm run lint:fix
+  cd "../$project" && yarn run lint:fix
 done

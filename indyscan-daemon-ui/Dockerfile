@@ -4,6 +4,7 @@ FROM node:12.14.0-alpine3.9 as BASE
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh python make g++
 RUN mkdir -p /home/node/indyscan-daemon-ui && chown -R node:node /home/node/indyscan-daemon-ui
+RUN npm install -g yarn
 
 ################## build the app
 
@@ -20,12 +21,12 @@ USER node
 
 WORKDIR /home/node/indyscan-daemon-ui
 COPY --chown=node:node ./indyscan-daemon-ui/package.json ./
-COPY --chown=node:node ./indyscan-daemon-ui/package-lock.json ./
+COPY --chown=node:node ./indyscan-daemon-ui/yarn.lock ./
 COPY --chown=node:node ./indyscan-daemon-ui/public ./public
 COPY --chown=node:node ./indyscan-daemon-ui/src ./src
-RUN npm install
-RUN npm run build
-RUN npm prune --production
+RUN yarn install
+RUN yarn run build
+RUN yarn install --production --ignore-scripts --prefer-offline  ## https://github.com/yarnpkg/yarn/issues/696
 
 ################## serve the app
 FROM node:8.11.3-alpine as PROD
@@ -41,4 +42,4 @@ ENV PROXY_API_URL ${PROXY_API_URL:-"http://host.docker.internal:3001"}
 
 EXPOSE ${PORT}
 
-CMD npm run serve
+CMD yarn run serve
