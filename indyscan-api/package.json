@@ -19,7 +19,7 @@
     "express-validation": "^1.0.2",
     "fs-extra": "^4.0.2",
     "indyscan-storage": "file:../indyscan-storage",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "uuid": "^3.3.2",
     "winston": "^3.2.1",
     "write": "^1.0.3",
