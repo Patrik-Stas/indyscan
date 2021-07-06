@@ -23,9 +23,9 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^7.3.0",
+    "lodash": "^4.17.21",
     "mongodb": "^3.3.4",
-    "node-persist": "^3.0.4",
-    "lodash": "^4.17.15"
+    "node-persist": "^3.0.4"
   },
   "devDependencies": {
     "canonical-json": "0.0.4",

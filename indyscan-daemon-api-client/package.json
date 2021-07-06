@@ -24,7 +24,7 @@
     "jest-cli": "^25.0.0"
   },
   "dependencies": {
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "query-string": "^6.4.2"
   }
 }
