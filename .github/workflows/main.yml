@@ -7,12 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       CACHE_KEY_LIBINDY: ${{ steps.mainstep.outputs.CACHE_KEY_LIBINDY }}
-
       CACHE_KEY_API: ${{ steps.mainstep.outputs.CACHE_KEY_API }}
       CACHE_KEY_WEBAPP: ${{ steps.mainstep.outputs.CACHE_KEY_WEBAPP }}
       CACHE_KEY_DAEMON: ${{ steps.mainstep.outputs.CACHE_KEY_DAEMON }}
       CACHE_KEY_DAEMON_UI: ${{ steps.mainstep.outputs.CACHE_KEY_DAEMON_UI }}
 
+      DOCKER_IMG_NAME_LIBINDY: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_LIBINDY }}
       DOCKER_IMG_NAME_API: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_API }}
       DOCKER_IMG_NAME_WEBAPP: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_WEBAPP }}
       DOCKER_IMG_NAME_DAEMON: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_DAEMON }}
