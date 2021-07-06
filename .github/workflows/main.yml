@@ -3,6 +3,115 @@ name: CI
 on: [push]
 
 jobs:
+  workflow-setup:
+    runs-on: ubuntu-latest
+    outputs:
+      CACHE_KEY_API: ${{ steps.mainstep.outputs.CACHE_KEY_API }}
+      CACHE_KEY_WEBAPP: ${{ steps.mainstep.outputs.CACHE_KEY_WEBAPP }}
+      CACHE_KEY_DAEMON: ${{ steps.mainstep.outputs.CACHE_KEY_DAEMON }}
+      CACHE_KEY_DAEMON_UI: ${{ steps.mainstep.outputs.CACHE_KEY_DAEMON_UI }}
+
+      DOCKER_IMG_NAME_API: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_API }}
+      DOCKER_IMG_NAME_WEBAPP: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_WEBAPP }}
+      DOCKER_IMG_NAME_DAEMON: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_DAEMON }}
+      DOCKER_IMG_NAME_DAEMON_UI: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_DAEMON_UI }}
+
+      PUBLISH_VERSION: ${{ steps.mainstep.outputs.PUBLISH_VERSION }}
+      RELEASE: ${{ steps.mainstep.outputs.RELEASE }}
+      PRERELEASE: ${{ steps.mainstep.outputs.PRERELEASE }}
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+      - name: Set outputs
+        id: mainstep
+        run: |
+          set -x
+
+          if [[ -z "$GITHUB_HEAD_REF" ]]; then # is set only if pipeline run is triggered as pull request
+            BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+            echo "Setting BRANCH_NAME=$BRANCH_NAME because this pipeline is run as Push"
+          else
+            BRANCH_NAME=$GITHUB_HEAD_REF
+            echo "Setting BRANCH_NAME=$BRANCH_NAME because this pipeline is run as Pull Request"
+          fi
+
+          BRANCH_NAME=`echo $BRANCH_NAME | sed "s/[^[:alnum:]-]//g" | tr '[:upper:]' '[:lower:]'` # lowercase, only alphanumeric and dash
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "PR Labels: ${{ toJson(github.event.pull_request.labels.*.name) }}"
+
+            REPO_HEAD="${{ github.event.pull_request.head.repo.full_name }}" # source repository
+            REPO_BASE="${{ github.event.pull_request.head.base.full_name }}" # target repository
+            echo "This is pull request from $REPO_HEAD to $REPO_BASE"
+
+            if [[ "$REPO_HEAD" == "${{ github.repository }}" ]]; then
+              echo "This CI run is PR from non-forked repository."
+              IS_FORK="false";
+            else
+              echo "This is fork."
+              IS_FORK="true";
+            fi;
+          else
+            echo "Not PR so this is not fork."
+            IS_FORK="false";
+          fi;
+
+          REPO_VERSION_MOST_RECENT=$(git describe --tags --always --abbrev=0)
+          REPO_VERSION_DESIRED=$(cargo pkgid --manifest-path libvcx/Cargo.toml | cut -d# -f2 | cut -d: -f2)
+          echo "Highest released version was: $REPO_VERSION_MOST_RECENT, desired version (specified in libvcx/Cargo.toml) is $REPO_VERSION_DESIRED"
+
+          RELEASE="false"
+          PRERELEASE="false"
+
+          if [[ "$IS_FORK" == "false" ]]; then
+            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              if [[ "${{ contains(github.event.pull_request.labels.*.name, 'pre-release') }}" == "true" ]]; then
+                PRERELEASE="true"
+              fi;
+            elif [[ "${{ github.event_name }}" == "push" ]]; then
+              if [[ "$BRANCH_NAME" == "master" && "$REPO_VERSION_DESIRED" != "$REPO_VERSION_MOST_RECENT" ]]; then
+                PUBLISH_VERSION="$REPO_VERSION_DESIRED"
+                RELEASE="true"
+                echo "This is push to master, and version was bumped from $REPO_VERSION_MOST_RECENT to $REPO_VERSION_DESIRED. Will publish a release of $REPO_VERSION_DESIRED."
+              fi;
+            fi;
+
+            if [[ -z "$PUBLISH_VERSION" ]]; then
+              PUBLISH_VERSION="$REPO_VERSION_MOST_RECENT-$BRANCH_NAME-${{ github.run_number }}"
+            fi;
+
+            echo "CI will publish artifacts at version: $PUBLISH_VERSION"
+          else
+            echo "This PR is from fork, nothing will be published because the CI wouldn't be able to access repo secrets to perform publish."
+            PUBLISH_VERSION=""
+          fi;
+
+          HASH_INDYSCAN_WEBAPP=${{ hashFiles('indyscan-webapp') }}
+          HASH_INDYSCAN_API=${{ hashFiles('indyscan-api') }}
+          HASH_INDYSCAN_API_CLIENT=${{ hashFiles('indyscan-api-client') }}
+          HASH_INDYSCAN_DAEMON=${{ hashFiles('indyscan-daemon') }}
+          HASH_INDYSCAN_DAEMON_API_CLIENT=${{ hashFiles('indyscan-daemon-api-client') }}
+          HASH_INDYSCAN_DAEMON_UI=${{ hashFiles('indyscan-daemon-ui') }}
+          HASH_INDYSCAN_STORAGE=${{ hashFiles('indyscan-storage') }}
+          HASH_INDYSCAN_TXTYPE=${{ hashFiles('indyscan-txtype') }}
+
+          echo "::set-output name=PUBLISH_VERSION::$PUBLISH_VERSION"
+          echo "::set-output name=RELEASE::$RELEASE"
+          echo "::set-output name=PRERELEASE::$PRERELEASE"
+
+
+
+          echo "::set-output name=CACHE_KEY_API::${HASH_INDYSCAN_API:0:11}-${HASH_INDYSCAN_STORAGE:0:11}-${HASH_INDYSCAN_TXTYPE:0:11}"
+          echo "::set-output name=CACHE_KEY_WEBAPP::${HASH_INDYSCAN_WEBAPP:0:11}-${HASH_INDYSCAN_API_CLIENT:0:11}-${HASH_INDYSCAN_TXTYPE:0:11}"
+          echo "::set-output name=CACHE_KEY_DAEMON::${HASH_INDYSCAN_DAEMON:0:11}-${HASH_INDYSCAN_STORAGE:0:11}-${HASH_INDYSCAN_TXTYPE:0:11}"
+          echo "::set-output name=CACHE_KEY_DAEMON_UI::${HASH_INDYSCAN_DAEMON_UI:0:11}-${HASH_INDYSCAN_DAEMON_API_CLIENT:0:11}"
+
+          echo "::set-output name=DOCKER_IMG_NAME_API::api"
+          echo "::set-output name=DOCKER_IMG_NAME_WEBAPP::webapp"
+          echo "::set-output name=DOCKER_IMG_NAME_DAEMON::daemon"
+          echo "::set-output name=DOCKER_IMG_NAME_DAEMON_UI::daemon-ui"
+
   lint-and-test-storage:
     runs-on: ubuntu-16.04
     steps:
