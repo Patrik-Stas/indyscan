@@ -252,13 +252,13 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v2
       - name: Try load from cache.
-        id: cache-image-alpinecore
+        id: cache-image
         uses: actions/cache@v2
         with:
-          path: /tmp/imgcache_alpine_core
+          path: /tmp/docker
           key: ${{ env.CACHE_KEY_API }}
       - name: If NOT found in cache, build and cache image.
-        if: steps.cache-image-alpinecore.outputs.cache-hit != 'true'
+        if: steps.cache-image.outputs.cache-hit != 'true'
         run: |
           set -x
           docker build \
@@ -285,6 +285,40 @@ jobs:
           echo "Building docker for indyscan-webapp"
           (cd indyscan-webapp && yes | ./dockerbuild.sh)
 
+  build-docker-webapp-2:
+    needs: workflow-setup
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      CACHE_KEY_WEBAPP: ${{ needs.workflow-setup.outputs.CACHE_KEY_WEBAPP }}
+      DOCKER_IMG_NAME_WEBAPP: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_WEBAPP }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Try load from cache.
+        id: cache-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_WEBAPP }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image.outputs.cache-hit != 'true'
+        run: |
+          set -x
+          docker build \
+                       -f indyscan-webapp/Dockerfile \
+                       -t "$DOCKER_IMG_NAME_WEBAPP" \
+                        .
+          mkdir -p /tmp/docker
+          docker save "$DOCKER_IMG_NAME_WEBAPP" > /tmp/docker/img.rar
+
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/img.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_WEBAPP" || { echo "Image $DOCKER_IMG_NAME_WEBAPP was not found!" ; exit 1; }
+
   build-docker-daemon:
     runs-on: ubuntu-16.04
     steps:
@@ -297,6 +331,40 @@ jobs:
           echo "Building docker for indyscan-daemon"
           (cd indyscan-daemon && yes | ./dockerbuild.sh)
 
+  build-docker-daemon-2:
+    needs: workflow-setup
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      CACHE_KEY_DAEMON: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON }}
+      DOCKER_IMG_NAME_DAEMON: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Try load from cache.
+        id: cache-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_DAEMON }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image.outputs.cache-hit != 'true'
+        run: |
+          set -x
+          docker build \
+                       -f indyscan-daemon/Dockerfile \
+                       -t "$DOCKER_IMG_NAME_DAEMON" \
+                        .
+          mkdir -p /tmp/docker
+          docker save "$DOCKER_IMG_NAME_DAEMON" > /tmp/docker/img.rar
+
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/img.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON" || { echo "Image $DOCKER_IMG_NAME_DAEMON was not found!" ; exit 1; }
+
   build-daemon-ui:
     runs-on: ubuntu-16.04
     steps:
@@ -307,4 +375,36 @@ jobs:
           echo "Building docker for indyscan-daemon-ui"
           (cd indyscan-daemon-ui && yes | ./dockerbuild.sh)
 
+  build-docker-daemon-ui-2:
+    needs: workflow-setup
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      CACHE_KEY_DAEMON_UI: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON_UI }}
+      DOCKER_IMG_NAME_DAEMON_UI: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON_UI }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Try load from cache.
+        id: cache-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_DAEMON_UI }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image.outputs.cache-hit != 'true'
+        run: |
+          set -x
+          docker build \
+                       -f indyscan-daemon/Dockerfile \
+                       -t "$DOCKER_IMG_NAME_DAEMON_UI" \
+                        .
+          mkdir -p /tmp/docker
+          docker save "$DOCKER_IMG_NAME_DAEMON_UI" > /tmp/docker/img.rar
 
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/img.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON_UI" || { echo "Image $DOCKER_IMG_NAME_DAEMON_UI was not found!" ; exit 1; }
