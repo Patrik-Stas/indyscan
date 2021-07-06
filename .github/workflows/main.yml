@@ -6,6 +6,8 @@ jobs:
   workflow-setup:
     runs-on: ubuntu-latest
     outputs:
+      CACHE_KEY_LIBINDY: ${{ steps.mainstep.outputs.CACHE_KEY_LIBINDY }}
+
       CACHE_KEY_API: ${{ steps.mainstep.outputs.CACHE_KEY_API }}
       CACHE_KEY_WEBAPP: ${{ steps.mainstep.outputs.CACHE_KEY_WEBAPP }}
       CACHE_KEY_DAEMON: ${{ steps.mainstep.outputs.CACHE_KEY_DAEMON }}
@@ -87,6 +89,7 @@ jobs:
             PUBLISH_VERSION=""
           fi;
 
+          HASH_DOCKERFILE_LIBINDY=${{ hashFiles('./ubuntu-libindy/Dockerfile') }}
           HASH_INDYSCAN_WEBAPP=${{ hashFiles('indyscan-webapp') }}
           HASH_INDYSCAN_API=${{ hashFiles('indyscan-api') }}
           HASH_INDYSCAN_API_CLIENT=${{ hashFiles('indyscan-api-client') }}
@@ -96,15 +99,18 @@ jobs:
           HASH_INDYSCAN_STORAGE=${{ hashFiles('indyscan-storage') }}
           HASH_INDYSCAN_TXTYPE=${{ hashFiles('indyscan-txtype') }}
 
+          echo "::set-output name=CACHE_KEY_LIBINDY::${HASH_DOCKERFILE_LIBINDY:0:11}"
+
           echo "::set-output name=CACHE_KEY_API::${HASH_INDYSCAN_API:0:11}-${HASH_INDYSCAN_STORAGE:0:11}-${HASH_INDYSCAN_TXTYPE:0:11}"
           echo "::set-output name=CACHE_KEY_WEBAPP::${HASH_INDYSCAN_WEBAPP:0:11}-${HASH_INDYSCAN_API_CLIENT:0:11}-${HASH_INDYSCAN_TXTYPE:0:11}"
           echo "::set-output name=CACHE_KEY_DAEMON::${HASH_INDYSCAN_DAEMON:0:11}-${HASH_INDYSCAN_STORAGE:0:11}-${HASH_INDYSCAN_TXTYPE:0:11}"
           echo "::set-output name=CACHE_KEY_DAEMON_UI::${HASH_INDYSCAN_DAEMON_UI:0:11}-${HASH_INDYSCAN_DAEMON_API_CLIENT:0:11}"
 
-          echo "::set-output name=DOCKER_IMG_NAME_API::api"
-          echo "::set-output name=DOCKER_IMG_NAME_WEBAPP::webapp"
-          echo "::set-output name=DOCKER_IMG_NAME_DAEMON::daemon"
-          echo "::set-output name=DOCKER_IMG_NAME_DAEMON_UI::daemon-ui"
+          echo "::set-output name=DOCKER_IMG_NAME_LIBINDY::indyscan-indysdk"
+          echo "::set-output name=DOCKER_IMG_NAME_API::indyscan-api"
+          echo "::set-output name=DOCKER_IMG_NAME_WEBAPP::indyscan-webapp"
+          echo "::set-output name=DOCKER_IMG_NAME_DAEMON::indyscan-daemon"
+          echo "::set-output name=DOCKER_IMG_NAME_DAEMON_UI::indyscan-daemon-ui"
 
           echo "::set-output name=PUBLISH_VERSION::$PUBLISH_VERSION"
           echo "::set-output name=RELEASE::$RELEASE"
@@ -319,28 +325,77 @@ jobs:
         run: |
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_WEBAPP" || { echo "Image $DOCKER_IMG_NAME_WEBAPP was not found!" ; exit 1; }
 
-  build-docker-daemon:
-    runs-on: ubuntu-16.04
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v1
-      - name: Building docker image
-        run: |
-          echo "Building base docker image for indyscan-daemon"
-          (cd ubuntu-libindy && yes | ./dockerbuild.sh)
-          echo "Building docker for indyscan-daemon"
-          (cd indyscan-daemon && yes | ./dockerbuild.sh)
+#  build-docker-daemon:
+#    runs-on: ubuntu-16.04
+#    steps:
+#      - name: Git checkout
+#        uses: actions/checkout@v1
+#      - name: Building docker image
+#        run: |
+#          echo "Building base docker image for indyscan-daemon"
+#          (cd ubuntu-libindy && yes | ./dockerbuild.sh)
+#          echo "Building docker for indyscan-daemon"
+#          (cd indyscan-daemon && yes | ./dockerbuild.sh)
 
-  build-docker-daemon-2:
+  build-docker-libindy:
     needs: workflow-setup
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
+      CACHE_KEY_LIBINDY: ${{ needs.workflow-setup.outputs.CACHE_KEY_LIBINDY }}
+      DOCKER_IMG_NAME_LIBINDY: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_LIBINDY }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Try load from cache.
+        id: cache-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_LIBINDY }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image.outputs.cache-hit != 'true'
+        run: |
+          set -x
+          docker build \
+                       -f ubuntu-libindy/Dockerfile \
+                       -t "$DOCKER_IMG_NAME_LIBINDY" \
+                        .
+          mkdir -p /tmp/docker
+          docker save "$DOCKER_IMG_NAME_LIBINDY" > /tmp/docker/$DOCKER_IMG_NAME_LIBINDY.rar
+
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/$DOCKER_IMG_NAME_LIBINDY.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_LIBINDY" || { echo "Image $DOCKER_IMG_NAME_LIBINDY was not found!" ; exit 1; }
+
+  build-docker-daemon-2:
+    needs: [workflow-setup, build-docker-libindy]
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      CACHE_KEY_LIBINDY: ${{ needs.workflow-setup.outputs.CACHE_KEY_LIBINDY }}
+      DOCKER_IMG_NAME_LIBINDY: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_LIBINDY }}
       CACHE_KEY_DAEMON: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON }}
       DOCKER_IMG_NAME_DAEMON: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON }}
     steps:
       - name: Git checkout
         uses: actions/checkout@v2
+      - name: Try load base libindy image from cache.
+        id: cache-image-libindy
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_LIBINDY }}
+      - name: If NOT found in cache, error.
+        if: steps.cache-image-libindy.outputs.cache-hit != 'true'
+        run: exit -1
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/$DOCKER_IMG_NAME_LIBINDY.rar
+
       - name: Try load from cache.
         id: cache-image
         uses: actions/cache@v2
@@ -364,16 +419,6 @@ jobs:
       - name: Verify image was loaded
         run: |
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON" || { echo "Image $DOCKER_IMG_NAME_DAEMON was not found!" ; exit 1; }
-
-  build-daemon-ui:
-    runs-on: ubuntu-16.04
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v1
-      - name: Building docker image
-        run: |
-          echo "Building docker for indyscan-daemon-ui"
-          (cd indyscan-daemon-ui && yes | ./dockerbuild.sh)
 
   build-docker-daemon-ui-2:
     needs: workflow-setup

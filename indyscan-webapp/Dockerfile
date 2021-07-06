@@ -3,9 +3,9 @@ FROM node:12.14.0-alpine3.9 as BUILD
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh
 
-RUN apk add -y make
-RUN apk add -y g++
-RUN apk add -y python
+RUN apk add make
+RUN apk add g++
+RUN apk add python
 
 
 WORKDIR /usr/src/app/indyscan-api-client
