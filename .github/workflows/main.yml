@@ -221,22 +221,6 @@ jobs:
           echo "Unit testing indyscan-webapp"
           (cd indyscan-webapp && npm run test:unit)
 
-  build-nextjs-webapp:
-    runs-on: ubuntu-16.04
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v1
-      - name: Branch name
-        run: echo running on branch ${GITHUB_REF##*/}
-      - name: Install dependencies
-        run: |
-          echo "Installing indyscan-webapp"
-          (cd indyscan-webapp && npm install)
-      - name: Build nextjs
-        run: |
-          echo "Building nextjs indyscan-webapp"
-          (cd indyscan-webapp && npm run build)
-
   build-docker-api:
     needs: workflow-setup
     runs-on: ubuntu-latest
