@@ -50,7 +50,7 @@ USER indy
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain 1.45.1
 ENV PATH /home/indy/.cargo/bin:$PATH
 
-ARG INDYSDK_REPO_OWNER=hyperledger
+ARG INDYSDK_REPO=https://github.com/hyperledger/indy-sdk
 ARG INDYSDK_REVISION=v1.15.0
 
 RUN git clone "${INDYSDK_REPO}" "./indy-sdk"
