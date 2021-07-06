@@ -47,11 +47,11 @@ WORKDIR /home/indy
 RUN chown -R indy:indy /home/indy
 USER indy
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain 1.39.0
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain 1.45.1
 ENV PATH /home/indy/.cargo/bin:$PATH
 
-ARG INDYSDK_REVISION
-ARG INDYSDK_REPO
+ARG INDYSDK_REPO_OWNER=hyperledger
+ARG INDYSDK_REVISION=v1.15.0
 
 RUN git clone "${INDYSDK_REPO}" "./indy-sdk"
 RUN cd "/home/indy/indy-sdk" && git checkout "${INDYSDK_REVISION}"
