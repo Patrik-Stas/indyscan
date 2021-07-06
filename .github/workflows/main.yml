@@ -422,13 +422,13 @@ jobs:
         run: |
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON_UI" || { echo "Image $DOCKER_IMG_NAME_DAEMON_UI was not found!" ; exit 1; }
 
-  public-docker-api:
+  publish-docker-api:
     runs-on: ubuntu-16.04
     needs: [workflow-setup, build-docker-api]
     env:
       CACHE_KEY_API: ${{ needs.workflow-setup.outputs.CACHE_KEY_API }}
       DOCKER_IMG_NAME_API: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_API }}
-      PUBLISH_VERSION: ${{needs.workflow-setup.outputs.PUBLISH_VERSION}}
+      PUBLISH_VERSION: ${{ needs.workflow-setup.outputs.PUBLISH_VERSION }}
     steps:
       - name: Git checkout
         uses: actions/checkout@v2
@@ -462,6 +462,141 @@ jobs:
             REMOTE_DOCKER_IMG_NAME="docker.pkg.github.com/${GITHUB_REPOSITORY_LOWERCASE}/${DOCKER_IMG_NAME_TAGLESS}:${PUBLISH_VERSION}"
             echo "Publishing image $REMOTE_DOCKER_IMG_NAME"
             docker tag "$DOCKER_IMG_NAME_API" "$REMOTE_DOCKER_IMG_NAME"
+            docker push "$REMOTE_DOCKER_IMG_NAME" || true
+          else
+             echo "New version was not defined, skipping release."
+          fi
+
+  publish-docker-webapp:
+    runs-on: ubuntu-16.04
+    needs: [workflow-setup, build-docker-api]
+    env:
+      CACHE_KEY_WEBAPP: ${{ needs.workflow-setup.outputs.CACHE_KEY_WEBAPP }}
+      DOCKER_IMG_NAME_WEBAPP: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_WEBAPP }}
+      PUBLISH_VERSION: ${{ needs.workflow-setup.outputs.PUBLISH_VERSION }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Load image cache
+        id: load-cached-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_WEBAPP }}
+      - name: If no cached image found
+        if: steps.load-cached-image.outputs.cache-hit != 'true'
+        run: echo "ERROR == Expected to find image from cache $CACHE_KEY_WEBAPP"; exit -1
+      - name: Load image from cache
+        run: docker load < /tmp/docker/img.rar
+      - name: Verify libvcx image were loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_WEBAPP" || { echo "Image $DOCKER_IMG_NAME_WEBAPP was not found!" ; exit 1; }
+      - name: Docker Login
+        uses: azure/docker-login@v1
+        with:
+          login-server: docker.pkg.github.com
+          username: $GITHUB_ACTOR
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish image
+        run: |
+          if [[ "$PUBLISH_VERSION" ]]
+          then
+            IFS=$':' read -a arr <<< $DOCKER_IMG_NAME_WEBAPP
+            DOCKER_IMG_NAME_TAGLESS=${arr[0]}
+            GITHUB_REPOSITORY_LOWERCASE=`echo $GITHUB_REPOSITORY | awk '{print tolower($0)}'`
+            REMOTE_DOCKER_IMG_NAME="docker.pkg.github.com/${GITHUB_REPOSITORY_LOWERCASE}/${DOCKER_IMG_NAME_TAGLESS}:${PUBLISH_VERSION}"
+            echo "Publishing image $REMOTE_DOCKER_IMG_NAME"
+            docker tag "$DOCKER_IMG_NAME_WEBAPP" "$REMOTE_DOCKER_IMG_NAME"
+            docker push "$REMOTE_DOCKER_IMG_NAME" || true
+          else
+             echo "New version was not defined, skipping release."
+          fi
+
+  publish-docker-daemon:
+    runs-on: ubuntu-16.04
+    needs: [workflow-setup, build-docker-api]
+    env:
+      CACHE_KEY_DAEMON: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON }}
+      DOCKER_IMG_NAME_DAEMON: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON }}
+      PUBLISH_VERSION: ${{ needs.workflow-setup.outputs.PUBLISH_VERSION }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Load image cache
+        id: load-cached-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_DAEMON }}
+      - name: If no cached image found
+        if: steps.load-cached-image.outputs.cache-hit != 'true'
+        run: echo "ERROR == Expected to find image from cache $CACHE_KEY_DAEMON"; exit -1
+      - name: Load image from cache
+        run: docker load < /tmp/docker/img.rar
+      - name: Verify libvcx image were loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON" || { echo "Image $DOCKER_IMG_NAME_DAEMON was not found!" ; exit 1; }
+      - name: Docker Login
+        uses: azure/docker-login@v1
+        with:
+          login-server: docker.pkg.github.com
+          username: $GITHUB_ACTOR
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish image
+        run: |
+          if [[ "$PUBLISH_VERSION" ]]
+          then
+            IFS=$':' read -a arr <<< $DOCKER_IMG_NAME_DAEMON
+            DOCKER_IMG_NAME_TAGLESS=${arr[0]}
+            GITHUB_REPOSITORY_LOWERCASE=`echo $GITHUB_REPOSITORY | awk '{print tolower($0)}'`
+            REMOTE_DOCKER_IMG_NAME="docker.pkg.github.com/${GITHUB_REPOSITORY_LOWERCASE}/${DOCKER_IMG_NAME_TAGLESS}:${PUBLISH_VERSION}"
+            echo "Publishing image $REMOTE_DOCKER_IMG_NAME"
+            docker tag "$DOCKER_IMG_NAME_DAEMON" "$REMOTE_DOCKER_IMG_NAME"
+            docker push "$REMOTE_DOCKER_IMG_NAME" || true
+          else
+             echo "New version was not defined, skipping release."
+          fi
+
+  publish-docker-daemon-ui:
+    runs-on: ubuntu-16.04
+    needs: [workflow-setup, build-docker-api]
+    env:
+      CACHE_KEY_DAEMON_UI: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON_UI }}
+      DOCKER_IMG_NAME_DAEMON_UI: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON_UI }}
+      PUBLISH_VERSION: ${{ needs.workflow-setup.outputs.PUBLISH_VERSION }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Load image cache
+        id: load-cached-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_DAEMON_UI }}
+      - name: If no cached image found
+        if: steps.load-cached-image.outputs.cache-hit != 'true'
+        run: echo "ERROR == Expected to find image from cache $CACHE_KEY_DAEMON_UI"; exit -1
+      - name: Load image from cache
+        run: docker load < /tmp/docker/img.rar
+      - name: Verify libvcx image were loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON_UI" || { echo "Image $DOCKER_IMG_NAME_DAEMON_UI was not found!" ; exit 1; }
+      - name: Docker Login
+        uses: azure/docker-login@v1
+        with:
+          login-server: docker.pkg.github.com
+          username: $GITHUB_ACTOR
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish image
+        run: |
+          if [[ "$PUBLISH_VERSION" ]]
+          then
+            IFS=$':' read -a arr <<< $DOCKER_IMG_NAME_DAEMON_UI
+            DOCKER_IMG_NAME_TAGLESS=${arr[0]}
+            GITHUB_REPOSITORY_LOWERCASE=`echo $GITHUB_REPOSITORY | awk '{print tolower($0)}'`
+            REMOTE_DOCKER_IMG_NAME="docker.pkg.github.com/${GITHUB_REPOSITORY_LOWERCASE}/${DOCKER_IMG_NAME_TAGLESS}:${PUBLISH_VERSION}"
+            echo "Publishing image $REMOTE_DOCKER_IMG_NAME"
+            docker tag "$DOCKER_IMG_NAME_DAEMON_UI" "$REMOTE_DOCKER_IMG_NAME"
             docker push "$REMOTE_DOCKER_IMG_NAME" || true
           else
              echo "New version was not defined, skipping release."
