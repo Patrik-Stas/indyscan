@@ -409,7 +409,7 @@ jobs:
         run: |
           set -x
           docker build \
-                       -f indyscan-daemon/Dockerfile \
+                       -f indyscan-daemon-ui/Dockerfile \
                        -t "$DOCKER_IMG_NAME_DAEMON_UI" \
                         .
           mkdir -p /tmp/docker
