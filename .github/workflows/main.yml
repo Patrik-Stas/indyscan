@@ -3,6 +3,119 @@ name: CI
 on: [push]
 
 jobs:
+  workflow-setup:
+    runs-on: ubuntu-latest
+    outputs:
+      CACHE_KEY_LIBINDY: ${{ steps.mainstep.outputs.CACHE_KEY_LIBINDY }}
+      CACHE_KEY_API: ${{ steps.mainstep.outputs.CACHE_KEY_API }}
+      CACHE_KEY_WEBAPP: ${{ steps.mainstep.outputs.CACHE_KEY_WEBAPP }}
+      CACHE_KEY_DAEMON: ${{ steps.mainstep.outputs.CACHE_KEY_DAEMON }}
+      CACHE_KEY_DAEMON_UI: ${{ steps.mainstep.outputs.CACHE_KEY_DAEMON_UI }}
+
+      DOCKER_IMG_NAME_LIBINDY: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_LIBINDY }}
+      DOCKER_IMG_NAME_API: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_API }}
+      DOCKER_IMG_NAME_WEBAPP: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_WEBAPP }}
+      DOCKER_IMG_NAME_DAEMON: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_DAEMON }}
+      DOCKER_IMG_NAME_DAEMON_UI: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_DAEMON_UI }}
+
+      PUBLISH_VERSION: ${{ steps.mainstep.outputs.PUBLISH_VERSION }}
+      RELEASE: ${{ steps.mainstep.outputs.RELEASE }}
+      PRERELEASE: ${{ steps.mainstep.outputs.PRERELEASE }}
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+      - name: Set outputs
+        id: mainstep
+        run: |
+          set -x
+
+          if [[ -z "$GITHUB_HEAD_REF" ]]; then # is set only if pipeline run is triggered as pull request
+            BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+            echo "Setting BRANCH_NAME=$BRANCH_NAME because this pipeline is run as Push"
+          else
+            BRANCH_NAME=$GITHUB_HEAD_REF
+            echo "Setting BRANCH_NAME=$BRANCH_NAME because this pipeline is run as Pull Request"
+          fi
+
+          BRANCH_NAME=`echo $BRANCH_NAME | sed "s/[^[:alnum:]-]//g" | tr '[:upper:]' '[:lower:]'` # lowercase, only alphanumeric and dash
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "PR Labels: ${{ toJson(github.event.pull_request.labels.*.name) }}"
+
+            REPO_HEAD="${{ github.event.pull_request.head.repo.full_name }}" # source repository
+            REPO_BASE="${{ github.event.pull_request.head.base.full_name }}" # target repository
+            echo "This is pull request from $REPO_HEAD to $REPO_BASE"
+
+            if [[ "$REPO_HEAD" == "${{ github.repository }}" ]]; then
+              echo "This CI run is PR from non-forked repository."
+              IS_FORK="false";
+            else
+              echo "This is fork."
+              IS_FORK="true";
+            fi;
+          else
+            echo "Not PR so this is not fork."
+            IS_FORK="false";
+          fi;
+
+          REPO_VERSION_MOST_RECENT=$(git describe --tags --always --abbrev=0)
+          REPO_VERSION_DESIRED=`bash ./get-version.sh`
+          echo "Highest released version was: $REPO_VERSION_MOST_RECENT, desired version is: $REPO_VERSION_DESIRED"
+
+          RELEASE="false"
+          PRERELEASE="false"
+
+          if [[ "$IS_FORK" == "false" ]]; then
+            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              if [[ "${{ contains(github.event.pull_request.labels.*.name, 'pre-release') }}" == "true" ]]; then
+                PRERELEASE="true"
+              fi;
+            elif [[ "${{ github.event_name }}" == "push" ]]; then
+              if [[ "$BRANCH_NAME" == "master" && "$REPO_VERSION_DESIRED" != "$REPO_VERSION_MOST_RECENT" ]]; then
+                PUBLISH_VERSION="$REPO_VERSION_DESIRED"
+                RELEASE="true"
+                echo "This is push to master, and version was bumped from $REPO_VERSION_MOST_RECENT to $REPO_VERSION_DESIRED. Will publish a release of $REPO_VERSION_DESIRED."
+              fi;
+            fi;
+
+            if [[ -z "$PUBLISH_VERSION" ]]; then
+              PUBLISH_VERSION="$REPO_VERSION_MOST_RECENT-$BRANCH_NAME-${{ github.run_number }}"
+            fi;
+
+            echo "CI will publish artifacts at version: $PUBLISH_VERSION"
+          else
+            echo "This PR is from fork, nothing will be published because the CI wouldn't be able to access repo secrets to perform publish."
+            PUBLISH_VERSION=""
+          fi;
+
+          HASH_DOCKERFILE_LIBINDY=${{ hashFiles('./ubuntu-libindy/Dockerfile') }}
+          HASH_INDYSCAN_WEBAPP=${{ hashFiles('indyscan-webapp') }}
+          HASH_INDYSCAN_API=${{ hashFiles('indyscan-api') }}
+          HASH_INDYSCAN_API_CLIENT=${{ hashFiles('indyscan-api-client') }}
+          HASH_INDYSCAN_DAEMON=${{ hashFiles('indyscan-daemon') }}
+          HASH_INDYSCAN_DAEMON_API_CLIENT=${{ hashFiles('indyscan-daemon-api-client') }}
+          HASH_INDYSCAN_DAEMON_UI=${{ hashFiles('indyscan-daemon-ui') }}
+          HASH_INDYSCAN_STORAGE=${{ hashFiles('indyscan-storage') }}
+          HASH_INDYSCAN_TXTYPE=${{ hashFiles('indyscan-txtype') }}
+
+          echo "::set-output name=CACHE_KEY_LIBINDY::${HASH_DOCKERFILE_LIBINDY:0:11}"
+
+          echo "::set-output name=CACHE_KEY_API::${HASH_INDYSCAN_API:0:12}-${HASH_INDYSCAN_STORAGE:0:12}-${HASH_INDYSCAN_TXTYPE:0:12}"
+          echo "::set-output name=CACHE_KEY_WEBAPP::${HASH_INDYSCAN_WEBAPP:0:12}-${HASH_INDYSCAN_API_CLIENT:0:12}-${HASH_INDYSCAN_TXTYPE:0:12}"
+          echo "::set-output name=CACHE_KEY_DAEMON::${HASH_INDYSCAN_DAEMON:0:12}-${HASH_INDYSCAN_STORAGE:0:12}-${HASH_INDYSCAN_TXTYPE:0:12}"
+          echo "::set-output name=CACHE_KEY_DAEMON_UI::${HASH_INDYSCAN_DAEMON_UI:0:12}-${HASH_INDYSCAN_DAEMON_API_CLIENT:0:12}"
+
+          echo "::set-output name=DOCKER_IMG_NAME_LIBINDY::indyscan-indysdk"
+          echo "::set-output name=DOCKER_IMG_NAME_API::indyscan-api"
+          echo "::set-output name=DOCKER_IMG_NAME_WEBAPP::indyscan-webapp"
+          echo "::set-output name=DOCKER_IMG_NAME_DAEMON::indyscan-daemon"
+          echo "::set-output name=DOCKER_IMG_NAME_DAEMON_UI::indyscan-daemon-ui"
+
+          echo "::set-output name=PUBLISH_VERSION::$PUBLISH_VERSION"
+          echo "::set-output name=RELEASE::$RELEASE"
+          echo "::set-output name=PRERELEASE::$PRERELEASE"
+
   lint-and-test-storage:
     runs-on: ubuntu-16.04
     steps:
@@ -108,62 +221,428 @@ jobs:
           echo "Unit testing indyscan-webapp"
           (cd indyscan-webapp && npm run test:unit)
 
-  build-nextjs-webapp:
-    runs-on: ubuntu-16.04
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v1
-      - name: Branch name
-        run: echo running on branch ${GITHUB_REF##*/}
-      - name: Install dependencies
-        run: |
-          echo "Installing indyscan-webapp"
-          (cd indyscan-webapp && npm install)
-      - name: Build nextjs
-        run: |
-          echo "Building nextjs indyscan-webapp"
-          (cd indyscan-webapp && npm run build)
-
   build-docker-api:
-    runs-on: ubuntu-16.04
+    needs: workflow-setup
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      CACHE_KEY_API: ${{ needs.workflow-setup.outputs.CACHE_KEY_API }}
+      DOCKER_IMG_NAME_API: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_API }}
     steps:
       - name: Git checkout
-        uses: actions/checkout@v1
-      - name: Building docker image
+        uses: actions/checkout@v2
+      - name: Try load from cache.
+        id: cache-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_API }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image.outputs.cache-hit != 'true'
         run: |
-          echo "Building docker for indyscan-api"
-          (cd indyscan-api && yes | ./dockerbuild.sh)
+          set -x
+          docker build \
+                       -f indyscan-api/Dockerfile \
+                       -t "$DOCKER_IMG_NAME_API" \
+                        .
+          mkdir -p /tmp/docker
+          docker save "$DOCKER_IMG_NAME_API" > /tmp/docker/img.rar
+
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/img.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_API" || { echo "Image $DOCKER_IMG_NAME_API was not found!" ; exit 1; }
 
   build-docker-webapp:
-    runs-on: ubuntu-16.04
+    needs: workflow-setup
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      CACHE_KEY_WEBAPP: ${{ needs.workflow-setup.outputs.CACHE_KEY_WEBAPP }}
+      DOCKER_IMG_NAME_WEBAPP: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_WEBAPP }}
     steps:
       - name: Git checkout
-        uses: actions/checkout@v1
-      - name: Building docker image
+        uses: actions/checkout@v2
+      - name: Try load from cache.
+        id: cache-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_WEBAPP }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image.outputs.cache-hit != 'true'
         run: |
-          echo "Building docker for indyscan-webapp"
-          (cd indyscan-webapp && yes | ./dockerbuild.sh)
+          set -x
+          docker build \
+                       -f indyscan-webapp/Dockerfile \
+                       -t "$DOCKER_IMG_NAME_WEBAPP" \
+                        .
+          mkdir -p /tmp/docker
+          docker save "$DOCKER_IMG_NAME_WEBAPP" > /tmp/docker/img.rar
+
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/img.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_WEBAPP" || { echo "Image $DOCKER_IMG_NAME_WEBAPP was not found!" ; exit 1; }
+
+  build-docker-libindy:
+    needs: workflow-setup
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      CACHE_KEY_LIBINDY: ${{ needs.workflow-setup.outputs.CACHE_KEY_LIBINDY }}
+      DOCKER_IMG_NAME_LIBINDY: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_LIBINDY }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Try load from cache.
+        id: cache-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_LIBINDY }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image.outputs.cache-hit != 'true'
+        run: |
+          set -x
+          docker build \
+                       -f ubuntu-libindy/Dockerfile \
+                       -t "$DOCKER_IMG_NAME_LIBINDY" \
+                        .
+          mkdir -p /tmp/docker
+          docker save "$DOCKER_IMG_NAME_LIBINDY" > /tmp/docker/$DOCKER_IMG_NAME_LIBINDY.rar
+
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/$DOCKER_IMG_NAME_LIBINDY.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_LIBINDY" || { echo "Image $DOCKER_IMG_NAME_LIBINDY was not found!" ; exit 1; }
 
   build-docker-daemon:
-    runs-on: ubuntu-16.04
+    needs: [workflow-setup, build-docker-libindy]
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      CACHE_KEY_LIBINDY: ${{ needs.workflow-setup.outputs.CACHE_KEY_LIBINDY }}
+      DOCKER_IMG_NAME_LIBINDY: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_LIBINDY }}
+      CACHE_KEY_DAEMON: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON }}
+      DOCKER_IMG_NAME_DAEMON: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON }}
     steps:
       - name: Git checkout
-        uses: actions/checkout@v1
-      - name: Building docker image
+        uses: actions/checkout@v2
+      - name: Try load base libindy image from cache.
+        id: cache-image-libindy
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_LIBINDY }}
+      - name: If NOT found in cache, error.
+        if: steps.cache-image-libindy.outputs.cache-hit != 'true'
+        run: exit -1
+      - name: Load image from cache
         run: |
-          echo "Building base docker image for indyscan-daemon"
-          (cd ubuntu-libindy && yes | ./dockerbuild.sh)
-          echo "Building docker for indyscan-daemon"
-          (cd indyscan-daemon && yes | ./dockerbuild.sh)
+          docker load < /tmp/docker/$DOCKER_IMG_NAME_LIBINDY.rar
 
-  build-daemon-ui:
-    runs-on: ubuntu-16.04
+      - name: Try load from cache.
+        id: cache-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_DAEMON }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image.outputs.cache-hit != 'true'
+        run: |
+          set -x
+          docker build \
+                       -f indyscan-daemon/Dockerfile \
+                       -t "$DOCKER_IMG_NAME_DAEMON" \
+                        .
+          mkdir -p /tmp/docker
+          docker save "$DOCKER_IMG_NAME_DAEMON" > /tmp/docker/img.rar
+
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/img.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON" || { echo "Image $DOCKER_IMG_NAME_DAEMON was not found!" ; exit 1; }
+
+  build-docker-daemon-ui:
+    needs: workflow-setup
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      CACHE_KEY_DAEMON_UI: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON_UI }}
+      DOCKER_IMG_NAME_DAEMON_UI: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON_UI }}
     steps:
       - name: Git checkout
-        uses: actions/checkout@v1
-      - name: Building docker image
+        uses: actions/checkout@v2
+      - name: Try load from cache.
+        id: cache-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_DAEMON_UI }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image.outputs.cache-hit != 'true'
         run: |
-          echo "Building docker for indyscan-daemon-ui"
-          (cd indyscan-daemon-ui && yes | ./dockerbuild.sh)
+          set -x
+          docker build \
+                       -f indyscan-daemon-ui/Dockerfile \
+                       -t "$DOCKER_IMG_NAME_DAEMON_UI" \
+                        .
+          mkdir -p /tmp/docker
+          docker save "$DOCKER_IMG_NAME_DAEMON_UI" > /tmp/docker/img.rar
 
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/img.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON_UI" || { echo "Image $DOCKER_IMG_NAME_DAEMON_UI was not found!" ; exit 1; }
 
+  publish-docker-api:
+    runs-on: ubuntu-16.04
+    needs: [workflow-setup, build-docker-api]
+    env:
+      CACHE_KEY_API: ${{ needs.workflow-setup.outputs.CACHE_KEY_API }}
+      DOCKER_IMG_NAME_API: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_API }}
+      PUBLISH_VERSION: ${{ needs.workflow-setup.outputs.PUBLISH_VERSION }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Load image cache
+        id: load-cached-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_API }}
+      - name: If no cached image found
+        if: steps.load-cached-image.outputs.cache-hit != 'true'
+        run: echo "ERROR == Expected to find image from cache $CACHE_KEY_API"; exit -1
+      - name: Load image from cache
+        run: docker load < /tmp/docker/img.rar
+      - name: Verify libvcx image were loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_API" || { echo "Image $DOCKER_IMG_NAME_API was not found!" ; exit 1; }
+      - name: Docker Login
+        uses: azure/docker-login@v1
+        with:
+          login-server: docker.pkg.github.com
+          username: $GITHUB_ACTOR
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish image
+        run: |
+          if [[ "$PUBLISH_VERSION" ]]
+          then
+            IFS=$':' read -a arr <<< $DOCKER_IMG_NAME_API
+            DOCKER_IMG_NAME_TAGLESS=${arr[0]}
+            GITHUB_REPOSITORY_LOWERCASE=`echo $GITHUB_REPOSITORY | awk '{print tolower($0)}'`
+            REMOTE_DOCKER_IMG_NAME="docker.pkg.github.com/${GITHUB_REPOSITORY_LOWERCASE}/${DOCKER_IMG_NAME_TAGLESS}:${PUBLISH_VERSION}"
+            echo "Publishing image $REMOTE_DOCKER_IMG_NAME"
+            docker tag "$DOCKER_IMG_NAME_API" "$REMOTE_DOCKER_IMG_NAME"
+            docker push "$REMOTE_DOCKER_IMG_NAME" || true
+          else
+             echo "New version was not defined, skipping release."
+          fi
+
+  publish-docker-webapp:
+    runs-on: ubuntu-16.04
+    needs: [workflow-setup, build-docker-webapp]
+    env:
+      CACHE_KEY_WEBAPP: ${{ needs.workflow-setup.outputs.CACHE_KEY_WEBAPP }}
+      DOCKER_IMG_NAME_WEBAPP: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_WEBAPP }}
+      PUBLISH_VERSION: ${{ needs.workflow-setup.outputs.PUBLISH_VERSION }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Load image cache
+        id: load-cached-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_WEBAPP }}
+      - name: If no cached image found
+        if: steps.load-cached-image.outputs.cache-hit != 'true'
+        run: echo "ERROR == Expected to find image from cache $CACHE_KEY_WEBAPP"; exit -1
+      - name: Load image from cache
+        run: docker load < /tmp/docker/img.rar
+      - name: Verify libvcx image were loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_WEBAPP" || { echo "Image $DOCKER_IMG_NAME_WEBAPP was not found!" ; exit 1; }
+      - name: Docker Login
+        uses: azure/docker-login@v1
+        with:
+          login-server: docker.pkg.github.com
+          username: $GITHUB_ACTOR
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish image
+        run: |
+          if [[ "$PUBLISH_VERSION" ]]
+          then
+            IFS=$':' read -a arr <<< $DOCKER_IMG_NAME_WEBAPP
+            DOCKER_IMG_NAME_TAGLESS=${arr[0]}
+            GITHUB_REPOSITORY_LOWERCASE=`echo $GITHUB_REPOSITORY | awk '{print tolower($0)}'`
+            REMOTE_DOCKER_IMG_NAME="docker.pkg.github.com/${GITHUB_REPOSITORY_LOWERCASE}/${DOCKER_IMG_NAME_TAGLESS}:${PUBLISH_VERSION}"
+            echo "Publishing image $REMOTE_DOCKER_IMG_NAME"
+            docker tag "$DOCKER_IMG_NAME_WEBAPP" "$REMOTE_DOCKER_IMG_NAME"
+            docker push "$REMOTE_DOCKER_IMG_NAME" || true
+          else
+             echo "New version was not defined, skipping release."
+          fi
+
+  publish-docker-daemon:
+    runs-on: ubuntu-16.04
+    needs: [workflow-setup, build-docker-daemon]
+    env:
+      CACHE_KEY_DAEMON: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON }}
+      DOCKER_IMG_NAME_DAEMON: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON }}
+      PUBLISH_VERSION: ${{ needs.workflow-setup.outputs.PUBLISH_VERSION }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Load image cache
+        id: load-cached-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_DAEMON }}
+      - name: If no cached image found
+        if: steps.load-cached-image.outputs.cache-hit != 'true'
+        run: echo "ERROR == Expected to find image from cache $CACHE_KEY_DAEMON"; exit -1
+      - name: Load image from cache
+        run: docker load < /tmp/docker/img.rar
+      - name: Verify libvcx image were loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON" || { echo "Image $DOCKER_IMG_NAME_DAEMON was not found!" ; exit 1; }
+      - name: Docker Login
+        uses: azure/docker-login@v1
+        with:
+          login-server: docker.pkg.github.com
+          username: $GITHUB_ACTOR
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish image
+        run: |
+          if [[ "$PUBLISH_VERSION" ]]
+          then
+            IFS=$':' read -a arr <<< $DOCKER_IMG_NAME_DAEMON
+            DOCKER_IMG_NAME_TAGLESS=${arr[0]}
+            GITHUB_REPOSITORY_LOWERCASE=`echo $GITHUB_REPOSITORY | awk '{print tolower($0)}'`
+            REMOTE_DOCKER_IMG_NAME="docker.pkg.github.com/${GITHUB_REPOSITORY_LOWERCASE}/${DOCKER_IMG_NAME_TAGLESS}:${PUBLISH_VERSION}"
+            echo "Publishing image $REMOTE_DOCKER_IMG_NAME"
+            docker tag "$DOCKER_IMG_NAME_DAEMON" "$REMOTE_DOCKER_IMG_NAME"
+            docker push "$REMOTE_DOCKER_IMG_NAME" || true
+          else
+             echo "New version was not defined, skipping release."
+          fi
+
+  publish-docker-daemon-ui:
+    runs-on: ubuntu-16.04
+    needs: [workflow-setup, build-docker-daemon-ui]
+    env:
+      CACHE_KEY_DAEMON_UI: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON_UI }}
+      DOCKER_IMG_NAME_DAEMON_UI: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON_UI }}
+      PUBLISH_VERSION: ${{ needs.workflow-setup.outputs.PUBLISH_VERSION }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Load image cache
+        id: load-cached-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_DAEMON_UI }}
+      - name: If no cached image found
+        if: steps.load-cached-image.outputs.cache-hit != 'true'
+        run: echo "ERROR == Expected to find image from cache $CACHE_KEY_DAEMON_UI"; exit -1
+      - name: Load image from cache
+        run: docker load < /tmp/docker/img.rar
+      - name: Verify libvcx image were loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON_UI" || { echo "Image $DOCKER_IMG_NAME_DAEMON_UI was not found!" ; exit 1; }
+      - name: Docker Login
+        uses: azure/docker-login@v1
+        with:
+          login-server: docker.pkg.github.com
+          username: $GITHUB_ACTOR
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish image
+        run: |
+          if [[ "$PUBLISH_VERSION" ]]
+          then
+            IFS=$':' read -a arr <<< $DOCKER_IMG_NAME_DAEMON_UI
+            DOCKER_IMG_NAME_TAGLESS=${arr[0]}
+            GITHUB_REPOSITORY_LOWERCASE=`echo $GITHUB_REPOSITORY | awk '{print tolower($0)}'`
+            REMOTE_DOCKER_IMG_NAME="docker.pkg.github.com/${GITHUB_REPOSITORY_LOWERCASE}/${DOCKER_IMG_NAME_TAGLESS}:${PUBLISH_VERSION}"
+            echo "Publishing image $REMOTE_DOCKER_IMG_NAME"
+            docker tag "$DOCKER_IMG_NAME_DAEMON_UI" "$REMOTE_DOCKER_IMG_NAME"
+            docker push "$REMOTE_DOCKER_IMG_NAME" || true
+          else
+             echo "New version was not defined, skipping release."
+          fi
+
+  make-release:
+    runs-on: ubuntu-16.04
+    needs:
+      - workflow-setup
+      - lint-and-test-storage
+      - lint-and-test-txtype
+      - lint-and-test-api-client
+      - lint-and-test-api
+      - lint-and-test-webapp
+      - publish-docker-api
+      - publish-docker-webapp
+      - publish-docker-daemon
+      - publish-docker-daemon-ui
+    if: ${{ needs.workflow-setup.outputs.RELEASE == 'true' || needs.workflow-setup.outputs.PRERELEASE == 'true' }}
+    outputs:
+      RELEASE_UPLOAD_URL: ${{ steps.create-release.outputs.upload_url }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+
+      - name: Generate changelog
+        uses: heinrichreimer/github-changelog-generator-action@v2.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          futureRelease: ${{ needs.workflow-setup.outputs.PUBLISH_VERSION }}
+          releaseBranch: master
+          pullRequests: true
+          unreleased: true
+          unreleasedOnly: true
+          issuesWoLabels: true
+          prWoLabels: true
+          stripGeneratorNotice: true
+          stripHeaders: false
+          maxIssues: 50
+          excludeLabels: duplicate,question,invalid,wontfix,changelog-excluded
+          breakingLabels: backwards-incompatible,breaking
+          deprecatedLabels: deprecated
+          headerLabel: "# Changelog"
+          breakingLabel: '### Breaking changes'
+          enhancementLabel: '### Enhancements'
+          bugsLabel: '### Bug fixes'
+          deprecatedLabel: '###  Deprecations'
+          removedLabel: '### Removals'
+          securityLabel: '### Security fixes'
+          issuesLabel: '### Other issues'
+          prLabel: '### Other pull requests'
+          addSections: '{"ci":{"prefix":"### CI changes","labels":["ci"]}}'
+          excludeTagsRegex: '^((([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))+)?)$'
+
+      - name: Create a new release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.workflow-setup.outputs.PUBLISH_VERSION }}
+          release_name: Release ${{ needs.workflow-setup.outputs.PUBLISH_VERSION }}
+          body_path: ./CHANGELOG.md
+          draft: ${{ needs.workflow-setup.outputs.PRERELEASE == 'true' }}
+          prerelease: ${{ needs.workflow-setup.outputs.PRERELEASE == 'true' }}

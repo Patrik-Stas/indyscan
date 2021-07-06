@@ -24,22 +24,22 @@ RUN apt-get update && \
       unzip \
       jq
 
-
 RUN pip3 install -U \
 	pip \
 	setuptools \
 	virtualenv \
-	twine \
-	plumbum \
+	twine==1.15.0 \
+	plumbum==1.6.7 six==1.12.0 \
 	deb-pkg-tools
 
+# Install libsodium
 RUN cd /tmp && \
-   curl https://download.libsodium.org/libsodium/releases/old/libsodium-1.0.16.tar.gz | tar -xz && \
-    cd /tmp/libsodium-1.0.16 && \
-    ./configure --disable-shared && \
+   curl https://download.libsodium.org/libsodium/releases/libsodium-1.0.18.tar.gz | tar -xz && \
+    cd /tmp/libsodium-1.0.18 && \
+    ./configure && \
     make && \
     make install && \
-    rm -rf /tmp/libsodium-1.0.16
+    rm -rf /tmp/libsodium-1.0.18
 
 RUN groupadd -g 1000 indy && useradd -r -u 1000 -g indy indy
 
@@ -47,11 +47,11 @@ WORKDIR /home/indy
 RUN chown -R indy:indy /home/indy
 USER indy
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain 1.39.0
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain 1.45.1
 ENV PATH /home/indy/.cargo/bin:$PATH
 
-ARG INDYSDK_REVISION
-ARG INDYSDK_REPO
+ARG INDYSDK_REPO=https://github.com/hyperledger/indy-sdk
+ARG INDYSDK_REVISION=v1.15.0
 
 RUN git clone "${INDYSDK_REPO}" "./indy-sdk"
 RUN cd "/home/indy/indy-sdk" && git checkout "${INDYSDK_REVISION}"
