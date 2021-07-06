@@ -1,4 +1,4 @@
-FROM indyscan-indysdk:latest as NODEJS
+FROM indyscan-indysdk:latest as nodejs
 
 USER root
 RUN groupadd -g 1001 indyscan && \
@@ -9,7 +9,7 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get install -y nodejs
 RUN apt-get -y remove curl && apt-get -y autoremove
 
-FROM NODEJS as BUILD
+FROM nodejs as build
 
 WORKDIR /home/indyscan/indyscan-txtype
 WORKDIR /home/indyscan/indyscan-storage
@@ -34,11 +34,11 @@ COPY --chown=indyscan:indyscan indyscan-daemon/package*.json ./
 RUN npm install --only=prod
 COPY --chown=indyscan:indyscan indyscan-daemon ./
 
-FROM NODEJS as PRODUCTION
+FROM nodejs as production
 USER indyscan
-COPY --from=BUILD --chown=indyscan:indyscan /home/indyscan/indyscan-txtype /home/indyscan/indyscan-txtype
-COPY --from=BUILD --chown=indyscan:indyscan /home/indyscan/indyscan-storage /home/indyscan/indyscan-storage
-COPY --from=BUILD --chown=indyscan:indyscan /home/indyscan/indyscan-daemon /home/indyscan/indyscan-daemon
+COPY --from=build --chown=indyscan:indyscan /home/indyscan/indyscan-txtype /home/indyscan/indyscan-txtype
+COPY --from=build --chown=indyscan:indyscan /home/indyscan/indyscan-storage /home/indyscan/indyscan-storage
+COPY --from=build --chown=indyscan:indyscan /home/indyscan/indyscan-daemon /home/indyscan/indyscan-daemon
 
 USER root
 RUN chown -R indyscan:indyscan /home/indyscan
