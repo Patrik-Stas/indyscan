@@ -1,4 +1,4 @@
-FROM indyscan-indysdk:v1.15.0 as NODEJS
+FROM indyscan-indysdk:latest as NODEJS
 
 USER root
 RUN groupadd -g 1001 indyscan && \
