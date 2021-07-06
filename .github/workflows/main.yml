@@ -469,7 +469,7 @@ jobs:
 
   publish-docker-webapp:
     runs-on: ubuntu-16.04
-    needs: [workflow-setup, build-docker-api]
+    needs: [workflow-setup, build-docker-webapp]
     env:
       CACHE_KEY_WEBAPP: ${{ needs.workflow-setup.outputs.CACHE_KEY_WEBAPP }}
       DOCKER_IMG_NAME_WEBAPP: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_WEBAPP }}
@@ -514,7 +514,7 @@ jobs:
 
   publish-docker-daemon:
     runs-on: ubuntu-16.04
-    needs: [workflow-setup, build-docker-api]
+    needs: [workflow-setup, build-docker-daemon]
     env:
       CACHE_KEY_DAEMON: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON }}
       DOCKER_IMG_NAME_DAEMON: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON }}
@@ -559,7 +559,7 @@ jobs:
 
   publish-docker-daemon-ui:
     runs-on: ubuntu-16.04
-    needs: [workflow-setup, build-docker-api]
+    needs: [workflow-setup, build-docker-daemon-ui]
     env:
       CACHE_KEY_DAEMON_UI: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON_UI }}
       DOCKER_IMG_NAME_DAEMON_UI: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON_UI }}
