@@ -96,12 +96,6 @@ jobs:
           HASH_INDYSCAN_STORAGE=${{ hashFiles('indyscan-storage') }}
           HASH_INDYSCAN_TXTYPE=${{ hashFiles('indyscan-txtype') }}
 
-          echo "::set-output name=PUBLISH_VERSION::$PUBLISH_VERSION"
-          echo "::set-output name=RELEASE::$RELEASE"
-          echo "::set-output name=PRERELEASE::$PRERELEASE"
-
-
-
           echo "::set-output name=CACHE_KEY_API::${HASH_INDYSCAN_API:0:11}-${HASH_INDYSCAN_STORAGE:0:11}-${HASH_INDYSCAN_TXTYPE:0:11}"
           echo "::set-output name=CACHE_KEY_WEBAPP::${HASH_INDYSCAN_WEBAPP:0:11}-${HASH_INDYSCAN_API_CLIENT:0:11}-${HASH_INDYSCAN_TXTYPE:0:11}"
           echo "::set-output name=CACHE_KEY_DAEMON::${HASH_INDYSCAN_DAEMON:0:11}-${HASH_INDYSCAN_STORAGE:0:11}-${HASH_INDYSCAN_TXTYPE:0:11}"
@@ -111,6 +105,10 @@ jobs:
           echo "::set-output name=DOCKER_IMG_NAME_WEBAPP::webapp"
           echo "::set-output name=DOCKER_IMG_NAME_DAEMON::daemon"
           echo "::set-output name=DOCKER_IMG_NAME_DAEMON_UI::daemon-ui"
+
+          echo "::set-output name=PUBLISH_VERSION::$PUBLISH_VERSION"
+          echo "::set-output name=RELEASE::$RELEASE"
+          echo "::set-output name=PRERELEASE::$PRERELEASE"
 
   lint-and-test-storage:
     runs-on: ubuntu-16.04
@@ -242,6 +240,40 @@ jobs:
         run: |
           echo "Building docker for indyscan-api"
           (cd indyscan-api && yes | ./dockerbuild.sh)
+
+  build-docker-api-2:
+    needs: workflow-setup
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      CACHE_KEY_API: ${{ needs.workflow-setup.outputs.CACHE_KEY_API }}
+      DOCKER_IMG_NAME_API: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_API }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Try load from cache.
+        id: cache-image-alpinecore
+        uses: actions/cache@v2
+        with:
+          path: /tmp/imgcache_alpine_core
+          key: ${{ env.CACHE_KEY_API }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image-alpinecore.outputs.cache-hit != 'true'
+        run: |
+          set -x
+          docker build \
+                       -f indyscan-api/Dockerfile \
+                       -t "$DOCKER_IMG_NAME_API" \
+                        .
+          mkdir -p /tmp/docker
+          docker save "$DOCKER_IMG_NAME_API" > /tmp/docker/img.rar
+
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/img.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_API" || { echo "Image $DOCKER_IMG_NAME_API was not found!" ; exit 1; }
 
   build-docker-webapp:
     runs-on: ubuntu-16.04
