@@ -101,10 +101,10 @@ jobs:
 
           echo "::set-output name=CACHE_KEY_LIBINDY::${HASH_DOCKERFILE_LIBINDY:0:11}"
 
-          echo "::set-output name=CACHE_KEY_API::${HASH_INDYSCAN_API:0:11}-${HASH_INDYSCAN_STORAGE:0:11}-${HASH_INDYSCAN_TXTYPE:0:11}"
-          echo "::set-output name=CACHE_KEY_WEBAPP::${HASH_INDYSCAN_WEBAPP:0:11}-${HASH_INDYSCAN_API_CLIENT:0:11}-${HASH_INDYSCAN_TXTYPE:0:11}"
-          echo "::set-output name=CACHE_KEY_DAEMON::${HASH_INDYSCAN_DAEMON:0:11}-${HASH_INDYSCAN_STORAGE:0:11}-${HASH_INDYSCAN_TXTYPE:0:11}"
-          echo "::set-output name=CACHE_KEY_DAEMON_UI::${HASH_INDYSCAN_DAEMON_UI:0:11}-${HASH_INDYSCAN_DAEMON_API_CLIENT:0:11}"
+          echo "::set-output name=CACHE_KEY_API::${HASH_INDYSCAN_API:0:12}-${HASH_INDYSCAN_STORAGE:0:12}-${HASH_INDYSCAN_TXTYPE:0:12}"
+          echo "::set-output name=CACHE_KEY_WEBAPP::${HASH_INDYSCAN_WEBAPP:0:12}-${HASH_INDYSCAN_API_CLIENT:0:12}-${HASH_INDYSCAN_TXTYPE:0:12}"
+          echo "::set-output name=CACHE_KEY_DAEMON::${HASH_INDYSCAN_DAEMON:0:12}-${HASH_INDYSCAN_STORAGE:0:12}-${HASH_INDYSCAN_TXTYPE:0:12}"
+          echo "::set-output name=CACHE_KEY_DAEMON_UI::${HASH_INDYSCAN_DAEMON_UI:0:12}-${HASH_INDYSCAN_DAEMON_API_CLIENT:0:12}"
 
           echo "::set-output name=DOCKER_IMG_NAME_LIBINDY::indyscan-indysdk"
           echo "::set-output name=DOCKER_IMG_NAME_API::indyscan-api"
