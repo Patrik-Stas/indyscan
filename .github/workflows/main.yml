@@ -606,6 +606,11 @@ jobs:
     runs-on: ubuntu-16.04
     needs:
       - workflow-setup
+      - lint-and-test-storage
+      - lint-and-test-txtype
+      - lint-and-test-api-client
+      - lint-and-test-api
+      - lint-and-test-webapp
       - publish-docker-api
       - publish-docker-webapp
       - publish-docker-daemon
