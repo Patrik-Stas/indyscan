@@ -238,16 +238,6 @@ jobs:
           (cd indyscan-webapp && npm run build)
 
   build-docker-api:
-    runs-on: ubuntu-16.04
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v1
-      - name: Building docker image
-        run: |
-          echo "Building docker for indyscan-api"
-          (cd indyscan-api && yes | ./dockerbuild.sh)
-
-  build-docker-api-2:
     needs: workflow-setup
     runs-on: ubuntu-latest
     env:
@@ -282,16 +272,6 @@ jobs:
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_API" || { echo "Image $DOCKER_IMG_NAME_API was not found!" ; exit 1; }
 
   build-docker-webapp:
-    runs-on: ubuntu-16.04
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v1
-      - name: Building docker image
-        run: |
-          echo "Building docker for indyscan-webapp"
-          (cd indyscan-webapp && yes | ./dockerbuild.sh)
-
-  build-docker-webapp-2:
     needs: workflow-setup
     runs-on: ubuntu-latest
     env:
@@ -324,18 +304,6 @@ jobs:
       - name: Verify image was loaded
         run: |
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_WEBAPP" || { echo "Image $DOCKER_IMG_NAME_WEBAPP was not found!" ; exit 1; }
-
-#  build-docker-daemon:
-#    runs-on: ubuntu-16.04
-#    steps:
-#      - name: Git checkout
-#        uses: actions/checkout@v1
-#      - name: Building docker image
-#        run: |
-#          echo "Building base docker image for indyscan-daemon"
-#          (cd ubuntu-libindy && yes | ./dockerbuild.sh)
-#          echo "Building docker for indyscan-daemon"
-#          (cd indyscan-daemon && yes | ./dockerbuild.sh)
 
   build-docker-libindy:
     needs: workflow-setup
@@ -371,7 +339,7 @@ jobs:
         run: |
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_LIBINDY" || { echo "Image $DOCKER_IMG_NAME_LIBINDY was not found!" ; exit 1; }
 
-  build-docker-daemon-2:
+  build-docker-daemon:
     needs: [workflow-setup, build-docker-libindy]
     runs-on: ubuntu-latest
     env:
@@ -420,7 +388,7 @@ jobs:
         run: |
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON" || { echo "Image $DOCKER_IMG_NAME_DAEMON was not found!" ; exit 1; }
 
-  build-docker-daemon-ui-2:
+  build-docker-daemon-ui:
     needs: workflow-setup
     runs-on: ubuntu-latest
     env:
