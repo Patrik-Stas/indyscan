@@ -66,8 +66,10 @@ jobs:
           RELEASE="false"
           PRERELEASE="false"
 
+
           if [[ "$IS_FORK" == "false" ]]; then
             if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              echo "This PR has labels: ${{ toJson(github.event.pull_request.labels) }}"
               if [[ "${{ contains(github.event.pull_request.labels.*.name, 'pre-release') }}" == "true" ]]; then
                 PRERELEASE="true"
               fi;
