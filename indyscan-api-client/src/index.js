@@ -38,12 +38,17 @@ async function getTxCount (baseUrl, network, ledger, filterTxNames = [], search)
   return res.txCount
 }
 
-async function getTxs (baseUrl, network, ledger, skip, size, filterTxNames = [], format = 'original', search, sortFromRecent) {
+async function getTxs (baseUrl, network, ledger, skip, size, filterTxNames = [], format = 'serialized', search, sortFromRecent) {
   const query = qs.stringify({ sortFromRecent, skip, size, format, filterTxNames: JSON.stringify(filterTxNames), search })
   return getRequest(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs?${query}`)
 }
 
-async function getTx (baseUrl, network, ledger, seqNo, format = 'original') {
+async function getTxsV2 (baseUrl, network, ledger, skip, size, filterTxNames = [], seqNoGte, seqNoLt, format = 'serialized', search, sortFromRecent) {
+  const query = qs.stringify({ sortFromRecent, skip, size, format, filterTxNames: JSON.stringify(filterTxNames), seqNoGte, seqNoLt, search })
+  return getRequest(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs?${query}`)
+}
+
+async function getTx (baseUrl, network, ledger, seqNo, format = 'serialized') {
   const query = qs.stringify({ format })
   const axiosCall = async () => {
     return getRequest(`${baseUrl}/api/networks/${network}/ledgers/${ledger}/txs/${seqNo}?${query}`)
@@ -55,5 +60,6 @@ module.exports.getNetworks = getNetworks
 module.exports.getNetwork = getNetwork
 module.exports.getDefaultNetwork = getDefaultNetwork
 module.exports.getTx = getTx
+module.exports.getTxsV2 = getTxsV2
 module.exports.getTxs = getTxs
 module.exports.getTxCount = getTxCount
