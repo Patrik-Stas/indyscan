@@ -1,3 +1,6 @@
+const { esFilterSeqNoGteLtRange } = require('indyscan-storage/src/es/es-query-builder')
+const { esFilterSeqNoGte } = require('indyscan-storage/src/es/es-query-builder')
+const { esFilterSeqNoLt } = require('indyscan-storage/src/es/es-query-builder')
 const { esFilterByTxTypeNames, esFullTextsearch } = require('indyscan-storage/src/es/es-query-builder')
 
 function urlQueryTxNamesToEsQuery (urlQueryTxNames) {
@@ -9,16 +12,29 @@ function urlQueryTxNamesToEsQuery (urlQueryTxNames) {
   }
 }
 
+function createSeqnoFilter (seqNoGte, seqNoLt) {
+  if (seqNoGte && seqNoLt) {
+    return esFilterSeqNoGteLtRange(seqNoGte, seqNoLt)
+  } else if (seqNoGte) {
+    return esFilterSeqNoGte(seqNoGte)
+  } else if (seqNoLt) {
+    return esFilterSeqNoLt(seqNoGte)
+  } else {
+    return null
+  }
+}
+
 function createServiceTxs (ledgerStorageManager) {
-  async function getTxs (networkId, subledger, skip, size, filterTxNames, search, format, sortFromMostRecent = true) {
+  async function getTxs (networkId, subledger, skip, size, filterTxNames, seqnoGte, seqnoLt, search, format, sortFromMostRecent = true) {
     const txTypeQuery = urlQueryTxNamesToEsQuery(filterTxNames)
+    const txSeqnoQuery = createSeqnoFilter(seqnoGte, seqnoLt)
     const searchQuery = search ? esFullTextsearch(search) : null
     const sort = (sortFromMostRecent)
       ? { 'imeta.seqNo': { order: 'desc' } }
       : { 'imeta.seqNo': { order: 'asc' } }
     return ledgerStorageManager
       .getStorage(networkId)
-      .getManyTxs(subledger, skip, size, [txTypeQuery, searchQuery], sort, format)
+      .getManyTxs(subledger, skip, size, [txTypeQuery, txSeqnoQuery, searchQuery], sort, format)
   }
 
   async function getTx (networkId, subledger, seqNo, format) {

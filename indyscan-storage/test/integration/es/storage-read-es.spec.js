@@ -6,6 +6,7 @@ const { createWinstonLoggerDummy } = require('../../../src/es/utils')
 const { createStorageReadEs } = require('../../../src/es/storage-read-es')
 const { createStorageWriteEs } = require('../../../src/es/storage-write-es')
 const toCanonicalJson = require('canonical-json')
+const { esAndFilters } = require('../../../src/es/es-query-builder')
 
 const { Client } = require('@elastic/elasticsearch')
 
@@ -151,7 +152,7 @@ describe('reading transaction formats from elasticsearch', () => {
     expect(toCanonicalJson(configTx4.idata.bar.idata)).toBe(toCanonicalJson({ bardata: 'bar-config-4444' }))
   })
 
-  it('should retrieve range of transaction within a particlar format', async () => {
+  it('should retrieve range of transaction within a particular format', async () => {
     // arrange
     const logger = createWinstonLoggerDummy()
     const storageWriteEs = await createStorageWriteEs(esClient, index, 0, logger)
@@ -215,6 +216,34 @@ describe('reading transaction formats from elasticsearch', () => {
       idata: { bardata: 'bar-domain-2222' },
       imeta: { subledger: 'domain', seqNo: 2 }
     }))
+  })
+
+  it('should query transaction capped by seqNo filters', async () => {
+    // arrange
+    const logger = createWinstonLoggerDummy()
+    const storageWriteEs = await createStorageWriteEs(esClient, index, 0, logger)
+    const storageReadEs = await createStorageReadEs(esClient, index, logger)
+    await storageWriteEs.addTx('domain', 1, 'foo', { foodata: 'foo-domain-1111' })
+    await storageWriteEs.addTx('domain', 2, 'foo', { foodata: 'foo-domain-2222' })
+    await storageWriteEs.addTx('domain', 3, 'foo', { foodata: 'foo-domain-3333' })
+    await storageWriteEs.addTx('domain', 4, 'foo', { foodata: 'foo-domain-4444' })
+    await storageWriteEs.addTx('domain', 5, 'foo', { foodata: 'foo-domain-4444' })
+    await storageWriteEs.addTx('domain', 6, 'foo', { foodata: 'foo-domain-6666' })
+    await storageWriteEs.addTx('domain', 7, 'foo', { foodata: 'foo-domain-7777' })
+    await storageWriteEs.addTx('domain', 8, 'foo', { foodata: 'foo-domain-8888' })
+    await storageWriteEs.addTx('domain', 9, 'foo', { foodata: 'foo-domain-9999' })
+    await storageWriteEs.addTx('domain', 10, 'foo', { foodata: 'foo-domain-10101010' })
+
+    await sleep(1000) // takes time to index the stuff
+
+    // act
+    const rangeFilter = esAndFilters(esFilterSeqNoGte(4), esFilterSeqNoLt(8))
+
+    const domainTxs = await storageReadEs.getManyTxs('domain', 2, 2, rangeFilter, undefined, 'foo')
+    expect(Array.isArray(domainTxs)).toBeTruthy()
+    expect(domainTxs.length).toBe(2)
+    expect(domainTxs[0].imeta.seqNo).toBe(5)
+    expect(domainTxs[1].imeta.seqNo).toBe(4)
   })
 
   it('should retrieve range of transaction within a particlar format and apply custom filter', async () => {

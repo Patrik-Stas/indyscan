@@ -19,6 +19,8 @@ function initTxsApi (app, networkManager, serviceTxs) {
           fromRecentTx: Joi.number(),
           toRecentTx: Joi.number(),
           filterTxNames: Joi.array().items(Joi.string()),
+          seqNoGte: Joi.number(),
+          seqNoLt: Joi.number(),
           search: Joi.string(),
           format: Joi.string().valid(['serialized', 'full', 'expansion'])
         }
@@ -28,13 +30,15 @@ function initTxsApi (app, networkManager, serviceTxs) {
       const networkId = getNetworkId(req, res)
       const { ledger } = req.params
       console.log(JSON.stringify(req.query))
-      const { skip, size, filterTxNames, search, format, sortFromRecent } = req.query
+      const { skip, size, filterTxNames, search, format, sortFromRecent, seqNoGte, seqNoLt } = req.query
       const txs = await serviceTxs.getTxs(
         networkId,
         ledger,
         skip || 0,
         size || 50,
         filterTxNames,
+        seqNoGte,
+        seqNoLt,
         search,
         format,
         (sortFromRecent === undefined || sortFromRecent === null) ? true : (sortFromRecent === 'true')
