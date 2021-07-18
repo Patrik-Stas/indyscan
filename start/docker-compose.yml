@@ -31,43 +31,6 @@ services:
     ports:
       - 9701-9708:9701-9708
 
-  indyscan-elasticsearch:
-    image: ${INDYSCAN_ELASTICSEARCH_IMAGE:-docker.elastic.co/elasticsearch/elasticsearch:7.6.1}
-    container_name: indyscan-elasticsearch
-    logging: *es-logging
-    networks:
-      - esnet
-    environment:
-      - xpack.security.enabled=false
-      - discovery.type=single-node
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    cap_add:
-      - IPC_LOCK
-    volumes:
-      - indyscan-es:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
-      - 9300:9300
-
-  indyscan-kibana:
-    container_name: indyscan-kibana
-    image: ${INDYSCAN_KIBANA_IMAGE:-docker.elastic.co/kibana/kibana:7.6.1}
-    logging: *es-logging
-    networks:
-      - esnet
-    environment:
-      - ELASTICSEARCH_HOSTS=http://indyscan-elasticsearch.esnet:9200
-    ports:
-      - 5601:5601
-    depends_on:
-      - indyscan-elasticsearch
-#
   indyscan-daemon:
     restart: unless-stopped
     image: ${INDYSCAN_DAEMON_IMAGE:-pstas/indyscan-daemon:4.1.0}
@@ -143,15 +106,7 @@ services:
     ports:
       - 3710:3710
 
-
 networks:
   indyscan:
     name: indyscan
     driver: bridge
-  esnet:
-    name: esnet
-    driver: bridge
-
-volumes:
-  indyscan-es:
-    driver: local
