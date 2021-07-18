@@ -83,4 +83,30 @@ describe('elasticsearch utils', () => {
       }
     ))
   })
+
+
+  it('should create filter for seqno', async () => {
+    const q = esFilterSeqNoGte()
+    expect(toCanonicalJson(q)).toBe(toCanonicalJson(
+      {
+        bool: {
+          filter: [
+            {
+              simple_query_string: {
+                query: 'foo',
+                default_operator: 'and'
+              }
+            },
+            {
+              simple_query_string:
+                {
+                  query: 'bar',
+                  default_operator: 'and'
+                }
+            }
+          ]
+        }
+      }
+    ))
+  })
 })
