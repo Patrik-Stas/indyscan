@@ -218,7 +218,6 @@ describe('reading transaction formats from elasticsearch', () => {
     }))
   })
 
-
   it('should query transaction capped by seqNo filters', async () => {
     // arrange
     const logger = createWinstonLoggerDummy()

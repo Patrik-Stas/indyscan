@@ -12,7 +12,7 @@ function urlQueryTxNamesToEsQuery (urlQueryTxNames) {
   }
 }
 
-function createSeqnoFilter(seqNoGte, seqNoLt) {
+function createSeqnoFilter (seqNoGte, seqNoLt) {
   if (seqNoGte && seqNoLt) {
     return esAndFilters(esFilterSeqNoGte(seqNoGte), esFilterSeqNoLt(seqNoLt))
   } else if (seqNoGte) {
