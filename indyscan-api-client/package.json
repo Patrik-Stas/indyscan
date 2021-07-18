@@ -13,6 +13,8 @@
     "istx": "node ./script/istx.js --url 'http://localhost:3000' --network SOVRIN_TESTNET -l domain -s 5",
     "isseries": "node ./script/isseries.js --url 'http://localhost:3000' --network SOVRIN_TESTNET -l domain",
     "test:integration": "ENVIRONMENT=localhost jest test/integration",
+    "test:integration:indyscanio": "ENVIRONMENT=indyscanio jest test/integration",
+    "demo": "node demo/get-many-txs.js",
     "test:unit": "echo 'TODO: Implement unit tests.'"
   },
   "devDependencies": {

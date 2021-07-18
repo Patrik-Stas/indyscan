@@ -197,5 +197,25 @@ describe('basic api test suite', () => {
     const txs = await getTxsV2(process.env.API_URL, networkId, 'domain', 0, 100, [], 10, 20, 'full')
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBe(10)
+    expect(txs.find(tx => tx.idata.expansion.imeta.seqNo === 10)).toBeDefined()
+    expect(txs.find(tx => tx.idata.expansion.imeta.seqNo === 19)).toBeDefined()
+    expect(txs.find(tx => tx.idata.expansion.imeta.seqNo === 20)).toBeUndefined()
+    expect(txs.find(tx => tx.idata.expansion.imeta.seqNo === 9)).toBeUndefined()
+  })
+
+  it('should return no transactions if seqNo filter is set as "lt > gte"', async () => {
+    const networks = await getNetworks(process.env.API_URL)
+    const networkId = process.env.NETWORK_ID || networks[0].id
+    const txs = await getTxsV2(process.env.API_URL, networkId, 'domain', 0, 100, [], 20, 10, 'full')
+    expect(Array.isArray(txs)).toBeTruthy()
+    expect(txs.length).toBe(0)
+  })
+
+  it('should return less than filtered seqNo range if "size" parameter is smaller than the range', async () => {
+    const networks = await getNetworks(process.env.API_URL)
+    const networkId = process.env.NETWORK_ID || networks[0].id
+    const txs = await getTxsV2(process.env.API_URL, networkId, 'domain', 0, 2, [], 10, 20, 'full')
+    expect(Array.isArray(txs)).toBeTruthy()
+    expect(txs.length).toBe(2)
   })
 })

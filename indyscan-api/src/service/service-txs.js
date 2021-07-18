@@ -1,5 +1,5 @@
+const { esFilterSeqNoGteLtRange } = require('indyscan-storage/src/es/es-query-builder')
 const { esFilterSeqNoGte } = require('indyscan-storage/src/es/es-query-builder')
-const { esAndFilters } = require('indyscan-storage/src/es/es-query-builder')
 const { esFilterSeqNoLt } = require('indyscan-storage/src/es/es-query-builder')
 const { esFilterByTxTypeNames, esFullTextsearch } = require('indyscan-storage/src/es/es-query-builder')
 
@@ -14,7 +14,7 @@ function urlQueryTxNamesToEsQuery (urlQueryTxNames) {
 
 function createSeqnoFilter (seqNoGte, seqNoLt) {
   if (seqNoGte && seqNoLt) {
-    return esAndFilters(esFilterSeqNoGte(seqNoGte), esFilterSeqNoLt(seqNoLt))
+    return esFilterSeqNoGteLtRange(seqNoGte, seqNoLt)
   } else if (seqNoGte) {
     return esFilterSeqNoGte(seqNoGte)
   } else if (seqNoLt) {
