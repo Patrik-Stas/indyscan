@@ -2,6 +2,9 @@
 - New TX representation `state` - will provide history of all states DID has ever was at.  
 - Graphs, histograms in webapp 
 
+# 4.2.0 +
+- See github releases page to the list of changes
+
 # 4.1.1
 Fix: In 4.1.0, the production build of webapp was failing under certain circumstances to render /tx page. 
 
