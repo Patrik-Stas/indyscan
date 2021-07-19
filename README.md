@@ -2,19 +2,16 @@
 ## Hyperledger Indy Transaction Explorer
 ![](indyscan-webapp/static/indyscan-logo.png)
 
-### Indyscan 4.0.0 Released! 
-Indyscan 4.0.0 lays new foundation for new improvements on user interface layer. 
-
-See [changelog](changelog.md) to see new goodies. 
-
-# How it works
-The `indyscan-daemon` checks ledger for new transactions. Transactions are stored in Elasticsearch. 
-`indyscan-api` provides easy to use HTTP API wrapper around Elasticsearch. `indyscan-webapp` talks to the api 
-and displays the ledger transaction as html pages.   
-
-IndyScan for Sovrin public blockchain is deployed @ [https://indyscan.io](https://indyscan.io).
+- IndyScan is transaction explorer for Hyperledger Indy blockchain.
+- IndyScan for Sovrin public blockchain is deployed @ [https://indyscan.io](https://indyscan.io).
 
 ![](docs/indyscan.png)
+
+# How it works?
+- The `indyscan-daemon` checks ledger for new transactions.
+- Transactions are stored in Elasticsearch ([storage format info](./indyscan-storage/readme.md))
+- `indyscan-webapp` is web UI to browse and explore transaction data.
+- `indyscan-api` provides HTTP API to query transaction data.
 
 # Start locally in localhost
 The easiest way to get started with indy. Follow [this](start) to startup locally Indypool with Indyscan
@@ -47,7 +44,6 @@ Before you dig in, try to dig into docker configuration provided [here](start) f
 - ubuntu-libindy/      - base docker image for daemon docker image
 - indypool-client/     - small tool for verifying connectivity to an indy ledger
 - dev/                 - scripts for managing this monorepo
-- dokcer-build-all.sh  - script to build all docker images
 ```
 
 ## Indyscan daemon
