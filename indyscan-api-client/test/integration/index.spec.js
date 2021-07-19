@@ -218,4 +218,12 @@ describe('basic api test suite', () => {
     expect(Array.isArray(txs)).toBeTruthy()
     expect(txs.length).toBe(2)
   })
+
+  it('should return transactions of low seqNo cap begins at 0', async () => {
+    const networks = await getNetworks(process.env.API_URL)
+    const networkId = process.env.NETWORK_ID || networks[0].id
+    const txs = await getTxsV2(process.env.API_URL, networkId, 'domain', 0, 2, [], 0, 5, 'full')
+    expect(Array.isArray(txs)).toBeTruthy()
+    expect(txs.length).toBe(2)
+  })
 })

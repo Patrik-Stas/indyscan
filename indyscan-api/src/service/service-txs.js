@@ -13,7 +13,7 @@ function urlQueryTxNamesToEsQuery (urlQueryTxNames) {
 }
 
 function createSeqnoFilter (seqNoGte, seqNoLt) {
-  if (seqNoGte && seqNoLt) {
+  if ((!!seqNoGte || seqNoGte === 0) && (!!seqNoLt || seqNoLt === 0)) {
     return esFilterSeqNoGteLtRange(seqNoGte, seqNoLt)
   } else if (seqNoGte) {
     return esFilterSeqNoGte(seqNoGte)
