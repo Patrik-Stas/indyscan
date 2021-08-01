@@ -30,6 +30,32 @@ function extractClassDataClaimDef (txExpansion) {
   ]
 }
 
+function extractClassDataRevRegDef (txExpansion) {
+  return [
+    { priority: 5, label: "Cred definition", value: txExpansion.idata.txn.data.credDefId },
+    { priority: 1, label: "Revocation registry tag", value: txExpansion.idata.txn.data.tag },
+    { priority: 5, label: "Issuance type", value: txExpansion.idata.txn.data.value.issuanceType },
+    { priority: 5, label: "Revocation registry capacity", value: txExpansion.idata.txn.data.value.maxCredNum },
+    { priority: 1, label: "Tails hash", value: txExpansion.idata.txn.data.value.tailsHash },
+    { priority: 1, label: "Tails location", value: txExpansion.idata.txn.data.value.tailsLocation },
+  ]
+}
+
+function extractClassDataRevRegEntry (txExpansion) {
+  let d = [
+    { priority: 1, label: "Cred definition", value: txExpansion.idata.txn.data.revocRegDefId }
+  ]
+  if (txExpansion.idata.txn.data.value.issued) {
+    let batchSize = txExpansion.idata.txn.data.value.issued.length
+    d.push({ priority: 5, label: "Number of affected credentials", value: batchSize })
+  }
+  if (txExpansion.idata.txn.data.value.revoked) {
+    let batchSize = txExpansion.idata.txn.data.value.revoked.length
+    d.push({ priority: 5, label: "Number of affected credentials", value: batchSize })
+  }
+  return d
+}
+
 function extractClassDataNode (txExpansion) {
   let display = [
     { priority: 1, label: 'Destination', value: txExpansion.idata.txn.data.dest },
@@ -68,8 +94,8 @@ const txDataDescriptiveExtractors = {
   'ATTRIB': extractClassDataNym,
   'SCHEMA': extractClassDataSchema,
   'CLAIM_DEF': extractClassDataClaimDef,
-  'REVOC_REG_DEF': empty,
-  'REVOC_REG_ENTRY': empty,
+  'REVOC_REG_DEF': extractClassDataRevRegDef,
+  'REVOC_REG_ENTRY': extractClassDataRevRegEntry,
   'SET_CONTEXT': empty,
   'NODE': extractClassDataNode,
   'POOL_UPGRADE': empty,

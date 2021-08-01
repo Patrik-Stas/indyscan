@@ -84,6 +84,7 @@ async function startServer () {
       })
     })
     .catch(ex => {
+      logger.error(`Unhandled error.`)
       logger.error(ex.stack)
       process.exit(1)
     })
