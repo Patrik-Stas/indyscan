@@ -43,7 +43,7 @@ function extractClassDataRevRegDef (txExpansion) {
 
 function extractClassDataRevRegEntry (txExpansion) {
   let d = [
-    { priority: 1, label: "Cred definition", value: txExpansion.idata.txn.data.revocRegDefId }
+    { priority: 1, label: "Revocation registry", value: txExpansion.idata.txn.data.revocRegDefId }
   ]
   if (txExpansion.idata.txn.data.value.issued) {
     let batchSize = txExpansion.idata.txn.data.value.issued.length
