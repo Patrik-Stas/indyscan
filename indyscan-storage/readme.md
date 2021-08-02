@@ -64,7 +64,10 @@ As described above, details of step 4 processing depends on particular transacti
 4.c. If contains field `tx.txn.data.role`, create field `tx.txn.data.roleAction` as human readable code of how the role for `tx.txn.data.dest` changes.
 4.d. If contains field `tx.txn.data.raw`, try to parse service endpoint set it as value to `tx.txn.data.endpoint`
 
-## `NYM` | `ATTRIB` processing
+## `SCHEMA` processing
+todo: add docs
+
+## `CLAIM_DEF` processing
 Preparation: Read `tx.txn.data.ref` (reference to SCHEMA transaction by value SCHEMA's creation tx `seqNo`) and reverse-lookup
 the schema transaction data on original ledger format. Let's refer to this tx as `schemaTx`.
 
@@ -77,8 +80,8 @@ the schema transaction data on original ledger format. Let's refer to this tx as
 4.g Set value of `tx.txn.data.refSchemaFrom` as DID which created the schema.
 4.h Set value of `tx.txn.data.refSchemaAttributes` as array of attributes of the schema.
 
+## `REVOC_REG_DEF` processing
+todo: add docs
 
-
-
-
-
+## `REVOC_REG_ENTRY` processing
+todo: add docs
