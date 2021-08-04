@@ -414,6 +414,11 @@ jobs:
         run: |
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON_UI" || { echo "Image $DOCKER_IMG_NAME_DAEMON_UI was not found!" ; exit 1; }
 
+
+  # TODO : add job which runs docker compose, waits a minute, verify there's some transactions
+  # the images used in docker-compose must be injectable, so we can use the stuff we've built in CI
+  # it should be possible to run locally too (??should it), including the test (rely on scripts)
+
   publish-docker-api:
     runs-on: ubuntu-16.04
     needs: [workflow-setup, build-docker-api]

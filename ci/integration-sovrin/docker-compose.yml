@@ -1,0 +1,96 @@
+version: '3.7'
+
+x-standard-logging:
+  &service-logging
+  options:
+    max-size: '500m'
+    max-file: '3'
+  driver: json-file
+
+x-ui-logging:
+  &ui-logging
+  options:
+    max-size: '100m'
+    max-file: '3'
+  driver: json-file
+
+services:
+  indyscan-daemon:
+    restart: unless-stopped
+    image: ${INDYSCAN_DAEMON_IMAGE:-pstas/indyscan-daemon:4.1.0}
+    container_name: indyscan-daemon
+    logging: *service-logging
+    depends_on:
+      - indyscan-elasticsearch
+      - indyscan-indypool
+    networks:
+      - esnet
+      - indyscan
+    environment:
+      - WORKER_CONFIGS=/home/indyscan/indyscan-daemon/app-configs-docker/sovmain.json,/home/indyscan/indyscan-daemon/app-configs-docker/sovstaging.json
+      - LOG_LEVEL=info
+      - LOG_HTTP_REQUESTS=true
+      - LOG_HTTP_RESPONSES=true
+      - SERVER_ENABLED=true
+      - SERVER_PORT=3709
+      - AUTOSTART=true
+      - ENABLE_LOGFILES=false
+    volumes:
+      - ./app-configs-daemon/:/home/indyscan/indyscan-daemon/app-configs-docker
+
+  indyscan-api:
+    restart: unless-stopped
+    image: ${INDYSCAN_API_IMAGE:-pstas/indyscan-api:4.1.0}
+    container_name: indyscan-api
+    logging: *service-logging
+    environment:
+      - NETWORKS_CONFIG_PATH=${INDYSCAN_API_CONFIG_PATH:-/home/indyscan/indyscan-api/app-config-docker/sovrin.json}
+      - ES_URL=http://indyscan-elasticsearch.esnet:9200
+      - AUTOSTART=true
+      - LOG_LEVEL=debug
+      - PORT=3708
+      - LOG_HTTP_REQUESTS=true
+      - LOG_HTTP_RESPONSES=true
+    networks:
+      - indyscan
+      - esnet
+    ports:
+      - 3708:3708
+    volumes:
+      - ./app-config-api/:/home/indyscan/indyscan-api/app-config-docker
+
+  indyscan-webapp:
+    restart: unless-stopped
+    image: ${INDYSCAN_WEBAPP_IMAGE:-pstas/indyscan-webapp:4.1.0}
+    container_name: indyscan-webapp
+    logging: *ui-logging
+    environment:
+      - INDYSCAN_API_URL=http://indyscan-api.indyscan:3708
+      - DAEMON_WS_URL=http://indyscan-daemon.indyscan:3709
+      - PORT=3707
+      - LOG_LEVEL=warn
+      - LOG_HTTP_REQUESTS=false
+      - LOG_HTTP_RESPONSES=false
+    networks:
+      - indyscan
+    ports:
+      - 3707:3707
+
+  indyscan-daemon-ui:
+    restart: unless-stopped
+    image: ${INDYSCAN_DAEMON_UI_IMAGE:-pstas/indyscan-daemon-ui:4.1.0}
+    container_name: indyscan-daemon-ui
+    logging: *ui-logging
+    environment:
+      - PORT=3710
+      - PROXY_API_URL=http://indyscan-daemon.indyscan:3709
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - indyscan
+    ports:
+      - 3710:3710
+
+networks:
+  indyscan:
+    name: indyscan
+    driver: bridge
