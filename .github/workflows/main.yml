@@ -435,13 +435,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Try load from cache.
-        id: cache-image
+        id: load-image-api
         uses: actions/cache@v2
         with:
           path: /tmp/docker
           key: ${{ env.CACHE_KEY_API }}
       - name: If NOT found in cache, build and cache image.
-        if: steps.cache-image.outputs.cache-hit != 'true'
+        if: steps.load-image-api.outputs.cache-hit != 'true'
         run: |
           echo "Image not found"
       - name: Load image from cache
@@ -452,13 +452,13 @@ jobs:
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_API" || { echo "Image $DOCKER_IMG_NAME_API was not found!" ; exit 1; }
 
       - name: Try load from cache.
-        id: cache-image
+        id: load-image-webapp
         uses: actions/cache@v2
         with:
           path: /tmp/docker
           key: ${{ env.CACHE_KEY_WEBAPP }}
       - name: If NOT found in cache, build and cache image.
-        if: steps.cache-image.outputs.cache-hit != 'true'
+        if: steps.load-image-webapp.outputs.cache-hit != 'true'
         run: |
           echo "Image not found"
       - name: Load image from cache
@@ -469,13 +469,13 @@ jobs:
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_WEBAPP" || { echo "Image $DOCKER_IMG_NAME_WEBAPP was not found!" ; exit 1; }
 
       - name: Try load from cache.
-        id: cache-image
+        id: load-image-daemon
         uses: actions/cache@v2
         with:
           path: /tmp/docker
           key: ${{ env.CACHE_KEY_DAEMON }}
       - name: If NOT found in cache, build and cache image.
-        if: steps.cache-image.outputs.cache-hit != 'true'
+        if: steps.load-image-daemon.outputs.cache-hit != 'true'
         run: |
           echo "Image not found"
       - name: Load image from cache
@@ -486,13 +486,13 @@ jobs:
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON" || { echo "Image $DOCKER_IMG_NAME_DAEMON was not found!" ; exit 1; }
 
       - name: Try load from cache.
-        id: cache-image
+        id: load-image-daemon-ui
         uses: actions/cache@v2
         with:
           path: /tmp/docker
           key: ${{ env.CACHE_KEY_DAEMON_UI }}
       - name: If NOT found in cache, build and cache image.
-        if: steps.cache-image.outputs.cache-hit != 'true'
+        if: steps.load-image-daemon-ui.outputs.cache-hit != 'true'
         run: |
           echo "Image not found"
       - name: Load image from cache
