@@ -415,7 +415,11 @@ jobs:
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON_UI" || { echo "Image $DOCKER_IMG_NAME_DAEMON_UI was not found!" ; exit 1; }
 
   test-e2e-sovrin:
-    needs: workflow-setup
+    needs:
+      - build-docker-api
+      - build-docker-webapp
+      - build-docker-daemon
+      - build-docker-daemon-ui
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
