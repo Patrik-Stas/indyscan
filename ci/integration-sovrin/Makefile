@@ -2,6 +2,9 @@
 logs:
 	docker-compose -f docker-compose.yml -f docker-compose.es.yml logs -f
 
+pull:
+	docker-compose -f docker-compose.yml -f docker-compose.es.yml pull
+
 up:
 	docker-compose -f docker-compose.yml -f docker-compose.es.yml up && \
 	make logs
@@ -14,5 +17,4 @@ destroy:
 
 new:
 	make destroy && \
-	docker-compose -f docker-compose.yml -f docker-compose.es.yml up -d && \
-	make logs
+	docker-compose -f docker-compose.yml -f docker-compose.es.yml up -d

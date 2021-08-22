@@ -254,11 +254,11 @@ jobs:
                        -t "$DOCKER_IMG_NAME_API" \
                         .
           mkdir -p /tmp/docker
-          docker save "$DOCKER_IMG_NAME_API" > /tmp/docker/img.rar
+          docker save "$DOCKER_IMG_NAME_API" > "/tmp/docker/$DOCKER_IMG_NAME_API.rar"
 
       - name: Load image from cache
         run: |
-          docker load < /tmp/docker/img.rar
+          docker load < "/tmp/docker/$DOCKER_IMG_NAME_API.rar"
       - name: Verify image was loaded
         run: |
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_API" || { echo "Image $DOCKER_IMG_NAME_API was not found!" ; exit 1; }
@@ -288,11 +288,11 @@ jobs:
                        -t "$DOCKER_IMG_NAME_WEBAPP" \
                         .
           mkdir -p /tmp/docker
-          docker save "$DOCKER_IMG_NAME_WEBAPP" > /tmp/docker/img.rar
+          docker save "$DOCKER_IMG_NAME_WEBAPP" > "/tmp/docker/$DOCKER_IMG_NAME_WEBAPP.rar"
 
       - name: Load image from cache
         run: |
-          docker load < /tmp/docker/img.rar
+          docker load < "/tmp/docker/$DOCKER_IMG_NAME_WEBAPP.rar"
       - name: Verify image was loaded
         run: |
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_WEBAPP" || { echo "Image $DOCKER_IMG_NAME_WEBAPP was not found!" ; exit 1; }
@@ -371,11 +371,11 @@ jobs:
                        -t "$DOCKER_IMG_NAME_DAEMON" \
                         .
           mkdir -p /tmp/docker
-          docker save "$DOCKER_IMG_NAME_DAEMON" > /tmp/docker/img.rar
+          docker save "$DOCKER_IMG_NAME_DAEMON" > "/tmp/docker/$DOCKER_IMG_NAME_DAEMON.rar"
 
       - name: Load image from cache
         run: |
-          docker load < /tmp/docker/img.rar
+          docker load < "/tmp/docker/$DOCKER_IMG_NAME_DAEMON.rar"
       - name: Verify image was loaded
         run: |
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON" || { echo "Image $DOCKER_IMG_NAME_DAEMON was not found!" ; exit 1; }
@@ -405,19 +405,107 @@ jobs:
                        -t "$DOCKER_IMG_NAME_DAEMON_UI" \
                         .
           mkdir -p /tmp/docker
-          docker save "$DOCKER_IMG_NAME_DAEMON_UI" > /tmp/docker/img.rar
+          docker save "$DOCKER_IMG_NAME_DAEMON_UI" > "/tmp/docker/$$DOCKER_IMG_NAME_DAEMON_UI.rar"
 
       - name: Load image from cache
         run: |
-          docker load < /tmp/docker/img.rar
+          docker load < "/tmp/docker/$DOCKER_IMG_NAME_DAEMON_UI.rar"
       - name: Verify image was loaded
         run: |
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON_UI" || { echo "Image $DOCKER_IMG_NAME_DAEMON_UI was not found!" ; exit 1; }
 
+  test-e2e-sovrin:
+    needs: workflow-setup
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      CACHE_KEY_API: ${{ needs.workflow-setup.outputs.CACHE_KEY_API }}
+      DOCKER_IMG_NAME_API: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_API }}
 
-  # TODO : add job which runs docker compose, waits a minute, verify there's some transactions
-  # the images used in docker-compose must be injectable, so we can use the stuff we've built in CI
-  # it should be possible to run locally too (??should it), including the test (rely on scripts)
+      CACHE_KEY_WEBAPP: ${{ needs.workflow-setup.outputs.CACHE_KEY_WEBAPP }}
+      DOCKER_IMG_NAME_WEBAPP: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_WEBAPP }}
+
+      CACHE_KEY_DAEMON: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON }}
+      DOCKER_IMG_NAME_DAEMON: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON }}
+
+      CACHE_KEY_DAEMON_UI: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON_UI }}
+      DOCKER_IMG_NAME_DAEMON_UI: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON_UI }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+
+      - name: Try load from cache.
+        id: cache-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_API }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image.outputs.cache-hit != 'true'
+        run: |
+          echo "Image not found"
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/$DOCKER_IMG_NAME_API.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_API" || { echo "Image $DOCKER_IMG_NAME_API was not found!" ; exit 1; }
+
+      - name: Try load from cache.
+        id: cache-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_WEBAPP }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image.outputs.cache-hit != 'true'
+        run: |
+          echo "Image not found"
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/$DOCKER_IMG_NAME_WEBAPP.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_WEBAPP" || { echo "Image $DOCKER_IMG_NAME_WEBAPP was not found!" ; exit 1; }
+
+      - name: Try load from cache.
+        id: cache-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_DAEMON }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image.outputs.cache-hit != 'true'
+        run: |
+          echo "Image not found"
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/$DOCKER_IMG_NAME_DAEMON.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON" || { echo "Image $DOCKER_IMG_NAME_DAEMON was not found!" ; exit 1; }
+
+      - name: Try load from cache.
+        id: cache-image
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker
+          key: ${{ env.CACHE_KEY_DAEMON_UI }}
+      - name: If NOT found in cache, build and cache image.
+        if: steps.cache-image.outputs.cache-hit != 'true'
+        run: |
+          echo "Image not found"
+      - name: Load image from cache
+        run: |
+          docker load < /tmp/docker/$DOCKER_IMG_NAME_DAEMON_UI.rar
+      - name: Verify image was loaded
+        run: |
+          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_DAEMON_UI" || { echo "Image $DOCKER_IMG_NAME_DAEMON_UI was not found!" ; exit 1; }
+      - name: Run indyscan
+        run: |
+          cd ci/integration-sovrin && make run && sleep 30 && \
+          curl  -H "Content-Type: application/json" http://localhost:3708/api/networks/SOVRIN_STAGINGNET/ledgers/domain/txs/5
+
 
   publish-docker-api:
     runs-on: ubuntu-16.04
