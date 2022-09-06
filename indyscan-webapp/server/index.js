@@ -45,6 +45,10 @@ async function startServer () {
         return res.status(200).send({ version: module.exports.version })
       })
 
+      server.get('/features', (req, res) => {
+        return res.status(200).send({ websockets: !!appConfig.DAEMON_WS_URL })
+      })
+
       server.get('/home/:network', (req, res) => {
         const mergedQuery = Object.assign({}, req.query, req.params)
         logger.info(`Custom express routing handler: /home/:network\nmerged query: ${JSON.stringify(mergedQuery)}`)
@@ -63,16 +67,18 @@ async function startServer () {
         return app.render(req, res, '/tx', mergedQuery)
       })
 
+      logger.info(`Creating proxy, /api to ${appConfig.INDYSCAN_API_URL}, /socket.io to: ${appConfig.DAEMON_WS_URL}`)
       server.use(
         '/api',
         proxy({ target: appConfig.INDYSCAN_API_URL, changeOrigin: true })
       )
 
-
-      server.use(
-        '/socket.io',
-        proxy({ target: appConfig.DAEMON_WS_URL, ws: true, changeOrigin: true })
-      )
+      if (appConfig.DAEMON_WS_URL) {
+        server.use(
+          '/socket.io',
+          proxy({ target: appConfig.DAEMON_WS_URL, ws: true, changeOrigin: true })
+        )
+      }
 
       server.get('*', (req, res) => {
         return handle(req, res)

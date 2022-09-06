@@ -3,7 +3,7 @@ import io from 'socket.io-client'
 
 let socketClient
 
-function getWebsocketClient () {
+function assureWebsocketClient () {
   if (socketClient) {
     return socketClient
   }
@@ -11,4 +11,12 @@ function getWebsocketClient () {
   return socketClient
 }
 
-export default getWebsocketClient
+
+function getWebsocketClient () {
+  return socketClient
+}
+
+export {
+  assureWebsocketClient,
+  getWebsocketClient
+}

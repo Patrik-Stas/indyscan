@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "standard",
     "lint:fix": "standard --fix",
-    "dev": "nodemon server/index.js",
+    "dev": "NODE_OPTIONS='--inspect' nodemon server/index.js",
     "test:unit": "jest tests/unit",
     "build": "next build",
     "start": "next start",

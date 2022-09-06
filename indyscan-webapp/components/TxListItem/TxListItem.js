@@ -27,9 +27,14 @@ class TxListItem extends Component {
   render () {
     const { baseUrl, description, ledger, network, txn } = this.props
     const { seqNo, txnTimeIso8601, typeName, from } = extractTxDataBasic(txn)
-    const data = extractTxDataDetailsHumanReadable(txn, 5)
     const { href, as } = getTxLinkData(baseUrl, network, ledger, seqNo)
-    const filteredData = filterTxDetails(data)
+    let filteredData
+    try {
+      const data = extractTxDataDetailsHumanReadable(txn, 5)
+      filteredData = filterTxDetails(data)
+    } catch (err) {
+
+    }
     return (
       <TableRow className='txListItem' style={{ fontSize: '0.8em', height: '100%' }}>
         <TableCell><Link href={href} as={as}><a>{seqNo}</a></Link></TableCell>
@@ -45,7 +50,7 @@ class TxListItem extends Component {
           <TimeAgoText sinceEpoch={new Date(txnTimeIso8601)} className='txlistitem-graytext'/>
         </TableCell>
         <TableCell>{from}</TableCell>
-        <TableCell>{renderKeyValuesAsBadges(seqNo, filteredData, palette[2])}</TableCell>
+        <TableCell>{filteredData && renderKeyValuesAsBadges(seqNo, filteredData, palette[2])}</TableCell>
       </TableRow>
     )
   }
