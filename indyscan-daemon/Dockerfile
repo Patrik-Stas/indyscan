@@ -1,25 +1,26 @@
-FROM indyscan-indysdk:latest as nodejs
+FROM ghcr.io/absaoss/vcxagencynode/vcxagency-base:2.3.0-master-839 as nodejs
+
+RUN apk add --no-cache \
+        npm \
+        bash \
+        g++ \
+        gcc \
+        make \
+        cmake \
+        python2 \
+        curl
+
+USER node
 
 USER root
-RUN groupadd -g 1001 indyscan && \
-    useradd -r -u 1001 -g indyscan indyscan
-
-RUN apt-get update && apt-get install -y curl
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
-RUN apt-get install -y nodejs
-RUN apt-get -y remove curl && apt-get -y autoremove
-
-FROM nodejs as build
+ARG UID=1002
+ARG GID=1002
+RUN addgroup -g $GID indyscan && adduser -u $UID -D -G indyscan indyscan
 
 WORKDIR /home/indyscan/indyscan-txtype
 WORKDIR /home/indyscan/indyscan-storage
 WORKDIR /home/indyscan/indyscan-daemon
 RUN chown -R indyscan:indyscan /home/indyscan
-
-USER root
-RUN apt-get install -y make
-RUN apt-get install -y g++
-RUN apt-get install -y python
 
 USER indyscan
 
@@ -31,14 +32,8 @@ COPY --chown=indyscan:indyscan indyscan-storage ./
 
 WORKDIR /home/indyscan/indyscan-daemon
 COPY --chown=indyscan:indyscan indyscan-daemon/package*.json ./
-RUN npm install --only=prod
+RUN npm ci --only=prod
 COPY --chown=indyscan:indyscan indyscan-daemon ./
-
-FROM nodejs as production
-USER indyscan
-COPY --from=build --chown=indyscan:indyscan /home/indyscan/indyscan-txtype /home/indyscan/indyscan-txtype
-COPY --from=build --chown=indyscan:indyscan /home/indyscan/indyscan-storage /home/indyscan/indyscan-storage
-COPY --from=build --chown=indyscan:indyscan /home/indyscan/indyscan-daemon /home/indyscan/indyscan-daemon
 
 USER root
 RUN chown -R indyscan:indyscan /home/indyscan
@@ -53,9 +48,5 @@ LABEL org.label-schema.description="Application scanning Hyperledger Indy blockc
 LABEL org.label-schema.vcs-url="https://github.com/Patrik-Stas/indyscan"
 
 WORKDIR /home/indyscan/indyscan-daemon
-
-USER root
-RUN apt-get update && apt-get install -y curl
-USER indyscan
 
 CMD npm run start
