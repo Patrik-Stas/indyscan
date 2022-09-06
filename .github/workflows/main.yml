@@ -10,7 +10,7 @@ on:
 
 jobs:
   workflow-setup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       CACHE_KEY_API: ${{ steps.mainstep.outputs.CACHE_KEY_API }}
       CACHE_KEY_WEBAPP: ${{ steps.mainstep.outputs.CACHE_KEY_WEBAPP }}
@@ -124,7 +124,7 @@ jobs:
           echo "::set-output name=PRERELEASE::$PRERELEASE"
 
   lint-and-test-storage:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     steps:
     - name: Git checkout
       uses: actions/checkout@v1
@@ -144,7 +144,7 @@ jobs:
         (cd indyscan-storage && npm run test:unit)
 
   lint-and-test-txtype:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Git checkout
         uses: actions/checkout@v1
@@ -164,7 +164,7 @@ jobs:
           (cd indyscan-txtype && npm run test:unit)
 
   lint-and-test-api-client:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Git checkout
         uses: actions/checkout@v1
@@ -185,7 +185,7 @@ jobs:
 
 
   lint-and-test-api:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Git checkout
         uses: actions/checkout@v1
@@ -209,7 +209,7 @@ jobs:
           (cd indyscan-api && npm run test:unit)
 
   lint-and-test-webapp:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Git checkout
         uses: actions/checkout@v1
@@ -230,7 +230,7 @@ jobs:
 
   build-docker-api:
     needs: workflow-setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       DOCKER_BUILDKIT: 1
       CACHE_KEY_API: ${{ needs.workflow-setup.outputs.CACHE_KEY_API }}
@@ -264,7 +264,7 @@ jobs:
 
   build-docker-webapp:
     needs: workflow-setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       DOCKER_BUILDKIT: 1
       CACHE_KEY_WEBAPP: ${{ needs.workflow-setup.outputs.CACHE_KEY_WEBAPP }}
@@ -298,7 +298,7 @@ jobs:
 
   build-docker-daemon:
     needs: [workflow-setup]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       DOCKER_BUILDKIT: 1
       CACHE_KEY_DAEMON: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON }}
@@ -332,7 +332,7 @@ jobs:
 
   build-docker-daemon-ui:
     needs: workflow-setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       DOCKER_BUILDKIT: 1
       CACHE_KEY_DAEMON_UI: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON_UI }}
@@ -371,7 +371,7 @@ jobs:
       - build-docker-webapp
       - build-docker-daemon
       - build-docker-daemon-ui
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       DOCKER_BUILDKIT: 1
       CACHE_KEY_API: ${{ needs.workflow-setup.outputs.CACHE_KEY_API }}
@@ -475,7 +475,7 @@ jobs:
           fi
 
   publish-docker-api:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     needs: [workflow-setup, build-docker-api]
     env:
       CACHE_KEY_API: ${{ needs.workflow-setup.outputs.CACHE_KEY_API }}
@@ -520,7 +520,7 @@ jobs:
           fi
 
   publish-docker-webapp:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     needs: [workflow-setup, build-docker-webapp]
     env:
       CACHE_KEY_WEBAPP: ${{ needs.workflow-setup.outputs.CACHE_KEY_WEBAPP }}
@@ -565,7 +565,7 @@ jobs:
           fi
 
   publish-docker-daemon:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     needs: [workflow-setup, build-docker-daemon]
     env:
       CACHE_KEY_DAEMON: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON }}
@@ -610,7 +610,7 @@ jobs:
           fi
 
   publish-docker-daemon-ui:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     needs: [workflow-setup, build-docker-daemon-ui]
     env:
       CACHE_KEY_DAEMON_UI: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON_UI }}
@@ -655,7 +655,7 @@ jobs:
           fi
 
   make-release:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     needs:
       - workflow-setup
       - lint-and-test-storage
