@@ -10,15 +10,13 @@ on:
 
 jobs:
   workflow-setup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
-      CACHE_KEY_LIBINDY: ${{ steps.mainstep.outputs.CACHE_KEY_LIBINDY }}
       CACHE_KEY_API: ${{ steps.mainstep.outputs.CACHE_KEY_API }}
       CACHE_KEY_WEBAPP: ${{ steps.mainstep.outputs.CACHE_KEY_WEBAPP }}
       CACHE_KEY_DAEMON: ${{ steps.mainstep.outputs.CACHE_KEY_DAEMON }}
       CACHE_KEY_DAEMON_UI: ${{ steps.mainstep.outputs.CACHE_KEY_DAEMON_UI }}
 
-      DOCKER_IMG_NAME_LIBINDY: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_LIBINDY }}
       DOCKER_IMG_NAME_API: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_API }}
       DOCKER_IMG_NAME_WEBAPP: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_WEBAPP }}
       DOCKER_IMG_NAME_DAEMON: ${{ steps.mainstep.outputs.DOCKER_IMG_NAME_DAEMON }}
@@ -97,7 +95,6 @@ jobs:
             PUBLISH_VERSION=""
           fi;
 
-          HASH_DOCKERFILE_LIBINDY=${{ hashFiles('./ubuntu-libindy/Dockerfile') }}
           HASH_INDYSCAN_WEBAPP=${{ hashFiles('indyscan-webapp') }}
           HASH_INDYSCAN_API=${{ hashFiles('indyscan-api') }}
           HASH_INDYSCAN_API_CLIENT=${{ hashFiles('indyscan-api-client') }}
@@ -112,14 +109,11 @@ jobs:
           REBUILD_SEED_DAEMON=1
           REBUILD_SEED_DAEMON_UI=2
 
-          echo "::set-output name=CACHE_KEY_LIBINDY::${HASH_DOCKERFILE_LIBINDY:0:11}"
-
           echo "::set-output name=CACHE_KEY_API::$REBUILD_SEED_API-${HASH_INDYSCAN_API:0:12}-${HASH_INDYSCAN_STORAGE:0:12}-${HASH_INDYSCAN_TXTYPE:0:12}"
           echo "::set-output name=CACHE_KEY_WEBAPP::$REBUILD_SEED_WEBAPP-${HASH_INDYSCAN_WEBAPP:0:12}-${HASH_INDYSCAN_API_CLIENT:0:12}-${HASH_INDYSCAN_TXTYPE:0:12}"
           echo "::set-output name=CACHE_KEY_DAEMON::$REBUILD_SEED_DAEMON-${HASH_INDYSCAN_DAEMON:0:12}-${HASH_INDYSCAN_STORAGE:0:12}-${HASH_INDYSCAN_TXTYPE:0:12}"
           echo "::set-output name=CACHE_KEY_DAEMON_UI::$REBUILD_SEED_DAEMON_UI-${HASH_INDYSCAN_DAEMON_UI:0:12}-${HASH_INDYSCAN_DAEMON_API_CLIENT:0:12}"
 
-          echo "::set-output name=DOCKER_IMG_NAME_LIBINDY::indyscan-indysdk"
           echo "::set-output name=DOCKER_IMG_NAME_API::indyscan-api"
           echo "::set-output name=DOCKER_IMG_NAME_WEBAPP::indyscan-webapp"
           echo "::set-output name=DOCKER_IMG_NAME_DAEMON::indyscan-daemon"
@@ -130,7 +124,7 @@ jobs:
           echo "::set-output name=PRERELEASE::$PRERELEASE"
 
   lint-and-test-storage:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     steps:
     - name: Git checkout
       uses: actions/checkout@v1
@@ -150,7 +144,7 @@ jobs:
         (cd indyscan-storage && npm run test:unit)
 
   lint-and-test-txtype:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Git checkout
         uses: actions/checkout@v1
@@ -170,7 +164,7 @@ jobs:
           (cd indyscan-txtype && npm run test:unit)
 
   lint-and-test-api-client:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Git checkout
         uses: actions/checkout@v1
@@ -191,7 +185,7 @@ jobs:
 
 
   lint-and-test-api:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Git checkout
         uses: actions/checkout@v1
@@ -215,10 +209,13 @@ jobs:
           (cd indyscan-api && npm run test:unit)
 
   lint-and-test-webapp:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Git checkout
         uses: actions/checkout@v1
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 12
       - name: Branch name
         run: echo running on branch ${GITHUB_REF##*/}
       - name: Install dependencies
@@ -236,7 +233,7 @@ jobs:
 
   build-docker-api:
     needs: workflow-setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       DOCKER_BUILDKIT: 1
       CACHE_KEY_API: ${{ needs.workflow-setup.outputs.CACHE_KEY_API }}
@@ -270,7 +267,7 @@ jobs:
 
   build-docker-webapp:
     needs: workflow-setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       DOCKER_BUILDKIT: 1
       CACHE_KEY_WEBAPP: ${{ needs.workflow-setup.outputs.CACHE_KEY_WEBAPP }}
@@ -302,65 +299,16 @@ jobs:
         run: |
           docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_WEBAPP" || { echo "Image $DOCKER_IMG_NAME_WEBAPP was not found!" ; exit 1; }
 
-  build-docker-libindy:
-    needs: workflow-setup
-    runs-on: ubuntu-latest
-    env:
-      DOCKER_BUILDKIT: 1
-      CACHE_KEY_LIBINDY: ${{ needs.workflow-setup.outputs.CACHE_KEY_LIBINDY }}
-      DOCKER_IMG_NAME_LIBINDY: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_LIBINDY }}
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v2
-      - name: Try load from cache.
-        id: cache-image
-        uses: actions/cache@v2
-        with:
-          path: /tmp/docker
-          key: ${{ env.CACHE_KEY_LIBINDY }}
-      - name: If NOT found in cache, build and cache image.
-        if: steps.cache-image.outputs.cache-hit != 'true'
-        run: |
-          set -x
-          docker build \
-                       -f ubuntu-libindy/Dockerfile \
-                       -t "$DOCKER_IMG_NAME_LIBINDY" \
-                        .
-          mkdir -p /tmp/docker
-          docker save "$DOCKER_IMG_NAME_LIBINDY" > /tmp/docker/$DOCKER_IMG_NAME_LIBINDY.rar
-
-      - name: Load image from cache
-        run: |
-          docker load < /tmp/docker/$DOCKER_IMG_NAME_LIBINDY.rar
-      - name: Verify image was loaded
-        run: |
-          docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "$DOCKER_IMG_NAME_LIBINDY" || { echo "Image $DOCKER_IMG_NAME_LIBINDY was not found!" ; exit 1; }
-
   build-docker-daemon:
-    needs: [workflow-setup, build-docker-libindy]
-    runs-on: ubuntu-latest
+    needs: [workflow-setup]
+    runs-on: ubuntu-20.04
     env:
       DOCKER_BUILDKIT: 1
-      CACHE_KEY_LIBINDY: ${{ needs.workflow-setup.outputs.CACHE_KEY_LIBINDY }}
-      DOCKER_IMG_NAME_LIBINDY: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_LIBINDY }}
       CACHE_KEY_DAEMON: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON }}
       DOCKER_IMG_NAME_DAEMON: ${{ needs.workflow-setup.outputs.DOCKER_IMG_NAME_DAEMON }}
     steps:
       - name: Git checkout
         uses: actions/checkout@v2
-      - name: Try load base libindy image from cache.
-        id: cache-image-libindy
-        uses: actions/cache@v2
-        with:
-          path: /tmp/docker
-          key: ${{ env.CACHE_KEY_LIBINDY }}
-      - name: If NOT found in cache, error.
-        if: steps.cache-image-libindy.outputs.cache-hit != 'true'
-        run: exit -1
-      - name: Load image from cache
-        run: |
-          docker load < /tmp/docker/$DOCKER_IMG_NAME_LIBINDY.rar
-
       - name: Try load from cache.
         id: cache-image
         uses: actions/cache@v2
@@ -387,7 +335,7 @@ jobs:
 
   build-docker-daemon-ui:
     needs: workflow-setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       DOCKER_BUILDKIT: 1
       CACHE_KEY_DAEMON_UI: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON_UI }}
@@ -426,7 +374,7 @@ jobs:
       - build-docker-webapp
       - build-docker-daemon
       - build-docker-daemon-ui
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       DOCKER_BUILDKIT: 1
       CACHE_KEY_API: ${{ needs.workflow-setup.outputs.CACHE_KEY_API }}
@@ -530,7 +478,7 @@ jobs:
           fi
 
   publish-docker-api:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     needs: [workflow-setup, build-docker-api]
     env:
       CACHE_KEY_API: ${{ needs.workflow-setup.outputs.CACHE_KEY_API }}
@@ -575,7 +523,7 @@ jobs:
           fi
 
   publish-docker-webapp:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     needs: [workflow-setup, build-docker-webapp]
     env:
       CACHE_KEY_WEBAPP: ${{ needs.workflow-setup.outputs.CACHE_KEY_WEBAPP }}
@@ -620,7 +568,7 @@ jobs:
           fi
 
   publish-docker-daemon:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     needs: [workflow-setup, build-docker-daemon]
     env:
       CACHE_KEY_DAEMON: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON }}
@@ -665,7 +613,7 @@ jobs:
           fi
 
   publish-docker-daemon-ui:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     needs: [workflow-setup, build-docker-daemon-ui]
     env:
       CACHE_KEY_DAEMON_UI: ${{ needs.workflow-setup.outputs.CACHE_KEY_DAEMON_UI }}
@@ -710,7 +658,7 @@ jobs:
           fi
 
   make-release:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     needs:
       - workflow-setup
       - lint-and-test-storage
