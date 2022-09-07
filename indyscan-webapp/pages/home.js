@@ -17,13 +17,14 @@ class HomePage extends Component {
   static async getInitialProps ({ req, query }) {
     const baseUrl = getBaseUrl(req)
     const { network } = query
-    const features = await fetch(`${baseUrl}/features`)
+    const featuresRes = await fetch(`${baseUrl}/features`)
+    const features = (await featuresRes.json())
     const versionRes = await fetch(`${baseUrl}/version`)
     const version = (await versionRes.json()).version
     const networkDetails = await getNetwork(baseUrl, network)
-    const domainTxs = await getTxs(baseUrl, network, 'domain', 0, 13, [], 'full')
-    const poolTxs = await getTxs(baseUrl, network, 'pool', 0, 13, [], 'full')
-    const configTxs = await getTxs(baseUrl, network, 'config', 0, 13, [], 'full')
+    const domainTxs = await getTxs(baseUrl, network, 'domain', 0, 13, [], 'serialized')
+    const poolTxs = await getTxs(baseUrl, network, 'pool', 0, 13, [], 'serialized')
+    const configTxs = await getTxs(baseUrl, network, 'config', 0, 13, [], 'serialized')
     return {
       features,
       networkDetails,
@@ -86,10 +87,11 @@ class HomePage extends Component {
     this.setState({ poolTxs })
   }
 
-  onTxProcessed (payload) {
+  onTxDiscovered (payload) {
     this.setState({ animateFirst: true })
     // const {workerData, txData} = payload
     const { txData } = payload
+    console.log(`onTxDiscovered >>> ${JSON.stringify(txData)}`)
     if (txData.imeta.subledger === 'domain') {
       this.addNewDomainTx(txData)
     }
@@ -157,7 +159,8 @@ class HomePage extends Component {
           console.log(`switched-room-notification: Entered room ${activeWsRoom}`)
           this.setState({activeWsRoom})
           socket.on('rescan-scheduled', this.onRescanScheduled.bind(this))
-          socket.on('tx-processed', this.onTxProcessed.bind(this))
+          // socket.on('tx-processed', this.onTxProcessed.bind(this))
+          socket.on('tx-ledger-processed', this.onTxDiscovered.bind(this))
           console.log(`Registered hooks on the socket! ${socket.hasListeners()}`)
         })
 

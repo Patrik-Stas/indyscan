@@ -5,9 +5,10 @@ const { createTargetElasticsearch } = require('../targets/target-elasticsearch')
 const { createWorkerRtw } = require('../workers/worker-rtw')
 const { createIteratorGuided } = require('../iterators/iterator-guided')
 const { createSourceElasticsearch } = require('../sources/source-elasticsearch')
+const { OPERATION_TYPES } = require('../constants')
 
 async function createNetOpRtwExpansion ({ indyNetworkId, esUrl, esIndex, workerTiming }) {
-  const operationType = 'expansion'
+  const operationType = OPERATION_TYPES.EXPANSION
 
   const sourceEs = await createSourceElasticsearch({
     indyNetworkId,

@@ -6,17 +6,17 @@ function createSocketioManager (expressServer) {
   logger.info('Creating socketio manager')
   const io = socketio(expressServer)
 
-  function forwardEmitterEventToWebsocket (emitter, eventName, forwardToRoom, subledger) {
-    logger.info(`Linking worker emitter to sockets for indyNetworkId=${forwardToRoom} subledger=${subledger}, `)
+  function forwardEmitterEventToWebsocket (emitter, workerId, sourceEmitterEventName, targetSocketEventName, forwardToRoom) {
+    logger.info(`Worker ${workerId} events of name ${sourceEmitterEventName} will be broadcasted to room ${targetSocketEventName} as event ${targetSocketEventName} `)
 
-    emitter.on(eventName, (payload) => {
+    emitter.on(sourceEmitterEventName, (payload) => {
       io.of('/').in(`${forwardToRoom}`).clients((error, clients) => {
         if (error) {
           logger.error('Problem listing clients to print info.')
         }
-        logger.info(`Broadcasting into room ${forwardToRoom}: "${eventName}" to ids=${JSON.stringify(clients)}`)
+        logger.info(`Worker ${workerId} emitting sockets event ${targetSocketEventName} to room ${forwardToRoom} to ${clients.length} clients`)
       })
-      io.to(forwardToRoom).emit(eventName, payload)
+      io.to(forwardToRoom).emit(targetSocketEventName, payload)
     })
   }
 

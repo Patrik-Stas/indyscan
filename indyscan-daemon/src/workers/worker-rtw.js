@@ -10,12 +10,15 @@ const { envConfig } = require('../config/env')
 
 function getExpandedTimingConfig (providedTimingSetup) {
   let presetData
-  if (!providedTimingSetup || (typeof providedTimingSetup !== 'string')) {
+  if (!providedTimingSetup) {
     presetData = getDefaultPreset()
-  } else {
+  } else if (typeof providedTimingSetup === 'string') {
     presetData = resolvePreset(providedTimingSetup) || getDefaultPreset()
+  } else if (typeof providedTimingSetup === 'object') {
+    const defaultPreset = getDefaultPreset()
+    presetData = { ... defaultPreset, ... providedTimingSetup }
   }
-  return Object.assign(presetData, providedTimingSetup)
+  return presetData
 }
 
 function validateTimingConfig (timingConfig) {
@@ -38,10 +41,10 @@ function validateTimingConfig (timingConfig) {
 }
 
 async function createWorkerRtw ({ indyNetworkId, subledger, operationType, iterator, iteratorTxFormat, transformer, target, timing }) {
-  console.log(`BUILDING WORKER for ${indyNetworkId}... timit= ${timing}`)
-  const eventEmitter = new EventEmitter()
   const workerId = `${indyNetworkId}.${subledger}.${operationType}`
   const logger = createLogger(workerId, envConfig.LOG_LEVEL, envConfig.ENABLE_LOGFILES)
+  logger.info(`Building RTW worker ${workerId} for network: ${indyNetworkId}`)
+  const eventEmitter = new EventEmitter()
   const loggerMetadata = {
     metadaemon: {
       workerId,
@@ -81,7 +84,7 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
     throw Error(errMsg)
   }
   timing = getExpandedTimingConfig(timing)
-  logger.info(`Worker ${workerId} using timing ${JSON.stringify(timing)}`)
+  logger.info(`Effective timing configuration ${JSON.stringify(timing, null, 2)}`)
   validateTimingConfig(timing)
   const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timing
 
@@ -379,4 +382,7 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
   }
 }
 
-module.exports.createWorkerRtw = createWorkerRtw
+module.exports = {
+  createWorkerRtw,
+  getExpandedTimingConfig
+}

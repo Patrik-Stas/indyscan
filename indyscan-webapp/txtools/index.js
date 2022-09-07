@@ -111,18 +111,18 @@ const txDataDescriptiveExtractors = {
   'UNKNOWN': empty
 }
 
-export function extractTxDataBasic (txFull) {
-  const { seqNo } = txFull.imeta
+export function extractTxDataBasic (tx) {
+  const { seqNo } = tx.imeta
   let txnId, txnTimeIso8601, typeName, from, indexedFields
-  if (txFull?.idata?.expansion) {
-    typeName = txFull.idata.expansion.idata.txn.typeName
-    txnId = txFull.idata.expansion.idata.txnMetadata.txnId
-    const epoch = txFull.idata.expansion?.idata?.txnMetadata?.txnTime
+  if (tx?.idata?.expansion) {
+    typeName = tx.idata.expansion.idata.txn.typeName
+    txnId = tx.idata.expansion.idata.txnMetadata.txnId
+    const epoch = tx.idata.expansion?.idata?.txnMetadata?.txnTime
     txnTimeIso8601 = epoch ? new Date(epoch).toISOString() : null
-    from = txFull?.idata?.expansion?.idata?.txn?.metadata?.from || '-'
+    from = tx?.idata?.expansion?.idata?.txn?.metadata?.from || '-'
     indexedFields = true
-  } else if (txFull?.idata?.serialized) {
-    const deserializedOriginal = JSON.parse(txFull.idata.serialized.idata.json)
+  } else if (tx?.idata?.json || tx?.idata?.serialized) {
+    const deserializedOriginal = JSON.parse(tx?.idata?.json || tx?.idata?.serialized?.idata?.json)
     txnId = deserializedOriginal.txnMetadata.txnId
     const epoch = deserializedOriginal.txnMetadata.txnTime * 1000
     txnTimeIso8601 = epoch ? new Date(epoch).toISOString() : null
