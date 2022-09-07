@@ -213,6 +213,9 @@ jobs:
     steps:
       - name: Git checkout
         uses: actions/checkout@v1
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 12
       - name: Branch name
         run: echo running on branch ${GITHUB_REF##*/}
       - name: Install dependencies
