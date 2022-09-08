@@ -476,6 +476,20 @@ jobs:
           if [ $exit_status -eq 1 ]; then
               exit -1
           fi
+      - name: Collect docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
+        with:
+          dest: './logs'
+      - name: Tar logs
+        if: failure()
+        run: tar cvzf ./logs.tgz ./logs
+      - name: Upload logs to GitHub
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: logs-test-libvcx-mysql-integration
+          path: ./logs.tgz
 
   publish-docker-api:
     runs-on: ubuntu-20.04
