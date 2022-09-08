@@ -29,11 +29,10 @@ class TxListItem extends Component {
     const { seqNo, txnTimeIso8601, typeName, from } = extractTxDataBasic(txn)
     const { href, as } = getTxLinkData(baseUrl, network, ledger, seqNo)
     let filteredData
-    try {
-      const data = extractTxDataDetailsHumanReadable(txn, 5)
+    const txExpansionFormat = txn?.idata?.expansion
+    if (txExpansionFormat) {
+      const data = extractTxDataDetailsHumanReadable(txExpansionFormat, 5)
       filteredData = filterTxDetails(data)
-    } catch (err) {
-
     }
     return (
       <TableRow className='txListItem' style={{ fontSize: '0.8em', height: '100%' }}>
