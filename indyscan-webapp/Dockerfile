@@ -11,16 +11,18 @@ RUN npm install -g npm@8.7.0
 
 WORKDIR /usr/src/app/indyscan-api-client
 COPY indyscan-api-client ./
+RUN npm ci --only=prod
 
 WORKDIR /usr/src/app/indyscan-txtype
 COPY indyscan-txtype ./
+RUN npm ci --only=prod
 
 WORKDIR /usr/src/app/indyscan-webapp
 COPY indyscan-webapp ./
-
 RUN npm ci --legacy-peer-deps
+
 RUN npm run build
-RUN npm prune --production
+RUN npm prune --production --legacy-peer-deps
 
 FROM node:12.14.0-alpine3.9 as PRODUCTION
 
