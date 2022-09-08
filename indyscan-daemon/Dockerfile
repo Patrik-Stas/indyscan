@@ -10,6 +10,8 @@ RUN apk add --no-cache \
         python2 \
         curl
 
+RUN npm install -g npm@8.7.0
+
 USER node
 
 USER root
@@ -26,9 +28,11 @@ USER indyscan
 
 WORKDIR /home/indyscan/indyscan-txtype
 COPY --chown=indyscan:indyscan indyscan-txtype ./
+RUN npm ci --only=prod
 
 WORKDIR /home/indyscan/indyscan-storage
 COPY --chown=indyscan:indyscan indyscan-storage ./
+RUN npm ci --only=prod
 
 WORKDIR /home/indyscan/indyscan-daemon
 COPY --chown=indyscan:indyscan indyscan-daemon/package*.json ./
