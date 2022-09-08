@@ -20,7 +20,7 @@
     "font-awesome": "^4.7.0",
     "http-server": "^0.12.3",
     "indyscan-daemon-api-client": "file:../indyscan-daemon-api-client",
-    "node-sass": "^4.13.1",
+    "node-sass": "^7.0.0",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-app-polyfill": "^1.0.1",
