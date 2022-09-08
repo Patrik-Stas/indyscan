@@ -10,6 +10,8 @@ RUN apk add --no-cache \
         python2 \
         curl
 
+RUN npm install -g npm@8.7.0
+
 USER node
 
 USER root

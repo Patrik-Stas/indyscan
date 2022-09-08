@@ -7,12 +7,14 @@ RUN apk add make
 RUN apk add g++
 RUN apk add python
 
+RUN npm install -g npm@8.7.0
+
 WORKDIR /usr/src/app/indyscan-storage
 COPY indyscan-storage ./
 
 WORKDIR /usr/src/app/indyscan-api
 COPY indyscan-api/package*.json ./
-RUN npm install --only=prod
+RUN npm ci --only=prod
 COPY indyscan-api ./
 
 FROM node:12.14.0-alpine3.9 as PRODUCTION

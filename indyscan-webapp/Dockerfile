@@ -7,6 +7,7 @@ RUN apk add make
 RUN apk add g++
 RUN apk add python
 
+RUN npm install -g npm@8.7.0
 
 WORKDIR /usr/src/app/indyscan-api-client
 COPY indyscan-api-client ./
@@ -16,7 +17,8 @@ COPY indyscan-txtype ./
 
 WORKDIR /usr/src/app/indyscan-webapp
 COPY indyscan-webapp ./
-RUN npm install
+
+RUN npm ci --legacy-peer-deps
 RUN npm run build
 RUN npm prune --production
 
