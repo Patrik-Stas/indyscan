@@ -19,23 +19,29 @@ class TxPreviewList extends Component {
 
   render () {
     const { indyscanTxs, network, subledger, animateFirst } = this.props
-    const firstTx = indyscanTxs[0]
+    const { seqNo, txnTimeIso8601, typeName, from } = extractTxDataBasic(indyscanTxs[0])
     return (
       <ItemGroup>
-        {firstTx &&
-        <CSSTransition key={firstTx.imeta.seqNo} appear={animateFirst} in={true} timeout={1000} classNames="txitem">
-          <TxPreview key={`preview-${network}-${subledger}-xyz`}
-                     indyscanTx={firstTx}
-                     network={network}
-                     ledger={subledger}/>
-        </CSSTransition>
+        {seqNo &&
+          <CSSTransition key={seqNo} appear={animateFirst} in={true} timeout={1000} classNames="txitem">
+            <TxPreview key={`preview-${network}-${subledger}-xyz`}
+                       seqNo={seqNo}
+                       txnTimeIso8601={txnTimeIso8601}
+                       typeName={typeName}
+                       from={from}
+                       network={network}
+                       ledger={subledger}/>
+          </CSSTransition>
         }
         {
           indyscanTxs.slice(1).map((indyscanTx, index) => {
-            const { seqNo } = extractTxDataBasic(indyscanTx)
+            const { seqNo, txnTimeIso8601, typeName, from } = extractTxDataBasic(indyscanTx)
             return (
               <TxPreview key={`preview-${network}-${subledger}-${seqNo}`}
-                         indyscanTx={indyscanTx}
+                         seqNo={seqNo}
+                         txnTimeIso8601={txnTimeIso8601}
+                         typeName={typeName}
+                         from={from}
                          network={network}
                          ledger={subledger}/>
             )

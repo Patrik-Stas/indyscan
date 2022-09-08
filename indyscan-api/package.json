@@ -7,6 +7,7 @@
     "lint": "standard",
     "lint:fix": "standard --fix",
     "dev": "nodemon src/index.js",
+    "dev:sovrin:builder": "nodemon --config nodemon-buildernet.json src/index.js",
     "test:unit": "jest tests/unit",
     "start": "cross-env NODE_ENV=production node src/index.js"
   },

@@ -14,6 +14,7 @@
     "lint:fix": "standard --fix",
     "dev": "cross-env NODE_ENV=development nodemon src/index.js",
     "dev:sovrin:staging:builder": "cross-env NODE_ENV=development WORKER_CONFIGS=app-configs/sovstaging.json,app-configs/sovbuilder.json nodemon src/index.js",
+    "dev:sovrin:builder": "cross-env NODE_ENV=development WORKER_CONFIGS=app-configs/sovbuilder.json nodemon src/index.js",
     "dev:sovrin:staging": "cross-env NODE_ENV=development WORKER_CONFIGS=app-configs/sovstaging.json nodemon src/index.js",
     "dev:sovrin:sovmain": "cross-env NODE_ENV=development WORKER_CONFIGS=app-configs/sovmain.json nodemon src/index.js",
     "dev:sovrin": "cross-env NODE_ENV=development WORKER_CONFIGS=app-configs/sovmain.json,app-configs/sovstaging.json,app-configs/sovbuilder.json nodemon src/index.js",

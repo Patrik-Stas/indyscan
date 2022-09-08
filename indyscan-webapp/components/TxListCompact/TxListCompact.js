@@ -25,7 +25,6 @@ class TxListCompact extends Component {
                 network={this.props.network}
                 ledger={this.props.ledger}
                 txn={txn}
-                description='Todo'
               />
             )
           })}

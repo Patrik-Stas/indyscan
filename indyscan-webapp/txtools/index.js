@@ -1,3 +1,5 @@
+import { txTypeToTxName } from 'indyscan-txtype'
+
 function extractClassDataNym (txExpansion) {
   return [
     { priority: 5, label: 'Target DID', value: txExpansion.idata.txn.data.dest },
@@ -109,11 +111,22 @@ const txDataDescriptiveExtractors = {
   'UNKNOWN': empty
 }
 
-export function extractTxDataBasic (txExpansion) {
-  const { typeName } = txExpansion.idata.txn
-  const { txnId, txnTime: txnTimeIso8601, seqNo } = txExpansion.idata.txnMetadata
-  const from = txExpansion.idata.txn.metadata ? txExpansion.idata.txn.metadata.from : 'not-available'
-  return { txnId, seqNo, txnTimeIso8601, typeName, from }
+export function extractTxDataBasic (tx) {
+  const { seqNo } = tx.imeta
+  let txnId, txnTimeIso8601, typeName, from, indexedFields
+  const serializedOriginal = tx?.idata?.json || tx?.idata?.serialized?.idata?.json
+  if (serializedOriginal) {
+    const deserializedOriginal = JSON.parse(serializedOriginal)
+    txnId = deserializedOriginal.txnMetadata.txnId
+    const epoch = deserializedOriginal.txnMetadata.txnTime * 1000
+    txnTimeIso8601 = epoch ? new Date(epoch).toISOString() : null
+    typeName = txTypeToTxName(deserializedOriginal.txn.type)
+    from = deserializedOriginal.txn.metadata.from
+    indexedFields = false
+  } else {
+    throw Error("Expected transaction in 'serialized' or 'full.serialized' format")
+  }
+  return { txnId, seqNo, txnTimeIso8601, typeName, from, indexedFields }
 }
 
 export function converTxDataBasicToHumanReadable (txDataBasic) {

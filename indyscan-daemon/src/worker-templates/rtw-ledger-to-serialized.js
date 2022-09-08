@@ -4,9 +4,11 @@ const { createIteratorGuided } = require('../iterators/iterator-guided')
 const { createTargetElasticsearch } = require('../targets/target-elasticsearch')
 const { createSourceElasticsearch } = require('../sources/source-elasticsearch')
 const { createSourceLedger } = require('../sources/source-ledger')
+const { OPERATION_TYPES } = require('../constants')
+
 
 async function createNetOpRtwSerialization ({ indyNetworkId, genesisPath, esUrl, esIndex, workerTiming }) {
-  const operationType = 'ledgercpy'
+  const operationType = OPERATION_TYPES.LEDGER_CPY
   const sourceLedger = await createSourceLedger({
     name: indyNetworkId,
     genesisPath

@@ -15,44 +15,22 @@ class TxPreview extends Component {
     this.state = {}
   }
 
-  calculateTimeSinceLastTransaction = function calculateTimeSinceLastTransaction (expansionTx) {
-    const txnTime = (expansionTx.idata && expansionTx.idata.txnMetadata) ?
-      (Date.parse(expansionTx.idata.txnMetadata.txnTime))
-      : undefined
-    const utimeNow = Math.floor(new Date())
-    return secondsToDhms((utimeNow - txnTime) / 1000)
-  }
-
-  refreshTimesSinceLast () {
-    let sinceSinceTx = this.calculateTimeSinceLastTransaction(this.props.indyscanTx)
-    sinceSinceTx = (sinceSinceTx) ? sinceSinceTx : 'Unknown'
-    this.setState({ sinceSinceTx })
-  }
-
-  componentDidMount () {
-    this.refreshTimesSinceLast()
-    this.interval = setInterval(this.refreshTimesSinceLast.bind(this), 1000)
-  }
-
-  componentWillUnmount () {
-    clearInterval(this.interval)
-  }
-
   render () {
-    const { baseUrl, network, ledger, indyscanTx } = this.props
-    const { seqNo, txnTimeIso8601, typeName, from } = extractTxDataBasic(indyscanTx)
+    const { baseUrl, network, ledger, seqNo, txnTimeIso8601, typeName, from } = this.props
     const href = `${baseUrl}/tx?network=${network}&ledger=${ledger}&seqNo=${seqNo}`
     const as = `/tx/${network}/${ledger}/${seqNo}`
     const fromDidDisplayed = from
       ? (from.length < MAX_DID_LENTH) ? from : `${from.substring(0, (MAX_DID_LENTH - 3))}...`
       : 'N/A'
-    // const utcTime = moment.utc(txnTimeIso8601).format('do MMMM YYYY, H:mm:ss')
     let txnDateLocalString = "N/A"
-    let txnDate
-    if (indyscanTx.idata && indyscanTx.idata.txnMetadata && indyscanTx.idata.txnMetadata.txnTime) {
-      txnDate =  new Date(indyscanTx.idata.txnMetadata.txnTime)
-      txnDateLocalString = moment.utc(txnTimeIso8601).tz(moment.tz.guess()).format('DD MMMM YYYY, HH:mm:ss a')
+    // let utcDateString = "N/A"
+    const sinceEpoch = txnTimeIso8601 ? (Date.parse(txnTimeIso8601)) : null
+    if (txnTimeIso8601) {
+      txnDateLocalString = moment.utc(txnTimeIso8601).tz(moment.tz.guess()).format('do MMMM YYYY, HH:mm:ss a')
+      // todo: display this
+      // utcDateString = moment.utc(txnTimeIso8601).format('do MMMM YYYY, HH:mm:ss a')
     }
+    console.log(`txnTimeIso8601 = ${txnTimeIso8601}, sinceEpoch=${sinceEpoch}`)
 
     return (
 
@@ -66,7 +44,7 @@ class TxPreview extends Component {
         <div style={{ marginTop: '0.6em', fontSize: '0.85em' }}>
           <span style={{ display: 'block' }}><b>From  DID: </b>{fromDidDisplayed}</span>
           <span style={{ display: 'block', marginBottom: '0.1em' }}><b>Local Time:</b> {txnDateLocalString}</span>
-          <TimeAgoText sinceEpoch={txnDate} className='txitem-graytext' style={{ display: 'block' }}/>
+          <TimeAgoText sinceEpoch={sinceEpoch} className='txitem-graytext' style={{ display: 'block' }}/>
         </div>
       </div>
 

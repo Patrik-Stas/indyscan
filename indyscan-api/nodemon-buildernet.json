@@ -1,0 +1,15 @@
+{
+  "verbose": true,
+  "ignore": ["node_modules", ".next"],
+  "watch": ["src/**/*"],
+  "ext": "js json",
+  "env": {
+    "ES_URL": "http://localhost:9200",
+    "DAEMON_URL": "http://localhost:3709",
+    "LOG_LEVEL": "info",
+    "PORT" : 3708,
+    "LOG_HTTP_REQUESTS" : true,
+    "LOG_HTTP_RESPONSES" : true,
+    "NETWORKS_CONFIG_PATH": "./app-config/sovrin-buildernet.json"
+  }
+}

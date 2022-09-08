@@ -17,7 +17,7 @@ export function BadgedValueDisplay (props) {
                < span className="tooltiptext">Copied</span>
             }
             <Icon data-tip data-for="registerTip"
-                  name='copy outline icon'
+                  name='copy outline'
                   style={{ cursor: 'pointer', marginRight: '1em' }}
                   onClick={() => {
                     navigator.clipboard.writeText(value)
