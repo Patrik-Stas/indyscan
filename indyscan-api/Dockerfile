@@ -11,6 +11,7 @@ RUN npm install -g npm@8.7.0
 
 WORKDIR /usr/src/app/indyscan-storage
 COPY indyscan-storage ./
+RUN npm ci --only=prod
 
 WORKDIR /usr/src/app/indyscan-api
 COPY indyscan-api/package*.json ./
