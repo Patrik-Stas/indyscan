@@ -46,7 +46,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.33",
-    "next": "^9.3.6",
+    "next": "^12.1.0",
     "next-routes": "^1.4.2",
     "node-sass": "^4.14.1",
     "pkginfo": "^0.4.1",
