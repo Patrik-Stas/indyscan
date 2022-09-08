@@ -7,14 +7,14 @@ function createSocketioManager (expressServer) {
   const io = socketio(expressServer)
 
   function forwardEmitterEventToWebsocket (emitter, workerId, sourceEmitterEventName, targetSocketEventName, forwardToRoom) {
-    logger.info(`Worker ${workerId} events of name ${sourceEmitterEventName} will be broadcasted to room ${targetSocketEventName} as event ${targetSocketEventName} `)
+    logger.info(`Forwarding worker events ${workerId} / ${sourceEmitterEventName} -----> sockets room ${forwardToRoom} / ${targetSocketEventName} `)
 
     emitter.on(sourceEmitterEventName, (payload) => {
       io.of('/').in(`${forwardToRoom}`).clients((error, clients) => {
         if (error) {
           logger.error('Problem listing clients to print info.')
         }
-        logger.info(`Worker ${workerId} emitting sockets event ${targetSocketEventName} to room ${forwardToRoom} to ${clients.length} clients`)
+        logger.info(`Worker ${workerId} emitting sockets event ${forwardToRoom} / ${targetSocketEventName} (${clients.length} clients)`)
       })
       io.to(forwardToRoom).emit(targetSocketEventName, payload)
     })

@@ -114,15 +114,9 @@ const txDataDescriptiveExtractors = {
 export function extractTxDataBasic (tx) {
   const { seqNo } = tx.imeta
   let txnId, txnTimeIso8601, typeName, from, indexedFields
-  if (tx?.idata?.expansion) {
-    typeName = tx.idata.expansion.idata.txn.typeName
-    txnId = tx.idata.expansion.idata.txnMetadata.txnId
-    const epoch = tx.idata.expansion?.idata?.txnMetadata?.txnTime
-    txnTimeIso8601 = epoch ? new Date(epoch).toISOString() : null
-    from = tx?.idata?.expansion?.idata?.txn?.metadata?.from || '-'
-    indexedFields = true
-  } else if (tx?.idata?.json || tx?.idata?.serialized) {
-    const deserializedOriginal = JSON.parse(tx?.idata?.json || tx?.idata?.serialized?.idata?.json)
+  const serializedOriginal = tx?.idata?.json || tx?.idata?.serialized?.idata?.json
+  if (serializedOriginal) {
+    const deserializedOriginal = JSON.parse(serializedOriginal)
     txnId = deserializedOriginal.txnMetadata.txnId
     const epoch = deserializedOriginal.txnMetadata.txnTime * 1000
     txnTimeIso8601 = epoch ? new Date(epoch).toISOString() : null
@@ -130,7 +124,7 @@ export function extractTxDataBasic (tx) {
     from = deserializedOriginal.txn.metadata.from
     indexedFields = false
   } else {
-    throw Error("Malformed transaction format, does not contain expansion nor serialized format.")
+    throw Error("Expected transaction in 'serialized' or 'full.serialized' format")
   }
   return { txnId, seqNo, txnTimeIso8601, typeName, from, indexedFields }
 }

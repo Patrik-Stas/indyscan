@@ -12,6 +12,7 @@ import { CSSTransition } from 'react-transition-group'
 import { assureWebsocketClient, getWebsocketClient } from '../context/socket-client'
 import NetworkInfo from '../components/NetworkInfo/NetworkInfo'
 import SubledgerHeader from '../components/SubledgerHeader/SubledgerHeader'
+import { SOCKETIO_EVENT } from '../sockets/constants'
 
 class HomePage extends Component {
   static async getInitialProps ({ req, query }) {
@@ -105,7 +106,6 @@ class HomePage extends Component {
 
   onRescanScheduled (payload) {
     const { workerData: { subledger }, msTillRescan } = payload
-    console.log(`rescan-scheduled = ${subledger} ${msTillRescan}`)
     const rescanStart = Math.round((new Date()).getTime())
     const rescanDone = rescanStart + Math.round(msTillRescan)
     if (subledger === 'domain') {
@@ -143,27 +143,20 @@ class HomePage extends Component {
     this.setState({ animateFirst: false })
   }
 
-
   configureSocketForCurrentNetwork(networkDetails) {
     if (networkDetails) {
       const { id: indyNetworkId } = networkDetails
       if (indyNetworkId) {
         let socket = assureWebsocketClient()
-        console.log(`home.js configureSocketForCurrentNetwork ${indyNetworkId}`)
-
         socket.on('connection', function (_socket) {
           logger.info(`app.js WS connection established.`)
         })
-
         socket.on('switched-room-notification', (activeWsRoom) => {
           console.log(`switched-room-notification: Entered room ${activeWsRoom}`)
           this.setState({activeWsRoom})
-          socket.on('rescan-scheduled', this.onRescanScheduled.bind(this))
-          // socket.on('tx-processed', this.onTxProcessed.bind(this))
-          socket.on('tx-ledger-processed', this.onTxDiscovered.bind(this))
-          console.log(`Registered hooks on the socket! ${socket.hasListeners()}`)
+          socket.on(SOCKETIO_EVENT.LEDGER_TX_SCAN_SCHEDULED, this.onRescanScheduled.bind(this))
+          socket.on(SOCKETIO_EVENT.LEDGER_TX_SCANNED, this.onTxDiscovered.bind(this))
         })
-
         console.log(`Sending switch-room request for ${indyNetworkId}`)
         socket.emit('switch-room', indyNetworkId)
       }
@@ -186,8 +179,8 @@ class HomePage extends Component {
     const socket = getWebsocketClient()
     if (socket) {
       console.log(`Cleaning socket listeners. Had listeners=${socket.hasListeners()}`)
-      socket.off('rescan-scheduled')
-      socket.off('tx-processed')
+      socket.off(SOCKETIO_EVENT.LEDGER_TX_SCANNED)
+      socket.off(SOCKETIO_EVENT.LEDGER_TX_SCAN_SCHEDULED)
       socket.off('switched-room-notification')
     }
   }
