@@ -9,27 +9,30 @@ import Footer from '../components/Footer/Footer'
 import fetch from 'isomorphic-fetch'
 import _ from 'lodash'
 import { CSSTransition } from 'react-transition-group'
-import util from 'util'
-import getWebsocketClient from '../context/socket-client'
+import { assureWebsocketClient, getWebsocketClient } from '../context/socket-client'
 import NetworkInfo from '../components/NetworkInfo/NetworkInfo'
 import SubledgerHeader from '../components/SubledgerHeader/SubledgerHeader'
+import { SOCKETIO_EVENT } from '../sockets/constants'
 
 class HomePage extends Component {
   static async getInitialProps ({ req, query }) {
     const baseUrl = getBaseUrl(req)
     const { network } = query
-    const networkDetails = await getNetwork(baseUrl, network)
-    const domainExpansionTxs = await getTxs(baseUrl, network, 'domain', 0, 13, [], 'expansion')
-    const poolExpansionTxs = await getTxs(baseUrl, network, 'pool', 0, 13, [], 'expansion')
-    const configExpansionTxs = await getTxs(baseUrl, network, 'config', 0, 13, [], 'expansion')
+    const featuresRes = await fetch(`${baseUrl}/features`)
+    const features = (await featuresRes.json())
     const versionRes = await fetch(`${baseUrl}/version`)
     const version = (await versionRes.json()).version
+    const networkDetails = await getNetwork(baseUrl, network)
+    const domainTxs = await getTxs(baseUrl, network, 'domain', 0, 13, [], 'serialized')
+    const poolTxs = await getTxs(baseUrl, network, 'pool', 0, 13, [], 'serialized')
+    const configTxs = await getTxs(baseUrl, network, 'config', 0, 13, [], 'serialized')
     return {
+      features,
       networkDetails,
       network,
-      domainExpansionTxs,
-      poolExpansionTxs,
-      configExpansionTxs,
+      domainTxs,
+      poolTxs,
+      configTxs,
       baseUrl,
       version
     }
@@ -38,15 +41,15 @@ class HomePage extends Component {
   constructor (props) {
     super()
     this.state = {
-      domainExpansionTxs: props.domainExpansionTxs,
-      poolExpansionTxs: props.poolExpansionTxs,
-      configExpansionTxs: props.configExpansionTxs
+      domainTxs: props.domainTxs,
+      poolTxs: props.poolTxs,
+      configTxs: props.configTxs
     }
   }
 
   addNewDomainTx (txData) {
-    let domainExpansionTxs = _.cloneDeep(this.state.domainExpansionTxs)
-    if (domainExpansionTxs[0].imeta.seqNo === txData.imeta.seqNo) {
+    let domainTxs = _.cloneDeep(this.state.domainTxs)
+    if (domainTxs[0].imeta.seqNo === txData.imeta.seqNo) {
       // When scanner runs too fast (it might happen that one transaction in daemon is processed twice, causing
       // duplicate notification about the same transaction from UI perspective. If we'd add this transaction,
       // we bump into problem with animations, because 2 transactions in list would have generated the same
@@ -54,41 +57,42 @@ class HomePage extends Component {
       // This early return is preventing this from happening
       return
     }
-    domainExpansionTxs.unshift(txData)
-    if (domainExpansionTxs.length > 10) {
-      domainExpansionTxs.pop()
+    domainTxs.unshift(txData)
+    if (domainTxs.length > 10) {
+      domainTxs.pop()
     }
-    this.setState({ domainExpansionTxs })
+    this.setState({ domainTxs })
   }
 
   addNewConfigTx (txData) {
-    let configExpansionTxs = _.cloneDeep(this.state.configExpansionTxs)
-    if (configExpansionTxs[0].imeta.seqNo === txData.imeta.seqNo) {
+    let configTxs = _.cloneDeep(this.state.configTxs)
+    if (configTxs[0].imeta.seqNo === txData.imeta.seqNo) {
       return
     }
-    configExpansionTxs.unshift(txData)
-    if (configExpansionTxs.length > 10) {
-      configExpansionTxs.pop()
+    configTxs.unshift(txData)
+    if (configTxs.length > 10) {
+      configTxs.pop()
     }
-    this.setState({ configExpansionTxs })
+    this.setState({ configTxs })
   }
 
   addNewPoolTx (txData) {
-    let poolExpansionTxs = _.cloneDeep(this.state.poolExpansionTxs)
-    if (poolExpansionTxs[0].imeta.seqNo === txData.imeta.seqNo) {
+    let poolTxs = _.cloneDeep(this.state.poolTxs)
+    if (poolTxs[0].imeta.seqNo === txData.imeta.seqNo) {
       return
     }
-    poolExpansionTxs.unshift(txData)
-    if (poolExpansionTxs.length > 10) {
-      poolExpansionTxs.pop()
+    poolTxs.unshift(txData)
+    if (poolTxs.length > 10) {
+      poolTxs.pop()
     }
-    this.setState({ poolExpansionTxs })
+    this.setState({ poolTxs })
   }
 
-  onTxProcessed (payload) {
+  onTxDiscovered (payload) {
     this.setState({ animateFirst: true })
     // const {workerData, txData} = payload
     const { txData } = payload
+    console.log(`onTxDiscovered >>> ${JSON.stringify(txData)}`)
     if (txData.imeta.subledger === 'domain') {
       this.addNewDomainTx(txData)
     }
@@ -102,7 +106,6 @@ class HomePage extends Component {
 
   onRescanScheduled (payload) {
     const { workerData: { subledger }, msTillRescan } = payload
-    console.log(`rescan-scheduled = ${subledger} ${msTillRescan}`)
     const rescanStart = Math.round((new Date()).getTime())
     const rescanDone = rescanStart + Math.round(msTillRescan)
     if (subledger === 'domain') {
@@ -134,32 +137,26 @@ class HomePage extends Component {
 
   componentWillReceiveProps (newProps) {
     console.log(`componentWillReceiveProps`)
-    this.setState({ domainExpansionTxs: newProps.domainExpansionTxs })
-    this.setState({ poolExpansionTxs: newProps.poolExpansionTxs })
-    this.setState({ configExpansionTxs: newProps.configExpansionTxs })
+    this.setState({ domainTxs: newProps.domainTxs })
+    this.setState({ poolTxs: newProps.poolTxs })
+    this.setState({ configTxs: newProps.configTxs })
     this.setState({ animateFirst: false })
   }
-
 
   configureSocketForCurrentNetwork(networkDetails) {
     if (networkDetails) {
       const { id: indyNetworkId } = networkDetails
       if (indyNetworkId) {
-        let socket = getWebsocketClient()
-        console.log(`home.js configureSocketForCurrentNetwork ${indyNetworkId}`)
-
+        let socket = assureWebsocketClient()
         socket.on('connection', function (_socket) {
           logger.info(`app.js WS connection established.`)
         })
-
         socket.on('switched-room-notification', (activeWsRoom) => {
           console.log(`switched-room-notification: Entered room ${activeWsRoom}`)
           this.setState({activeWsRoom})
-          socket.on('rescan-scheduled', this.onRescanScheduled.bind(this))
-          socket.on('tx-processed', this.onTxProcessed.bind(this))
-          console.log(`Registered hooks on the socket! ${socket.hasListeners()}`)
+          socket.on(SOCKETIO_EVENT.LEDGER_TX_SCAN_SCHEDULED, this.onRescanScheduled.bind(this))
+          socket.on(SOCKETIO_EVENT.LEDGER_TX_SCANNED, this.onTxDiscovered.bind(this))
         })
-
         console.log(`Sending switch-room request for ${indyNetworkId}`)
         socket.emit('switch-room', indyNetworkId)
       }
@@ -167,8 +164,12 @@ class HomePage extends Component {
   }
 
   componentDidMount () {
-    const { networkDetails } = this.props
-    this.configureSocketForCurrentNetwork(networkDetails)
+    const { networkDetails, features } = this.props
+    if (features.websockets === true) {
+      this.configureSocketForCurrentNetwork(networkDetails)
+    } else {
+      console.log("Feature websockets is not enabled.")
+    }
     this.interval = setInterval(this.recalcProgress.bind(this), 350)
   }
 
@@ -177,16 +178,16 @@ class HomePage extends Component {
     clearInterval(this.interval)
     const socket = getWebsocketClient()
     if (socket) {
-      console.log(`CLEANING socket listeres. Had listeners=${socket.hasListeners()}`)
-      socket.off('rescan-scheduled')
-      socket.off('tx-processed')
+      console.log(`Cleaning socket listeners. Had listeners=${socket.hasListeners()}`)
+      socket.off(SOCKETIO_EVENT.LEDGER_TX_SCANNED)
+      socket.off(SOCKETIO_EVENT.LEDGER_TX_SCAN_SCHEDULED)
       socket.off('switched-room-notification')
     }
   }
 
   render () {
     const { network, networkDetails, baseUrl } = this.props
-    const { domainExpansionTxs, poolExpansionTxs, configExpansionTxs } = this.state
+    const { domainTxs, poolTxs, configTxs } = this.state
     const { scanProgressDomain, scanProgressPool, scanProgressConfig } = this.state
     const isInteractive = (!!this.state.activeWsRoom)
     return (
@@ -209,7 +210,7 @@ class HomePage extends Component {
                 </GridRow>
                 <GridRow centered style={{ marginTop: '2em' }}>
                   <Grid.Column>
-                    <TxPreviewList animateFirst={this.state.animateFirst} indyscanTxs={domainExpansionTxs}
+                    <TxPreviewList animateFirst={this.state.animateFirst} indyscanTxs={domainTxs}
                                    network={network} subledger='domain'/>
                   </Grid.Column>
                 </GridRow>
@@ -220,7 +221,7 @@ class HomePage extends Component {
                 </GridRow>
                 <GridRow centered style={{ marginTop: '2em' }}>
                   <Grid.Column>
-                    <TxPreviewList animateFirst={this.state.animateFirst} indyscanTxs={poolExpansionTxs}
+                    <TxPreviewList animateFirst={this.state.animateFirst} indyscanTxs={poolTxs}
                                    network={network} subledger='pool'/>
                   </Grid.Column>
                 </GridRow>
@@ -231,7 +232,7 @@ class HomePage extends Component {
                 </GridRow>
                 <GridRow centered style={{ marginTop: '2em' }}>
                   <Grid.Column>
-                    <TxPreviewList animateFirst={this.state.animateFirst} indyscanTxs={configExpansionTxs}
+                    <TxPreviewList animateFirst={this.state.animateFirst} indyscanTxs={configTxs}
                                    network={network} subledger='config'/>
                   </Grid.Column>
                 </GridRow>

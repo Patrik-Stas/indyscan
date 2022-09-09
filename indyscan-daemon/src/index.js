@@ -27,8 +27,8 @@ const { createNetOpRtwSerialization } = require('./worker-templates/rtw-ledger-t
 //   }
 // })
 
-async function buildWorkers (builder, builderParams) {
-  logger.info(`Going to build workers by ${builder} from ${JSON.stringify(builderParams)}`)
+async function buildWorker (builder, builderParams) {
+  logger.info(`Going to build worker by ${builder} from ${JSON.stringify(builderParams, null, 2)}`)
   if (builder === 'rtwSerialization') {
     return createNetOpRtwSerialization(builderParams)
   } else if (builder === 'rtwExpansion') {
@@ -50,14 +50,14 @@ async function run () {
     await sleep(2000)
     logger.info(`Will bootstrap app from following operations definitions ${JSON.stringify(workerConfigPaths, null, 2)}`)
 
-    for (const workerConfigPath of workerConfigPaths) {
+    for (const workerConfigPath of workerConfigPaths) { // per each worker config file, render the file
       const workersConfig = fs.readFileSync(workerConfigPath)
       const { workersBuildersTemplate, env } = JSON.parse(workersConfig)
       env.cfgdir = path.dirname(workerConfigPath)
-      const workerBuilders = JSON.parse(Mustache.render(JSON.stringify(workersBuildersTemplate), env))
-      for (const workerBuilder of workerBuilders) {
+      const workerBuilders = JSON.parse(Mustache.render(JSON.stringify(workersBuildersTemplate), env)) // render template
+      for (const workerBuilder of workerBuilders) { // one file can define multiple workers
         const { builder, params } = workerBuilder
-        const { workers, sources, targets, transformers, iterators } = await buildWorkers(builder, params)
+        const { workers, sources, targets, transformers, iterators } = await buildWorker(builder, params)
         allWorkers.push(workers)
         allSources.push(sources)
         allTargets.push(targets)

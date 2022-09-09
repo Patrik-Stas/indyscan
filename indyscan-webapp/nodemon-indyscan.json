@@ -1,0 +1,13 @@
+{
+  "verbose": true,
+  "ignore": ["node_modules", ".next"],
+  "watch": ["server/**/*", "index.js"],
+  "ext": "js json",
+  "env": {
+    "INDYSCAN_API_URL": "https://indyscan.io",
+    "PORT" : 3707,
+    "LOG_LEVEL": "debug",
+    "LOG_HTTP_REQUESTS" : true,
+    "LOG_HTTP_RESPONSES" : true
+  }
+}

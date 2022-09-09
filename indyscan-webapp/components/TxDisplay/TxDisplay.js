@@ -1,8 +1,7 @@
 import React from 'react'
 import './TxDisplay.scss'
 import {
-  Button,
-  GridRow, Icon,
+  GridRow,
   Item,
   ItemContent,
   ItemDescription,
@@ -17,8 +16,12 @@ import { BadgedValueDisplay } from '../BadgedValueDisplay/BadgedValueDisplay'
 
 
 
-const TxDisplay = ({ txIndyscan, txLedger }) => {
-  const keyValTxDetailsHumanReadable = extractTxDataDetailsHumanReadable(txIndyscan)
+const TxDisplay = ({ txIndyscan }) => {
+  const txExpansion = txIndyscan?.idata?.expansion
+  if (!txExpansion) {
+    return <div/>
+  }
+  const keyValTxDetailsHumanReadable = extractTxDataDetailsHumanReadable(txExpansion)
   const keyValTxBasic = extractTxDataBasic(txIndyscan)
   const { txnTimeIso8601, typeName } = keyValTxBasic // eslint-disable-line
   const keyValBasicHumanReadable = converTxDataBasicToHumanReadable(keyValTxBasic)

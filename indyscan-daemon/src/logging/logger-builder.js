@@ -2,10 +2,10 @@ const winston = require('winston')
 const mkdirp = require('mkdirp')
 const Elasticsearch = require('winston-elasticsearch')
 const { format } = require('winston')
-const { timestamp, printf } = format
+const { timestamp, printf, label } = format
 
-const myFormat = printf(({ level, message, timestamp, metadaemon }) => {
-  return `${timestamp} [${metadaemon && metadaemon.workerId ? metadaemon.workerId : '--'}] ${level}: ${message}`
+const myFormat = printf(({ label, level, message, timestamp, metadaemon }) => {
+  return `${timestamp} [${label}] ${level}: ${message}`
 })
 
 function createLogger (loggerName, consoleLogsLevel, enableLogFiles) {
@@ -13,8 +13,8 @@ function createLogger (loggerName, consoleLogsLevel, enableLogFiles) {
     transports: [
       new winston.transports.Console({
         level: consoleLogsLevel,
-        label: loggerName,
         format: winston.format.combine(
+          label({ label: loggerName }),
           timestamp(),
           myFormat,
           winston.format.colorize({ all: true })

@@ -8,7 +8,7 @@ const { createStorageReadEs } = require('indyscan-storage/src')
 async function createLedgerStorageManager (esUrl) {
   const storages = {}
 
-  logger.info(`Connecting to ElasticSearh '${esUrl}'.`)
+  logger.info(`Connecting to ElasticSearch '${esUrl}'.`)
   const esClient = new elasticsearch.Client({ node: esUrl })
 
   async function addIndyNetwork (networkId, networkEsIndex) {

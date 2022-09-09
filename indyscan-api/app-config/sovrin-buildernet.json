@@ -1,0 +1,20 @@
+[
+  {
+    "id": "SOVRIN_BUILDERNET",
+    "ui": {
+      "priority": 1,
+      "display": "BuilderNet",
+      "display-long": "Sovrin BuilderNet",
+      "description": "For active development of your solution.",
+      "tutorial": "Get your DID and start writing on the network",
+      "tutorial-link": "https://selfserve.sovrin.org/",
+      "logo-address": "/static/sovrin.png"
+    },
+    "aliases": [
+      "sovbuilder"
+    ],
+    "es" : {
+      "index": "txs-sovbuilder"
+    }
+  }
+]

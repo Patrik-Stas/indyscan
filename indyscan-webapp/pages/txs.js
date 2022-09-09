@@ -71,7 +71,7 @@ class Txs extends Component {
     const filterTxNames = (query.filterTxNames) ? JSON.parse(query.filterTxNames) : []
     const search = query.search
     const sortFromRecent = (query.sortFromRecent) ? query.sortFromRecent : 'true'
-    const indyscanTxs = await getTxs(baseUrl, network, ledger, skip, pageSize, filterTxNames, 'expansion', search, sortFromRecent)
+    const indyscanTxs = await getTxs(baseUrl, network, ledger, skip, pageSize, filterTxNames, 'full', search, sortFromRecent)
     const txCount = await getTxCount(baseUrl, network, ledger, filterTxNames, search)
     return {
       indyscanTxs,

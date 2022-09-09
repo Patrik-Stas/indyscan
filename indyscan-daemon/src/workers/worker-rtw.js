@@ -7,15 +7,19 @@ const sleep = require('sleep-promise')
 const EventEmitter = require('events')
 const { createLogger } = require('../logging/logger-builder')
 const { envConfig } = require('../config/env')
+const { INTERNAL_EVENT } = require('../constants')
 
 function getExpandedTimingConfig (providedTimingSetup) {
   let presetData
-  if (!providedTimingSetup || (typeof providedTimingSetup !== 'string')) {
+  if (!providedTimingSetup) {
     presetData = getDefaultPreset()
-  } else {
+  } else if (typeof providedTimingSetup === 'string') {
     presetData = resolvePreset(providedTimingSetup) || getDefaultPreset()
+  } else if (typeof providedTimingSetup === 'object') {
+    const defaultPreset = getDefaultPreset()
+    presetData = { ... defaultPreset, ... providedTimingSetup }
   }
-  return Object.assign(presetData, providedTimingSetup)
+  return presetData
 }
 
 function validateTimingConfig (timingConfig) {
@@ -38,10 +42,10 @@ function validateTimingConfig (timingConfig) {
 }
 
 async function createWorkerRtw ({ indyNetworkId, subledger, operationType, iterator, iteratorTxFormat, transformer, target, timing }) {
-  console.log(`BUILDING WORKER for ${indyNetworkId}... timit= ${timing}`)
-  const eventEmitter = new EventEmitter()
   const workerId = `${indyNetworkId}.${subledger}.${operationType}`
   const logger = createLogger(workerId, envConfig.LOG_LEVEL, envConfig.ENABLE_LOGFILES)
+  logger.info(`Building RTW worker ${workerId} for network: ${indyNetworkId}`)
+  const eventEmitter = new EventEmitter()
   const loggerMetadata = {
     metadaemon: {
       workerId,
@@ -81,7 +85,7 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
     throw Error(errMsg)
   }
   timing = getExpandedTimingConfig(timing)
-  logger.info(`Worker ${workerId} using timing ${JSON.stringify(timing)}`)
+  logger.info(`Effective timing configuration ${JSON.stringify(timing, null, 2)}`)
   validateTimingConfig(timing)
   const { timeoutOnSuccess, timeoutOnTxIngestionError, timeoutOnLedgerResolutionError, timeoutOnTxNoFound, jitterRatio } = timing
 
@@ -154,9 +158,9 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
         subledger
       }
     }
-    logger.info(`Transaction seqno=${txMeta.seqNo} processed. Emitting 'tx-processed', 'rescan-scheduled'`)
-    eventEmitter.emit('tx-processed', { workerData, txData })
-    eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
+    logger.info(`Transaction ${txMeta.seqNo} processed.`)
+    eventEmitter.emit(INTERNAL_EVENT.TX_PROCESSED, { workerData, txData })
+    eventEmitter.emit(INTERNAL_EVENT.TX_RESCAN_SCHEDULED, { workerData, msTillRescan: timerLock.getMsTillUnlock() })
   }
 
   // TODO: in all of this even-reacting functions, rename txMeta or reduce signature requirmenets to require just "seqNo" if possible
@@ -164,19 +168,19 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
     txNotAvailableCount++
     timerLock.addBlockTime(timeoutOnTxNoFound, jitterRatio)
     const workerData = eventSharedPayload()
-    logger.info(`Transaction seqno=${queryMeta.seqNo} not available. Emitting 'tx-not-available', 'rescan-scheduled'`)
-    eventEmitter.emit('tx-not-available', { workerInfo: getWorkerInfo() })
-    eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
+    logger.info(`Transaction ${queryMeta.seqNo} not available.`)
+    eventEmitter.emit(INTERNAL_EVENT.TX_NOT_AVAILABLE, { workerInfo: getWorkerInfo() })
+    eventEmitter.emit(INTERNAL_EVENT.TX_RESCAN_SCHEDULED, { workerData, msTillRescan: timerLock.getMsTillUnlock() })
   }
 
   function resolutionError (queryMeta, error) {
     cycleExceptionCount++
     timerLock.addBlockTime(timeoutOnLedgerResolutionError, jitterRatio)
     const workerData = eventSharedPayload()
-    logger.warn(`Transaction seqno=${queryMeta.seqNo} resolution error ${util.inspect(error)}. ` +
+    logger.warn(`Transaction ${queryMeta.seqNo} resolution error ${util.inspect(error)}. ` +
       'Emitting \'tx-resolution-error\', \'rescan-scheduled\'')
-    eventEmitter.emit('tx-resolution-error', getWorkerInfo())
-    eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
+    eventEmitter.emit(INTERNAL_EVENT.TX_RESOLUTION_ERROR, getWorkerInfo())
+    eventEmitter.emit(INTERNAL_EVENT.TX_RESCAN_SCHEDULED, { workerData, msTillRescan: timerLock.getMsTillUnlock() })
   }
 
   function ingestionError (error, queryMeta, processedTx) {
@@ -186,8 +190,8 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
     logger.error(`Transaction ${queryMeta.seqNo} ingestion error. Couldn't ingest transaction` +
       `${JSON.stringify(processedTx)} due to storage ingestion error ${util.inspect(error)} ` +
       'Emitting: \'tx-ingestion-error\', \'rescan-scheduled\'.')
-    eventEmitter.emit('tx-ingestion-error', getWorkerInfo())
-    eventEmitter.emit('rescan-scheduled', { workerData, msTillRescan: timerLock.getMsTillUnlock() })
+    eventEmitter.emit(INTERNAL_EVENT.TX_INGESTION_ERROR, getWorkerInfo())
+    eventEmitter.emit(INTERNAL_EVENT.TX_RESCAN_SCHEDULED, { workerData, msTillRescan: timerLock.getMsTillUnlock() })
   }
 
   async function processTransaction (txData, txFormat) {
@@ -379,4 +383,7 @@ async function createWorkerRtw ({ indyNetworkId, subledger, operationType, itera
   }
 }
 
-module.exports.createWorkerRtw = createWorkerRtw
+module.exports = {
+  createWorkerRtw,
+  getExpandedTimingConfig
+}
