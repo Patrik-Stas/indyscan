@@ -18,6 +18,16 @@ function roleIdToRoleAction (id) {
   return ROLE_ACTIONS[id.trim()] || UNKNOWN_ROLE_ACTION
 }
 
+function validURL(str) { // https://stackoverflow.com/a/5717133
+  var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return !!pattern.test(str);
+}
+
 function tryParseRawData (rawData) {
   let parsed
   let endpoint
@@ -26,8 +36,14 @@ function tryParseRawData (rawData) {
     parsed = JSON.parse(rawData)
     if (parsed.endpoint) {
       if (parsed.endpoint.endpoint) {
-        endpoint = parsed.endpoint.endpoint
-      } else if (parsed.endpoint.agent) {
+        if (parsed.endpoint.endpoint.endpoint) { // fix for bad txn
+          endpoint = parsed.endpoint.endpoint.endpoint
+        } 
+        else {
+          endpoint = parsed.endpoint.endpoint
+        }
+      }
+      else if (parsed.endpoint.agent) {
         endpoint = parsed.endpoint.agent
       } else if (parsed.endpoint.xdi) {
         endpoint = parsed.endpoint.xdi
@@ -43,6 +59,9 @@ function tryParseRawData (rawData) {
       lastUpdated = parsed.last_updated
     }
   } catch (err) {}
+  if (!validURL(endpoint)){
+    endpoint = undefined // sanitize input
+  }
   return { endpoint, lastUpdated }
 }
 
