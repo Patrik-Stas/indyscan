@@ -1,0 +1,49 @@
+{
+  "auditPath": [
+    "5Q1wj1D8TZhRAjDKobezLFEvJJCNEUE88aSRjAHPc62H",
+    "8U1Pw3dz2cCYLFJ6kW3jjPQ3dS3RkPV6VByrdXEPYjnj",
+    "BBkdmQxAMvdFPqPoAB9tzkxufzMbHkRAbkggUg2mfhaJ",
+    "9CtmYsKB4rLDDPSH7keZpwUAvPU9T3CTq8CVfs7ssqEA",
+    "HwvnHTCqaZeZeg4tgt33TJd5vWK3A3u7ed5FGtxfJ85R",
+    "GMjz4Ln1iUinEZSyYWXHGGQFbi1WzdKnA5T4bavmWak9",
+    "8MwjdEetR7UonGMak2u6upmKFBUAZzsiUm3BQdaVb6Da",
+    "DoibS3EaSp5RM4ThA4sX2ZW3k49CheMC2AWp1ewiKdVy",
+    "DsA2vn5WqfL4ZJqzwVtW3YzkQ1imYrgG8S2UfQfXtV2E"
+  ],
+  "ledgerSize": 55175,
+  "reqSignature": {
+    "type": "ED25519",
+    "values": [
+      {
+        "from": "JEMWktUsL4YVuDgcPeTf9",
+        "value": "3crGVsSS3CQmpXGunTeyx8VHYdoFHmz12zgx35NXeusKQ8cNMLy9nfTyQ4ugVLEoydkzQ6c3nhB8anCdu7Vipz5t"
+      }
+    ]
+  },
+  "rootHash": "Guwn2dgaeYfyeuUNA5upM5B87Y5FbPfrrWdwVYvqh84x",
+  "txn": {
+    "data": {
+      "dest": "JEMWktUsL4YVuDgcPeTf9",
+      "raw": "{\"endpoint\":{\"endpoint\":{\"endpoint\":\"http://localhost:8000/\",\"routingKeys\":[]}}}"
+    },
+    "metadata": {
+      "digest": "599fb98cb08014d56ed50b26dd4586fec4dd05829a6d1784b670851efe54fa31",
+      "from": "JEMWktUsL4YVuDgcPeTf9",
+      "payloadDigest": "15c97bcda96f97898c90ec031a25b5aa4057bd512571e3571ec19a9bc9358287",
+      "reqId": 1662491513671581200,
+      "taaAcceptance": {
+        "mechanism": "wallet_agreement",
+        "taaDigest": "8cee5d7a573e4893b08ff53a0761a22a1607df3b3fcd7e75b98696c92879641f",
+        "time": 1662422400
+      }
+    },
+    "protocolVersion": 2,
+    "type": "100"
+  },
+  "txnMetadata": {
+    "seqNo": 55175,
+    "txnId": "JEMWktUsL4YVuDgcPeTf9:1:b6bf7bc8d96f3ea9d132c83b3da8e7760e420138485657372db4d6a981d3fd9e",
+    "txnTime": 1662491517
+  },
+  "ver": "1"
+}
