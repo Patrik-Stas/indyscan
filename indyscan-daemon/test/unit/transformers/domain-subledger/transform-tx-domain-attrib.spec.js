@@ -3,6 +3,7 @@ const txAttribRoleSteward = require('indyscan-storage/test/resource/sample-txs/t
 const txAttribRoleNetworkMonitor = require('indyscan-storage/test/resource/sample-txs/tx-domain-attrib-role-network-monitor')
 const txAttribRoleEndorser = require('indyscan-storage/test/resource/sample-txs/tx-domain-attrib-role-endorser')
 const txAttribRoleTrustee = require('indyscan-storage/test/resource/sample-txs/tx-domain-attrib-role-trustee')
+const txAttribBuildernet55175 = require('indyscan-storage/test/resource/sample-txs/tx-domain-attrib-endpoint-buildernet-55175.json')
 const txAttribRoleRemove = require('indyscan-storage/test/resource/sample-txs/tx-domain-attrib-role-remove')
 const txAttribRoleUnrecognized = require('indyscan-storage/test/resource/sample-txs/tx-domain-attrib-role-unrecognized')
 const txAttribRoleRemoveWithSpace = require('indyscan-storage/test/resource/sample-txs/tx-domain-attrib-role-remove-with-spaces')
@@ -35,6 +36,13 @@ describe('domain/attrib transaction transformations', () => {
     expect(JSON.stringify(tx)).toBe(JSON.stringify(txAttribRoleSteward))
     expect(processedTx.txn.data.endpoint).toBeUndefined()
     expect(processedTx.txn.data.roleAction).toBe('SET_STEWARD')
+  })
+
+  it('should process ATTRIB transaction with endpoint (sovrin buildernet tx 55175)', async () => {
+    const tx = _.cloneDeep(txAttribBuildernet55175)
+    const { processedTx } = await processor.processTx(tx, 'DOMAIN')
+    expect(JSON.stringify(tx)).toBe(JSON.stringify(txAttribBuildernet55175))
+    expect(processedTx.txn.data.endpoint).toBe('http://localhost:8000/')
   })
 
   it('should process ATTRIB transaction with SET_NETWORK_MONITOR role', async () => {

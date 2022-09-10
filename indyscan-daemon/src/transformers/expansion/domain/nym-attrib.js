@@ -18,16 +18,6 @@ function roleIdToRoleAction (id) {
   return ROLE_ACTIONS[id.trim()] || UNKNOWN_ROLE_ACTION
 }
 
-function validURL(str) { // https://stackoverflow.com/a/5717133
-  var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-  return !!pattern.test(str);
-}
-
 function tryParseRawData (rawData) {
   let parsed
   let endpoint
@@ -38,7 +28,7 @@ function tryParseRawData (rawData) {
       if (parsed.endpoint.endpoint) {
         if (parsed.endpoint.endpoint.endpoint) { // fix for bad txn
           endpoint = parsed.endpoint.endpoint.endpoint
-        } 
+        }
         else {
           endpoint = parsed.endpoint.endpoint
         }
@@ -58,8 +48,8 @@ function tryParseRawData (rawData) {
     if (parsed.last_updated) {
       lastUpdated = parsed.last_updated
     }
-  } catch (err) {}
-  if (!validURL(endpoint)){
+  } catch (err) { }
+  if (typeof endpoint !== 'string'){
     endpoint = undefined // sanitize input
   }
   return { endpoint, lastUpdated }
