@@ -34,7 +34,7 @@
     "simple-line-icons": "^2.4.1"
   },
   "devDependencies": {
-    "react-scripts": "^3.4.1"
+    "react-scripts": "^5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
