@@ -28,7 +28,7 @@ Main properties of daemon are specified by environment variables.
 
 Example:
 ```
-WORKER_CONFIGS=app-configs/sovmain.json,app-configs/sovstaging.json,app-configs/sovbuilder.json
+WORKER_CONFIGS=app-configs/sovmain.json,app-configs/sovtest.json,app-configs/sovbuilder.json
 LOG_LEVEL=debug
 LOG_ES_URL=http://localhost:9200
 SERVER_ENABLED=true

@@ -1,8 +1,8 @@
 {
   "env": {
-    "INDY_NETWORK": "SOVRIN_STAGINGNET",
+    "INDY_NETWORK": "SOVRIN_TESTNET",
     "ES_URL": "http://localhost:9200",
-    "ES_INDEX": "txs-sovstaging"
+    "ES_INDEX": "txs-sovtest"
   },
   "workersBuildersTemplate": [
     {

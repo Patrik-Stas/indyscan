@@ -26,7 +26,7 @@ services:
       - esnet
       - indyscan
     environment:
-      - WORKER_CONFIGS=/home/indyscan/indyscan-daemon/app-configs-docker/sovmain.json,/home/indyscan/indyscan-daemon/app-configs-docker/sovstaging.json
+      - WORKER_CONFIGS=/home/indyscan/indyscan-daemon/app-configs-docker/sovmain.json,/home/indyscan/indyscan-daemon/app-configs-docker/sovtest.json
       - LOG_LEVEL=info
       - LOG_HTTP_REQUESTS=true
       - LOG_HTTP_RESPONSES=true

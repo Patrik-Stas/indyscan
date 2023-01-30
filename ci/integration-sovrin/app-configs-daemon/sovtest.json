@@ -1,8 +1,8 @@
 {
   "env": {
-    "INDY_NETWORK": "SOVRIN_STAGINGNET",
+    "INDY_NETWORK": "SOVRIN_TESTNET",
     "ES_URL": "http://indyscan-elasticsearch.esnet:9200",
-    "ES_INDEX": "txs-sovstaging"
+    "ES_INDEX": "txs-sovtest"
   },
   "workersBuildersTemplate": [
     {
@@ -12,7 +12,7 @@
         "genesisPath": "{{{cfgdir}}}/genesis/{{{INDY_NETWORK}}}.txn",
         "esIndex": "{{{ES_INDEX}}}",
         "esUrl": "{{{ES_URL}}}",
-        "workerTiming": "SLOW"
+        "workerTiming": "MEDIUM"
       }
     },
     {
@@ -21,7 +21,7 @@
         "indyNetworkId": "{{{INDY_NETWORK}}}",
         "esUrl": "{{{ES_URL}}}",
         "esIndex": "{{{ES_INDEX}}}",
-        "workerTiming": "SLOW"
+        "workerTiming": "MEDIUM"
       }
     }
   ]
