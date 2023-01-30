@@ -18,11 +18,11 @@ describe('network config manager', () => {
       }
     },
     {
-      id: 'sovstaging',
+      id: 'sovtest',
       ui: {
         priority: 2,
-        display: 'StagingNet',
-        description: 'StagingNet is area where end-users of products can test in a pre-production environment.'
+        display: 'TestNet',
+        description: 'TestNet is area where end-users of products can test in a pre-production environment.'
       },
       aliases: [
         'SOVRIN_TESTNET'
@@ -92,7 +92,7 @@ describe('network config manager', () => {
     const networks = networkManager.getNetworkConfigs()
     expect(networks.length).toBe(3)
     expect(networks[0].id).toBe('sovmain')
-    expect(networks[1].id).toBe('sovstaging')
+    expect(networks[1].id).toBe('sovtest')
     expect(networks[2].id).toBe('sovbuilder')
   })
 

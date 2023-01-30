@@ -1,7 +1,7 @@
 const { getTxsV2 } = require('../src')
 
 const API_URL = process.env.API_URL || 'https://indyscan.io'
-const NETWORK_ID = process.env.NETWORK_ID || 'SOVRIN_STAGINGNET'
+const NETWORK_ID = process.env.NETWORK_ID || 'SOVRIN_TESTNET'
 
 async function fetch_1000txs_in_39K_40K_seqNo_range () { // eslint-disable-line
   return getTxsV2(

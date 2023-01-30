@@ -464,14 +464,14 @@ jobs:
           cd ci/integration-sovrin && make new && sleep 30
       - name: Query indyscan-api
         run: |
-          curl -vv -H "Content-Type: application/json" http://localhost:3708/api/networks/SOVRIN_STAGINGNET/ledgers/domain/txs/5
+          curl -vv -H "Content-Type: application/json" http://localhost:3708/api/networks/SOVRIN_TESTNET/ledgers/domain/txs/5
           exit_status=$?
           if [ $exit_status -eq 1 ]; then
               exit -1
           fi
       - name: Query indyscan-webapp
         run: |
-          curl -vv -H "Content-Type: application/json" http://localhost:3707/home/SOVRIN_STAGINGNET
+          curl -vv -H "Content-Type: application/json" http://localhost:3707/home/SOVRIN_TESTNET
           exit_status=$?
           if [ $exit_status -eq 1 ]; then
               exit -1

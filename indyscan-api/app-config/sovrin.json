@@ -17,22 +17,22 @@
     }
   },
   {
-    "id": "SOVRIN_STAGINGNET",
+    "id": "SOVRIN_TESTNET",
     "ui": {
       "priority": 2,
-      "display": "StagingNet",
-      "display-long": "Sovrin StagingNet",
+      "display": "TestNet",
+      "display-long": "Sovrin TestNet",
       "description": "Network for to try out proof of concepts, demos, and other non-production but stable use cases.",
       "tutorial": "Get your DID and start writing on the network",
       "tutorial-link": "https://selfserve.sovrin.org/",
       "logo-address": "/static/sovrin.png"
     },
     "aliases": [
-      "sovstaging",
+      "sovtest",
       "SOVRIN_TESTNET"
     ],
     "es" : {
-      "index": "txs-sovstaging"
+      "index": "txs-sovtest"
     }
   },
   {
