@@ -6,6 +6,8 @@ const { createWinstonLoggerDummy } = require('../../../src/es/utils')
 const { createStorageReadEs } = require('../../../src/es/storage-read-es')
 const { createStorageWriteEs } = require('../../../src/es/storage-write-es')
 const toCanonicalJson = require('canonical-json')
+const { esSortSeqNoDescending } = require('../../../src/es/es-query-builder')
+const { esFilterFormatFieldValue } = require('../../../src/es/es-query-builder')
 const { esAndFilters } = require('../../../src/es/es-query-builder')
 
 const { Client } = require('@elastic/elasticsearch')
@@ -353,4 +355,31 @@ describe('reading transaction formats from elasticsearch', () => {
     expect(await storageReadEs.findMaxSeqNo('config', 'xxx')).toBe(0)
     expect(await storageReadEs.findMaxSeqNo('pool')).toBe(0)
   })
+
+  it('should should filter by field value in specified format representation', async () => {
+    const logger = createWinstonLoggerDummy()
+    const storageWriteEs = await createStorageWriteEs(esClient, index, 0, logger)
+    const storageReadEs = await createStorageReadEs(esClient, index, logger)
+    await storageWriteEs.addTx('domain', 1, 'foo', { aaa: '111', someid: 'a' })
+    await storageWriteEs.addTx('domain', 2, 'foo', { aaa: 'xxx', someid: 'b' })
+    await storageWriteEs.addTx('domain', 3, 'foo', { aaa: '111', someid: 'c' })
+    await storageWriteEs.addTx('domain', 4, 'foo', { yyy: '111', someid: 'd' })
+
+    await storageWriteEs.addTx('domain', 1, 'bar', { aaa: 'xxx' })
+    await storageWriteEs.addTx('domain', 2, 'bar', { aaa: '111' })
+    await storageWriteEs.addTx('domain', 3, 'bar', { aaa: '111' })
+
+    await sleep(1000) // takes time to index the stuff
+
+    let res1 = await storageReadEs.getManyTxs('domain', 0, 10, esFilterFormatFieldValue('foo', 'aaa', '111'))
+    expect(res1.length).toBe(2)
+    expect(res1.find(tx => tx.imeta.seqNo === 1)).toBeDefined()
+    expect(res1.find(tx => tx.imeta.seqNo === 3)).toBeDefined()
+
+    let res2 = await storageReadEs.getManyTxs('domain', 0, 1, esFilterFormatFieldValue('foo', 'aaa', '111'), esSortSeqNoDescending(), 'foo')
+    expect(res2.length).toBe(1)
+    expect(res2.find(tx => (tx.imeta.seqNo === 3) && (tx.idata.someid === 'c'))).toBeDefined()
+  })
+
+
 })
