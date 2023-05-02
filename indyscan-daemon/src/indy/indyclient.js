@@ -1,4 +1,4 @@
-const indy = require('indy-sdk')
+const indy = require('vdr-tools')
 const logger = require('../logging/logger-main')
 const fs = require('fs')
 
