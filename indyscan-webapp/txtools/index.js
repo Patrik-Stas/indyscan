@@ -77,7 +77,7 @@ function extractClassDataNode (txExpansion) {
   if (data.node_ip) {
     display.push({ priority: 1, label: 'Node', value: `${data.node_ip}:${data.node_port}` })
   }
-  if (data.client_ip_geo) {
+  if (data.node_ip_geo) {
     display.push({
       priority: 1,
       label: 'Node location',
