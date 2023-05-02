@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const indy = require('indy-sdk')
+const indy = require('vdr-tools')
 const { isUnknownLedger, registerLedger } = require('../../src/indy/indyclient')
 const path = require('path')
 
