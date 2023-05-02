@@ -1,4 +1,4 @@
-FROM ghcr.io/absaoss/vcxagencynode/vcxagency-base:2.3.0-master-839 as nodejs
+FROM ghcr.io/absaoss/vcxagencynode/vcxagency-base:2.5.0-release260-864 as nodejs
 
 RUN apk add --no-cache \
         npm \
