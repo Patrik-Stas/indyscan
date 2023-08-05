@@ -1,4 +1,4 @@
-const indy = require('indy-sdk')
+const vdrtools = require('vdr-tools')
 const logger = require('./logging/logger-main')
 const fs = require('fs')
 const os = require('os')
@@ -10,11 +10,11 @@ const LEDGER_NAME_TO_CODE = {
 }
 
 async function registerLedger (poolName, genesisFilePath) {
-  await indy.createPoolLedgerConfig(poolName, { genesis_txn: genesisFilePath })
+  await vdrtools.createPoolLedgerConfig(poolName, { genesis_txn: genesisFilePath })
 }
 
 async function getListOfRegisteredLedgers () {
-  let pools = await indy.listPools()
+  let pools = await vdrtools.listPools()
   return pools.map(ledger => ledger.pool)
 }
 
@@ -29,7 +29,7 @@ async function isKnownLedger (ledgerName) {
 
 async function createIndyClient (ledgerName, genesisPath = undefined) {
   const whoami = `IndyClient[${ledgerName}]`
-  await indy.setProtocolVersion(2)
+  await vdrtools.setProtocolVersion(2)
 
   if (await isUnknownLedger(ledgerName)) {
     if (!genesisPath) {
@@ -43,7 +43,7 @@ async function createIndyClient (ledgerName, genesisPath = undefined) {
   let genesisData = fs.readFileSync(`${os.homedir()}/.indy_client/pool/${ledgerName}/${ledgerName}.txn`)
   logger.info(`${whoami} Using genesis: ${genesisData}`)
   logger.info(`${whoami} Connecting to ledger ${ledgerName}.`)
-  const poolHandle = await indy.openPoolLedger(ledgerName)
+  const poolHandle = await vdrtools.openPoolLedger(ledgerName)
   logger.info(`${whoami} Connected to ledger ${ledgerName}.`)
 
   const walletName = `indyscan-${ledgerName}`
@@ -51,16 +51,16 @@ async function createIndyClient (ledgerName, genesisPath = undefined) {
   const config = JSON.stringify({ id: walletName, storage_type: 'default' })
   const credentials = JSON.stringify({ key: 'ke®y' })
   try {
-    await indy.createWallet(config, credentials)
+    await vdrtools.createWallet(config, credentials)
     logger.debug(`New wallet '${walletName}' created.`)
   } catch (err) {
     if (err.message !== 'WalletAlreadyExistsError') {
       logger.error(`Unexpected error trying to create a wallet: ${err.message} ${JSON.stringify(err.stack)}`)
     }
   }
-  const wh = await indy.openWallet(config, credentials)
+  const wh = await vdrtools.openWallet(config, credentials)
   logger.debug(`${whoami} Opened wallet '${walletName}'.`)
-  const res = await indy.createAndStoreMyDid(wh, {})
+  const res = await vdrtools.createAndStoreMyDid(wh, {})
   const did = res[0]
   logger.debug(`${whoami} Created did/verkey ${JSON.stringify(res)}`)
 
@@ -71,9 +71,9 @@ async function createIndyClient (ledgerName, genesisPath = undefined) {
   */
   async function getTx (subledgerName, seqNo) {
     const subledgerCode = LEDGER_NAME_TO_CODE[subledgerName.toLowerCase()]
-    const getTx = await indy.buildGetTxnRequest(did, subledgerCode, seqNo)
+    const getTx = await vdrtools.buildGetTxnRequest(did, subledgerCode, seqNo)
     logger.debug(`${whoami} Built GET_TX request: ${JSON.stringify(getTx)}`)
-    const tx = await indy.submitRequest(poolHandle, getTx)
+    const tx = await vdrtools.submitRequest(poolHandle, getTx)
     if (tx.op === 'REPLY') {
       if (tx.result.data) {
         return tx.result.data
