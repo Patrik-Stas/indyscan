@@ -26,7 +26,7 @@ class TxPreview extends Component {
     // let utcDateString = "N/A"
     const sinceEpoch = txnTimeIso8601 ? (Date.parse(txnTimeIso8601)) : null
     if (txnTimeIso8601) {
-      txnDateLocalString = moment.utc(txnTimeIso8601).tz(moment.tz.guess()).format('do MMMM YYYY, HH:mm:ss a')
+      txnDateLocalString = moment.utc(txnTimeIso8601).tz(moment.tz.guess()).format('DO MMMM YYYY, HH:mm:ss a')
       // todo: display this
       // utcDateString = moment.utc(txnTimeIso8601).format('do MMMM YYYY, HH:mm:ss a')
     }
