@@ -1,0 +1,15 @@
+[package]
+name = "indy-health-rs"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+indy-read-rs = { path = "../indy-read-rs" }
+tokio = { version = "=1.28.2",  features = ["rt", "macros", "rt-multi-thread", "sync"]  }
+env_logger = "0.9.3"
+log = "0.4.16"
+time = "0.3.25"
