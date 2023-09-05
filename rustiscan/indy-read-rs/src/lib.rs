@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use indy_vdr::config::PoolConfig;
@@ -10,11 +11,10 @@ use crate::vdr_ledger::{IndyVdrLedgerPool, IndyVdrSubmitter};
 #[macro_use]
 extern crate log;
 
-mod ledger_read_anoncreds;
+pub mod ledger_read_anoncreds;
 mod vdr_ledger;
 
-pub fn build_indy_read(node_weights: HashMap<String, f32>) -> IndyVdrLedgerRead<IndyVdrSubmitter> {
-    let genesis_file = "../indyscan-daemon/app-configs/genesis/SOVRIN_STAGINGNET.txn";
+pub fn build_indy_read(genesis_file_path: PathBuf, node_weights: HashMap<String, f32>) -> IndyVdrLedgerRead<IndyVdrSubmitter> {
     let indy_vdr_config = PoolConfig {
         protocol_version: ProtocolVersion::Node1_4,
         freshness_threshold: PoolConfig::default_freshness_threshold(),
@@ -26,7 +26,7 @@ pub fn build_indy_read(node_weights: HashMap<String, f32>) -> IndyVdrLedgerRead<
         socks_proxy: None,
     };
     let ledger_pool = IndyVdrLedgerPool::new(
-        genesis_file.to_string(),
+        genesis_file_path.into_os_string().into_string().unwrap(),
         indy_vdr_config,
         Some(node_weights),
     )

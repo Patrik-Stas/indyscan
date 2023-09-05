@@ -5,7 +5,6 @@ edition = "2021"
 
 [lib]
 path = "src/lib.rs"
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 indy-read-rs = { path = "../indy-read-rs" }

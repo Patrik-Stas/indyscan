@@ -5,7 +5,6 @@ edition = "2021"
 
 [lib]
 path = "src/lib.rs"
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 indy-vdr = { git = "https://github.com/hyperledger/indy-vdr.git", rev = "28874fa3a5242", default-features = false, features = ["log"] }
