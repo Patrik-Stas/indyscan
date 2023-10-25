@@ -1,0 +1,17 @@
+[package]
+name = "indy-read-rs"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+indy-vdr = { git = "https://github.com/hyperledger/indy-vdr.git", rev = "28874fa3a5242", default-features = false, features = ["log"] }
+async-trait = "0.1.68"
+tokio = { version = "=1.28.2",  features = ["rt", "macros", "rt-multi-thread", "sync"]  }
+env_logger = "0.9.3"
+log = "0.4.16"
+thiserror = "1.0.40"
+time = "0.3.25"
+
