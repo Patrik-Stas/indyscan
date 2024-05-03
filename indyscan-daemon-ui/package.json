@@ -1,6 +1,6 @@
 {
   "name": "indyscan-daemon-ui",
-  "version": "4.6.0",
+  "version": "4.6.1",
   "author": "Patrik Staš",
   "license": "ISC",
   "description": "UI to view and manage the state of indyscan-daemon.",
