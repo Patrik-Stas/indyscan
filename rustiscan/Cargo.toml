@@ -1,0 +1,19 @@
+[workspace]
+members = [
+    "indy-health-rs",
+    "indy-read-rs",
+    "indyscan-rs"
+]
+
+[workspace.package]
+version = "0.58.0"
+authors = ["Patrik Stas"]
+description = "Components to scan/monitor Hyperledger Indy blockchain"
+license = "Apache-2.0"
+edition = "2021"
+
+[profile.release]
+debug = 0
+panic = 'unwind'
+incremental = false
+
