@@ -1,3 +1,5 @@
+const { esSortSeqNoDescending } = require('indyscan-storage/src/es/es-query-builder')
+const { esFilterFormatFieldValue } = require('indyscan-storage/src/es/es-query-builder')
 const { createStorageReadEs } = require('indyscan-storage')
 const { Client } = require('@elastic/elasticsearch')
 
@@ -29,6 +31,18 @@ async function createSourceElasticsearch ({ indyNetworkId, url, index }) {
     return storageRead.findMaxSeqNo(subledger, format)
   }
 
+  async function getLatestStateForDid (did) {
+    const res =
+      await storageRead.getManyTxs('domain', 0, 1, esFilterFormatFieldValue('state', 'did', did), esSortSeqNoDescending(), 'state')
+    if (res.length > 1) {
+      throw Error(`Returned more results than expected!`)
+    }
+    if (res.length === 0) {
+      return undefined
+    }
+    return res[0]
+  }
+
   function describe () {
     return `Elasticsearch ${indyNetworkId}/${index}`
   }
@@ -43,6 +57,7 @@ async function createSourceElasticsearch ({ indyNetworkId, url, index }) {
   }
 
   return {
+    getLatestStateForDid,
     getSourceInfo,
     getTxData,
     getHighestSeqno,
